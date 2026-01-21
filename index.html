@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIST 800-171A / CMMC L2 Assessment Tool</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>CMMC L2 Assessment</h1>
+                <p>Self-Assessment & POA&M Generator</p>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-view="dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                    Dashboard
+                </button>
+                <button class="nav-btn" data-view="assessment">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    Assessment
+                </button>
+                <button class="nav-btn" data-view="poam">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    POA&M
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="export-btn" class="export-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Export POA&M
+                </button>
+                <button id="save-btn" class="save-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Save Progress
+                </button>
+                <button id="load-btn" class="load-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Load Progress
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Assessment View -->
+            <div id="assessment-view" class="view">
+                <header class="view-header">
+                    <div class="header-left">
+                        <h2>Assessment Objectives</h2>
+                        <p class="subtitle">Mark each objective as Met, Not Met, or Partial</p>
+                    </div>
+                    <div class="header-right">
+                        <div class="search-box">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="search-input" placeholder="Search objectives...">
+                        </div>
+                        <select id="filter-status" class="filter-select">
+                            <option value="all">All Status</option>
+                            <option value="not-assessed">Not Assessed</option>
+                            <option value="met">Met</option>
+                            <option value="not-met">Not Met</option>
+                            <option value="partial">Partial</option>
+                        </select>
+                        <select id="filter-family" class="filter-select">
+                            <option value="all">All Families</option>
+                        </select>
+                    </div>
+                </header>
+                <div class="progress-bar-container">
+                    <div class="progress-stats">
+                        <span id="progress-text">0 of 0 assessed</span>
+                        <span id="compliance-text">0% compliant</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-met" id="progress-met"></div>
+                        <div class="progress-partial" id="progress-partial"></div>
+                        <div class="progress-not-met" id="progress-not-met"></div>
+                    </div>
+                </div>
+                <div id="controls-list" class="controls-list"></div>
+            </div>
+
+            <!-- POA&M View -->
+            <div id="poam-view" class="view">
+                <header class="view-header">
+                    <div class="header-left">
+                        <h2>Plan of Action & Milestones</h2>
+                        <p class="subtitle">Items marked as Not Met or Partial</p>
+                    </div>
+                    <div class="header-right">
+                        <button id="export-csv-btn" class="action-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Export CSV
+                        </button>
+                    </div>
+                </header>
+                <div id="poam-content" class="poam-content"></div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view active">
+                <header class="view-header">
+                    <div class="header-left">
+                        <h2>Compliance Dashboard</h2>
+                        <p class="subtitle">Overview of assessment status by control family</p>
+                    </div>
+                </header>
+                <div id="dashboard-content" class="dashboard-content"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Implementation Notes (Assessment View) -->
+    <div id="implementation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Implementation Details</h3>
+                <button class="modal-close" onclick="app.closeImplementationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="implementation-form">
+                    <input type="hidden" id="impl-objective-id">
+                    <div class="form-group">
+                        <label>Control / Objective</label>
+                        <input type="text" id="impl-control-id" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Objective Requirement</label>
+                        <textarea id="impl-requirement" rows="2" readonly></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>How is this objective met?</label>
+                        <textarea id="impl-description" rows="4" placeholder="Describe how this control objective is implemented..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Evidence / Documentation</label>
+                        <textarea id="impl-evidence" rows="3" placeholder="Reference policies, procedures, screenshots, or other evidence..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Responsible Party</label>
+                            <input type="text" id="impl-responsible" placeholder="Name or role...">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Verified</label>
+                            <input type="date" id="impl-verified-date">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional Notes</label>
+                        <textarea id="impl-notes" rows="2" placeholder="Any additional notes..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel" onclick="app.closeImplementationModal()">Cancel</button>
+                        <button type="submit" class="btn-save">Save Implementation Details</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for POA&M Details -->
+    <div id="poam-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>POA&M Entry Details</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="poam-form">
+                    <input type="hidden" id="poam-objective-id">
+                    <div class="form-group">
+                        <label>Control ID</label>
+                        <input type="text" id="poam-control-id" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Weakness Description</label>
+                        <textarea id="poam-weakness" rows="3" placeholder="Describe the weakness or gap..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Remediation Plan</label>
+                        <textarea id="poam-remediation" rows="3" placeholder="Describe the plan to address this weakness..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Scheduled Completion Date</label>
+                            <input type="date" id="poam-date">
+                        </div>
+                        <div class="form-group">
+                            <label>Responsible Party</label>
+                            <input type="text" id="poam-responsible" placeholder="Name or role...">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Risk Level</label>
+                            <select id="poam-risk">
+                                <option value="low">Low</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Estimated Cost</label>
+                            <input type="text" id="poam-cost" placeholder="$0.00">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="poam-notes" rows="2" placeholder="Additional notes..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel">Cancel</button>
+                        <button type="submit" class="btn-save">Save POA&M Entry</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="data/families-ac-at-au.js"></script>
+    <script src="data/families-cm-ia.js"></script>
+    <script src="data/families-ir-ma-mp-ps-pe.js"></script>
+    <script src="data/families-ra-ca-sc-si.js"></script>
+    <script src="data/sprs-scoring.js"></script>
+    <script src="data/loader.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
