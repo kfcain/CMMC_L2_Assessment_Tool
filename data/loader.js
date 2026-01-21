@@ -1,5 +1,5 @@
 // NIST 800-171A Data Loader - Combines all control families
-// Total: 14 families, 110 controls, 320 assessment objectives
+// Total: 14 families, 110 controls, 321 assessment objectives
 // Includes SPRS scoring and POA&M eligibility per 32 CFR 170.21
 
 const CONTROL_FAMILIES = [

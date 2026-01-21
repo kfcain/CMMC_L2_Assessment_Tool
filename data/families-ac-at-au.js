@@ -68,8 +68,9 @@ const FAMILIES_AC_AT_AU = [
                 description: "Prevent non-privileged users from executing privileged functions and capture the execution of such functions in audit logs.",
                 objectives: [
                     { id: "3.1.7[a]", text: "Privileged functions are defined." },
-                    { id: "3.1.7[b]", text: "Non-privileged users are prevented from executing privileged functions." },
-                    { id: "3.1.7[c]", text: "The execution of privileged functions is captured in audit logs." }
+                    { id: "3.1.7[b]", text: "Non-privileged users are defined." },
+                    { id: "3.1.7[c]", text: "Non-privileged users are prevented from executing privileged functions." },
+                    { id: "3.1.7[d]", text: "The execution of privileged functions is captured in audit logs." }
                 ]
             },
             {
