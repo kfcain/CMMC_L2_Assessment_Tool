@@ -401,6 +401,31 @@ class AssessmentApp {
         document.getElementById('fetch-osc-logo-btn')?.addEventListener('click', () => {
             this.fetchLogoFromUrl('osc');
         });
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        mobileMenuToggle?.addEventListener('click', () => {
+            sidebar?.classList.toggle('open');
+            mobileOverlay?.classList.toggle('active');
+        });
+
+        mobileOverlay?.addEventListener('click', () => {
+            sidebar?.classList.remove('open');
+            mobileOverlay?.classList.remove('active');
+        });
+
+        // Close mobile menu when nav button is clicked
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    sidebar?.classList.remove('open');
+                    mobileOverlay?.classList.remove('active');
+                }
+            });
+        });
     }
 
     switchView(view) {
