@@ -134,13 +134,36 @@ class AssessmentApp {
         if (!url) return;
         
         // Clean up URL - extract domain
-        url = url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+        const domain = url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
         
-        const logoUrl = `https://logo.clearbit.com/${url}`;
+        // Try multiple logo sources in order of preference
+        const logoSources = [
+            `https://logo.clearbit.com/${domain}`,
+            `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+            `https://icon.horse/icon/${domain}`,
+            `https://${domain}/favicon.ico`
+        ];
         
-        // Try to load the logo
+        this.tryLogoSources(logoSources, 0, type, domain);
+    }
+
+    tryLogoSources(sources, index, type, domain) {
+        if (index >= sources.length) {
+            this.showToast('Could not fetch logo - try uploading manually', 'error');
+            return;
+        }
+        
+        const logoUrl = sources[index];
         const testImg = new Image();
+        testImg.crossOrigin = 'anonymous';
+        
         testImg.onload = () => {
+            // Check if image is too small (likely a placeholder)
+            if (testImg.width < 16 || testImg.height < 16) {
+                this.tryLogoSources(sources, index + 1, type, domain);
+                return;
+            }
+            
             if (type === 'assessor') {
                 this.orgData.assessorLogo = logoUrl;
                 this.displayLogo('assessor', logoUrl);
@@ -151,9 +174,12 @@ class AssessmentApp {
             localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
             this.showToast('Logo fetched successfully', 'success');
         };
+        
         testImg.onerror = () => {
-            this.showToast('Could not fetch logo from URL', 'error');
+            // Try next source
+            this.tryLogoSources(sources, index + 1, type, domain);
         };
+        
         testImg.src = logoUrl;
     }
 
