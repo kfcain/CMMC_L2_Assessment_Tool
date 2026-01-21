@@ -1540,8 +1540,34 @@ class AssessmentApp {
             {wch: 15}, {wch: 20}, {wch: 20}, {wch: 12}, {wch: 15}, {wch: 30}
         ];
         
-        // Merge org info cell across all columns
-        wsActive['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: Object.keys(poamItems[0]).length - 1}}];
+        // Build merge ranges for SPRS Score (column H, index 7) and Severity (column I, index 8) by Control ID
+        const merges = [{s: {r: 0, c: 0}, e: {r: 0, c: Object.keys(poamItems[0]).length - 1}}]; // org info merge
+        
+        // Group consecutive rows by Control ID for SPRS/Severity merging
+        let currentControlId = null;
+        let mergeStartRow = 3; // Data starts at row 3 (1-indexed: row 1 = org info, row 2 = headers)
+        
+        poamItems.forEach((item, index) => {
+            const rowNum = index + 3; // Excel row (1-indexed, data starts row 3)
+            if (item['Control ID'] !== currentControlId) {
+                // Close previous merge if it spans multiple rows
+                if (currentControlId !== null && rowNum - 1 > mergeStartRow) {
+                    // SPRS Score column (H = index 7)
+                    merges.push({s: {r: mergeStartRow - 1, c: 7}, e: {r: rowNum - 2, c: 7}});
+                    // Severity column (I = index 8)
+                    merges.push({s: {r: mergeStartRow - 1, c: 8}, e: {r: rowNum - 2, c: 8}});
+                }
+                currentControlId = item['Control ID'];
+                mergeStartRow = rowNum;
+            }
+        });
+        // Close final merge group
+        if (poamItems.length > 0 && poamItems.length + 2 > mergeStartRow) {
+            merges.push({s: {r: mergeStartRow - 1, c: 7}, e: {r: poamItems.length + 1, c: 7}});
+            merges.push({s: {r: mergeStartRow - 1, c: 8}, e: {r: poamItems.length + 1, c: 8}});
+        }
+        
+        wsActive['!merges'] = merges;
         
         // Add data validation for Status column (column G, index 6) with dropdown
         const statusColIndex = 6; // Status column
@@ -1578,62 +1604,102 @@ class AssessmentApp {
             [''],
             ['STATUS DROPDOWN:'],
             ['The Status column (G) has a dropdown with Met, Not Met, and Partial options.'],
-            ['When you change an item to "Met", move that row to the "Completed POA&M" sheet.'],
+            ['SPRS Score (H) and Severity (I) are merged by Control ID.'],
             [''],
-            ['MANUAL WORKFLOW:'],
-            ['1. Change Status dropdown to "Met" when objective is complete'],
-            ['2. Cut the entire row (select row number, Ctrl+X / Cmd+X)'],
-            ['3. Go to "Completed POA&M" sheet'],
-            ['4. Paste at the bottom (Ctrl+V / Cmd+V)'],
+            ['IMPORTANT: Use the VBA macros below to move rows - they handle merged cell resizing.'],
             [''],
-            ['EXCEL VBA MACRO (Optional - Auto-moves Met items):'],
-            ['To add automation, press Alt+F11, insert a Module, and paste this code:'],
+            ['EXCEL VBA MACROS - Copy ALL code below into a VBA Module (Alt+F11 > Insert > Module):'],
             [''],
+            ['\'=== Helper: Re-merge SPRS/Severity cells by Control ID ==='],
+            ['Sub ReMergeSPRS(ws As Worksheet)'],
+            ['    Dim lastRow As Long, i As Long, startRow As Long'],
+            ['    Dim currentCtrl As String'],
+            ['    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row'],
+            ['    If lastRow < 3 Then Exit Sub'],
+            ['    \'Unmerge columns H and I first'],
+            ['    On Error Resume Next'],
+            ['    ws.Range("H:I").UnMerge'],
+            ['    On Error GoTo 0'],
+            ['    \'Re-merge by Control ID (column B)'],
+            ['    currentCtrl = ""'],
+            ['    startRow = 3'],
+            ['    For i = 3 To lastRow + 1'],
+            ['        If i > lastRow Or ws.Cells(i, 2).Value <> currentCtrl Then'],
+            ['            If currentCtrl <> "" And i - 1 >= startRow Then'],
+            ['                If i - 1 > startRow Then'],
+            ['                    ws.Range(ws.Cells(startRow, 8), ws.Cells(i - 1, 8)).Merge'],
+            ['                    ws.Range(ws.Cells(startRow, 9), ws.Cells(i - 1, 9)).Merge'],
+            ['                End If'],
+            ['            End If'],
+            ['            If i <= lastRow Then'],
+            ['                currentCtrl = ws.Cells(i, 2).Value'],
+            ['                startRow = i'],
+            ['            End If'],
+            ['        End If'],
+            ['    Next i'],
+            ['End Sub'],
+            [''],
+            ['\'=== Move Met items to Completed sheet ==='],
             ['Sub MoveMetItems()'],
             ['    Dim wsActive As Worksheet, wsCompleted As Worksheet'],
-            ['    Dim lastRowActive As Long, lastRowCompleted As Long'],
-            ['    Dim i As Long'],
+            ['    Dim lastRowActive As Long, lastRowCompleted As Long, i As Long'],
             ['    Set wsActive = Sheets("Active POA&M")'],
             ['    Set wsCompleted = Sheets("Completed POA&M")'],
+            ['    \'Unmerge before moving'],
+            ['    On Error Resume Next'],
+            ['    wsActive.Range("H:I").UnMerge'],
+            ['    wsCompleted.Range("H:I").UnMerge'],
+            ['    On Error GoTo 0'],
             ['    lastRowActive = wsActive.Cells(wsActive.Rows.Count, "A").End(xlUp).Row'],
             ['    For i = lastRowActive To 3 Step -1'],
             ['        If wsActive.Cells(i, 7).Value = "Met" Then'],
             ['            lastRowCompleted = wsCompleted.Cells(wsCompleted.Rows.Count, "A").End(xlUp).Row + 1'],
+            ['            If lastRowCompleted < 3 Then lastRowCompleted = 3'],
             ['            wsActive.Rows(i).Copy wsCompleted.Rows(lastRowCompleted)'],
             ['            wsActive.Rows(i).Delete'],
             ['        End If'],
             ['    Next i'],
+            ['    \'Re-merge both sheets'],
+            ['    ReMergeSPRS wsActive'],
+            ['    ReMergeSPRS wsCompleted'],
             ['End Sub'],
             [''],
-            ['Run the macro with Alt+F8 > MoveMetItems > Run'],
-            [''],
-            ['REVERSE MACRO (Move Not Met back to Active):'],
-            [''],
+            ['\'=== Move Not Met/Partial items back to Active sheet ==='],
             ['Sub MoveNotMetItems()'],
             ['    Dim wsActive As Worksheet, wsCompleted As Worksheet'],
-            ['    Dim lastRowCompleted As Long, lastRowActive As Long'],
-            ['    Dim i As Long'],
+            ['    Dim lastRowCompleted As Long, lastRowActive As Long, i As Long'],
             ['    Set wsActive = Sheets("Active POA&M")'],
             ['    Set wsCompleted = Sheets("Completed POA&M")'],
+            ['    \'Unmerge before moving'],
+            ['    On Error Resume Next'],
+            ['    wsActive.Range("H:I").UnMerge'],
+            ['    wsCompleted.Range("H:I").UnMerge'],
+            ['    On Error GoTo 0'],
             ['    lastRowCompleted = wsCompleted.Cells(wsCompleted.Rows.Count, "A").End(xlUp).Row'],
             ['    For i = lastRowCompleted To 3 Step -1'],
             ['        If wsCompleted.Cells(i, 7).Value = "Not Met" Or wsCompleted.Cells(i, 7).Value = "Partial" Then'],
             ['            lastRowActive = wsActive.Cells(wsActive.Rows.Count, "A").End(xlUp).Row + 1'],
+            ['            If lastRowActive < 3 Then lastRowActive = 3'],
             ['            wsCompleted.Rows(i).Copy wsActive.Rows(lastRowActive)'],
             ['            wsCompleted.Rows(i).Delete'],
             ['        End If'],
             ['    Next i'],
+            ['    \'Re-merge both sheets'],
+            ['    ReMergeSPRS wsActive'],
+            ['    ReMergeSPRS wsCompleted'],
             ['End Sub'],
             [''],
-            ['Run with Alt+F8 > MoveNotMetItems > Run'],
-            [''],
-            ['GOOGLE SHEETS SCRIPT (Optional):'],
-            ['Go to Extensions > Apps Script and paste similar logic.'],
+            ['HOW TO USE:'],
+            ['1. Press Alt+F11 to open VBA Editor'],
+            ['2. Insert > Module'],
+            ['3. Paste ALL the code above'],
+            ['4. Close VBA Editor'],
+            ['5. Press Alt+F8, select MoveMetItems or MoveNotMetItems, click Run'],
             [''],
             ['STATUS DEFINITIONS:'],
-            ['• Met: Objective has been fully implemented'],
-            ['• Not Met: Objective has not been implemented'],
-            ['• Partial: Objective is partially implemented'],
+            ['• Met: Objective fully implemented - move to Completed sheet'],
+            ['• Not Met: Objective not implemented'],
+            ['• Partial: Objective partially implemented'],
             [''],
             ['Generated: ' + new Date().toLocaleString()]
         ];
