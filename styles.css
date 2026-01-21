@@ -1220,3 +1220,49 @@ body {
     padding-top: 12px;
     border-top: 1px solid var(--border-color);
 }
+
+/* Organization Info Section */
+.org-info-section {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.org-info-row {
+    margin-bottom: 10px;
+}
+
+.org-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.org-info-row label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.org-info-row input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 13px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.org-info-row input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.org-info-row input::placeholder {
+    color: var(--text-muted);
+    font-size: 12px;
+}

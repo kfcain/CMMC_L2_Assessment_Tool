@@ -7,6 +7,7 @@ class AssessmentApp {
         this.poamData = {};
         this.deficiencyData = {}; // Tracks non-POA&M eligible deficiencies
         this.implementationData = {}; // Tracks how objectives are met
+        this.orgData = {}; // Organization info (assessor, OSC)
         this.currentView = 'dashboard';
         this.init();
     }
@@ -57,6 +58,22 @@ class AssessmentApp {
                 this.implementationData = {};
             }
         }
+
+        const savedOrg = localStorage.getItem('nist-org-data');
+        if (savedOrg) {
+            try {
+                this.orgData = JSON.parse(savedOrg);
+                // Populate the inputs
+                if (this.orgData.assessor) {
+                    document.getElementById('org-assessor').value = this.orgData.assessor;
+                }
+                if (this.orgData.osc) {
+                    document.getElementById('org-osc').value = this.orgData.osc;
+                }
+            } catch (e) {
+                this.orgData = {};
+            }
+        }
     }
 
     saveData() {
@@ -64,7 +81,16 @@ class AssessmentApp {
         localStorage.setItem('nist-poam-data', JSON.stringify(this.poamData));
         localStorage.setItem('nist-deficiency-data', JSON.stringify(this.deficiencyData));
         localStorage.setItem('nist-implementation-data', JSON.stringify(this.implementationData));
+        localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
         this.showToast('Progress saved successfully', 'success');
+    }
+
+    saveOrgData() {
+        this.orgData = {
+            assessor: document.getElementById('org-assessor').value.trim(),
+            osc: document.getElementById('org-osc').value.trim()
+        };
+        localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
     }
 
     exportData() {
@@ -73,6 +99,7 @@ class AssessmentApp {
             poam: this.poamData,
             deficiencies: this.deficiencyData,
             implementation: this.implementationData,
+            organization: this.orgData,
             exportDate: new Date().toISOString()
         };
         
@@ -99,6 +126,11 @@ class AssessmentApp {
                     if (data.poam) this.poamData = data.poam;
                     if (data.deficiencies) this.deficiencyData = data.deficiencies;
                     if (data.implementation) this.implementationData = data.implementation;
+                    if (data.organization) {
+                        this.orgData = data.organization;
+                        document.getElementById('org-assessor').value = this.orgData.assessor || '';
+                        document.getElementById('org-osc').value = this.orgData.osc || '';
+                    }
                     this.saveData();
                     this.renderControls();
                     this.updateProgress();
@@ -167,6 +199,10 @@ class AssessmentApp {
                 this.closeImplementationModal();
             }
         });
+
+        // Organization info auto-save on blur
+        document.getElementById('org-assessor')?.addEventListener('blur', () => this.saveOrgData());
+        document.getElementById('org-osc')?.addEventListener('blur', () => this.saveOrgData());
     }
 
     switchView(view) {
