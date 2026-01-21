@@ -1484,6 +1484,11 @@ class AssessmentApp {
                     if (assessment && (assessment.status === 'not-met' || assessment.status === 'partial')) {
                         const poam = this.poamData[objective.id] || {};
                         const xrefId = typeof CTRL_XREF !== 'undefined' ? (CTRL_XREF[objective.id] || '') : '';
+                        
+                        // Get SPRS score from control ID
+                        const sprsScore = typeof SPRS_SCORING !== 'undefined' ? (SPRS_SCORING.pointValues[control.id] || 0) : 0;
+                        const severity = sprsScore === 5 ? 'High' : sprsScore === 3 ? 'Medium' : 'Low';
+                        
                         poamItems.push({
                             'Control Family': `${family.id} - ${family.name}`,
                             'Control ID': control.id,
@@ -1492,6 +1497,8 @@ class AssessmentApp {
                             'External Ref': xrefId,
                             'Objective': objective.text,
                             'Status': assessment.status === 'not-met' ? 'Not Met' : 'Partial',
+                            'SPRS Score': sprsScore,
+                            'Severity': severity,
                             'Weakness Description': poam.weakness || objective.text,
                             'Remediation Plan': poam.remediation || '',
                             'Scheduled Completion': poam.scheduledDate || '',
@@ -1524,11 +1531,11 @@ class AssessmentApp {
         ];
         const wsActive = XLSX.utils.aoa_to_sheet(activeData);
         
-        // Set column widths
+        // Set column widths (16 columns now with SPRS Score and Severity)
         wsActive['!cols'] = [
             {wch: 25}, {wch: 12}, {wch: 30}, {wch: 12}, {wch: 12}, {wch: 50},
-            {wch: 12}, {wch: 40}, {wch: 40}, {wch: 15}, {wch: 20}, {wch: 12},
-            {wch: 15}, {wch: 30}
+            {wch: 12}, {wch: 12}, {wch: 10}, {wch: 40}, {wch: 40}, {wch: 15}, 
+            {wch: 20}, {wch: 12}, {wch: 15}, {wch: 30}
         ];
         
         // Merge org info cell across all columns
