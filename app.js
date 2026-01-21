@@ -70,6 +70,9 @@ class AssessmentApp {
                 if (this.orgData.osc) {
                     document.getElementById('org-osc').value = this.orgData.osc;
                 }
+                if (this.orgData.logo) {
+                    this.displayLogo(this.orgData.logo);
+                }
             } catch (e) {
                 this.orgData = {};
             }
@@ -88,9 +91,47 @@ class AssessmentApp {
     saveOrgData() {
         this.orgData = {
             assessor: document.getElementById('org-assessor').value.trim(),
-            osc: document.getElementById('org-osc').value.trim()
+            osc: document.getElementById('org-osc').value.trim(),
+            logo: this.orgData.logo || null
         };
         localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
+    }
+
+    handleLogoUpload(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const base64 = e.target.result;
+            this.orgData.logo = base64;
+            localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
+            this.displayLogo(base64);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    displayLogo(base64) {
+        const placeholder = document.getElementById('org-logo-placeholder');
+        const img = document.getElementById('org-logo-img');
+        const removeBtn = document.getElementById('org-logo-remove');
+        
+        if (base64) {
+            placeholder.style.display = 'none';
+            img.src = base64;
+            img.style.display = 'block';
+            removeBtn.style.display = 'flex';
+        } else {
+            placeholder.style.display = 'flex';
+            img.style.display = 'none';
+            img.src = '';
+            removeBtn.style.display = 'none';
+        }
+    }
+
+    removeLogo() {
+        this.orgData.logo = null;
+        localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
+        this.displayLogo(null);
     }
 
     exportData() {
@@ -203,6 +244,28 @@ class AssessmentApp {
         // Organization info auto-save on blur
         document.getElementById('org-assessor')?.addEventListener('blur', () => this.saveOrgData());
         document.getElementById('org-osc')?.addEventListener('blur', () => this.saveOrgData());
+
+        // Logo upload
+        const logoContainer = document.getElementById('org-logo-container');
+        const logoInput = document.getElementById('org-logo-input');
+        const logoRemove = document.getElementById('org-logo-remove');
+        
+        logoContainer?.addEventListener('click', (e) => {
+            if (e.target.id !== 'org-logo-remove') {
+                logoInput?.click();
+            }
+        });
+        
+        logoInput?.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                this.handleLogoUpload(e.target.files[0]);
+            }
+        });
+        
+        logoRemove?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.removeLogo();
+        });
     }
 
     switchView(view) {
