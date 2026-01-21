@@ -1553,6 +1553,14 @@ class AssessmentApp {
         const wsCompleted = XLSX.utils.aoa_to_sheet(completedData);
         wsCompleted['!cols'] = wsActive['!cols'];
         wsCompleted['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: Object.keys(poamItems[0]).length - 1}}];
+        
+        // Add data validation for Status column in Completed sheet (for 500 future rows)
+        wsCompleted['!dataValidation'] = [{
+            sqref: 'G3:G500',
+            type: 'list',
+            formula1: '"Met,Not Met,Partial"'
+        }];
+        
         XLSX.utils.book_append_sheet(wb, wsCompleted, 'Completed POA&M');
         
         // Instructions sheet with VBA macro code
