@@ -495,7 +495,7 @@ class AssessmentApp {
                 <div class="control-info">
                     <div class="control-id">
                         ${control.id} - ${control.name}
-                        <span class="sprs-badge ${pointClass}" title="SPRS Point Value">${pointValue} pts</span>
+                        <span class="sprs-badge ${pointClass}" title="SPRS Point Value">${pointValue} ${pointValue === 1 ? 'pt' : 'pts'}</span>
                         ${poamWarning}
                     </div>
                     <div class="control-meta">${cmmcId}</div>
@@ -925,7 +925,7 @@ class AssessmentApp {
         const formData = dataSource || {};
 
         document.getElementById('poam-objective-id').value = objective.id;
-        document.getElementById('poam-control-id').value = `${cmmcId} - ${objective.id} (${pointValue} pts)`;
+        document.getElementById('poam-control-id').value = `${cmmcId} - ${objective.id} (${pointValue} ${pointValue === 1 ? 'pt' : 'pts'})`;
         document.getElementById('poam-weakness').value = formData.weakness || objective.text;
         document.getElementById('poam-remediation').value = formData.remediation || '';
         document.getElementById('poam-date').value = formData.scheduledDate || '';
