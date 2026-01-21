@@ -531,19 +531,28 @@ class AssessmentApp {
         const hasImplData = !!this.implementationData[objective.id]?.description;
         const hasPoamData = !!(this.poamData[objective.id] || this.deficiencyData[objective.id]);
         const showPoamLink = status === 'not-met' || status === 'partial';
+        const xrefId = typeof CTRL_XREF !== 'undefined' ? (CTRL_XREF[objective.id] || '') : '';
 
         objectiveDiv.innerHTML = `
-            <div class="objective-info">
-                <div class="objective-id">${objective.id}</div>
-                <div class="objective-text">${objective.text}</div>
-            </div>
-            <div class="objective-actions">
-                <button class="status-btn ${status === 'met' ? 'met' : ''}" data-status="met">Met</button>
-                <button class="status-btn ${status === 'partial' ? 'partial' : ''}" data-status="partial">Partial</button>
-                <button class="status-btn ${status === 'not-met' ? 'not-met' : ''}" data-status="not-met">Not Met</button>
-                <button class="impl-link ${hasImplData ? 'has-data' : ''}" title="Document Implementation">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <div class="objective-main">
+                <button class="objective-expand" title="Show details">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
+                <div class="objective-info">
+                    <div class="objective-id">${objective.id}</div>
+                    <div class="objective-text">${objective.text}</div>
+                </div>
+                <div class="objective-actions">
+                    <button class="status-btn ${status === 'met' ? 'met' : ''}" data-status="met">Met</button>
+                    <button class="status-btn ${status === 'partial' ? 'partial' : ''}" data-status="partial">Partial</button>
+                    <button class="status-btn ${status === 'not-met' ? 'not-met' : ''}" data-status="not-met">Not Met</button>
+                    <button class="impl-link ${hasImplData ? 'has-data' : ''}" title="Document Implementation">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="objective-details">
+                <div class="detail-row"><span class="detail-label">External Ref:</span> <span class="detail-value">${xrefId || 'N/A'}</span></div>
             </div>
         `;
 
@@ -559,6 +568,12 @@ class AssessmentApp {
         objectiveDiv.querySelector('.impl-link').addEventListener('click', (e) => {
             e.stopPropagation();
             this.openImplementationModal(objective, controlId);
+        });
+
+        // Bind expand button
+        objectiveDiv.querySelector('.objective-expand').addEventListener('click', (e) => {
+            e.stopPropagation();
+            objectiveDiv.classList.toggle('expanded');
         });
 
         // Add POA&M link for not-met/partial items
