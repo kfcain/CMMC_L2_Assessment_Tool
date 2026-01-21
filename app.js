@@ -334,9 +334,19 @@ class AssessmentApp {
 
         // Org info auto-save on blur
         document.getElementById('org-assessor-name')?.addEventListener('blur', () => this.saveOrgData());
-        document.getElementById('org-assessor-url')?.addEventListener('blur', () => this.saveOrgData());
+        document.getElementById('org-assessor-url')?.addEventListener('blur', () => {
+            // Clear logo when URL changes
+            this.orgData.assessorLogo = null;
+            this.displayLogo('assessor', null);
+            this.saveOrgData();
+        });
         document.getElementById('org-osc-name')?.addEventListener('blur', () => this.saveOrgData());
-        document.getElementById('org-osc-url')?.addEventListener('blur', () => this.saveOrgData());
+        document.getElementById('org-osc-url')?.addEventListener('blur', () => {
+            // Clear logo when URL changes
+            this.orgData.oscLogo = null;
+            this.displayLogo('osc', null);
+            this.saveOrgData();
+        });
 
         // Assessor Logo upload (click on placeholder)
         const assessorLogoContainer = document.getElementById('assessor-logo-container');
