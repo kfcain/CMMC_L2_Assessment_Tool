@@ -692,12 +692,16 @@ body {
     gap: 8px;
 }
 
-.dashboard-family-link {
+.dashboard-card h3.dashboard-family-link {
     cursor: pointer;
     transition: color 0.2s;
 }
 
-.dashboard-family-link:hover {
+.dashboard-card h3.dashboard-family-link:hover {
+    color: var(--primary);
+}
+
+.dashboard-card h3.dashboard-family-link:hover .family-id {
     color: var(--primary);
 }
 

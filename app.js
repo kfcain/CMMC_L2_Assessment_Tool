@@ -1339,28 +1339,32 @@ class AssessmentApp {
         // Switch to assessment view
         this.switchView('assessment');
         
-        // Find and expand the family's controls
+        // Find and expand the family's controls after view has rendered
         setTimeout(() => {
             const controlsList = document.getElementById('controls-list');
+            if (!controlsList) return;
+            
             const familyControls = controlsList.querySelectorAll(`.control-header[data-family-id="${familyId}"]`);
             
-            // Scroll to first control of the family
             if (familyControls.length > 0) {
-                const firstControl = familyControls[0].closest('.control-item');
-                if (firstControl) {
-                    firstControl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-                
-                // Expand all controls in this family
+                // Expand all controls in this family first
                 familyControls.forEach(header => {
                     const objectivesDiv = header.nextElementSibling;
-                    if (objectivesDiv && !objectivesDiv.classList.contains('expanded')) {
+                    if (objectivesDiv) {
                         objectivesDiv.classList.add('expanded');
                         header.classList.add('expanded');
                     }
                 });
+                
+                // Then scroll to first control
+                setTimeout(() => {
+                    const firstControl = familyControls[0].closest('.control-item');
+                    if (firstControl) {
+                        firstControl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 50);
             }
-        }, 100);
+        }, 200);
     }
 
     exportAssessmentCSV() {
