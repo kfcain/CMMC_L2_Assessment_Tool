@@ -326,6 +326,7 @@ class AssessmentApp {
         document.getElementById('export-btn').addEventListener('click', () => this.exportPOAMCSV());
         document.getElementById('export-csv-btn')?.addEventListener('click', () => this.exportPOAMCSV());
         document.getElementById('export-assessment-btn')?.addEventListener('click', () => this.exportAssessmentCSV());
+        document.getElementById('mark-all-not-met-btn')?.addEventListener('click', () => this.markAllNotMet());
 
         // POA&M Modal
         document.querySelector('#poam-modal .modal-close')?.addEventListener('click', () => this.closeModal());
@@ -1380,6 +1381,27 @@ class AssessmentApp {
         }, 300);
     }
 
+    markAllNotMet() {
+        if (!confirm('This will mark ALL objectives as "Not Met" and add them to the POA&M. Are you sure?')) {
+            return;
+        }
+        
+        let count = 0;
+        CONTROL_FAMILIES.forEach(family => {
+            family.controls.forEach(control => {
+                control.objectives.forEach(objective => {
+                    this.assessmentData[objective.id] = { status: 'not-met' };
+                    count++;
+                });
+            });
+        });
+        
+        // Re-render the controls to show updated status
+        this.renderControls();
+        this.updateProgress();
+        this.showToast(`Marked ${count} objectives as Not Met`, 'success');
+    }
+
     exportAssessmentCSV() {
         const items = [];
         
@@ -1488,29 +1510,77 @@ class AssessmentApp {
             return;
         }
 
-        // Convert to CSV with header row for Assessor | OSC
-        const headers = Object.keys(poamItems[0]);
-        const orgInfoRow = `"${assessorName}${assessorUrl ? ' (' + assessorUrl + ')' : ''} | ${oscName}${oscUrl ? ' (' + oscUrl + ')' : ''}"`;
-        const csvContent = [
-            orgInfoRow,
-            headers.join(','),
-            ...poamItems.map(item => 
-                headers.map(h => `"${(item[h] || '').toString().replace(/"/g, '""')}"`).join(',')
-            )
-        ].join('\n');
+        // Add "Completed" column for tracking
+        poamItems.forEach(item => {
+            item['Completed'] = '';
+        });
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
+        // Create workbook with SheetJS
+        const wb = XLSX.utils.book_new();
         
-        // Include OSC name in filename if available
+        // Create org info header
+        const orgInfo = `${assessorName}${assessorUrl ? ' (' + assessorUrl + ')' : ''} | ${oscName}${oscUrl ? ' (' + oscUrl + ')' : ''}`;
+        
+        // Active POA&M sheet with header row
+        const activeData = [
+            [orgInfo],
+            Object.keys(poamItems[0]),
+            ...poamItems.map(item => Object.values(item))
+        ];
+        const wsActive = XLSX.utils.aoa_to_sheet(activeData);
+        
+        // Set column widths
+        wsActive['!cols'] = [
+            {wch: 25}, {wch: 12}, {wch: 30}, {wch: 12}, {wch: 12}, {wch: 50},
+            {wch: 12}, {wch: 40}, {wch: 40}, {wch: 15}, {wch: 20}, {wch: 12},
+            {wch: 15}, {wch: 30}, {wch: 12}
+        ];
+        
+        // Merge org info cell across all columns
+        wsActive['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: Object.keys(poamItems[0]).length - 1}}];
+        
+        XLSX.utils.book_append_sheet(wb, wsActive, 'Active POA&M');
+        
+        // Completed POA&M sheet (empty with headers)
+        const completedData = [
+            [orgInfo],
+            Object.keys(poamItems[0])
+        ];
+        const wsCompleted = XLSX.utils.aoa_to_sheet(completedData);
+        wsCompleted['!cols'] = wsActive['!cols'];
+        wsCompleted['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: Object.keys(poamItems[0]).length - 1}}];
+        XLSX.utils.book_append_sheet(wb, wsCompleted, 'Completed POA&M');
+        
+        // Instructions sheet
+        const instructions = [
+            ['POA&M Management Instructions'],
+            [''],
+            ['Managing Your POA&M:'],
+            ['1. The "Active POA&M" sheet contains all items that need remediation.'],
+            ['2. When an item is completed, mark "Yes" in the "Completed" column.'],
+            ['3. Cut the completed row and paste it into the "Completed POA&M" sheet.'],
+            ['4. Update the "Scheduled Completion" date with the actual completion date.'],
+            [''],
+            ['Automation Tips:'],
+            ['• In Excel: Use Filter on the "Completed" column to find items marked "Yes"'],
+            ['• In Google Sheets: Use Data > Filter, then move completed rows manually'],
+            ['• For advanced automation, create a macro to move rows with "Yes" in Completed column'],
+            [''],
+            ['Status Definitions:'],
+            ['• Not Met: Objective has not been implemented'],
+            ['• Partial: Objective is partially implemented but not fully compliant'],
+            [''],
+            ['Generated: ' + new Date().toLocaleString()]
+        ];
+        const wsInstructions = XLSX.utils.aoa_to_sheet(instructions);
+        wsInstructions['!cols'] = [{wch: 80}];
+        XLSX.utils.book_append_sheet(wb, wsInstructions, 'Instructions');
+        
+        // Export workbook
         const oscSlug = oscName ? oscName.replace(/[^a-z0-9]/gi, '-').toLowerCase() + '-' : '';
-        a.download = `POAM-${oscSlug}${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
+        XLSX.writeFile(wb, `POAM-${oscSlug}${new Date().toISOString().split('T')[0]}.xlsx`);
 
-        this.showToast(`Exported ${poamItems.length} POA&M items`, 'success');
+        this.showToast(`Exported ${poamItems.length} POA&M items to Excel`, 'success');
     }
 
     showToast(message, type = 'success') {

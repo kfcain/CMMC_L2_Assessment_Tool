@@ -670,6 +670,17 @@ body {
     border-color: var(--accent-blue);
 }
 
+.action-btn.warning {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.action-btn.warning:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
 /* Dashboard View */
 .dashboard-content {
     display: grid;
