@@ -1329,6 +1329,7 @@ class AssessmentApp {
                     const poam = this.poamData[objective.id] || {};
                     const deficiency = this.deficiencyData[objective.id] || {};
                     
+                    const vantaId = typeof VANTA_MAPPINGS !== 'undefined' ? (VANTA_MAPPINGS[objective.id] || '') : '';
                     items.push({
                         'Assessor': assessorName,
                         'Assessor Website': assessorUrl,
@@ -1338,6 +1339,7 @@ class AssessmentApp {
                         'Control ID': control.id,
                         'Control Name': control.name,
                         'Objective ID': objective.id,
+                        'Vanta Control': vantaId,
                         'Objective': objective.text,
                         'Status': assessment.status || 'Not Assessed',
                         'Implementation Description': impl.description || '',
@@ -1393,6 +1395,7 @@ class AssessmentApp {
                     const assessment = this.assessmentData[objective.id];
                     if (assessment && (assessment.status === 'not-met' || assessment.status === 'partial')) {
                         const poam = this.poamData[objective.id] || {};
+                        const vantaId = typeof VANTA_MAPPINGS !== 'undefined' ? (VANTA_MAPPINGS[objective.id] || '') : '';
                         poamItems.push({
                             'Assessor': assessorName,
                             'Assessor Website': assessorUrl,
@@ -1402,6 +1405,7 @@ class AssessmentApp {
                             'Control ID': control.id,
                             'Control Name': control.name,
                             'Objective ID': objective.id,
+                            'Vanta Control': vantaId,
                             'Objective': objective.text,
                             'Status': assessment.status === 'not-met' ? 'Not Met' : 'Partial',
                             'Weakness Description': poam.weakness || objective.text,
