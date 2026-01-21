@@ -136,14 +136,16 @@ class AssessmentApp {
         // Clean up URL - extract domain
         const domain = url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
         
-        // Try multiple logo sources in order of preference
+        // Try multiple logo sources in order of preference (high-quality first)
         const logoSources = [
+            `https://img.logo.dev/${domain}?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ`,
             `https://logo.clearbit.com/${domain}`,
-            `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
-            `https://icon.horse/icon/${domain}`,
-            `https://${domain}/favicon.ico`
+            `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=128`,
+            `https://icon.horse/icon/${domain}?size=large`,
+            `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
         ];
         
+        this.showToast('Fetching logo...', 'info');
         this.tryLogoSources(logoSources, 0, type, domain);
     }
 
@@ -155,15 +157,9 @@ class AssessmentApp {
         
         const logoUrl = sources[index];
         const testImg = new Image();
-        testImg.crossOrigin = 'anonymous';
         
         testImg.onload = () => {
-            // Check if image is too small (likely a placeholder)
-            if (testImg.width < 16 || testImg.height < 16) {
-                this.tryLogoSources(sources, index + 1, type, domain);
-                return;
-            }
-            
+            // Check if image loaded successfully
             if (type === 'assessor') {
                 this.orgData.assessorLogo = logoUrl;
                 this.displayLogo('assessor', logoUrl);
@@ -179,6 +175,14 @@ class AssessmentApp {
             // Try next source
             this.tryLogoSources(sources, index + 1, type, domain);
         };
+        
+        // Set timeout for slow sources
+        setTimeout(() => {
+            if (!testImg.complete) {
+                testImg.src = '';
+                this.tryLogoSources(sources, index + 1, type, domain);
+            }
+        }, 3000);
         
         testImg.src = logoUrl;
     }

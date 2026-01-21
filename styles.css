@@ -1281,54 +1281,70 @@ body {
 }
 
 /* Shared Org Card Styles */
-.org-card .org-card-content {
+.org-card-header {
     margin-bottom: 8px;
 }
 
-.org-logo-container {
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
+.org-logo-display {
+    width: 100%;
+    margin-bottom: 10px;
     cursor: pointer;
 }
 
-.org-logo-placeholder {
+.org-logo-large {
     width: 100%;
-    height: 100%;
-    border: 1px dashed var(--border-color);
+    max-height: 60px;
+    object-fit: contain;
     border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    transition: border-color 0.2s, color 0.2s;
+    background: white;
+    padding: 8px;
 }
 
-.org-logo-container:hover .org-logo-placeholder {
+.org-logo-placeholder-large {
+    width: 100%;
+    height: 60px;
+    border: 2px dashed var(--border-color);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-muted);
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.org-logo-placeholder-large span {
+    font-size: 10px;
+}
+
+.org-logo-display:hover .org-logo-placeholder-large {
     border-color: var(--primary);
     color: var(--primary);
+    background: rgba(59, 130, 246, 0.05);
 }
 
 .org-name-input {
-    flex: 1;
-    padding: 6px 10px;
+    width: 100%;
+    padding: 8px 10px;
     font-size: 14px;
     font-weight: 600;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-secondary);
     color: var(--text-primary);
     transition: border-color 0.2s, background 0.2s;
+    text-align: center;
 }
 
 .org-name-input:hover {
-    background: var(--bg-secondary);
+    border-color: var(--primary);
 }
 
 .org-name-input:focus {
     outline: none;
     border-color: var(--primary);
-    background: var(--bg-secondary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .org-name-input::placeholder {
