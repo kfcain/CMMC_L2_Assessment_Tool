@@ -6,6 +6,7 @@
     <title>NIST 800-171A / CMMC L2 Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="css/evidence.css?v=1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -21,6 +22,10 @@
             <div class="sidebar-header">
                 <h1>CMMC L2 Assessment</h1>
                 <p>Self-Assessment & POA&M Generator</p>
+            </div>
+            <!-- Auth Container for Google SSO -->
+            <div class="auth-container" id="auth-container">
+                <!-- Auth UI rendered by evidence-ui.js -->
             </div>
             <div class="org-info-section">
                 <div class="org-card assessor-card">
@@ -287,6 +292,7 @@
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="data/families-ac-at-au.js"></script>
     <script src="data/families-cm-ia.js"></script>
     <script src="data/families-ir-ma-mp-ps-pe.js"></script>
@@ -295,5 +301,7 @@
     <script src="data/ctrl-xref.js?v=2"></script>
     <script src="data/loader.js"></script>
     <script src="app.js?v=7"></script>
+    <script src="js/supabase-client.js?v=1"></script>
+    <script src="js/evidence-ui.js?v=1"></script>
 </body>
 </html>
