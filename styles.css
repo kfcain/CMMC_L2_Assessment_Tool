@@ -1225,110 +1225,150 @@ body {
 .org-info-section {
     padding: 12px 16px;
     border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.org-info-row {
-    margin-bottom: 10px;
+/* Organization Cards */
+.org-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
 }
 
-.org-info-row:last-child {
-    margin-bottom: 0;
-}
-
-.org-info-row label {
-    display: block;
-    font-size: 11px;
+.org-card-label {
+    font-size: 10px;
     font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
 }
 
-.org-info-row input {
-    width: 100%;
-    padding: 8px 10px;
-    font-size: 13px;
-    border: 1px solid var(--border-color);
+.org-card-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.org-card-logo {
+    width: 32px;
+    height: 32px;
     border-radius: 6px;
-    background: var(--bg-tertiary);
+    object-fit: contain;
+    background: white;
+    flex-shrink: 0;
+}
+
+.org-card-name {
+    font-size: 14px;
+    font-weight: 600;
     color: var(--text-primary);
-    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.org-info-row input:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+/* Assessor Card */
+.assessor-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+    border-color: rgba(59, 130, 246, 0.2);
 }
 
-.org-info-row input::placeholder {
-    color: var(--text-muted);
-    font-size: 12px;
+/* OSC Card */
+.osc-card .org-card-content {
+    margin-bottom: 8px;
 }
 
-/* Organization Logo */
-.org-logo-container {
-    position: relative;
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 12px;
+.osc-logo-container {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
     cursor: pointer;
 }
 
-.org-logo-placeholder {
+.osc-logo-placeholder {
     width: 100%;
     height: 100%;
-    border: 2px dashed var(--border-color);
-    border-radius: 8px;
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
     color: var(--text-muted);
     transition: border-color 0.2s, color 0.2s;
 }
 
-.org-logo-placeholder:hover {
+.osc-logo-container:hover .osc-logo-placeholder {
     border-color: var(--primary);
     color: var(--primary);
 }
 
-.org-logo-placeholder span {
-    font-size: 10px;
-    font-weight: 500;
-}
-
-.org-logo-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    border-radius: 8px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-}
-
-.org-logo-remove {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--danger);
-    color: white;
-    border: none;
+.osc-name-input {
+    flex: 1;
+    padding: 6px 10px;
     font-size: 14px;
-    line-height: 1;
+    font-weight: 600;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-primary);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.osc-name-input:hover {
+    background: var(--bg-secondary);
+}
+
+.osc-name-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--bg-secondary);
+}
+
+.osc-name-input::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.osc-url-row {
+    display: flex;
+    gap: 6px;
+}
+
+.osc-url-input {
+    flex: 1;
+    padding: 6px 10px;
+    font-size: 11px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.osc-url-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.osc-url-input::placeholder {
+    color: var(--text-muted);
+}
+
+.fetch-logo-btn {
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    color: var(--text-muted);
     cursor: pointer;
+    transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transition: opacity 0.2s;
 }
 
-.org-logo-container:hover .org-logo-remove {
-    opacity: 1;
+.fetch-logo-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(59, 130, 246, 0.1);
 }

@@ -64,14 +64,14 @@ class AssessmentApp {
             try {
                 this.orgData = JSON.parse(savedOrg);
                 // Populate the inputs
-                if (this.orgData.assessor) {
-                    document.getElementById('org-assessor').value = this.orgData.assessor;
+                if (this.orgData.oscName) {
+                    document.getElementById('org-osc-name').value = this.orgData.oscName;
                 }
-                if (this.orgData.osc) {
-                    document.getElementById('org-osc').value = this.orgData.osc;
+                if (this.orgData.oscUrl) {
+                    document.getElementById('org-osc-url').value = this.orgData.oscUrl;
                 }
-                if (this.orgData.logo) {
-                    this.displayLogo(this.orgData.logo);
+                if (this.orgData.oscLogo) {
+                    this.displayOscLogo(this.orgData.oscLogo);
                 }
             } catch (e) {
                 this.orgData = {};
@@ -90,9 +90,9 @@ class AssessmentApp {
 
     saveOrgData() {
         this.orgData = {
-            assessor: document.getElementById('org-assessor').value.trim(),
-            osc: document.getElementById('org-osc').value.trim(),
-            logo: this.orgData.logo || null
+            oscName: document.getElementById('org-osc-name')?.value.trim() || '',
+            oscUrl: document.getElementById('org-osc-url')?.value.trim() || '',
+            oscLogo: this.orgData.oscLogo || null
         };
         localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
     }
@@ -103,35 +103,51 @@ class AssessmentApp {
         const reader = new FileReader();
         reader.onload = (e) => {
             const base64 = e.target.result;
-            this.orgData.logo = base64;
+            this.orgData.oscLogo = base64;
             localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
-            this.displayLogo(base64);
+            this.displayOscLogo(base64);
         };
         reader.readAsDataURL(file);
     }
 
-    displayLogo(base64) {
-        const placeholder = document.getElementById('org-logo-placeholder');
-        const img = document.getElementById('org-logo-img');
-        const removeBtn = document.getElementById('org-logo-remove');
+    fetchLogoFromUrl() {
+        let url = document.getElementById('org-osc-url')?.value.trim();
+        if (!url) return;
         
-        if (base64) {
+        // Clean up URL - extract domain
+        url = url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+        
+        const logoUrl = `https://logo.clearbit.com/${url}`;
+        const img = document.getElementById('osc-logo-img');
+        const placeholder = document.getElementById('osc-logo-placeholder');
+        
+        // Try to load the logo
+        const testImg = new Image();
+        testImg.onload = () => {
+            this.orgData.oscLogo = logoUrl;
+            localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
+            this.displayOscLogo(logoUrl);
+            this.showToast('Logo fetched successfully', 'success');
+        };
+        testImg.onerror = () => {
+            this.showToast('Could not fetch logo from URL', 'error');
+        };
+        testImg.src = logoUrl;
+    }
+
+    displayOscLogo(src) {
+        const placeholder = document.getElementById('osc-logo-placeholder');
+        const img = document.getElementById('osc-logo-img');
+        
+        if (src) {
             placeholder.style.display = 'none';
-            img.src = base64;
+            img.src = src;
             img.style.display = 'block';
-            removeBtn.style.display = 'flex';
         } else {
             placeholder.style.display = 'flex';
             img.style.display = 'none';
             img.src = '';
-            removeBtn.style.display = 'none';
         }
-    }
-
-    removeLogo() {
-        this.orgData.logo = null;
-        localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
-        this.displayLogo(null);
     }
 
     exportData() {
@@ -241,30 +257,27 @@ class AssessmentApp {
             }
         });
 
-        // Organization info auto-save on blur
-        document.getElementById('org-assessor')?.addEventListener('blur', () => this.saveOrgData());
-        document.getElementById('org-osc')?.addEventListener('blur', () => this.saveOrgData());
+        // OSC info auto-save on blur
+        document.getElementById('org-osc-name')?.addEventListener('blur', () => this.saveOrgData());
+        document.getElementById('org-osc-url')?.addEventListener('blur', () => this.saveOrgData());
 
-        // Logo upload
-        const logoContainer = document.getElementById('org-logo-container');
-        const logoInput = document.getElementById('org-logo-input');
-        const logoRemove = document.getElementById('org-logo-remove');
+        // OSC Logo upload (click on placeholder)
+        const oscLogoContainer = document.getElementById('osc-logo-container');
+        const oscLogoInput = document.getElementById('osc-logo-input');
         
-        logoContainer?.addEventListener('click', (e) => {
-            if (e.target.id !== 'org-logo-remove') {
-                logoInput?.click();
-            }
+        oscLogoContainer?.addEventListener('click', () => {
+            oscLogoInput?.click();
         });
         
-        logoInput?.addEventListener('change', (e) => {
+        oscLogoInput?.addEventListener('change', (e) => {
             if (e.target.files[0]) {
                 this.handleLogoUpload(e.target.files[0]);
             }
         });
-        
-        logoRemove?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.removeLogo();
+
+        // Fetch logo from URL button
+        document.getElementById('fetch-logo-btn')?.addEventListener('click', () => {
+            this.fetchLogoFromUrl();
         });
     }
 
