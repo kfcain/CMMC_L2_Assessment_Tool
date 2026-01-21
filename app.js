@@ -1500,9 +1500,11 @@ class AssessmentApp {
                             'SPRS Score': sprsScore,
                             'Severity': severity,
                             'Weakness Description': poam.weakness || objective.text,
+                            'Weakness Identifying Party': poam.identifyingParty || '',
                             'Remediation Plan': poam.remediation || '',
                             'Scheduled Completion': poam.scheduledDate || '',
                             'Responsible Party': poam.responsible || '',
+                            'Responsible Party Lead': poam.responsibleLead || '',
                             'Risk Level': poam.risk || '',
                             'Estimated Cost': poam.cost || '',
                             'Notes': poam.notes || ''
@@ -1531,11 +1533,11 @@ class AssessmentApp {
         ];
         const wsActive = XLSX.utils.aoa_to_sheet(activeData);
         
-        // Set column widths (16 columns now with SPRS Score and Severity)
+        // Set column widths (18 columns with new identifying party and lead columns)
         wsActive['!cols'] = [
             {wch: 25}, {wch: 12}, {wch: 30}, {wch: 12}, {wch: 12}, {wch: 50},
-            {wch: 12}, {wch: 12}, {wch: 10}, {wch: 40}, {wch: 40}, {wch: 15}, 
-            {wch: 20}, {wch: 12}, {wch: 15}, {wch: 30}
+            {wch: 12}, {wch: 12}, {wch: 10}, {wch: 40}, {wch: 25}, {wch: 40}, 
+            {wch: 15}, {wch: 20}, {wch: 20}, {wch: 12}, {wch: 15}, {wch: 30}
         ];
         
         // Merge org info cell across all columns
