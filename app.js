@@ -325,6 +325,7 @@ class AssessmentApp {
         document.getElementById('load-btn').addEventListener('click', () => this.loadDataFromFile());
         document.getElementById('export-btn').addEventListener('click', () => this.exportPOAMCSV());
         document.getElementById('export-csv-btn')?.addEventListener('click', () => this.exportPOAMCSV());
+        document.getElementById('export-assessment-btn')?.addEventListener('click', () => this.exportAssessmentCSV());
 
         // POA&M Modal
         document.querySelector('#poam-modal .modal-close')?.addEventListener('click', () => this.closeModal());
@@ -1309,6 +1310,72 @@ class AssessmentApp {
         });
 
         container.innerHTML = html;
+    }
+
+    exportAssessmentCSV() {
+        const items = [];
+        
+        // Get org info for export
+        const assessorName = this.orgData.assessorName || '';
+        const assessorUrl = this.orgData.assessorUrl || '';
+        const oscName = this.orgData.oscName || '';
+        const oscUrl = this.orgData.oscUrl || '';
+        
+        CONTROL_FAMILIES.forEach(family => {
+            family.controls.forEach(control => {
+                control.objectives.forEach(objective => {
+                    const assessment = this.assessmentData[objective.id] || {};
+                    const impl = this.implementationData[objective.id] || {};
+                    const poam = this.poamData[objective.id] || {};
+                    const deficiency = this.deficiencyData[objective.id] || {};
+                    
+                    items.push({
+                        'Assessor': assessorName,
+                        'Assessor Website': assessorUrl,
+                        'OSC': oscName,
+                        'OSC Website': oscUrl,
+                        'Control Family': `${family.id} - ${family.name}`,
+                        'Control ID': control.id,
+                        'Control Name': control.name,
+                        'Objective ID': objective.id,
+                        'Objective': objective.text,
+                        'Status': assessment.status || 'Not Assessed',
+                        'Implementation Description': impl.description || '',
+                        'Implementation Evidence': impl.evidence || '',
+                        'Implementation Notes': impl.notes || '',
+                        'POA&M Weakness': poam.weakness || '',
+                        'POA&M Remediation': poam.remediation || '',
+                        'POA&M Scheduled Date': poam.scheduledDate || '',
+                        'POA&M Responsible Party': poam.responsible || '',
+                        'POA&M Risk Level': poam.risk || '',
+                        'POA&M Cost': poam.cost || '',
+                        'POA&M Notes': poam.notes || '',
+                        'Deficiency Notes': deficiency.notes || ''
+                    });
+                });
+            });
+        });
+
+        // Convert to CSV
+        const headers = Object.keys(items[0]);
+        const csvContent = [
+            headers.join(','),
+            ...items.map(item => 
+                headers.map(h => `"${(item[h] || '').toString().replace(/"/g, '""')}"`).join(',')
+            )
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        const oscSlug = oscName ? oscName.replace(/[^a-z0-9]/gi, '-').toLowerCase() + '-' : '';
+        a.download = `Assessment-${oscSlug}${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        this.showToast(`Exported ${items.length} assessment items`, 'success');
     }
 
     exportPOAMCSV() {
