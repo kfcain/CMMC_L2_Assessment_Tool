@@ -1,6 +1,6 @@
-// Vanta Control Mappings
-// Maps CMMC L2 objective IDs to Vanta control IDs
-const VANTA_MAPPINGS = {
+// Control Cross-Reference Mappings
+// Maps CMMC L2 objective IDs to external control IDs
+const CTRL_XREF = {
     // Configuration Management (CM)
     'CM.L2-3.4.1-d': 'AST-157',
     'CM.L2-3.4.1-e': 'AST-158',
@@ -350,7 +350,7 @@ const VANTA_MAPPINGS = {
     'AT.L2-3.2.3-b': 'THR-55'
 };
 
-// Helper function to get Vanta control ID for an objective
-function getVantaControlId(objectiveId) {
-    return VANTA_MAPPINGS[objectiveId] || null;
+// Helper function to get external control ID for an objective
+function getCtrlXref(objectiveId) {
+    return CTRL_XREF[objectiveId] || null;
 }
