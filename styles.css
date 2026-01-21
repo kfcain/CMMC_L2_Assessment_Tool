@@ -692,6 +692,15 @@ body {
     gap: 8px;
 }
 
+.dashboard-family-link {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.dashboard-family-link:hover {
+    color: var(--primary);
+}
+
 .dashboard-card .family-id {
     font-size: 0.6875rem;
 }

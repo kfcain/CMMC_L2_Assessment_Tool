@@ -491,7 +491,7 @@ class AssessmentApp {
                            (pointValue > 1 && control.id !== '3.13.11') ? '<span class="poam-caution" title="Point value > 1, cannot be on POA&M for Conditional status">⚡ Requires Implementation</span>' : '';
 
         controlDiv.innerHTML = `
-            <div class="control-header">
+            <div class="control-header" data-family-id="${familyId}">
                 <div class="control-info">
                     <div class="control-id">
                         ${control.id} - ${control.name}
@@ -1296,7 +1296,7 @@ class AssessmentApp {
 
             html += `
                 <div class="dashboard-card">
-                    <h3><span class="family-id">${family.id}</span> ${family.name}</h3>
+                    <h3 class="dashboard-family-link" data-family-id="${family.id}"><span class="family-id">${family.id}</span> ${family.name}</h3>
                     <div class="dashboard-card-stats">
                         <div class="dashboard-stat">
                             <div class="dashboard-stat-value met">${stats.met}</div>
@@ -1325,6 +1325,42 @@ class AssessmentApp {
         });
 
         container.innerHTML = html;
+
+        // Bind family link clicks
+        container.querySelectorAll('.dashboard-family-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const familyId = link.dataset.familyId;
+                this.navigateToFamily(familyId);
+            });
+        });
+    }
+
+    navigateToFamily(familyId) {
+        // Switch to assessment view
+        this.switchView('assessment');
+        
+        // Find and expand the family's controls
+        setTimeout(() => {
+            const controlsList = document.getElementById('controls-list');
+            const familyControls = controlsList.querySelectorAll(`.control-header[data-family-id="${familyId}"]`);
+            
+            // Scroll to first control of the family
+            if (familyControls.length > 0) {
+                const firstControl = familyControls[0].closest('.control-item');
+                if (firstControl) {
+                    firstControl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                
+                // Expand all controls in this family
+                familyControls.forEach(header => {
+                    const objectivesDiv = header.nextElementSibling;
+                    if (objectivesDiv && !objectivesDiv.classList.contains('expanded')) {
+                        objectivesDiv.classList.add('expanded');
+                        header.classList.add('expanded');
+                    }
+                });
+            }
+        }, 100);
     }
 
     exportAssessmentCSV() {
