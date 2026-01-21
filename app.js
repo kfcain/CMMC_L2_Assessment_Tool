@@ -1399,10 +1399,6 @@ class AssessmentApp {
                     
                     const xrefId = typeof CTRL_XREF !== 'undefined' ? (CTRL_XREF[objective.id] || '') : '';
                     items.push({
-                        'Assessor': assessorName,
-                        'Assessor Website': assessorUrl,
-                        'OSC': oscName,
-                        'OSC Website': oscUrl,
                         'Control Family': `${family.id} - ${family.name}`,
                         'Control ID': control.id,
                         'Control Name': control.name,
@@ -1426,9 +1422,11 @@ class AssessmentApp {
             });
         });
 
-        // Convert to CSV
+        // Convert to CSV with header row for Assessor | OSC
         const headers = Object.keys(items[0]);
+        const orgInfoRow = `"${assessorName}${assessorUrl ? ' (' + assessorUrl + ')' : ''} | ${oscName}${oscUrl ? ' (' + oscUrl + ')' : ''}"`;
         const csvContent = [
+            orgInfoRow,
             headers.join(','),
             ...items.map(item => 
                 headers.map(h => `"${(item[h] || '').toString().replace(/"/g, '""')}"`).join(',')
@@ -1465,10 +1463,6 @@ class AssessmentApp {
                         const poam = this.poamData[objective.id] || {};
                         const xrefId = typeof CTRL_XREF !== 'undefined' ? (CTRL_XREF[objective.id] || '') : '';
                         poamItems.push({
-                            'Assessor': assessorName,
-                            'Assessor Website': assessorUrl,
-                            'OSC': oscName,
-                            'OSC Website': oscUrl,
                             'Control Family': `${family.id} - ${family.name}`,
                             'Control ID': control.id,
                             'Control Name': control.name,
@@ -1494,9 +1488,11 @@ class AssessmentApp {
             return;
         }
 
-        // Convert to CSV
+        // Convert to CSV with header row for Assessor | OSC
         const headers = Object.keys(poamItems[0]);
+        const orgInfoRow = `"${assessorName}${assessorUrl ? ' (' + assessorUrl + ')' : ''} | ${oscName}${oscUrl ? ' (' + oscUrl + ')' : ''}"`;
         const csvContent = [
+            orgInfoRow,
             headers.join(','),
             ...poamItems.map(item => 
                 headers.map(h => `"${(item[h] || '').toString().replace(/"/g, '""')}"`).join(',')
