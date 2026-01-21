@@ -935,6 +935,17 @@ class AssessmentApp {
         document.getElementById('poam-cost').value = formData.cost || '';
         document.getElementById('poam-notes').value = formData.notes || '';
 
+        // Populate Weakness Identifying Party dropdown with OSC and Assessor names
+        const identifyingPartySelect = document.getElementById('poam-identifying-party');
+        const oscName = document.getElementById('org-osc-name').value || 'OSC';
+        const assessorName = document.getElementById('org-assessor-name').value || 'Assessor';
+        identifyingPartySelect.innerHTML = `
+            <option value="">-- Select --</option>
+            <option value="${oscName}">${oscName}</option>
+            <option value="${assessorName}">${assessorName}</option>
+        `;
+        identifyingPartySelect.value = formData.identifyingParty || '';
+
         // Store whether this is a never-POA&M item for save handling
         document.getElementById('poam-form').dataset.isNeverPoam = isNeverPoam ? 'true' : 'false';
         document.getElementById('poam-form').dataset.controlId = controlId;
@@ -966,6 +977,7 @@ class AssessmentApp {
         
         const entryData = {
             weakness: document.getElementById('poam-weakness').value,
+            identifyingParty: document.getElementById('poam-identifying-party').value,
             remediation: document.getElementById('poam-remediation').value,
             scheduledDate: document.getElementById('poam-date').value,
             responsible: document.getElementById('poam-responsible').value,
