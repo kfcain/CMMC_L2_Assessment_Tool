@@ -134,22 +134,32 @@ class AssessmentApp {
         if (!url) return;
         
         // Clean up URL - extract domain (handle various input formats)
-        let domain = url.toLowerCase();
-        domain = domain.replace(/^https?:\/\//, '');
-        domain = domain.replace(/^www\./, '');
+        let domain = url.toLowerCase().trim();
+        
+        // Remove protocol
+        if (domain.includes('://')) {
+            domain = domain.split('://')[1];
+        }
+        
+        // Remove www prefix
+        if (domain.startsWith('www.')) {
+            domain = domain.substring(4);
+        }
+        
+        // Remove path and query string
         domain = domain.split('/')[0];
         domain = domain.split('?')[0];
+        domain = domain.split('#')[0];
         
-        if (!domain || domain.length < 3) {
-            this.showToast('Please enter a valid domain', 'error');
+        // Validate domain
+        if (!domain || domain.length < 3 || !domain.includes('.')) {
+            this.showToast('Please enter a valid domain (e.g., example.com)', 'error');
             return;
         }
         
+        console.log('Fetching logo for domain:', domain);
         this.showToast('Fetching logo...', 'info');
-        
-        // Try Clearbit first (most reliable for company logos)
-        const clearbitUrl = `https://logo.clearbit.com/${domain}`;
-        this.tryLogoWithValidation(clearbitUrl, type, domain, 0);
+        this.tryLogoWithValidation(null, type, domain, 0);
     }
 
     tryLogoWithValidation(logoUrl, type, domain, attempt) {
