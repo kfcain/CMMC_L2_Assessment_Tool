@@ -1327,15 +1327,21 @@ class AssessmentApp {
         container.innerHTML = html;
 
         // Bind family link clicks
-        container.querySelectorAll('.dashboard-family-link').forEach(link => {
-            link.addEventListener('click', () => {
+        const links = container.querySelectorAll('.dashboard-family-link');
+        console.log('Found dashboard-family-links:', links.length);
+        links.forEach(link => {
+            link.style.cursor = 'pointer';
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
                 const familyId = link.dataset.familyId;
+                console.log('Clicked family:', familyId);
                 this.navigateToFamily(familyId);
             });
         });
     }
 
     navigateToFamily(familyId) {
+        console.log('navigateToFamily called with:', familyId);
         // Switch to assessment view
         this.switchView('assessment');
         
