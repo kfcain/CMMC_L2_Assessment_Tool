@@ -50,8 +50,11 @@ class SupabaseClient {
     constructor() {
         this.client = null;
         this.user = null;
+        this.profile = null;
         this.currentOrg = null;
         this.currentAssessment = null;
+        this.organizations = [];
+        this.assessments = [];
         this.initialized = false;
     }
 
@@ -72,24 +75,138 @@ class SupabaseClient {
         const { data: { session } } = await this.client.auth.getSession();
         if (session) {
             this.user = session.user;
-            await this.loadUserOrganizations();
+            await this.loadProfile();
+            await this.loadUserData();
         }
 
         // Listen for auth changes
         this.client.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session) {
                 this.user = session.user;
-                await this.loadUserOrganizations();
-                this.dispatchEvent('auth:signin', { user: this.user });
+                await this.loadProfile();
+                await this.loadUserData();
+                this.dispatchEvent('auth:signin', { user: this.user, profile: this.profile });
             } else if (event === 'SIGNED_OUT') {
                 this.user = null;
+                this.profile = null;
                 this.currentOrg = null;
                 this.currentAssessment = null;
+                this.organizations = [];
+                this.assessments = [];
                 this.dispatchEvent('auth:signout');
             }
         });
 
         this.initialized = true;
+    }
+
+    /**
+     * Require authentication - throws if not logged in
+     */
+    requireAuth() {
+        if (!this.isAuthenticated()) {
+            throw new Error('Authentication required. Please sign in to continue.');
+        }
+    }
+
+    /**
+     * Load user profile
+     */
+    async loadProfile() {
+        if (!this.user) return null;
+
+        const { data, error } = await this.client
+            .from('user_profiles')
+            .select('*')
+            .eq('id', this.user.id)
+            .single();
+
+        if (error && error.code !== 'PGRST116') {
+            console.error('Failed to load profile:', error);
+        }
+        
+        this.profile = data;
+        return data;
+    }
+
+    /**
+     * Update user profile
+     */
+    async updateProfile(updates) {
+        this.requireAuth();
+
+        const { data, error } = await this.client
+            .from('user_profiles')
+            .update({
+                ...updates,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', this.user.id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        
+        this.profile = data;
+        this.dispatchEvent('profile:updated', { profile: data });
+        return data;
+    }
+
+    /**
+     * Load all user data (orgs, assessments, restore last context)
+     */
+    async loadUserData() {
+        if (!this.user) return;
+
+        // Load organizations
+        this.organizations = await this.loadUserOrganizations();
+
+        // Restore last active organization
+        const lastOrgId = this.profile?.last_active_org_id || localStorage.getItem('currentOrgId');
+        if (lastOrgId) {
+            const orgMembership = this.organizations.find(m => m.organization?.id === lastOrgId);
+            if (orgMembership) {
+                this.currentOrg = orgMembership.organization;
+                
+                // Load assessments for this org
+                this.assessments = await this.getAssessments();
+                
+                // Restore last active assessment
+                const lastAssessmentId = this.profile?.last_active_assessment_id || localStorage.getItem('currentAssessmentId');
+                if (lastAssessmentId) {
+                    const assessment = this.assessments.find(a => a.id === lastAssessmentId);
+                    if (assessment) {
+                        this.currentAssessment = assessment;
+                    }
+                }
+            }
+        }
+
+        this.dispatchEvent('data:loaded', {
+            organizations: this.organizations,
+            currentOrg: this.currentOrg,
+            assessments: this.assessments,
+            currentAssessment: this.currentAssessment
+        });
+    }
+
+    /**
+     * Save last active context to profile
+     */
+    async saveLastContext() {
+        if (!this.profile) return;
+        
+        try {
+            await this.client
+                .from('user_profiles')
+                .update({
+                    last_active_org_id: this.currentOrg?.id || null,
+                    last_active_assessment_id: this.currentAssessment?.id || null
+                })
+                .eq('id', this.user.id);
+        } catch (e) {
+            console.error('Failed to save context:', e);
+        }
     }
 
     // ==========================================
@@ -347,6 +464,9 @@ class SupabaseClient {
      * Upload evidence file for an objective
      */
     async uploadEvidence(controlId, objectiveId, file, description = '') {
+        // Require authentication
+        this.requireAuth();
+        
         if (!this.currentOrg || !this.currentAssessment) {
             throw new Error('No organization or assessment selected');
         }
@@ -544,6 +664,72 @@ class SupabaseClient {
 
         if (error) throw error;
         return data;
+    }
+
+    // ==========================================
+    // FILE SCANNING
+    // ==========================================
+
+    /**
+     * Get scan status for evidence
+     */
+    async getEvidenceScanStatus(evidenceId) {
+        const { data, error } = await this.client
+            .from('evidence')
+            .select('scan_status, scan_result, scanned_at, quarantined')
+            .eq('id', evidenceId)
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    /**
+     * Trigger file scan via Edge Function
+     */
+    async triggerFileScan(evidenceId, filePath) {
+        try {
+            const { data, error } = await this.client.functions.invoke('scan-file', {
+                body: { evidence_id: evidenceId, file_path: filePath }
+            });
+
+            if (error) throw error;
+            return data;
+        } catch (e) {
+            console.error('File scan failed:', e);
+            return { error: e.message };
+        }
+    }
+
+    /**
+     * Get all pending scans for current assessment
+     */
+    async getPendingScans() {
+        if (!this.currentAssessment) return [];
+
+        const { data, error } = await this.client
+            .from('evidence')
+            .select('id, file_name, scan_status, created_at')
+            .eq('assessment_id', this.currentAssessment.id)
+            .eq('scan_status', 'pending')
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        return data;
+    }
+
+    /**
+     * Get scan status badge info
+     */
+    getScanStatusBadge(status) {
+        const badges = {
+            pending: { text: 'Scanning...', class: 'scan-pending', icon: '⏳' },
+            scanning: { text: 'Scanning...', class: 'scan-scanning', icon: '🔄' },
+            clean: { text: 'Clean', class: 'scan-clean', icon: '✅' },
+            infected: { text: 'Threat Found', class: 'scan-infected', icon: '⚠️' },
+            error: { text: 'Scan Error', class: 'scan-error', icon: '❌' }
+        };
+        return badges[status] || badges.pending;
     }
 
     // ==========================================
