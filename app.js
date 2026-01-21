@@ -1314,6 +1314,12 @@ class AssessmentApp {
     exportPOAMCSV() {
         const poamItems = [];
         
+        // Get org info for export
+        const assessorName = this.orgData.assessorName || '';
+        const assessorUrl = this.orgData.assessorUrl || '';
+        const oscName = this.orgData.oscName || '';
+        const oscUrl = this.orgData.oscUrl || '';
+        
         CONTROL_FAMILIES.forEach(family => {
             family.controls.forEach(control => {
                 control.objectives.forEach(objective => {
@@ -1321,6 +1327,10 @@ class AssessmentApp {
                     if (assessment && (assessment.status === 'not-met' || assessment.status === 'partial')) {
                         const poam = this.poamData[objective.id] || {};
                         poamItems.push({
+                            'Assessor': assessorName,
+                            'Assessor Website': assessorUrl,
+                            'OSC': oscName,
+                            'OSC Website': oscUrl,
                             'Control Family': `${family.id} - ${family.name}`,
                             'Control ID': control.id,
                             'Control Name': control.name,
@@ -1358,7 +1368,10 @@ class AssessmentApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `POAM-${new Date().toISOString().split('T')[0]}.csv`;
+        
+        // Include OSC name in filename if available
+        const oscSlug = oscName ? oscName.replace(/[^a-z0-9]/gi, '-').toLowerCase() + '-' : '';
+        a.download = `POAM-${oscSlug}${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
         URL.revokeObjectURL(url);
 
