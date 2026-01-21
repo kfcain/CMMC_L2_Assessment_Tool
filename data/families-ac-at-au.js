@@ -203,7 +203,8 @@ const FAMILIES_AC_AT_AU = [
                     { id: "3.1.22[a]", text: "Individuals authorized to post or process information on publicly accessible systems are identified." },
                     { id: "3.1.22[b]", text: "Procedures to ensure CUI is not posted or processed on publicly accessible systems are identified." },
                     { id: "3.1.22[c]", text: "A review process is in place prior to posting of any content to publicly accessible systems." },
-                    { id: "3.1.22[d]", text: "Content on publicly accessible systems is reviewed to ensure that it does not include CUI." }
+                    { id: "3.1.22[d]", text: "Content on publicly accessible systems is reviewed to ensure that it does not include CUI." },
+                    { id: "3.1.22[e]", text: "Mechanisms are in place to remove and address improper posting of CUI." }
                 ]
             }
         ]

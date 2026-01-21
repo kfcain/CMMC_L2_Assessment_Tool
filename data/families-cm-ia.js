@@ -141,8 +141,7 @@ const FAMILIES_CM_IA = [
                 id: "3.5.4", name: "Replay-Resistant Authentication",
                 description: "Employ replay-resistant authentication mechanisms for network access to privileged and non-privileged accounts.",
                 objectives: [
-                    { id: "3.5.4[a]", text: "Replay-resistant authentication mechanisms are implemented for network account access to privileged accounts." },
-                    { id: "3.5.4[b]", text: "Replay-resistant authentication mechanisms are implemented for network access to non-privileged accounts." }
+                    { id: "3.5.4[a]", text: "Replay-resistant authentication mechanisms are implemented for network access to privileged and non-privileged accounts." }
                 ]
             },
             {
@@ -183,8 +182,7 @@ const FAMILIES_CM_IA = [
                 id: "3.5.9", name: "Temporary Password Change",
                 description: "Allow temporary password use for system logons with an immediate change to a permanent password.",
                 objectives: [
-                    { id: "3.5.9[a]", text: "Temporary passwords are allowed for use in system logons." },
-                    { id: "3.5.9[b]", text: "An immediate change to a permanent password is required when a temporary password is used for system logon." }
+                    { id: "3.5.9[a]", text: "An immediate change to a permanent password is required when a temporary password is used for system logon." }
                 ]
             },
             {
