@@ -70,8 +70,11 @@ class AssessmentApp {
                 if (this.orgData.assessorUrl) {
                     document.getElementById('org-assessor-url').value = this.orgData.assessorUrl;
                 }
-                if (this.orgData.assessorLogo) {
+                // Validate logo URL before displaying (clear bad cached URLs)
+                if (this.orgData.assessorLogo && !this.orgData.assessorLogo.includes('https;')) {
                     this.displayLogo('assessor', this.orgData.assessorLogo);
+                } else {
+                    this.orgData.assessorLogo = null;
                 }
                 // Populate the inputs - OSC
                 if (this.orgData.oscName) {
@@ -80,8 +83,11 @@ class AssessmentApp {
                 if (this.orgData.oscUrl) {
                     document.getElementById('org-osc-url').value = this.orgData.oscUrl;
                 }
-                if (this.orgData.oscLogo) {
+                // Validate logo URL before displaying (clear bad cached URLs)
+                if (this.orgData.oscLogo && !this.orgData.oscLogo.includes('https;')) {
                     this.displayLogo('osc', this.orgData.oscLogo);
+                } else {
+                    this.orgData.oscLogo = null;
                 }
             } catch (e) {
                 this.orgData = {};
