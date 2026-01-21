@@ -295,7 +295,9 @@ class AssessmentApp {
         objectiveDiv.dataset.objectiveId = objective.id;
 
         const status = this.assessmentData[objective.id]?.status || 'not-assessed';
-        const hasImplData = !!this.implementationData[objective.id];
+        const hasImplData = !!this.implementationData[objective.id]?.description;
+        const hasPoamData = !!(this.poamData[objective.id] || this.deficiencyData[objective.id]);
+        const showPoamLink = status === 'not-met' || status === 'partial';
 
         objectiveDiv.innerHTML = `
             <div class="objective-info">
@@ -325,6 +327,19 @@ class AssessmentApp {
             e.stopPropagation();
             this.openImplementationModal(objective, controlId);
         });
+
+        // Add POA&M link for not-met/partial items
+        if (showPoamLink) {
+            const poamLink = document.createElement('button');
+            poamLink.className = `poam-link visible ${hasPoamData ? 'has-data' : ''}`;
+            poamLink.title = 'Add to POA&M';
+            poamLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`;
+            poamLink.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.openPoamModal(objective, controlId);
+            });
+            objectiveDiv.querySelector('.objective-actions').appendChild(poamLink);
+        }
 
         return objectiveDiv;
     }
@@ -420,11 +435,26 @@ class AssessmentApp {
             }
         });
 
-        // Show/hide POAM link
-        const poamLink = objectiveDiv.querySelector('.poam-link');
+        // Show/hide POAM link - create if doesn't exist
+        let poamLink = objectiveDiv.querySelector('.poam-link');
         if (status === 'not-met' || status === 'partial') {
-            poamLink.classList.add('visible');
-        } else {
+            if (!poamLink) {
+                poamLink = document.createElement('button');
+                poamLink.className = 'poam-link visible';
+                poamLink.title = 'Add to POA&M';
+                poamLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`;
+                poamLink.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const objective = this.findObjectiveById(objectiveId);
+                    if (objective) {
+                        this.openPoamModal(objective, controlId);
+                    }
+                });
+                objectiveDiv.querySelector('.objective-actions').appendChild(poamLink);
+            } else {
+                poamLink.classList.add('visible');
+            }
+        } else if (poamLink) {
             poamLink.classList.remove('visible');
         }
 
@@ -434,6 +464,16 @@ class AssessmentApp {
         
         // Auto-save
         localStorage.setItem('nist-assessment-data', JSON.stringify(this.assessmentData));
+    }
+
+    findObjectiveById(objectiveId) {
+        for (const family of CONTROL_FAMILIES) {
+            for (const control of family.controls) {
+                const objective = control.objectives.find(o => o.id === objectiveId);
+                if (objective) return objective;
+            }
+        }
+        return null;
     }
 
     updateFamilyStats(familyId) {
