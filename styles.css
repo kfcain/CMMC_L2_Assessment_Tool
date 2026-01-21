@@ -1296,7 +1296,7 @@ body {
     max-height: 60px;
     object-fit: contain;
     border-radius: 6px;
-    background: white;
+    background: var(--bg-tertiary);
     padding: 8px;
 }
 
