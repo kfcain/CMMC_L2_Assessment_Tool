@@ -133,58 +133,79 @@ class AssessmentApp {
         let url = document.getElementById(urlInput)?.value.trim();
         if (!url) return;
         
-        // Clean up URL - extract domain
-        const domain = url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+        // Clean up URL - extract domain (handle various input formats)
+        let domain = url.toLowerCase();
+        domain = domain.replace(/^https?:\/\//, '');
+        domain = domain.replace(/^www\./, '');
+        domain = domain.split('/')[0];
+        domain = domain.split('?')[0];
         
-        // Try multiple logo sources in order of preference (high-quality first)
-        const logoSources = [
-            `https://img.logo.dev/${domain}?token=pk_X-1ZO13GSgeOoUrIuJ6GMQ`,
+        if (!domain || domain.length < 3) {
+            this.showToast('Please enter a valid domain', 'error');
+            return;
+        }
+        
+        this.showToast('Fetching logo...', 'info');
+        
+        // Try Clearbit first (most reliable for company logos)
+        const clearbitUrl = `https://logo.clearbit.com/${domain}`;
+        this.tryLogoWithValidation(clearbitUrl, type, domain, 0);
+    }
+
+    tryLogoWithValidation(logoUrl, type, domain, attempt) {
+        const sources = [
             `https://logo.clearbit.com/${domain}`,
-            `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=128`,
-            `https://icon.horse/icon/${domain}?size=large`,
+            `https://cdn.brandfetch.io/${domain}/w/400/h/400?c=1idFgHJQ1By`,
+            `https://api.faviconkit.com/${domain}/144`,
+            `https://icons.duckduckgo.com/ip3/${domain}.ico`,
             `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
         ];
         
-        this.showToast('Fetching logo...', 'info');
-        this.tryLogoSources(logoSources, 0, type, domain);
-    }
-
-    tryLogoSources(sources, index, type, domain) {
-        if (index >= sources.length) {
+        if (attempt >= sources.length) {
             this.showToast('Could not fetch logo - try uploading manually', 'error');
             return;
         }
         
-        const logoUrl = sources[index];
+        const currentUrl = sources[attempt];
         const testImg = new Image();
+        let resolved = false;
         
         testImg.onload = () => {
-            // Check if image loaded successfully
+            if (resolved) return;
+            resolved = true;
+            
+            // Skip tiny images (likely placeholders) unless it's the last option
+            if ((testImg.width < 32 || testImg.height < 32) && attempt < sources.length - 1) {
+                this.tryLogoWithValidation(null, type, domain, attempt + 1);
+                return;
+            }
+            
             if (type === 'assessor') {
-                this.orgData.assessorLogo = logoUrl;
-                this.displayLogo('assessor', logoUrl);
+                this.orgData.assessorLogo = currentUrl;
+                this.displayLogo('assessor', currentUrl);
             } else {
-                this.orgData.oscLogo = logoUrl;
-                this.displayLogo('osc', logoUrl);
+                this.orgData.oscLogo = currentUrl;
+                this.displayLogo('osc', currentUrl);
             }
             localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
             this.showToast('Logo fetched successfully', 'success');
         };
         
         testImg.onerror = () => {
-            // Try next source
-            this.tryLogoSources(sources, index + 1, type, domain);
+            if (resolved) return;
+            resolved = true;
+            this.tryLogoWithValidation(null, type, domain, attempt + 1);
         };
         
-        // Set timeout for slow sources
+        // Timeout for slow sources
         setTimeout(() => {
-            if (!testImg.complete) {
-                testImg.src = '';
-                this.tryLogoSources(sources, index + 1, type, domain);
+            if (!resolved) {
+                resolved = true;
+                this.tryLogoWithValidation(null, type, domain, attempt + 1);
             }
-        }, 3000);
+        }, 2500);
         
-        testImg.src = logoUrl;
+        testImg.src = currentUrl;
     }
 
     displayLogo(type, src) {
