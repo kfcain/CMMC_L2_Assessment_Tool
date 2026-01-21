@@ -1510,11 +1510,6 @@ class AssessmentApp {
             return;
         }
 
-        // Add "Completed" column for tracking
-        poamItems.forEach(item => {
-            item['Completed'] = '';
-        });
-
         // Create workbook with SheetJS
         const wb = XLSX.utils.book_new();
         
@@ -1533,11 +1528,20 @@ class AssessmentApp {
         wsActive['!cols'] = [
             {wch: 25}, {wch: 12}, {wch: 30}, {wch: 12}, {wch: 12}, {wch: 50},
             {wch: 12}, {wch: 40}, {wch: 40}, {wch: 15}, {wch: 20}, {wch: 12},
-            {wch: 15}, {wch: 30}, {wch: 12}
+            {wch: 15}, {wch: 30}
         ];
         
         // Merge org info cell across all columns
         wsActive['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: Object.keys(poamItems[0]).length - 1}}];
+        
+        // Add data validation for Status column (column G, index 6) with dropdown
+        const statusColIndex = 6; // Status column
+        const lastRow = poamItems.length + 2; // +2 for header rows
+        wsActive['!dataValidation'] = [{
+            sqref: `G3:G${lastRow}`,
+            type: 'list',
+            formula1: '"Met,Not Met,Partial"'
+        }];
         
         XLSX.utils.book_append_sheet(wb, wsActive, 'Active POA&M');
         
@@ -1551,24 +1555,48 @@ class AssessmentApp {
         wsCompleted['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: Object.keys(poamItems[0]).length - 1}}];
         XLSX.utils.book_append_sheet(wb, wsCompleted, 'Completed POA&M');
         
-        // Instructions sheet
+        // Instructions sheet with VBA macro code
         const instructions = [
             ['POA&M Management Instructions'],
             [''],
-            ['Managing Your POA&M:'],
-            ['1. The "Active POA&M" sheet contains all items that need remediation.'],
-            ['2. When an item is completed, mark "Yes" in the "Completed" column.'],
-            ['3. Cut the completed row and paste it into the "Completed POA&M" sheet.'],
-            ['4. Update the "Scheduled Completion" date with the actual completion date.'],
+            ['STATUS DROPDOWN:'],
+            ['The Status column (G) has a dropdown with Met, Not Met, and Partial options.'],
+            ['When you change an item to "Met", move that row to the "Completed POA&M" sheet.'],
             [''],
-            ['Automation Tips:'],
-            ['• In Excel: Use Filter on the "Completed" column to find items marked "Yes"'],
-            ['• In Google Sheets: Use Data > Filter, then move completed rows manually'],
-            ['• For advanced automation, create a macro to move rows with "Yes" in Completed column'],
+            ['MANUAL WORKFLOW:'],
+            ['1. Change Status dropdown to "Met" when objective is complete'],
+            ['2. Cut the entire row (select row number, Ctrl+X / Cmd+X)'],
+            ['3. Go to "Completed POA&M" sheet'],
+            ['4. Paste at the bottom (Ctrl+V / Cmd+V)'],
             [''],
-            ['Status Definitions:'],
+            ['EXCEL VBA MACRO (Optional - Auto-moves Met items):'],
+            ['To add automation, press Alt+F11, insert a Module, and paste this code:'],
+            [''],
+            ['Sub MoveMetItems()'],
+            ['    Dim wsActive As Worksheet, wsCompleted As Worksheet'],
+            ['    Dim lastRowActive As Long, lastRowCompleted As Long'],
+            ['    Dim i As Long'],
+            ['    Set wsActive = Sheets("Active POA&M")'],
+            ['    Set wsCompleted = Sheets("Completed POA&M")'],
+            ['    lastRowActive = wsActive.Cells(wsActive.Rows.Count, "A").End(xlUp).Row'],
+            ['    For i = lastRowActive To 3 Step -1'],
+            ['        If wsActive.Cells(i, 7).Value = "Met" Then'],
+            ['            lastRowCompleted = wsCompleted.Cells(wsCompleted.Rows.Count, "A").End(xlUp).Row + 1'],
+            ['            wsActive.Rows(i).Copy wsCompleted.Rows(lastRowCompleted)'],
+            ['            wsActive.Rows(i).Delete'],
+            ['        End If'],
+            ['    Next i'],
+            ['End Sub'],
+            [''],
+            ['Run the macro with Alt+F8 > MoveMetItems > Run'],
+            [''],
+            ['GOOGLE SHEETS SCRIPT (Optional):'],
+            ['Go to Extensions > Apps Script and paste similar logic.'],
+            [''],
+            ['STATUS DEFINITIONS:'],
+            ['• Met: Objective has been fully implemented'],
             ['• Not Met: Objective has not been implemented'],
-            ['• Partial: Objective is partially implemented but not fully compliant'],
+            ['• Partial: Objective is partially implemented'],
             [''],
             ['Generated: ' + new Date().toLocaleString()]
         ];
