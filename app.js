@@ -1327,50 +1327,57 @@ class AssessmentApp {
         container.innerHTML = html;
 
         // Bind family link clicks
-        const links = container.querySelectorAll('.dashboard-family-link');
-        console.log('Found dashboard-family-links:', links.length);
-        links.forEach(link => {
-            link.style.cursor = 'pointer';
+        container.querySelectorAll('.dashboard-family-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const familyId = link.dataset.familyId;
-                console.log('Clicked family:', familyId);
-                this.navigateToFamily(familyId);
+                this.navigateToFamily(link.dataset.familyId);
             });
         });
     }
 
     navigateToFamily(familyId) {
-        console.log('navigateToFamily called with:', familyId);
         // Switch to assessment view
         this.switchView('assessment');
+        
+        // Ensure controls are rendered
+        const controlsList = document.getElementById('controls-list');
+        if (controlsList && controlsList.children.length === 0) {
+            this.renderControls();
+        }
         
         // Find and expand the family's controls after view has rendered
         setTimeout(() => {
             const controlsList = document.getElementById('controls-list');
             if (!controlsList) return;
             
-            const familyControls = controlsList.querySelectorAll(`.control-header[data-family-id="${familyId}"]`);
+            // Find and expand the family container
+            const familyEl = controlsList.querySelector(`.control-family[data-family-id="${familyId}"]`);
             
-            if (familyControls.length > 0) {
-                // Expand all controls in this family first
-                familyControls.forEach(header => {
+            if (familyEl) {
+                const familyHeader = familyEl.querySelector('.family-header');
+                const familyControlsContainer = familyEl.querySelector('.family-controls');
+                
+                // Expand the family accordion
+                if (familyHeader && familyControlsContainer) {
+                    familyHeader.classList.add('expanded');
+                    familyControlsContainer.classList.add('expanded');
+                }
+                
+                // Expand all control objectives within this family
+                familyEl.querySelectorAll('.control-header').forEach(header => {
                     const objectivesDiv = header.nextElementSibling;
                     if (objectivesDiv) {
-                        objectivesDiv.classList.add('expanded');
                         header.classList.add('expanded');
+                        objectivesDiv.classList.add('expanded');
                     }
                 });
                 
-                // Then scroll to first control
+                // Scroll to family element
                 setTimeout(() => {
-                    const firstControl = familyControls[0].closest('.control-item');
-                    if (firstControl) {
-                        firstControl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    familyEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 50);
             }
-        }, 200);
+        }, 300);
     }
 
     exportAssessmentCSV() {
