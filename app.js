@@ -583,6 +583,9 @@ class AssessmentApp {
         // Build related objectives section
         const relatedHtml = this.renderRelatedObjectives(controlId);
 
+        // Build ITAR guidance section
+        const itarHtml = this.renderITARGuidance(controlId);
+
         // Build cloud guidance section with provider toggle
         const guidanceHtml = `
             <div class="cloud-guidance-section">
@@ -637,6 +640,7 @@ class AssessmentApp {
             </div>
             <div class="objective-details">
                 <div class="detail-row"><span class="detail-label">External Ref:</span> <span class="detail-value">${xrefId || 'N/A'}</span></div>
+                ${itarHtml}
                 ${relatedHtml}
                 ${cheatSheetHtml}
                 ${guidanceHtml}
@@ -854,6 +858,52 @@ class AssessmentApp {
                 </button>
                 <div class="related-content">
                     ${groupsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    renderITARGuidance(controlId) {
+        const itarData = typeof getITARGuidance === 'function' ? getITARGuidance(controlId) : null;
+
+        if (!itarData || !itarData.hasITARImplications) {
+            return '';
+        }
+
+        const severityClass = itarData.severity || 'medium';
+        const severityLabel = {
+            critical: 'Critical - US Persons Only',
+            high: 'High - Significant Restrictions',
+            medium: 'Medium - ITAR Considerations'
+        }[severityClass] || 'ITAR Applicable';
+
+        const restrictionsList = itarData.restrictions.map(r => `<li>${r}</li>`).join('');
+        const evidenceList = itarData.evidence ? itarData.evidence.map(e => `<li>${e}</li>`).join('') : '';
+
+        return `
+            <div class="itar-guidance-section">
+                <div class="itar-header">
+                    <div class="itar-badge ${severityClass}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>ITAR</span>
+                    </div>
+                    <span class="itar-severity">${severityLabel}</span>
+                </div>
+                <div class="itar-content">
+                    <div class="itar-subsection">
+                        <div class="itar-subtitle">Restrictions (Non-US Person Limitations)</div>
+                        <ul class="itar-list">${restrictionsList}</ul>
+                    </div>
+                    <div class="itar-subsection">
+                        <div class="itar-subtitle">Implementation Guidance</div>
+                        <p class="itar-implementation">${itarData.implementation}</p>
+                    </div>
+                    ${evidenceList ? `
+                    <div class="itar-subsection">
+                        <div class="itar-subtitle">ITAR-Specific Evidence</div>
+                        <ul class="itar-list">${evidenceList}</ul>
+                    </div>
+                    ` : ''}
                 </div>
             </div>
         `;
