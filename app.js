@@ -587,6 +587,9 @@ class AssessmentApp {
         // Build ITAR guidance section
         const itarHtml = this.renderITARGuidance(controlId);
 
+        // Build cross-framework mappings section
+        const frameworkHtml = this.renderFrameworkMappings(controlId);
+
         // Build cloud guidance section with provider toggle
         const guidanceHtml = `
             <div class="cloud-guidance-section">
@@ -641,6 +644,7 @@ class AssessmentApp {
             </div>
             <div class="objective-details">
                 <div class="detail-row"><span class="detail-label">External Ref:</span> <span class="detail-value">${xrefId || 'N/A'}</span></div>
+                ${frameworkHtml}
                 ${itarHtml}
                 ${relatedHtml}
                 ${cheatSheetHtml}
@@ -926,6 +930,48 @@ class AssessmentApp {
                         <ul class="itar-list">${evidenceList}</ul>
                     </div>
                     ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    renderFrameworkMappings(controlId) {
+        const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(controlId) : null;
+        
+        if (!mapping) return '';
+
+        // Build NIST 800-53 links
+        const nist53Html = mapping.nist80053 && mapping.nist80053.length > 0
+            ? mapping.nist80053.map(ctrl => `<a href="https://csf.tools/reference/nist-sp-800-53/r5/${ctrl.toLowerCase().replace(/[()]/g, '')}/" target="_blank" rel="noopener" class="framework-link nist53">${ctrl}</a>`).join('')
+            : '<span class="framework-na">N/A</span>';
+
+        // Build FedRAMP baseline badges
+        const fedrampHtml = `
+            <div class="fedramp-baselines">
+                <span class="baseline-badge ${mapping.fedramp.low ? 'active' : 'inactive'}" title="FedRAMP Low">L</span>
+                <span class="baseline-badge ${mapping.fedramp.moderate ? 'active' : 'inactive'}" title="FedRAMP Moderate">M</span>
+                <span class="baseline-badge ${mapping.fedramp.high ? 'active' : 'inactive'}" title="FedRAMP High">H</span>
+            </div>
+        `;
+
+        // Build CMMC practice badge
+        const cmmcHtml = mapping.cmmc 
+            ? `<span class="cmmc-practice">${mapping.cmmc.practice}</span>`
+            : '';
+
+        return `
+            <div class="framework-mappings-section">
+                <div class="framework-row">
+                    <span class="framework-label">NIST 800-53 Rev 5:</span>
+                    <div class="framework-links">${nist53Html}</div>
+                </div>
+                <div class="framework-row">
+                    <span class="framework-label">FedRAMP Baseline:</span>
+                    ${fedrampHtml}
+                </div>
+                <div class="framework-row">
+                    <span class="framework-label">CMMC 2.0:</span>
+                    <div class="framework-links">${cmmcHtml}</div>
                 </div>
             </div>
         `;

@@ -2716,3 +2716,105 @@ body {
     color: #c9d1d9;
     border-color: #8b949e;
 }
+
+/* Framework Mappings Styles */
+.framework-mappings-section {
+    margin: 12px 0;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.framework-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+}
+
+.framework-row:not(:last-child) {
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.framework-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    min-width: 120px;
+    flex-shrink: 0;
+}
+
+.framework-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.framework-link {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.15s;
+}
+
+.framework-link.nist53 {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.framework-link.nist53:hover {
+    background: rgba(59, 130, 246, 0.25);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.framework-na {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.fedramp-baselines {
+    display: flex;
+    gap: 4px;
+}
+
+.baseline-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    font-size: 0.625rem;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: default;
+}
+
+.baseline-badge.active {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: white;
+}
+
+.baseline-badge.inactive {
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+.cmmc-practice {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    color: white;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+}
