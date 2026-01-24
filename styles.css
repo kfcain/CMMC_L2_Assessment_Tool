@@ -431,14 +431,22 @@ body {
 }
 
 .objective-details {
-    display: none;
-    padding: 0 20px 16px 40px;
+    display: grid;
+    grid-template-rows: 0fr;
+    padding: 0 20px 0 40px;
     background: var(--bg-tertiary);
     border-top: 1px dashed var(--border-color);
+    transition: grid-template-rows 0.25s ease-out, padding 0.25s ease-out;
+    overflow: hidden;
+}
+
+.objective-details > * {
+    overflow: hidden;
 }
 
 .objective-item.expanded .objective-details {
-    display: block;
+    grid-template-rows: 1fr;
+    padding: 0 20px 16px 40px;
 }
 
 .detail-row {

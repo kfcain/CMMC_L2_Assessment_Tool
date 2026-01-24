@@ -312,9 +312,11 @@ class AssessmentApp {
     populateFamilyFilter() {
         const select = document.getElementById('filter-family');
         CONTROL_FAMILIES.forEach(family => {
+            // Count total objectives in this family
+            const objectiveCount = family.controls.reduce((sum, ctrl) => sum + (ctrl.objectives?.length || 0), 0);
             const option = document.createElement('option');
             option.value = family.id;
-            option.textContent = `${family.id} - ${family.name}`;
+            option.textContent = `${family.id} - ${family.name} (${objectiveCount})`;
             select.appendChild(option);
         });
     }
