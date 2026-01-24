@@ -7,19 +7,31 @@ const GCC_HIGH_GUIDANCE = {
         automation: "Use Microsoft Entra ID to query all users via Graph API. Run `Get-MgUser -All` in PowerShell. Set up automated user provisioning from HR systems.",
         azureService: "Microsoft Entra ID, Azure AD Connect",
         humanIntervention: "Review and approve user list quarterly. Verify alignment with HR records.",
-        docLink: "https://learn.microsoft.com/en-us/entra/fundamentals/users-default-permissions"
+        docLink: "https://learn.microsoft.com/en-us/entra/fundamentals/users-default-permissions",
+        cliCommands: [
+            "Get-MgUser -All | Select DisplayName, UserPrincipalName, AccountEnabled",
+            "az ad user list --query \"[].{Name:displayName, UPN:userPrincipalName, Enabled:accountEnabled}\" -o table"
+        ]
     },
     "3.1.1[b]": {
         automation: "Use Managed Identities and Service Principals. Query with `Get-MgServicePrincipal -All`. Monitor via Entra ID audit logs.",
         azureService: "Managed Identities, Service Principals",
         humanIntervention: "Document business justification for each service principal. Review quarterly.",
-        docLink: "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview"
+        docLink: "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview",
+        cliCommands: [
+            "Get-MgServicePrincipal -All | Select DisplayName, AppId, ServicePrincipalType",
+            "az ad sp list --all --query \"[].{Name:displayName, AppId:appId, Type:servicePrincipalType}\" -o table"
+        ]
     },
     "3.1.1[c]": {
         automation: "Use Microsoft Intune device compliance policies and Conditional Access. Query enrolled devices via `Get-MgDeviceManagementManagedDevice`.",
         azureService: "Microsoft Intune, Conditional Access",
         humanIntervention: "Approve device enrollment requests. Define compliance baseline requirements.",
-        docLink: "https://learn.microsoft.com/en-us/mem/intune/protect/device-compliance-get-started"
+        docLink: "https://learn.microsoft.com/en-us/mem/intune/protect/device-compliance-get-started",
+        cliCommands: [
+            "Get-MgDeviceManagementManagedDevice -All | Select DeviceName, ComplianceState, OperatingSystem",
+            "az rest --method GET --url \"https://graph.microsoft.com/v1.0/deviceManagement/managedDevices\""
+        ]
     },
     "3.1.1[d]": {
         automation: "Implement Conditional Access policies requiring compliant device + user auth. Enable MFA via Security Defaults or CA policies.",

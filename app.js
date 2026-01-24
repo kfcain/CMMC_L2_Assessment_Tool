@@ -740,6 +740,25 @@ class AssessmentApp {
             return `<div class="guidance-unavailable">Guidance not available for this cloud provider.</div>`;
         }
 
+        // Build CLI commands HTML if available
+        let cliHtml = '';
+        if (guidance.cliCommands && guidance.cliCommands.length > 0) {
+            const cmdList = guidance.cliCommands.map(cmd => `
+                <div class="cli-command">
+                    <code>${cmd}</code>
+                    <button class="cli-copy-btn" title="Copy command" onclick="navigator.clipboard.writeText('${cmd.replace(/'/g, "\\'")}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    </button>
+                </div>
+            `).join('');
+            cliHtml = `
+                <div class="guidance-item cli-section">
+                    <span class="guidance-label">Verification Commands:</span>
+                    <div class="cli-commands">${cmdList}</div>
+                </div>
+            `;
+        }
+
         return `
             <div class="guidance-item">
                 <span class="guidance-label">Automation:</span>
@@ -753,6 +772,7 @@ class AssessmentApp {
                 <span class="guidance-label">Human Intervention:</span>
                 <span class="guidance-value">${guidance.humanIntervention}</span>
             </div>
+            ${cliHtml}
             ${guidance.docLink ? `<a href="${guidance.docLink}" target="_blank" rel="noopener noreferrer" class="guidance-doc-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 View Documentation
@@ -2096,4 +2116,278 @@ class AssessmentApp {
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new AssessmentApp();
+    
+    // Initialize Cmd+K search
+    initGlobalSearch();
 });
+
+// Global Search (Cmd+K) functionality
+function initGlobalSearch() {
+    const modal = document.getElementById('search-modal');
+    const input = document.getElementById('search-modal-input');
+    const results = document.getElementById('search-modal-results');
+    const backdrop = modal?.querySelector('.search-modal-backdrop');
+    
+    if (!modal || !input || !results) return;
+    
+    let selectedIndex = -1;
+    let searchResults = [];
+    
+    // Build searchable index
+    const searchIndex = buildSearchIndex();
+    
+    // Keyboard shortcut: Cmd+K or Ctrl+K
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            openSearchModal();
+        }
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeSearchModal();
+        }
+    });
+    
+    // Close on backdrop click
+    backdrop?.addEventListener('click', closeSearchModal);
+    
+    // Search input handler
+    input.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        if (query.length < 2) {
+            results.innerHTML = `
+                <div class="search-empty-state">
+                    <p>Start typing to search across all controls and objectives</p>
+                    <div class="search-hints">
+                        <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+                        <span><kbd>Enter</kbd> Select</span>
+                        <span><kbd>ESC</kbd> Close</span>
+                    </div>
+                </div>
+            `;
+            searchResults = [];
+            selectedIndex = -1;
+            return;
+        }
+        
+        searchResults = performSearch(searchIndex, query);
+        renderSearchResults(results, searchResults, query);
+        selectedIndex = searchResults.length > 0 ? 0 : -1;
+        updateSelectedResult(results, selectedIndex);
+    });
+    
+    // Keyboard navigation in results
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (selectedIndex < searchResults.length - 1) {
+                selectedIndex++;
+                updateSelectedResult(results, selectedIndex);
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (selectedIndex > 0) {
+                selectedIndex--;
+                updateSelectedResult(results, selectedIndex);
+            }
+        } else if (e.key === 'Enter' && selectedIndex >= 0) {
+            e.preventDefault();
+            selectSearchResult(searchResults[selectedIndex]);
+            closeSearchModal();
+        }
+    });
+    
+    function openSearchModal() {
+        modal.classList.add('active');
+        input.value = '';
+        input.focus();
+        selectedIndex = -1;
+        results.innerHTML = `
+            <div class="search-empty-state">
+                <p>Start typing to search across all controls and objectives</p>
+                <div class="search-hints">
+                    <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+                    <span><kbd>Enter</kbd> Select</span>
+                    <span><kbd>ESC</kbd> Close</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    function closeSearchModal() {
+        modal.classList.remove('active');
+        input.value = '';
+    }
+}
+
+function buildSearchIndex() {
+    const index = [];
+    
+    if (typeof CONTROL_FAMILIES === 'undefined') return index;
+    
+    CONTROL_FAMILIES.forEach(family => {
+        // Add family to index
+        index.push({
+            type: 'family',
+            id: family.id,
+            title: family.name,
+            description: `${family.controls.length} controls`,
+            familyId: family.id
+        });
+        
+        family.controls.forEach(control => {
+            // Add control to index
+            index.push({
+                type: 'control',
+                id: control.id,
+                title: `${control.id} - ${control.name}`,
+                description: control.description || '',
+                familyId: family.id,
+                controlId: control.id
+            });
+            
+            // Add objectives to index
+            control.objectives?.forEach(obj => {
+                index.push({
+                    type: 'objective',
+                    id: obj.id,
+                    title: obj.id,
+                    description: obj.text,
+                    familyId: family.id,
+                    controlId: control.id,
+                    objectiveId: obj.id
+                });
+            });
+        });
+    });
+    
+    return index;
+}
+
+function performSearch(index, query) {
+    const lowerQuery = query.toLowerCase();
+    const words = lowerQuery.split(/\s+/);
+    
+    const scored = index.map(item => {
+        let score = 0;
+        const titleLower = item.title.toLowerCase();
+        const descLower = item.description.toLowerCase();
+        
+        // Exact ID match gets highest score
+        if (item.id.toLowerCase() === lowerQuery) {
+            score += 100;
+        } else if (item.id.toLowerCase().includes(lowerQuery)) {
+            score += 50;
+        }
+        
+        // Title matches
+        if (titleLower.includes(lowerQuery)) {
+            score += 30;
+        }
+        
+        // Word matches in title/description
+        words.forEach(word => {
+            if (titleLower.includes(word)) score += 10;
+            if (descLower.includes(word)) score += 5;
+        });
+        
+        return { ...item, score };
+    });
+    
+    return scored
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 15);
+}
+
+function renderSearchResults(container, results, query) {
+    if (results.length === 0) {
+        container.innerHTML = `
+            <div class="search-no-results">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="m11 8v6"/><path d="m8 11h6"/></svg>
+                <p>No results found for "${query}"</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const highlightText = (text, query) => {
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    };
+    
+    const icons = {
+        family: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/></svg>',
+        control: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+        objective: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>'
+    };
+    
+    const html = results.map((item, idx) => `
+        <div class="search-result-item${idx === 0 ? ' selected' : ''}" data-index="${idx}">
+            <div class="search-result-icon">${icons[item.type]}</div>
+            <div class="search-result-content">
+                <div class="search-result-title">${highlightText(item.title, query)}</div>
+                <div class="search-result-description">${item.description.substring(0, 100)}${item.description.length > 100 ? '...' : ''}</div>
+                <div class="search-result-meta">
+                    <span class="search-result-badge">${item.type}</span>
+                    ${item.familyId ? `<span class="search-result-badge">${item.familyId}</span>` : ''}
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = html;
+    
+    // Add click handlers
+    container.querySelectorAll('.search-result-item').forEach(el => {
+        el.addEventListener('click', () => {
+            const idx = parseInt(el.dataset.index);
+            selectSearchResult(results[idx]);
+            document.getElementById('search-modal').classList.remove('active');
+        });
+    });
+}
+
+function updateSelectedResult(container, index) {
+    container.querySelectorAll('.search-result-item').forEach((el, idx) => {
+        el.classList.toggle('selected', idx === index);
+        if (idx === index) {
+            el.scrollIntoView({ block: 'nearest' });
+        }
+    });
+}
+
+function selectSearchResult(item) {
+    if (!window.app) return;
+    
+    // Switch to assessment view
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelector('[data-view="assessment"]')?.classList.add('active');
+    window.app.currentView = 'assessment';
+    document.getElementById('dashboard-view').classList.add('hidden');
+    document.getElementById('assessment-view').classList.remove('hidden');
+    
+    // Set family filter
+    const familyFilter = document.getElementById('family-filter');
+    if (familyFilter && item.familyId) {
+        familyFilter.value = item.familyId;
+        window.app.renderControls();
+    }
+    
+    // Scroll to and highlight the item
+    setTimeout(() => {
+        let targetEl;
+        if (item.type === 'objective' && item.objectiveId) {
+            targetEl = document.querySelector(`[data-objective-id="${item.objectiveId}"]`);
+            if (targetEl) {
+                targetEl.classList.add('expanded');
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetEl.style.animation = 'highlightPulse 1s ease-out';
+            }
+        } else if (item.type === 'control' && item.controlId) {
+            targetEl = document.querySelector(`[data-control-id="${item.controlId}"]`);
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }, 100);
+}
