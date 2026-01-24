@@ -26,16 +26,15 @@ class AssessmentApp {
         const notice = document.getElementById('data-storage-notice');
         const acknowledgeBtn = document.getElementById('acknowledge-notice-btn');
         
-        // Check if user has already acknowledged
-        if (localStorage.getItem('data-storage-notice-acknowledged') === 'true') {
-            notice?.classList.add('hidden');
-            return;
+        // Check if user has already acknowledged - if not, show the notice
+        if (localStorage.getItem('data-storage-notice-acknowledged') !== 'true') {
+            notice?.classList.add('visible');
         }
         
         // Bind acknowledge button
         acknowledgeBtn?.addEventListener('click', () => {
             localStorage.setItem('data-storage-notice-acknowledged', 'true');
-            notice?.classList.add('hidden');
+            notice?.classList.remove('visible');
         });
     }
 

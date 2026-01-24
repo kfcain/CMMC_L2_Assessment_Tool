@@ -1897,6 +1897,7 @@ body {
 
 /* Data Storage Notice Styles */
 .data-storage-notice {
+    display: none;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -1909,9 +1910,10 @@ body {
     animation: slideUp 0.3s ease-out;
 }
 
-.data-storage-notice.hidden {
-    display: none;
+.data-storage-notice.visible {
+    display: block;
 }
+
 
 @keyframes slideUp {
     from {
