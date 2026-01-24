@@ -19,6 +19,24 @@ class AssessmentApp {
         this.updateProgress();
         this.bindEvents();
         this.renderDashboard(); // Show dashboard on load
+        this.initDataStorageNotice();
+    }
+
+    initDataStorageNotice() {
+        const notice = document.getElementById('data-storage-notice');
+        const acknowledgeBtn = document.getElementById('acknowledge-notice-btn');
+        
+        // Check if user has already acknowledged
+        if (localStorage.getItem('data-storage-notice-acknowledged') === 'true') {
+            notice?.classList.add('hidden');
+            return;
+        }
+        
+        // Bind acknowledge button
+        acknowledgeBtn?.addEventListener('click', () => {
+            localStorage.setItem('data-storage-notice-acknowledged', 'true');
+            notice?.classList.add('hidden');
+        });
     }
 
     loadSavedData() {
@@ -559,6 +577,46 @@ class AssessmentApp {
         const showPoamLink = status === 'not-met' || status === 'partial';
         const xrefId = typeof CTRL_XREF !== 'undefined' ? (CTRL_XREF[objective.id] || '') : '';
 
+        // Build assessor cheat sheet section
+        const cheatSheetHtml = this.renderAssessorCheatSheet(objective.id, controlId);
+
+        // Build related objectives section
+        const relatedHtml = this.renderRelatedObjectives(controlId);
+
+        // Build cloud guidance section with provider toggle
+        const guidanceHtml = `
+            <div class="cloud-guidance-section">
+                <div class="cloud-provider-toggle">
+                    <button class="cloud-btn active" data-cloud="azure" title="Microsoft Azure / M365 GCC High">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M5.483 21.3H24L14.025 4.013l-3.038 8.347 5.836 6.938L5.483 21.3zM13.049 2.7L0 17.623h4.494L13.049 2.7z"/></svg>
+                        <span>Azure</span>
+                    </button>
+                    <button class="cloud-btn" data-cloud="aws" title="AWS GovCloud">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M6.763 10.036c0 .296.032.535.088.71.064.176.144.368.256.576.04.063.056.127.056.183 0 .08-.048.16-.152.24l-.503.335a.383.383 0 0 1-.208.072c-.08 0-.16-.04-.239-.112a2.47 2.47 0 0 1-.287-.375 6.18 6.18 0 0 1-.248-.471c-.622.734-1.405 1.101-2.347 1.101-.67 0-1.205-.191-1.596-.574-.391-.384-.59-.894-.59-1.533 0-.678.239-1.23.726-1.644.487-.415 1.133-.623 1.955-.623.272 0 .551.024.846.064.296.04.6.104.918.176v-.583c0-.607-.127-1.03-.375-1.277-.255-.248-.686-.367-1.3-.367-.28 0-.568.031-.863.103-.295.072-.583.16-.862.272a2.287 2.287 0 0 1-.28.104.488.488 0 0 1-.127.023c-.112 0-.168-.08-.168-.247v-.391c0-.128.016-.224.056-.28a.597.597 0 0 1 .224-.167c.279-.144.614-.264 1.005-.36a4.84 4.84 0 0 1 1.246-.151c.95 0 1.644.216 2.091.647.439.43.662 1.085.662 1.963v2.586zm-3.24 1.214c.263 0 .534-.048.822-.144.287-.096.543-.271.758-.51.128-.152.224-.32.272-.512.047-.191.08-.423.08-.694v-.335a6.66 6.66 0 0 0-.735-.136 6.02 6.02 0 0 0-.75-.048c-.535 0-.926.104-1.19.32-.263.215-.39.518-.39.917 0 .375.095.655.295.846.191.2.47.296.838.296zm6.41.862c-.144 0-.24-.024-.304-.08-.064-.048-.12-.16-.168-.311L7.586 5.55a1.398 1.398 0 0 1-.072-.32c0-.128.064-.2.191-.2h.783c.151 0 .255.025.31.08.065.048.113.16.16.312l1.342 5.284 1.245-5.284c.04-.16.088-.264.151-.312a.549.549 0 0 1 .32-.08h.638c.152 0 .256.025.32.08.063.048.12.16.151.312l1.261 5.348 1.381-5.348c.048-.16.104-.264.16-.312a.52.52 0 0 1 .311-.08h.743c.127 0 .2.065.2.2 0 .04-.009.08-.017.128a1.137 1.137 0 0 1-.056.2l-1.923 6.17c-.048.16-.104.263-.168.311a.51.51 0 0 1-.303.08h-.687c-.151 0-.255-.024-.32-.08-.063-.056-.119-.16-.15-.32l-1.238-5.148-1.23 5.14c-.04.16-.087.264-.15.32-.065.056-.177.08-.32.08zm10.256.215c-.415 0-.83-.048-1.229-.143-.399-.096-.71-.2-.918-.32-.128-.071-.215-.151-.247-.223a.563.563 0 0 1-.048-.224v-.407c0-.167.064-.247.183-.247.048 0 .096.008.144.024.048.016.12.048.2.08.271.12.566.215.878.279.319.064.63.096.95.096.502 0 .894-.088 1.165-.264a.86.86 0 0 0 .415-.758.777.777 0 0 0-.215-.559c-.144-.151-.416-.287-.807-.414l-1.157-.36c-.583-.183-1.014-.454-1.277-.813a1.902 1.902 0 0 1-.4-1.158c0-.335.073-.63.216-.886.144-.255.335-.479.575-.654.24-.184.51-.32.83-.415.32-.096.655-.136 1.006-.136.175 0 .359.008.535.032.183.024.35.056.518.088.16.04.312.08.455.127.144.048.256.096.336.144a.69.69 0 0 1 .24.2.43.43 0 0 1 .071.263v.375c0 .168-.064.256-.184.256a.83.83 0 0 1-.303-.096 3.652 3.652 0 0 0-1.532-.311c-.455 0-.815.071-1.062.223-.248.152-.375.383-.375.71 0 .224.08.416.24.567.159.152.454.304.877.44l1.134.358c.574.184.99.44 1.237.767.247.327.367.702.367 1.117 0 .343-.072.655-.207.926-.144.272-.336.511-.583.703-.248.2-.543.343-.886.447-.36.111-.734.167-1.142.167z"/></svg>
+                        <span>AWS</span>
+                    </button>
+                    <button class="cloud-btn" data-cloud="gcp" title="Google Cloud Platform">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12.19 2.38a9.344 9.344 0 0 0-9.234 6.893c.053-.02-.055.013 0 0-3.875 2.551-3.922 8.11-.247 10.941l.006-.007-.007.03a6.717 6.717 0 0 0 4.077 1.356h5.173l.03.03h5.192c6.687.053 9.376-8.605 3.835-12.35a9.365 9.365 0 0 0-8.825-6.893zM8.073 19.28a4.405 4.405 0 0 1-2.14-.562l-.035-.02 3.834-3.835-.007.007a2.083 2.083 0 0 0 .496-1.317 2.126 2.126 0 0 0-2.122-2.122c-.49 0-.963.18-1.32.496l.007-.006-3.835 3.834a4.473 4.473 0 0 1 .517-5.857 4.476 4.476 0 0 1 6.37.041l4.388-4.388a9.049 9.049 0 0 0-5.19-1.896A9.344 9.344 0 0 0 3.14 9.115l-.007-.007a6.64 6.64 0 0 0-.096 6.63l.006-.006a6.655 6.655 0 0 0 5.03 3.548zm11.108-7.073l.007-.007a4.478 4.478 0 0 1-1.593 6.09 4.418 4.418 0 0 1-2.168.562h-3.304l4.078-4.078a2.126 2.126 0 0 0 2.083-3.402l3.834-3.834a6.72 6.72 0 0 1-.096 6.627l-2.841-1.958z"/></svg>
+                        <span>GCP</span>
+                    </button>
+                </div>
+                <div class="cloud-guidance-content" data-objective-id="${objective.id}">
+                    <!-- Azure guidance (default visible) -->
+                    <div class="cloud-guidance-panel active" data-cloud="azure">
+                        ${this.renderCloudGuidance('azure', objective.id)}
+                    </div>
+                    <!-- AWS guidance -->
+                    <div class="cloud-guidance-panel" data-cloud="aws">
+                        ${this.renderCloudGuidance('aws', objective.id)}
+                    </div>
+                    <!-- GCP guidance -->
+                    <div class="cloud-guidance-panel" data-cloud="gcp">
+                        ${this.renderCloudGuidance('gcp', objective.id)}
+                    </div>
+                </div>
+            </div>
+        `;
+
         objectiveDiv.innerHTML = `
             <div class="objective-main">
                 <button class="objective-expand" title="Show details">
@@ -579,6 +637,9 @@ class AssessmentApp {
             </div>
             <div class="objective-details">
                 <div class="detail-row"><span class="detail-label">External Ref:</span> <span class="detail-value">${xrefId || 'N/A'}</span></div>
+                ${relatedHtml}
+                ${cheatSheetHtml}
+                ${guidanceHtml}
             </div>
         `;
 
@@ -615,7 +676,187 @@ class AssessmentApp {
             objectiveDiv.querySelector('.objective-actions').appendChild(poamLink);
         }
 
+        // Bind cloud provider toggle buttons
+        objectiveDiv.querySelectorAll('.cloud-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const cloud = btn.dataset.cloud;
+                const section = objectiveDiv.querySelector('.cloud-guidance-section');
+                
+                // Update active button
+                section.querySelectorAll('.cloud-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update active panel
+                section.querySelectorAll('.cloud-guidance-panel').forEach(p => p.classList.remove('active'));
+                section.querySelector(`.cloud-guidance-panel[data-cloud="${cloud}"]`).classList.add('active');
+            });
+        });
+
+        // Bind cheat sheet toggle
+        const cheatSheetToggle = objectiveDiv.querySelector('.cheat-sheet-toggle');
+        if (cheatSheetToggle) {
+            cheatSheetToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const cheatSheet = objectiveDiv.querySelector('.assessor-cheat-sheet');
+                cheatSheet.classList.toggle('expanded');
+            });
+        }
+
+        // Bind related objectives toggle
+        const relatedToggle = objectiveDiv.querySelector('.related-toggle');
+        if (relatedToggle) {
+            relatedToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const relatedSection = objectiveDiv.querySelector('.related-objectives-section');
+                relatedSection.classList.toggle('expanded');
+            });
+        }
+
         return objectiveDiv;
+    }
+
+    renderCloudGuidance(cloud, objectiveId) {
+        let guidance, serviceName, serviceLabel;
+        
+        if (cloud === 'azure') {
+            guidance = typeof getGCCHighGuidance === 'function' ? getGCCHighGuidance(objectiveId) : null;
+            serviceName = guidance?.azureService || 'N/A';
+            serviceLabel = 'Azure Service';
+        } else if (cloud === 'aws') {
+            guidance = typeof getAWSGovCloudGuidance === 'function' ? getAWSGovCloudGuidance(objectiveId) : null;
+            serviceName = guidance?.awsService || 'N/A';
+            serviceLabel = 'AWS Service';
+        } else if (cloud === 'gcp') {
+            guidance = typeof getGCPGuidance === 'function' ? getGCPGuidance(objectiveId) : null;
+            serviceName = guidance?.gcpService || 'N/A';
+            serviceLabel = 'GCP Service';
+        }
+
+        if (!guidance) {
+            return `<div class="guidance-unavailable">Guidance not available for this cloud provider.</div>`;
+        }
+
+        return `
+            <div class="guidance-item">
+                <span class="guidance-label">Automation:</span>
+                <span class="guidance-value">${guidance.automation}</span>
+            </div>
+            <div class="guidance-item">
+                <span class="guidance-label">${serviceLabel}:</span>
+                <span class="guidance-value">${serviceName}</span>
+            </div>
+            <div class="guidance-item">
+                <span class="guidance-label">Human Intervention:</span>
+                <span class="guidance-value">${guidance.humanIntervention}</span>
+            </div>
+            ${guidance.docLink ? `<a href="${guidance.docLink}" target="_blank" rel="noopener noreferrer" class="guidance-doc-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                View Documentation
+            </a>` : ''}
+        `;
+    }
+
+    renderAssessorCheatSheet(objectiveId, controlId) {
+        const ccaData = typeof getCCAQuestions === 'function' ? getCCAQuestions(objectiveId) : null;
+        const fedrampData = typeof getFedRAMPServices === 'function' ? getFedRAMPServices(controlId) : null;
+
+        if (!ccaData && !fedrampData) {
+            return '';
+        }
+
+        let questionsHtml = '';
+        if (ccaData) {
+            const questionsList = ccaData.questions.map(q => `<li>${q}</li>`).join('');
+            const evidenceList = ccaData.evidence.map(e => `<li>${e}</li>`).join('');
+            questionsHtml = `
+                <div class="cheat-sheet-subsection">
+                    <div class="cheat-sheet-subtitle">Sample Assessor Questions</div>
+                    <ul class="cheat-sheet-list">${questionsList}</ul>
+                </div>
+                <div class="cheat-sheet-subsection">
+                    <div class="cheat-sheet-subtitle">Evidence Requests</div>
+                    <ul class="cheat-sheet-list">${evidenceList}</ul>
+                </div>
+            `;
+        }
+
+        let servicesHtml = '';
+        if (fedrampData && fedrampData.services && fedrampData.services.length > 0) {
+            const serviceItems = fedrampData.services.map(s => `
+                <li class="fedramp-service-item">
+                    <a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a>
+                    <span class="fedramp-level ${s.level.toLowerCase()}">${s.level}</span>
+                    <span class="fedramp-category">${s.category}</span>
+                </li>
+            `).join('');
+            servicesHtml = `
+                <div class="cheat-sheet-subsection">
+                    <div class="cheat-sheet-subtitle">FedRAMP Authorized Services</div>
+                    <ul class="cheat-sheet-services">${serviceItems}</ul>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="assessor-cheat-sheet">
+                <button class="cheat-sheet-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    <span>Assessor Cheat Sheet</span>
+                    <svg class="cheat-sheet-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="cheat-sheet-content">
+                    ${questionsHtml}
+                    ${servicesHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    renderRelatedObjectives(controlId) {
+        const relatedData = typeof getRelatedObjectives === 'function' ? getRelatedObjectives(controlId) : null;
+
+        if (!relatedData || relatedData.length === 0) {
+            return '';
+        }
+
+        const groupsHtml = relatedData.map(group => {
+            const controlLinks = group.relatedControls.map(c => 
+                `<a href="#" class="related-control-link" data-control="${c}">${c}</a>`
+            ).join('');
+            
+            const evidenceItems = group.evidenceTypes.map(e => `<li>${e}</li>`).join('');
+
+            return `
+                <div class="related-group">
+                    <div class="related-group-header">
+                        <span class="related-group-label">${group.label}</span>
+                    </div>
+                    <div class="related-group-desc">${group.description}</div>
+                    <div class="related-controls">
+                        <span class="related-controls-label">Related Controls:</span>
+                        ${controlLinks}
+                    </div>
+                    <div class="related-evidence">
+                        <span class="related-evidence-label">Shared Evidence Types:</span>
+                        <ul class="related-evidence-list">${evidenceItems}</ul>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="related-objectives-section">
+                <button class="related-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    <span>Related Objectives</span>
+                    <svg class="related-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="related-content">
+                    ${groupsHtml}
+                </div>
+            </div>
+        `;
     }
 
     // Implementation Notes Modal Functions
