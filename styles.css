@@ -2818,3 +2818,35 @@ body {
     border-radius: 4px;
     letter-spacing: 0.3px;
 }
+
+/* SPRS Family Score Styles */
+.sprs-family-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0;
+    padding: 6px 10px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    font-size: 0.75rem;
+}
+
+.sprs-label {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.sprs-value {
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--status-met);
+}
+
+.sprs-value.has-loss {
+    color: var(--status-not-met);
+}
+
+.sprs-max {
+    color: var(--text-muted);
+    font-size: 0.6875rem;
+}

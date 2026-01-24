@@ -1138,6 +1138,31 @@ class AssessmentApp {
         return { met, partial, notMet };
     }
 
+    calculateFamilySPRS(family) {
+        let lost = 0;
+        let maxPossible = 0;
+        
+        family.controls.forEach(control => {
+            // Get SPRS point value for this control (default to 1 if not specified)
+            const pointValue = typeof SPRS_SCORING !== 'undefined' && SPRS_SCORING.pointValues 
+                ? (SPRS_SCORING.pointValues[control.id] || 1) 
+                : 1;
+            
+            maxPossible += pointValue;
+            
+            // Check if control is NOT fully met (all objectives must be met)
+            const allObjectivesMet = control.objectives.every(objective => {
+                return this.assessmentData[objective.id]?.status === 'met';
+            });
+            
+            if (!allObjectivesMet && control.objectives.length > 0) {
+                lost += pointValue;
+            }
+        });
+        
+        return { lost, maxPossible };
+    }
+
     calculateControlsMet() {
         // Count how many controls have ALL objectives met
         let controlsMet = 0;
@@ -1691,6 +1716,9 @@ class AssessmentApp {
             family.controls.forEach(c => familyTotal += c.objectives.length);
             const notAssessed = familyTotal - stats.met - stats.partial - stats.notMet;
 
+            // Calculate SPRS score for this family
+            const familySprs = this.calculateFamilySPRS(family);
+
             html += `
                 <div class="dashboard-card">
                     <h3 class="dashboard-family-link" data-family-id="${family.id}"><span class="family-id">${family.id}</span> ${family.name}</h3>
@@ -1711,6 +1739,11 @@ class AssessmentApp {
                             <div class="dashboard-stat-value not-assessed">${notAssessed}</div>
                             <div class="dashboard-stat-label">Pending</div>
                         </div>
+                    </div>
+                    <div class="sprs-family-score">
+                        <span class="sprs-label">SPRS Impact:</span>
+                        <span class="sprs-value ${familySprs.lost > 0 ? 'has-loss' : ''}">${familySprs.lost > 0 ? '-' + familySprs.lost : '0'}</span>
+                        <span class="sprs-max">/ -${familySprs.maxPossible}</span>
                     </div>
                     <div class="dashboard-progress">
                         <div class="progress-met" style="width: ${(stats.met / familyTotal) * 100}%"></div>
