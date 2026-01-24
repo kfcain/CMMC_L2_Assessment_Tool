@@ -7,19 +7,31 @@ const AWS_GOVCLOUD_GUIDANCE = {
         automation: "Use AWS IAM Identity Center (SSO) to manage users. Query users via AWS CLI: `aws iam list-users`. Integrate with external IdP via SAML/SCIM.",
         awsService: "IAM Identity Center, AWS IAM",
         humanIntervention: "Review and approve user list quarterly. Verify alignment with HR records.",
-        docLink: "https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html"
+        docLink: "https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html",
+        cliCommands: [
+            "aws iam list-users --query 'Users[*].[UserName,CreateDate,PasswordLastUsed]' --output table",
+            "aws identitystore list-users --identity-store-id d-1234567890"
+        ]
     },
     "3.1.1[b]": {
         automation: "Use IAM Roles for service accounts. Query with `aws iam list-roles`. Monitor via CloudTrail and AWS Config rules.",
         awsService: "IAM Roles, CloudTrail, AWS Config",
         humanIntervention: "Document business justification for each IAM role. Review quarterly.",
-        docLink: "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html"
+        docLink: "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html",
+        cliCommands: [
+            "aws iam list-roles --query 'Roles[*].[RoleName,Arn,CreateDate]' --output table",
+            "aws iam list-role-policies --role-name ROLE_NAME"
+        ]
     },
     "3.1.1[c]": {
         automation: "Use AWS Systems Manager for device/instance inventory. Query managed instances via `aws ssm describe-instance-information`.",
         awsService: "Systems Manager, EC2",
         humanIntervention: "Approve instance deployments. Define compliance baseline requirements.",
-        docLink: "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-inventory.html"
+        docLink: "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-inventory.html",
+        cliCommands: [
+            "aws ssm describe-instance-information --query 'InstanceInformationList[*].[InstanceId,PingStatus,PlatformType]' --output table",
+            "aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,State.Name,Tags]' --output table"
+        ]
     },
     "3.1.1[d]": {
         automation: "Implement IAM policies with conditions requiring MFA. Use AWS Identity Center with MFA enforcement.",

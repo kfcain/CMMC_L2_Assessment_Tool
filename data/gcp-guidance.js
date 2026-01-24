@@ -7,19 +7,31 @@ const GCP_GUIDANCE = {
         automation: "Use Cloud Identity or Google Workspace Admin SDK to list users. Run `gcloud identity groups memberships list`. Integrate with external IdP via SAML.",
         gcpService: "Cloud Identity, Google Workspace",
         humanIntervention: "Review and approve user list quarterly. Verify alignment with HR records.",
-        docLink: "https://cloud.google.com/identity/docs/overview"
+        docLink: "https://cloud.google.com/identity/docs/overview",
+        cliCommands: [
+            "gcloud identity groups memberships list --group-email=GROUP@domain.com",
+            "gcloud organizations get-iam-policy ORGANIZATION_ID --format=json"
+        ]
     },
     "3.1.1[b]": {
         automation: "Use Service Accounts with Workload Identity. Query with `gcloud iam service-accounts list`. Monitor via Cloud Audit Logs.",
         gcpService: "IAM Service Accounts, Workload Identity",
         humanIntervention: "Document business justification for each service account. Review quarterly.",
-        docLink: "https://cloud.google.com/iam/docs/service-accounts"
+        docLink: "https://cloud.google.com/iam/docs/service-accounts",
+        cliCommands: [
+            "gcloud iam service-accounts list --project=PROJECT_ID",
+            "gcloud iam service-accounts get-iam-policy SA_EMAIL"
+        ]
     },
     "3.1.1[c]": {
         automation: "Use Google Endpoint Management or BeyondCorp Enterprise for device management. Query enrolled devices via Admin SDK.",
         gcpService: "Endpoint Management, BeyondCorp Enterprise",
         humanIntervention: "Approve device enrollment requests. Define compliance baseline requirements.",
-        docLink: "https://cloud.google.com/endpoint-management/docs"
+        docLink: "https://cloud.google.com/endpoint-management/docs",
+        cliCommands: [
+            "gcloud compute instances list --format='table(name,status,zone)'",
+            "gcloud asset search-all-resources --asset-types=compute.googleapis.com/Instance"
+        ]
     },
     "3.1.1[d]": {
         automation: "Implement Context-Aware Access policies requiring device trust + user auth. Enable 2-Step Verification.",
