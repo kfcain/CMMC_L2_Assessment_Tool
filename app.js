@@ -772,7 +772,8 @@ class AssessmentApp {
         let questionsHtml = '';
         if (ccaData) {
             const questionsList = ccaData.questions.map(q => `<li>${q}</li>`).join('');
-            const evidenceList = ccaData.evidence.map(e => `<li>${e}</li>`).join('');
+            const evidenceReqs = ccaData.evidenceRequests || ccaData.evidence || [];
+            const evidenceList = evidenceReqs.map(e => `<li>${e}</li>`).join('');
             questionsHtml = `
                 <div class="cheat-sheet-subsection">
                     <div class="cheat-sheet-subtitle">Sample Assessor Questions</div>
