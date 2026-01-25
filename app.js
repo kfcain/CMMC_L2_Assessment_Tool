@@ -2679,6 +2679,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     renderImplProjectPlan(guide) {
         const phaseClass = (phase) => {
             if (phase.includes('Foundation')) return 'foundation';
+            if (phase.includes('Security')) return 'security';
             if (phase.includes('People')) return 'people';
             if (phase.includes('Governance')) return 'governance';
             if (phase.includes('Audit')) return 'audit';
