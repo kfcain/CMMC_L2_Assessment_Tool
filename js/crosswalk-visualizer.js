@@ -837,6 +837,97 @@ const CrosswalkVisualizer = {
         if (typeof app !== 'undefined' && app.showToast) {
             app.showToast('Exported FedRAMP 20x KSI as CSV', 'success');
         }
+    },
+    
+    // Export NIST 800-53A as JSON
+    export80053JSON() {
+        if (typeof NIST_800_53A === 'undefined') {
+            console.error('NIST 800-53A data not loaded');
+            return;
+        }
+        
+        const exportData = {
+            metadata: {
+                frameworkId: "nist-800-53a-r5",
+                frameworkName: "NIST SP 800-53A Rev 5",
+                version: NIST_800_53A.version || "5.2.0",
+                title: NIST_800_53A.title,
+                exportDate: new Date().toISOString(),
+                totalControls: Object.keys(NIST_800_53A.controls || {}).length,
+                license: "public-domain",
+                source: NIST_800_53A.source || "https://csrc.nist.gov/publications/detail/sp/800-53a/rev-5/final"
+            },
+            controls: Object.entries(NIST_800_53A.controls || {}).map(([id, ctrl]) => ({
+                control_id: id,
+                name: ctrl.name,
+                family: ctrl.family,
+                objectives: ctrl.objectives || [],
+                examine: ctrl.examine || '',
+                interview: ctrl.interview || '',
+                test: ctrl.test || ''
+            }))
+        };
+        
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `nist-800-53a-r5-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        if (typeof app !== 'undefined' && app.showToast) {
+            app.showToast('Exported NIST 800-53A as JSON', 'success');
+        }
+    },
+    
+    // Export NIST 800-53A as CSV
+    export80053CSV() {
+        if (typeof NIST_800_53A === 'undefined') {
+            console.error('NIST 800-53A data not loaded');
+            return;
+        }
+        
+        const headers = [
+            'Control ID',
+            'Control Name',
+            'Family',
+            'Objective Count',
+            'Examine',
+            'Interview',
+            'Test'
+        ];
+        
+        const escapeCSV = (str) => {
+            if (!str) return '';
+            const escaped = str.replace(/"/g, '""');
+            return escaped.includes(',') || escaped.includes('"') || escaped.includes('\n') ? `"${escaped}"` : escaped;
+        };
+        
+        const rows = Object.entries(NIST_800_53A.controls || {}).map(([id, ctrl]) => {
+            return [
+                id,
+                escapeCSV(ctrl.name || ''),
+                escapeCSV(ctrl.family || ''),
+                (ctrl.objectives || []).length,
+                escapeCSV(ctrl.examine || ''),
+                escapeCSV(ctrl.interview || ''),
+                escapeCSV(ctrl.test || '')
+            ].join(',');
+        });
+        
+        const csv = [headers.join(','), ...rows].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `nist-800-53a-r5-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        if (typeof app !== 'undefined' && app.showToast) {
+            app.showToast('Exported NIST 800-53A as CSV', 'success');
+        }
     }
 };
 
