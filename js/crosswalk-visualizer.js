@@ -225,9 +225,11 @@ const CrosswalkVisualizer = {
     
     renderTable() {
         const container = document.getElementById('crosswalk-table-view');
+        console.log('renderTable() called, container:', container);
         if (!container) return;
         
         const data = this.getMappingData();
+        console.log('renderTable() rendering', data.length, 'rows');
         
         if (data.length === 0) {
             container.innerHTML = `
@@ -284,7 +286,9 @@ const CrosswalkVisualizer = {
         });
         
         html += '</tbody></table>';
+        console.log('Setting container.innerHTML with', data.length, 'rows');
         container.innerHTML = html;
+        console.log('Table updated, rows in DOM:', container.querySelectorAll('tbody tr').length);
     },
     
     renderGraph() {
