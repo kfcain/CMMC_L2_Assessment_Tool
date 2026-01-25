@@ -226,9 +226,11 @@ const CrosswalkVisualizer = {
                 `<a href="https://www.myctrl.tools/frameworks/nist-800-53-rev-5/${c.toLowerCase().replace(/[()]/g, '')}" target="_blank" rel="noopener" class="mapping-tag nist-53">${c}</a>`
             ).join('');
             
-            const fed20xTags = (item.fedramp20x || []).map(ksi => 
-                `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${ksi.toLowerCase()}" target="_blank" rel="noopener" class="mapping-tag fedramp-20x">${ksi}</a>`
-            ).join('') || '<span class="mapping-tag empty">—</span>';
+            const fed20xTags = (item.fedramp20x || []).map(ksi => {
+                // Convert KSI-IAM-04 to ksi-iam-4 (strip leading zeros)
+                const urlId = ksi.toLowerCase().replace(/-0+(\d)/g, '-$1');
+                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="mapping-tag fedramp-20x">${ksi}</a>`;
+            }).join('') || '<span class="mapping-tag empty">—</span>';
             
             // Combined NIST 800-171 / CMMC column
             const cmmcPractice = item.cmmc?.practice || '';
