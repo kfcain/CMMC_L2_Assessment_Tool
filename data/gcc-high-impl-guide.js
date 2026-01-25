@@ -37,26 +37,60 @@ const GCC_HIGH_IMPL_GUIDE = {
         { frequency: "Weekly", activity: "Azure Gov Policy Check", owner: "IT Admin", purpose: "Run Get-AzPolicyState. Remediate non-compliant resources." },
         { frequency: "Weekly", activity: "Sentinel Alert Review", owner: "SecOps", purpose: "Triage incidents in Microsoft Sentinel (Azure Gov)." },
         { frequency: "Weekly", activity: "Vulnerability Check", owner: "IT Admin", purpose: "Check Defender Exposure Score. Patch criticals." },
-        { frequency: "Monthly", activity: "Change Control Board (CCB)", owner: "FSO + IT", purpose: "Approve new software/hardware. Review Visitor Logs." },
+        { frequency: "Monthly", activity: "Change Control Board (CCB)", owner: "CMMC Lead + IT", purpose: "Approve new software/hardware. Review change requests." },
         { frequency: "Monthly", activity: "Azure Cost Review", owner: "IT Admin", purpose: "Review Azure Gov spend. Identify unused resources." },
-        { frequency: "Quarterly", activity: "Access Review", owner: "HR + FSO", purpose: "Verify Entra ID + Azure RBAC. Disable inactive accounts." },
-        { frequency: "Annually", activity: "Incident Response Drill", owner: "All Hands", purpose: "Tabletop exercise (Ransomware/Insider Threat)." },
-        { frequency: "Annually", activity: "Policy Refresh", owner: "FSO", purpose: "Review and re-sign the SSP." }
+        { frequency: "Monthly", activity: "Physical Security Walkthrough", owner: "FSO", purpose: "Inspect badge readers, visitor logs, clean desk compliance." },
+        { frequency: "Monthly", activity: "Media Inventory Review", owner: "FSO", purpose: "Verify CUI media inventory. Check sanitization logs." },
+        { frequency: "Quarterly", activity: "Access Review", owner: "CMMC Lead + HR", purpose: "Verify Entra ID + Azure RBAC. Disable inactive accounts." },
+        { frequency: "Quarterly", activity: "POA&M Review", owner: "CMMC Lead", purpose: "Update remediation status. Verify milestone dates." },
+        { frequency: "Annually", activity: "Incident Response Drill", owner: "CMMC Lead", purpose: "Tabletop exercise (Ransomware/Insider Threat)." },
+        { frequency: "Annually", activity: "Policy Refresh", owner: "CMMC Lead", purpose: "Review and re-sign the SSP. Update policies." },
+        { frequency: "Annually", activity: "Physical Security Assessment", owner: "FSO", purpose: "Full facility security review. Badge audit." }
     ],
 
     // RACI Matrix
     raciMatrix: {
-        roles: ["Exec Sponsor", "FSO", "IT Admin", "HR Mgr", "Dept Leads"],
+        roles: ["Exec Sponsor", "CMMC Lead", "FSO", "IT Admin", "HR Mgr", "Dept Leads"],
         tasks: [
-            { category: "Governance", action: "Approve SSP & Policies", raci: ["A", "R", "C", "I", "I"] },
-            { category: "Identity", action: "Create Entra ID / MFA Rules", raci: ["I", "A", "R", "I", "I"] },
-            { category: "Endpoints", action: "Deploy Intune Baselines", raci: ["I", "C", "R", "I", "C"] },
-            { category: "Personnel", action: "Background Checks & Screening", raci: ["I", "C", "I", "R/A", "I"] },
-            { category: "Training", action: "Enforce CUI Awareness Completion", raci: ["A", "R", "I", "C", "C"] },
-            { category: "Physical", action: "Escort Visitors / Visitor Log", raci: ["I", "A", "I", "R", "R"] },
-            { category: "Change Mgmt", action: "Approve Firewall/Software Changes", raci: ["I", "R/A", "R", "I", "C"] },
-            { category: "Incidents", action: "Report to DIBNet (72-Hour Rule)", raci: ["I", "R/A", "C", "I", "I"] },
-            { category: "Audit", action: "Weekly Evidence Collection", raci: ["I", "R", "R", "I", "I"] }
+            // Governance & Compliance (CMMC Lead primary)
+            { category: "Governance", action: "Approve SSP & Policies", raci: ["A", "R", "C", "C", "I", "I"] },
+            { category: "Governance", action: "Maintain POA&M", raci: ["I", "R/A", "C", "C", "I", "I"] },
+            { category: "Governance", action: "Coordinate CMMC Assessment", raci: ["A", "R", "I", "C", "I", "I"] },
+            { category: "Governance", action: "CUI Scope Definition", raci: ["A", "R", "C", "C", "I", "C"] },
+            // Access Control (IT Admin primary, CMMC Lead oversees)
+            { category: "Access Control", action: "Create Entra ID / MFA Rules", raci: ["I", "A", "I", "R", "I", "I"] },
+            { category: "Access Control", action: "Manage Privileged Access (PIM)", raci: ["I", "A", "I", "R", "I", "I"] },
+            { category: "Access Control", action: "Quarterly Access Reviews", raci: ["I", "A", "C", "R", "C", "C"] },
+            // Endpoints & Configuration (IT Admin primary)
+            { category: "Endpoints", action: "Deploy Intune Baselines", raci: ["I", "C", "I", "R/A", "I", "C"] },
+            { category: "Endpoints", action: "Patch Management", raci: ["I", "C", "I", "R/A", "I", "I"] },
+            // Personnel Security (HR primary)
+            { category: "Personnel", action: "Background Checks & Screening", raci: ["I", "C", "I", "I", "R/A", "I"] },
+            { category: "Personnel", action: "Onboarding/Offboarding", raci: ["I", "C", "I", "R", "R/A", "C"] },
+            // Training (CMMC Lead accountable, HR supports)
+            { category: "Training", action: "CUI Awareness Training", raci: ["I", "A", "C", "I", "R", "C"] },
+            { category: "Training", action: "Insider Threat Training", raci: ["I", "A", "R", "I", "C", "C"] },
+            // Physical Security (FSO primary - PE controls)
+            { category: "Physical (PE)", action: "Facility Access Control", raci: ["I", "C", "R/A", "I", "I", "I"] },
+            { category: "Physical (PE)", action: "Escort Visitors / Visitor Log", raci: ["I", "I", "R/A", "I", "I", "R"] },
+            { category: "Physical (PE)", action: "Physical Security Inspections", raci: ["I", "C", "R/A", "I", "I", "I"] },
+            { category: "Physical (PE)", action: "Badge Management", raci: ["I", "I", "R/A", "C", "C", "I"] },
+            // Media Protection (FSO primary - MP controls)
+            { category: "Media (MP)", action: "CUI Media Handling Procedures", raci: ["I", "A", "R", "C", "I", "C"] },
+            { category: "Media (MP)", action: "Removable Media Authorization", raci: ["I", "A", "R", "C", "I", "I"] },
+            { category: "Media (MP)", action: "Media Sanitization & Disposal", raci: ["I", "A", "R", "R", "I", "I"] },
+            { category: "Media (MP)", action: "CUI Transport Approval", raci: ["I", "A", "R", "I", "I", "I"] },
+            // Change Management (IT Admin primary, CMMC Lead oversees)
+            { category: "Change Mgmt", action: "Approve Firewall/Software Changes", raci: ["I", "A", "I", "R", "I", "C"] },
+            { category: "Change Mgmt", action: "Change Control Board (CCB)", raci: ["I", "A", "C", "R", "I", "C"] },
+            // Incident Response (CMMC Lead accountable)
+            { category: "Incidents", action: "Incident Detection & Triage", raci: ["I", "A", "I", "R", "I", "I"] },
+            { category: "Incidents", action: "Report to DIBNet (72-Hour Rule)", raci: ["I", "R/A", "C", "C", "I", "I"] },
+            { category: "Incidents", action: "Forensic Preservation", raci: ["I", "A", "C", "R", "I", "I"] },
+            // Audit & Evidence (CMMC Lead primary)
+            { category: "Audit", action: "Weekly Evidence Collection", raci: ["I", "R/A", "I", "R", "I", "I"] },
+            { category: "Audit", action: "Log Review & Anomaly Detection", raci: ["I", "A", "I", "R", "I", "I"] },
+            { category: "Audit", action: "Annual Internal Assessment", raci: ["A", "R", "C", "C", "C", "C"] }
         ]
     },
 
