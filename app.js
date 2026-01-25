@@ -8,7 +8,7 @@ class AssessmentApp {
         this.deficiencyData = {}; // Tracks non-POA&M eligible deficiencies
         this.implementationData = {}; // Tracks how objectives are met
         this.orgData = {}; // Organization info (assessor, OSC)
-        this.currentView = 'dashboard';
+        this.currentView = localStorage.getItem('nist-current-view') || 'dashboard';
         this.init();
     }
 
@@ -18,7 +18,7 @@ class AssessmentApp {
         this.renderControls();
         this.updateProgress();
         this.bindEvents();
-        this.renderDashboard(); // Show dashboard on load
+        this.switchView(this.currentView); // Restore last view
         this.initDataStorageNotice();
     }
 
@@ -478,6 +478,7 @@ class AssessmentApp {
 
     switchView(view) {
         this.currentView = view;
+        localStorage.setItem('nist-current-view', view);
         
         // Update nav buttons
         document.querySelectorAll('.nav-btn').forEach(btn => {
