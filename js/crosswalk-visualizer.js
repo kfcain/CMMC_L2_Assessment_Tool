@@ -158,19 +158,20 @@ const CrosswalkVisualizer = {
                 if (familyId !== this.filters.family) return;
             }
             
-            // Apply baseline filter (filter by FedRAMP baseline level)
+            // Apply FedRAMP 20x level filter
             if (this.filters.baseline !== 'all') {
-                // Filter KSIs that match the selected baseline
-                const baselineKSIs = derivedKSIs.filter(ksi => {
+                // Filter KSIs that match the selected 20x level
+                const filteredKSIs = derivedKSIs.filter(ksi => {
                     const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? FEDRAMP_20X_KSI.indicators[ksi] : null;
                     if (!ksiInfo) return false;
+                    // 20x Low: KSIs with low: true
                     if (this.filters.baseline === 'low') return ksiInfo.low === true;
+                    // 20x Moderate: KSIs with moderate: true (includes all Low KSIs plus additional)
                     if (this.filters.baseline === 'moderate') return ksiInfo.moderate === true;
-                    if (this.filters.baseline === 'high') return ksiInfo.moderate === true; // High includes moderate
                     return false;
                 });
-                if (baselineKSIs.length === 0) return;
-                derivedKSIs = baselineKSIs;
+                if (filteredKSIs.length === 0) return;
+                derivedKSIs = filteredKSIs;
             }
             
             // Apply search filter
