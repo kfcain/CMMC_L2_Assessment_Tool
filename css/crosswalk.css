@@ -135,14 +135,23 @@
 }
 
 .export-btn.nist-53-btn {
+    background: rgba(139, 92, 246, 0.1);
     border-color: rgba(139, 92, 246, 0.3);
     color: #a78bfa;
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+    animation: nist53-glow 2s ease-in-out infinite alternate;
 }
 
 .export-btn.nist-53-btn:hover {
     background: #8b5cf6;
     color: white;
     border-color: #8b5cf6;
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+}
+
+@keyframes nist53-glow {
+    from { box-shadow: 0 0 6px rgba(139, 92, 246, 0.2); }
+    to { box-shadow: 0 0 12px rgba(139, 92, 246, 0.5); }
 }
 
 .export-btn svg {
