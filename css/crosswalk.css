@@ -207,6 +207,18 @@
     font-weight: 600;
 }
 
+a.mapping-tag {
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+a.mapping-tag:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    filter: brightness(1.2);
+}
+
 .mapping-tag.nist-53 {
     background: rgba(139, 92, 246, 0.15);
     color: #a78bfa;
