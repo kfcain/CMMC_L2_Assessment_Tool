@@ -2231,6 +2231,10 @@ function initGlobalSearch() {
     // Close on backdrop click
     backdrop?.addEventListener('click', closeSearchModal);
     
+    // Search trigger button click
+    const searchTrigger = document.getElementById('search-trigger');
+    searchTrigger?.addEventListener('click', openSearchModal);
+    
     // Search input handler
     input.addEventListener('input', (e) => {
         const query = e.target.value.trim();
