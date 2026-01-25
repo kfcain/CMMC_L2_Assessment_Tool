@@ -5,22 +5,28 @@
 }
 
 :root {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-tertiary: #334155;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --border-color: #334155;
-    --accent-blue: #3b82f6;
-    --accent-blue-hover: #2563eb;
-    --status-met: #22c55e;
-    --status-not-met: #ef4444;
-    --status-partial: #f59e0b;
-    --status-not-assessed: #64748b;
-    --risk-low: #22c55e;
-    --risk-moderate: #f59e0b;
-    --risk-high: #ef4444;
+    /* One Dark Pro - Default Theme */
+    --bg-primary: #282c34;
+    --bg-secondary: #21252b;
+    --bg-tertiary: #2c313a;
+    --text-primary: #abb2bf;
+    --text-secondary: #828997;
+    --text-muted: #5c6370;
+    --border-color: #3e4451;
+    --accent-blue: #61afef;
+    --accent-blue-hover: #528bcc;
+    --input-bg: #1d1f23;
+    --card-bg: #21252b;
+    --modal-bg: #21252b;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    /* Status colors (consistent across themes) */
+    --status-met: #98c379;
+    --status-not-met: #e06c75;
+    --status-partial: #e5c07b;
+    --status-not-assessed: #5c6370;
+    --risk-low: #98c379;
+    --risk-moderate: #e5c07b;
+    --risk-high: #e06c75;
 }
 
 body {
