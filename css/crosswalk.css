@@ -37,11 +37,14 @@
 /* Filters */
 .crosswalk-filters {
     display: flex;
-    gap: 16px;
-    padding: 12px 20px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
     flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    align-items: flex-end;
 }
 
 .crosswalk-filters .filter-group {
@@ -82,6 +85,57 @@
 
 .crosswalk-filters .search-filter input {
     width: 100%;
+}
+
+/* Export buttons */
+.export-group {
+    margin-left: auto;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.export-btn.json-btn {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.export-btn.json-btn:hover {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.export-btn.csv-btn {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.export-btn.csv-btn:hover {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.export-btn svg {
+    flex-shrink: 0;
 }
 
 /* Content Area */

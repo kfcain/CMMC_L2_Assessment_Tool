@@ -731,6 +731,103 @@ const CrosswalkVisualizer = {
         canvas.addEventListener('mouseleave', () => {
             tooltip.classList.remove('visible');
         });
+    },
+    
+    // Export FedRAMP 20x KSI as JSON
+    exportKSIJSON() {
+        if (typeof FEDRAMP_20X_KSI === 'undefined') {
+            console.error('FedRAMP 20x KSI data not loaded');
+            return;
+        }
+        
+        const exportData = {
+            metadata: {
+                frameworkId: "fedramp-20x-ksi",
+                frameworkName: "FedRAMP 20x KSI",
+                version: "Phase 2",
+                exportDate: new Date().toISOString(),
+                totalControls: Object.keys(FEDRAMP_20X_KSI.indicators || {}).length,
+                license: "public-domain",
+                source: "https://www.fedramp.gov/20x/"
+            },
+            controls: Object.entries(FEDRAMP_20X_KSI.indicators || {}).map(([id, ksi]) => ({
+                control_id: id,
+                title: ksi.title,
+                family: ksi.family,
+                description: ksi.description,
+                impact_low: ksi.impactLevels?.includes('Low') || ksi.impactLevels?.includes('low') || false,
+                impact_moderate: ksi.impactLevels?.includes('Moderate') || ksi.impactLevels?.includes('moderate') || true,
+                related_controls: ksi.related53 || [],
+                references: ksi.references || [],
+                url: `/frameworks/fedramp-20x-ksi/${id.toLowerCase().replace(/-/g, '-')}`
+            }))
+        };
+        
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `fedramp-20x-ksi-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        if (typeof app !== 'undefined' && app.showToast) {
+            app.showToast('Exported FedRAMP 20x KSI as JSON', 'success');
+        }
+    },
+    
+    // Export FedRAMP 20x KSI as CSV
+    exportKSICSV() {
+        if (typeof FEDRAMP_20X_KSI === 'undefined') {
+            console.error('FedRAMP 20x KSI data not loaded');
+            return;
+        }
+        
+        const headers = [
+            'Control ID',
+            'Title',
+            'Family',
+            'Family Name',
+            'Description',
+            'Impact Low',
+            'Impact Moderate',
+            'Related NIST 800-53 Controls',
+            'Related CMMC Controls'
+        ];
+        
+        const rows = Object.entries(FEDRAMP_20X_KSI.indicators || {}).map(([id, ksi]) => {
+            const familyName = FEDRAMP_20X_KSI.families?.[ksi.family]?.name || ksi.family;
+            const isLow = ksi.impactLevels?.includes('Low') || ksi.impactLevels?.includes('low') || false;
+            const isMod = ksi.impactLevels?.includes('Moderate') || ksi.impactLevels?.includes('moderate') || true;
+            const related53 = (ksi.related53 || []).join('; ');
+            const relatedCMMC = (ksi.relatedCMMC || []).join('; ');
+            const desc = (ksi.description || '').replace(/"/g, '""');
+            
+            return [
+                id,
+                `"${ksi.title}"`,
+                ksi.family,
+                `"${familyName}"`,
+                `"${desc}"`,
+                isLow ? 'Yes' : 'No',
+                isMod ? 'Yes' : 'No',
+                `"${related53}"`,
+                `"${relatedCMMC}"`
+            ].join(',');
+        });
+        
+        const csv = [headers.join(','), ...rows].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `fedramp-20x-ksi-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        if (typeof app !== 'undefined' && app.showToast) {
+            app.showToast('Exported FedRAMP 20x KSI as CSV', 'success');
+        }
     }
 };
 
