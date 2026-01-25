@@ -1717,7 +1717,7 @@ class AssessmentApp {
         const sprsScore = this.calculateTotalSPRS();
         const sprsClass = sprsScore >= 0 ? 'positive' : sprsScore >= -50 ? 'moderate' : 'critical';
 
-        // Render inline header scores
+        // Render inline header scores with theme picker
         if (headerScores) {
             headerScores.innerHTML = `
                 <div class="dashboard-score-badge sprs ${sprsClass}">
@@ -1729,7 +1729,12 @@ class AssessmentApp {
                     <span class="score-badge-value">${controlsMet}/110</span>
                     <span>${meetsConditionalThreshold ? '✓' : '⚠'}</span>
                 </div>
+                <div class="header-theme-picker" id="header-theme-picker"></div>
             `;
+            // Re-render theme picker after scores update
+            if (typeof ThemePicker !== 'undefined') {
+                ThemePicker.renderHeaderPicker();
+            }
         }
 
         let html = `
