@@ -156,9 +156,15 @@
     gap: 4px;
 }
 
+/* Control column - no wrap for CMMC badges */
+.crosswalk-table .control-col .tags-wrap {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
 /* Column widths */
 .crosswalk-table th:nth-child(1),
-.crosswalk-table td:nth-child(1) { width: 18%; }
+.crosswalk-table td:nth-child(1) { width: 22%; min-width: 280px; }
 .crosswalk-table th:nth-child(2),
 .crosswalk-table td:nth-child(2) { width: 32%; }
 .crosswalk-table th:nth-child(3),
