@@ -231,14 +231,7 @@ const CrosswalkVisualizer = {
                 `<span class="mapping-tag nist-171">${item.controlId}</span><span class="mapping-tag cmmc">${cmmcPractice}</span>` :
                 `<span class="mapping-tag nist-171">${item.controlId}</span>`;
             
-            html += `
-                <tr>
-                    <td class="mapping-tags control-col">${controlDisplay}</td>
-                    <td class="control-desc">${item.description || ''}</td>
-                    <td class="mapping-tags nist53-col" style="background: rgba(139,92,246,0.1);">${nist53Tags || '<span class="mapping-tag empty">—</span>'}</td>
-                    <td class="mapping-tags ksi-col" style="background: rgba(6,182,212,0.1);">${fed20xTags}</td>
-                </tr>
-            `;
+            html += `<tr><td class="control-col"><div class="tags-wrap">${controlDisplay}</div></td><td class="control-desc">${item.description || ''}</td><td class="nist53-col"><div class="tags-wrap">${nist53Tags || '—'}</div></td><td class="ksi-col"><div class="tags-wrap">${fed20xTags}</div></td></tr>`;
         });
         
         html += '</tbody></table>';
