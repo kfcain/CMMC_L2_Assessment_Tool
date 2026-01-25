@@ -100,7 +100,7 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 0.8125rem;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 .crosswalk-table th {
@@ -162,15 +162,17 @@
     flex-wrap: nowrap !important;
     white-space: nowrap !important;
     align-items: center;
+    gap: 4px;
 }
 
 .crosswalk-table .control-col {
-    white-space: nowrap;
+    white-space: nowrap !important;
+    overflow: visible;
 }
 
-/* Column widths */
+/* Column widths - use auto layout */
 .crosswalk-table th:nth-child(1),
-.crosswalk-table td:nth-child(1) { width: 22%; min-width: 280px; }
+.crosswalk-table td:nth-child(1) { white-space: nowrap; min-width: 320px; }
 .crosswalk-table th:nth-child(2),
 .crosswalk-table td:nth-child(2) { width: 32%; }
 .crosswalk-table th:nth-child(3),
