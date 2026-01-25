@@ -23,6 +23,7 @@ const CrosswalkVisualizer = {
     },
     
     init() {
+        console.log('CrosswalkVisualizer.init() called');
         this.populateFamilyFilter();
         this.populateControlSelector();
         this.bindEvents();
@@ -30,6 +31,8 @@ const CrosswalkVisualizer = {
     },
     
     bindEvents() {
+        console.log('bindEvents() called');
+        
         // View toggle
         document.querySelectorAll('.crosswalk-view-toggle .toggle-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -41,6 +44,8 @@ const CrosswalkVisualizer = {
         const familyFilter = document.getElementById('crosswalk-family-filter');
         const baselineFilter = document.getElementById('crosswalk-baseline-filter');
         const searchInput = document.getElementById('crosswalk-search');
+        
+        console.log('baselineFilter element:', baselineFilter);
         
         if (familyFilter) {
             familyFilter.addEventListener('change', (e) => {
@@ -55,6 +60,8 @@ const CrosswalkVisualizer = {
                 console.log('Baseline filter changed to:', this.filters.baseline);
                 this.render();
             });
+        } else {
+            console.log('baselineFilter NOT FOUND');
         }
         
         if (searchInput) {
