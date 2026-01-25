@@ -2605,6 +2605,46 @@ class AssessmentApp {
             `;
         }
         
+        // M365 GCC High services
+        if (guide.m365Services) {
+            const rows = guide.m365Services.map(s => `
+                <tr>
+                    <td><strong>${s.control}</strong></td>
+                    <td>${s.service}</td>
+                    <td>${s.purpose}</td>
+                </tr>
+            `).join('');
+            servicesHtml = `
+                <div class="impl-section">
+                    <div class="impl-section-title">M365 GCC High Services for CMMC</div>
+                    <table class="impl-table">
+                        <thead><tr><th>Control</th><th>M365 Service</th><th>Purpose</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // Azure Government services
+        if (guide.azureGovServices) {
+            const rows = guide.azureGovServices.map(s => `
+                <tr>
+                    <td><strong>${s.control}</strong></td>
+                    <td>${s.service}</td>
+                    <td>${s.purpose}</td>
+                </tr>
+            `).join('');
+            servicesHtml += `
+                <div class="impl-section">
+                    <div class="impl-section-title">Azure Government Services for CMMC</div>
+                    <table class="impl-table">
+                        <thead><tr><th>Control</th><th>Azure Gov Service</th><th>Purpose</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
         // Azure sensitivity labels (only for Azure)
         if (guide.sensitivityLabels) {
             const rows = guide.sensitivityLabels.map(l => `
@@ -2616,7 +2656,7 @@ class AssessmentApp {
                     <td>${l.audience}</td>
                 </tr>
             `).join('');
-            servicesHtml = `
+            servicesHtml += `
                 <div class="impl-section">
                     <div class="impl-section-title">Sensitivity Label Taxonomy (Purview)</div>
                     <table class="impl-table">
@@ -2800,6 +2840,41 @@ class AssessmentApp {
                             <p style="font-size:0.7rem;color:#f59e0b;margin-top:12px"><strong>Note:</strong> ${aw.note}</p>
                         </div>
                     </div>
+                </div>
+            `;
+        }
+        
+        // Azure Government Endpoints (Azure)
+        if (guide.azureGovEndpoints) {
+            const ag = guide.azureGovEndpoints;
+            const endpointRows = ag.endpoints.map(e => `
+                <tr>
+                    <td><strong>${e.service}</strong></td>
+                    <td><code class="impl-code">${e.url}</code></td>
+                </tr>
+            `).join('');
+            const psRows = ag.powershellConnections.map(p => `
+                <tr>
+                    <td><strong>${p.module}</strong></td>
+                    <td><code class="impl-code" style="font-size:0.6rem">${p.command}</code></td>
+                </tr>
+            `).join('');
+            html += `
+                <div class="impl-section">
+                    <div class="impl-section-title">Azure Government Endpoints</div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">${ag.description}</p>
+                    <table class="impl-table">
+                        <thead><tr><th>Service</th><th>Endpoint URL</th></tr></thead>
+                        <tbody>${endpointRows}</tbody>
+                    </table>
+                </div>
+                <div class="impl-section">
+                    <div class="impl-section-title">PowerShell Connection Commands</div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">Use these commands to connect to Azure Gov / GCC High from PowerShell:</p>
+                    <table class="impl-table">
+                        <thead><tr><th>Module</th><th>Connection Command</th></tr></thead>
+                        <tbody>${psRows}</tbody>
+                    </table>
                 </div>
             `;
         }

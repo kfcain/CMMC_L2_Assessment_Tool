@@ -1,11 +1,12 @@
-// GCC High Implementation Guide - Client Resources
-// Structured data for CMMC L2 deployment in M365 GCC High / Azure Government
+// M365 GCC High + Azure Government Implementation Guide - Client Resources
+// Structured data for CMMC L2 deployment in Microsoft 365 GCC High AND Azure Government
 
 const GCC_HIGH_IMPL_GUIDE = {
     // 8-Week Implementation Timeline
     projectPlan: [
         { phase: "1. Foundation", week: 1, taskId: "T-1.1", task: "Register PnP Automation Identity (Script 00)", owner: "IT Admin", accountable: "FSO", deliverable: "CMMC_App_Config.json" },
-        { phase: "1. Foundation", week: 1, taskId: "T-1.2", task: "Configure Azure Gov VPN Gateway", owner: "IT Admin", accountable: "IT Director", deliverable: "VPN Gateway Active" },
+        { phase: "1. Foundation", week: 1, taskId: "T-1.2", task: "Connect to Azure Government (Connect-AzAccount -Environment AzureUSGovernment)", owner: "IT Admin", accountable: "IT Director", deliverable: "Az Module Connected" },
+        { phase: "1. Foundation", week: 1, taskId: "T-1.2b", task: "Deploy Azure Gov VPN Gateway with FIPS IPsec Policy", owner: "IT Admin", accountable: "IT Director", deliverable: "VPN Gateway Active" },
         { phase: "1. Foundation", week: 1, taskId: "T-1.3", task: "Inventory & Assign Service Account Owners", owner: "IT Admin", accountable: "FSO", deliverable: "Service Account List" },
         { phase: "1. Foundation", week: 1, taskId: "T-1.4", task: "Enforce MFA (FIDO2/Number Match) for All Users", owner: "IT Admin", accountable: "FSO", deliverable: "MFA Report" },
         { phase: "1. Foundation", week: 2, taskId: "T-2.1", task: "Deploy Intune Hardening Baselines (Script 01)", owner: "IT Admin", accountable: "FSO", deliverable: "Intune Compliance Green" },
@@ -21,18 +22,24 @@ const GCC_HIGH_IMPL_GUIDE = {
         { phase: "3. Governance", week: 5, taskId: "T-5.2", task: "Hold First CCB Meeting (Review Baselines)", owner: "FSO", accountable: "IT Admin", deliverable: "Meeting Minutes" },
         { phase: "3. Governance", week: 6, taskId: "T-6.1", task: "Conduct Risk Assessment Workshop", owner: "FSO", accountable: "Exec Sponsor", deliverable: "Risk Register" },
         { phase: "3. Governance", week: 6, taskId: "T-6.2", task: "Run IR Tabletop Exercise (Ransomware)", owner: "FSO", accountable: "Exec Sponsor", deliverable: "After Action Report" },
+        { phase: "3. Governance", week: 6, taskId: "T-6.3", task: "Deploy Azure Policy NIST 800-171 Initiative", owner: "IT Admin", accountable: "FSO", deliverable: "Policy Assignment Active" },
+        { phase: "3. Governance", week: 6, taskId: "T-6.4", task: "Configure Microsoft Sentinel Workspace (Azure Gov)", owner: "SecOps", accountable: "FSO", deliverable: "Sentinel Workspace Active" },
         { phase: "4. Audit Prep", week: 7, taskId: "T-7.1", task: "Review & Close POA&M Items", owner: "FSO", accountable: "Exec Sponsor", deliverable: "Updated POAM" },
         { phase: "4. Audit Prep", week: 7, taskId: "T-7.2", task: "Run Weekly Log Review (Script)", owner: "FSO", accountable: "IT Director", deliverable: "Weekly Review Log" },
-        { phase: "4. Audit Prep", week: 8, taskId: "T-8.1", task: "Final Evidence Export (Script 02)", owner: "IT Admin", accountable: "FSO", deliverable: "JSON Artifacts" },
-        { phase: "4. Audit Prep", week: 8, taskId: "T-8.2", task: "Finalize & Sign SSP", owner: "FSO", accountable: "Exec Sponsor", deliverable: "Signed SSP" }
+        { phase: "4. Audit Prep", week: 8, taskId: "T-8.1", task: "Export Azure Gov Compliance State (Get-AzPolicyState)", owner: "IT Admin", accountable: "FSO", deliverable: "Azure Policy Report" },
+        { phase: "4. Audit Prep", week: 8, taskId: "T-8.2", task: "Final M365 Evidence Export (Graph API Scripts)", owner: "IT Admin", accountable: "FSO", deliverable: "JSON Artifacts" },
+        { phase: "4. Audit Prep", week: 8, taskId: "T-8.3", task: "Finalize & Sign SSP", owner: "FSO", accountable: "Exec Sponsor", deliverable: "Signed SSP" }
     ],
 
     // Recurring Operations (Post-Implementation)
     recurringOps: [
-        { frequency: "Weekly", activity: "Log Review", owner: "FSO", purpose: "Run evidence script. Sign off on alerts." },
+        { frequency: "Weekly", activity: "M365 Log Review", owner: "FSO", purpose: "Run Graph API evidence scripts. Sign off on Defender alerts." },
+        { frequency: "Weekly", activity: "Azure Gov Policy Check", owner: "IT Admin", purpose: "Run Get-AzPolicyState. Remediate non-compliant resources." },
+        { frequency: "Weekly", activity: "Sentinel Alert Review", owner: "SecOps", purpose: "Triage incidents in Microsoft Sentinel (Azure Gov)." },
         { frequency: "Weekly", activity: "Vulnerability Check", owner: "IT Admin", purpose: "Check Defender Exposure Score. Patch criticals." },
         { frequency: "Monthly", activity: "Change Control Board (CCB)", owner: "FSO + IT", purpose: "Approve new software/hardware. Review Visitor Logs." },
-        { frequency: "Quarterly", activity: "Access Review", owner: "HR + FSO", purpose: "Verify user list. Disable inactive accounts." },
+        { frequency: "Monthly", activity: "Azure Cost Review", owner: "IT Admin", purpose: "Review Azure Gov spend. Identify unused resources." },
+        { frequency: "Quarterly", activity: "Access Review", owner: "HR + FSO", purpose: "Verify Entra ID + Azure RBAC. Disable inactive accounts." },
         { frequency: "Annually", activity: "Incident Response Drill", owner: "All Hands", purpose: "Tabletop exercise (Ransomware/Insider Threat)." },
         { frequency: "Annually", activity: "Policy Refresh", owner: "FSO", purpose: "Review and re-sign the SSP." }
     ],
@@ -77,17 +84,27 @@ const GCC_HIGH_IMPL_GUIDE = {
 
     // Evidence Collection Strategy (machine-readable artifacts)
     evidenceStrategy: [
-        { domain: "Access Control", artifact: "AC_Policies.json", source: "Graph API", command: "Get-MgIdentityConditionalAccessPolicy | ConvertTo-Json -Depth 5", proves: "Geo-blocking, MFA enforcement, Block Legacy Auth" },
-        { domain: "Access Control", artifact: "PIM_Elevation_History.json", source: "Graph API", command: "Get-MgAuditLogDirectoryAudit -Filter \"activityDisplayName eq 'Add member to role'\"", proves: "Privilege escalation tracking" },
-        { domain: "Access Control", artifact: "Dynamic_Group_Rules.json", source: "Graph API", command: "Get-MgGroup -Filter \"groupTypes/any(c:c eq 'DynamicMembership')\"", proves: "Automated onboarding/offboarding" },
-        { domain: "Awareness & Training", artifact: "AT_TrainingStatus.csv", source: "Defender", command: "Get-AttackSimulationTrainingUserCoverage | Export-Csv", proves: "Training completion" },
-        { domain: "Audit & Accountability", artifact: "AU_LogSettings.json", source: "Exchange", command: "Get-AdminAuditLogConfig | ConvertTo-Json", proves: "Logging is enabled" },
-        { domain: "Config Management", artifact: "CM_DeviceConfig.json", source: "Graph API", command: "Get-MgDeviceManagementDeviceConfiguration | ConvertTo-Json -Depth 4", proves: "USB Block, Software Restrictions" },
-        { domain: "Identification & Auth", artifact: "IA_AuthMethods.json", source: "Graph API", command: "Get-MgPolicyAuthenticationMethodPolicy | ConvertTo-Json -Depth 5", proves: "FIDO2/MFA is configured" },
-        { domain: "Incident Response", artifact: "IR_Playbooks.json", source: "Azure", command: "Get-AzSentinelAutomationRule | ConvertTo-Json -Depth 3", proves: "Automated response capability" },
-        { domain: "Media Protection", artifact: "MP_Encryption_Status.json", source: "Graph API", command: "Get-MgDeviceManagementManagedDevice | Select DeviceName, IsEncrypted | ConvertTo-Json", proves: "BitLocker is ON" },
-        { domain: "System Protection", artifact: "SC_FirewallRules.json", source: "Graph API", command: "Get-MgDeviceManagementDeviceConfiguration -Filter \"displayname eq 'Firewall Policy'\" | ConvertTo-Json", proves: "Firewall rules deployed" },
-        { domain: "System Integrity", artifact: "SI_MalwareConfig.json", source: "Graph API", command: "Get-MgDeviceManagementManagedDevice | Select DeviceName, RealTimeProtectionEnabled | ConvertTo-Json", proves: "Real-time protection ON" }
+        // M365 GCC High Evidence (Graph API)
+        { domain: "Access Control", artifact: "AC_Policies.json", source: "M365 Graph API", command: "Connect-MgGraph -Environment USGov; Get-MgIdentityConditionalAccessPolicy | ConvertTo-Json -Depth 5", proves: "Geo-blocking, MFA enforcement, Block Legacy Auth" },
+        { domain: "Access Control", artifact: "PIM_Elevation_History.json", source: "M365 Graph API", command: "Get-MgAuditLogDirectoryAudit -Filter \"activityDisplayName eq 'Add member to role'\" | ConvertTo-Json", proves: "Privilege escalation tracking" },
+        { domain: "Access Control", artifact: "Dynamic_Group_Rules.json", source: "M365 Graph API", command: "Get-MgGroup -Filter \"groupTypes/any(c:c eq 'DynamicMembership')\" | ConvertTo-Json", proves: "Automated onboarding/offboarding" },
+        { domain: "Awareness & Training", artifact: "AT_TrainingStatus.csv", source: "M365 Defender", command: "Get-AttackSimulationTrainingUserCoverage | Export-Csv -Path AT_TrainingStatus.csv", proves: "Training completion" },
+        { domain: "Audit & Accountability", artifact: "AU_LogSettings.json", source: "M365 Exchange", command: "Connect-ExchangeOnline -ExchangeEnvironmentName O365USGovGCCHigh; Get-AdminAuditLogConfig | ConvertTo-Json", proves: "Logging is enabled" },
+        { domain: "Config Management", artifact: "CM_DeviceConfig.json", source: "M365 Intune", command: "Get-MgDeviceManagementDeviceConfiguration | ConvertTo-Json -Depth 4", proves: "USB Block, Software Restrictions" },
+        { domain: "Identification & Auth", artifact: "IA_AuthMethods.json", source: "M365 Graph API", command: "Get-MgPolicyAuthenticationMethodPolicy | ConvertTo-Json -Depth 5", proves: "FIDO2/MFA is configured" },
+        { domain: "Media Protection", artifact: "MP_Encryption_Status.json", source: "M365 Intune", command: "Get-MgDeviceManagementManagedDevice | Select DeviceName, IsEncrypted | ConvertTo-Json", proves: "BitLocker is ON" },
+        { domain: "System Integrity", artifact: "SI_MalwareConfig.json", source: "M365 Defender", command: "Get-MgDeviceManagementManagedDevice | Select DeviceName, RealTimeProtectionEnabled | ConvertTo-Json", proves: "Real-time protection ON" },
+        // Azure Government Evidence (Az Module)
+        { domain: "Access Control", artifact: "AzureRBAC_Assignments.json", source: "Azure Gov", command: "Connect-AzAccount -Environment AzureUSGovernment; Get-AzRoleAssignment | ConvertTo-Json -Depth 3", proves: "Azure RBAC assignments" },
+        { domain: "Audit & Accountability", artifact: "AzureActivityLog.json", source: "Azure Gov", command: "Get-AzActivityLog -StartTime (Get-Date).AddDays(-7) | ConvertTo-Json", proves: "Azure activity logging" },
+        { domain: "Audit & Accountability", artifact: "SentinelDataConnectors.json", source: "Azure Gov", command: "Get-AzSentinelDataConnector -ResourceGroupName RG -WorkspaceName WS | ConvertTo-Json", proves: "SIEM data connectors active" },
+        { domain: "Config Management", artifact: "AzurePolicyCompliance.json", source: "Azure Gov", command: "Get-AzPolicyState -Filter \"complianceState eq 'NonCompliant'\" | ConvertTo-Json", proves: "Azure Policy compliance state" },
+        { domain: "Config Management", artifact: "AzurePolicyAssignments.json", source: "Azure Gov", command: "Get-AzPolicyAssignment | ConvertTo-Json -Depth 3", proves: "NIST 800-171 initiative assigned" },
+        { domain: "Incident Response", artifact: "SentinelIncidents.json", source: "Azure Gov", command: "Get-AzSentinelIncident -ResourceGroupName RG -WorkspaceName WS | ConvertTo-Json -Depth 3", proves: "Incident tracking active" },
+        { domain: "Incident Response", artifact: "SentinelAutomation.json", source: "Azure Gov", command: "Get-AzSentinelAutomationRule -ResourceGroupName RG -WorkspaceName WS | ConvertTo-Json", proves: "Automated response capability" },
+        { domain: "System Protection", artifact: "AzureNSGs.json", source: "Azure Gov", command: "Get-AzNetworkSecurityGroup | ConvertTo-Json -Depth 4", proves: "Network security groups configured" },
+        { domain: "System Protection", artifact: "AzureKeyVault.json", source: "Azure Gov", command: "Get-AzKeyVault | ForEach-Object { Get-AzKeyVaultKey -VaultName $_.VaultName } | ConvertTo-Json", proves: "Key Vault encryption keys" },
+        { domain: "System Protection", artifact: "VPNGatewayIPsec.json", source: "Azure Gov", command: "Get-AzVirtualNetworkGatewayConnection | Select Name, IpsecPolicies | ConvertTo-Json", proves: "FIPS IPsec policy active" }
     ],
 
     // Policy Templates
@@ -167,6 +184,54 @@ const GCC_HIGH_IMPL_GUIDE = {
     systemUseBanner: {
         title: "US GOVERNMENT SYSTEM - AUTHORIZED USE ONLY",
         text: "You are accessing a U.S. Government information system (IS) that is provided for USG-authorized use only. By using this IS (which includes any device attached to this IS), you consent to the following conditions: The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations. At any time, the USG may inspect and seize data stored on this IS. Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose. This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy."
+    },
+
+    // M365 GCC High Services for CMMC
+    m365Services: [
+        { control: "3.1.x (AC)", service: "Entra ID (Azure AD) Government", purpose: "Identity management, Conditional Access, MFA" },
+        { control: "3.1.x (AC)", service: "Intune (Endpoint Manager)", purpose: "Device compliance, app protection policies" },
+        { control: "3.2.x (AT)", service: "Defender for Office 365", purpose: "Attack simulation, security awareness training" },
+        { control: "3.3.x (AU)", service: "Microsoft Purview", purpose: "Audit logs, eDiscovery, retention policies" },
+        { control: "3.4.x (CM)", service: "Intune Configuration Profiles", purpose: "Baseline enforcement, settings catalog" },
+        { control: "3.5.x (IA)", service: "Entra ID MFA + FIDO2", purpose: "Multi-factor authentication, passwordless" },
+        { control: "3.6.x (IR)", service: "Defender XDR", purpose: "Incident detection and response" },
+        { control: "3.8.x (MP)", service: "Defender Device Control", purpose: "USB blocking, removable media policies" },
+        { control: "3.13.x (SC)", service: "Purview Information Protection", purpose: "Sensitivity labels, DLP, encryption" }
+    ],
+
+    // Azure Government Services for CMMC
+    azureGovServices: [
+        { control: "3.1.x (AC)", service: "Azure RBAC + PIM", purpose: "Role-based access, just-in-time elevation" },
+        { control: "3.3.x (AU)", service: "Microsoft Sentinel", purpose: "SIEM, log aggregation, threat hunting" },
+        { control: "3.3.x (AU)", service: "Azure Monitor + Log Analytics", purpose: "Resource logging, diagnostics" },
+        { control: "3.4.x (CM)", service: "Azure Policy", purpose: "NIST 800-171 initiative, compliance enforcement" },
+        { control: "3.5.x (IA)", service: "Azure Key Vault", purpose: "Secrets management, certificate storage" },
+        { control: "3.6.x (IR)", service: "Sentinel Playbooks (Logic Apps)", purpose: "Automated incident response" },
+        { control: "3.11.x (RA)", service: "Microsoft Defender for Cloud", purpose: "Vulnerability assessment, security posture" },
+        { control: "3.13.x (SC)", service: "Azure VPN Gateway", purpose: "FIPS IPsec, site-to-site VPN" },
+        { control: "3.13.x (SC)", service: "Azure Key Vault HSM", purpose: "FIPS 140-2 Level 3 key storage" },
+        { control: "3.13.x (SC)", service: "Azure Storage Encryption", purpose: "SSE with customer-managed keys" },
+        { control: "3.14.x (SI)", service: "Azure Update Manager", purpose: "Patch management for Azure VMs" }
+    ],
+
+    // Azure Government Environment Info
+    azureGovEndpoints: {
+        description: "Azure Government uses separate endpoints from commercial Azure for FedRAMP High compliance.",
+        endpoints: [
+            { service: "Portal", url: "https://portal.azure.us" },
+            { service: "Azure AD / Entra ID", url: "https://login.microsoftonline.us" },
+            { service: "Graph API", url: "https://graph.microsoft.us" },
+            { service: "Management API", url: "https://management.usgovcloudapi.net" },
+            { service: "Key Vault", url: "https://{vault-name}.vault.usgovcloudapi.net" },
+            { service: "Storage", url: "https://{storage-account}.blob.core.usgovcloudapi.net" }
+        ],
+        powershellConnections: [
+            { module: "Az Module", command: "Connect-AzAccount -Environment AzureUSGovernment" },
+            { module: "Microsoft Graph", command: "Connect-MgGraph -Environment USGov" },
+            { module: "Exchange Online", command: "Connect-ExchangeOnline -ExchangeEnvironmentName O365USGovGCCHigh" },
+            { module: "Security & Compliance", command: "Connect-IPPSSession -ConnectionUri https://ps.compliance.protection.office365.us/powershell-liveid/" },
+            { module: "SharePoint Online", command: "Connect-SPOService -Url https://{tenant}-admin.sharepoint.us" }
+        ]
     }
 };
 
