@@ -217,6 +217,14 @@ const CrosswalkVisualizer = {
         `;
         
         data.forEach(item => {
+            // Debug: log first item to verify data structure
+            if (item.controlId === '3.1.1') {
+                console.log('Control 3.1.1 data:', {
+                    nist80053: item.nist80053,
+                    fedramp20x: item.fedramp20x
+                });
+            }
+            
             const nist53Tags = (item.nist80053 || []).map(c => 
                 `<span class="mapping-tag nist-53">${c}</span>`
             ).join('');
