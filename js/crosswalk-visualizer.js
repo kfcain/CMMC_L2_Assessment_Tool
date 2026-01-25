@@ -146,28 +146,33 @@ const CrosswalkVisualizer = {
         Object.entries(FRAMEWORK_MAPPINGS).forEach(([controlId, mapping]) => {
             // Skip internal/helper entries
             if (controlId.startsWith('_')) return;
+            
+            // Dynamically derive KSIs from 800-53 controls using authoritative mapping
+            const derivedKSIs = typeof getKSIsForControl === 'function' && mapping.nist80053 
+                ? getKSIsForControl(mapping.nist80053) 
+                : [];
+            
             // Apply family filter
             if (this.filters.family !== 'all') {
-                const familyPrefix = controlId.split('.')[0];
                 const familyId = this.getFamilyIdFromControl(controlId);
                 if (familyId !== this.filters.family) return;
             }
             
             // Apply baseline filter (filter by whether control has 20x KSI mappings)
             if (this.filters.baseline !== 'all') {
-                // If filtering, only show controls with 20x KSI mappings
-                if (!mapping.fedramp20x || mapping.fedramp20x.length === 0) return;
+                if (derivedKSIs.length === 0) return;
             }
             
             // Apply search filter
             if (this.filters.search) {
-                const searchStr = `${controlId} ${mapping.description || ''} ${mapping.nist80053?.join(' ') || ''} ${mapping.fedramp20x?.join(' ') || ''} ${mapping.cmmc?.practice || ''}`.toLowerCase();
+                const searchStr = `${controlId} ${mapping.description || ''} ${mapping.nist80053?.join(' ') || ''} ${derivedKSIs.join(' ')} ${mapping.cmmc?.practice || ''}`.toLowerCase();
                 if (!searchStr.includes(this.filters.search)) return;
             }
             
             data.push({
                 controlId,
-                ...mapping
+                ...mapping,
+                fedramp20x: derivedKSIs // Override with dynamically derived KSIs
             });
         });
         

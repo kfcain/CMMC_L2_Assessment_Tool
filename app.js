@@ -978,9 +978,14 @@ class AssessmentApp {
             ? mapping.nist80053.map(ctrl => `<a href="https://csf.tools/reference/nist-sp-800-53/r5/${ctrl.toLowerCase().replace(/[()]/g, '')}/" target="_blank" rel="noopener" class="framework-link nist53">${ctrl}</a>`).join('')
             : '<span class="framework-na">N/A</span>';
 
+        // Dynamically derive KSIs from 800-53 controls using authoritative mapping
+        const derivedKSIs = typeof getKSIsForControl === 'function' && mapping.nist80053 
+            ? getKSIsForControl(mapping.nist80053) 
+            : [];
+        
         // Build FedRAMP 20x KSI badges
-        const fedramp20xHtml = mapping.fedramp20x && mapping.fedramp20x.length > 0
-            ? mapping.fedramp20x.map(ksi => `<span class="framework-link fedramp20x">${ksi}</span>`).join('')
+        const fedramp20xHtml = derivedKSIs.length > 0
+            ? derivedKSIs.map(ksi => `<span class="framework-link fedramp20x">${ksi}</span>`).join('')
             : '<span class="framework-na">N/A</span>';
 
         // Build CMMC practice badge
