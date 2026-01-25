@@ -37,31 +37,51 @@ const GCC_HIGH_GUIDANCE = {
         automation: "Implement Conditional Access policies requiring compliant device + user auth. Enable MFA via Security Defaults or CA policies.",
         azureService: "Conditional Access, MFA, Identity Protection",
         humanIntervention: "Review CA policy exceptions. Approve access for new user roles.",
-        docLink: "https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview"
+        docLink: "https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview",
+        cliCommands: [
+            "az ad conditional-access policy list --query '[].{name:displayName,state:state}'",
+            "az rest --method GET --uri 'https://graph.microsoft.com/v1.0/identity/conditionalAccess/policies'"
+        ]
     },
     "3.1.1[e]": {
         automation: "Configure Managed Identity permissions via Azure RBAC. Use Workload Identity Federation for external services.",
         azureService: "Azure RBAC, Managed Identities",
         humanIntervention: "Review and approve RBAC role assignments for service principals annually.",
-        docLink: "https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation"
+        docLink: "https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation",
+        cliCommands: [
+            "az identity list --query '[].{name:name,principalId:principalId}' -o table",
+            "az role assignment list --assignee PRINCIPAL_ID --all"
+        ]
     },
     "3.1.1[f]": {
         automation: "Enforce device compliance via Intune + Conditional Access. Block non-compliant/unmanaged devices.",
         azureService: "Intune, Conditional Access",
         humanIntervention: "Define device compliance requirements. Review blocked device reports.",
-        docLink: "https://learn.microsoft.com/en-us/mem/intune/protect/conditional-access-intune-common-ways-use"
+        docLink: "https://learn.microsoft.com/en-us/mem/intune/protect/conditional-access-intune-common-ways-use",
+        cliCommands: [
+            "az rest --method GET --uri 'https://graph.microsoft.com/v1.0/deviceManagement/deviceCompliancePolicies'",
+            "az rest --method GET --uri 'https://graph.microsoft.com/v1.0/devices' --query 'value[].{displayName:displayName,isCompliant:isCompliant}'"
+        ]
     },
     "3.1.2[a]": {
         automation: "Define Azure RBAC roles and custom roles. Use PIM for just-in-time access definitions.",
         azureService: "Azure RBAC, PIM",
         humanIntervention: "Required - Define role definitions with business stakeholders. Map job functions to RBAC roles.",
-        docLink: "https://learn.microsoft.com/en-us/azure/role-based-access-control/custom-roles"
+        docLink: "https://learn.microsoft.com/en-us/azure/role-based-access-control/custom-roles",
+        cliCommands: [
+            "az role definition list --custom-role-only true -o table",
+            "az role definition list --name 'Contributor' --output json"
+        ]
     },
     "3.1.2[b]": {
         automation: "Assign RBAC roles via Azure Policy or ARM templates. Enable PIM for elevated access with approval workflows.",
         azureService: "Azure RBAC, PIM",
         humanIntervention: "Approve PIM elevation requests. Conduct quarterly access reviews.",
-        docLink: "https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure"
+        docLink: "https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure",
+        cliCommands: [
+            "az role assignment list --all --query '[].{principal:principalName,role:roleDefinitionName,scope:scope}' -o table",
+            "az rest --method GET --uri 'https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignments'"
+        ]
     },
     "3.1.3[a]": {
         automation: "Define information flow policies in Microsoft Purview DLP. Create sensitivity labels for CUI classification.",
