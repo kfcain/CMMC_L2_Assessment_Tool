@@ -553,9 +553,15 @@ class AssessmentApp {
                     <button class="impl-tab" data-tab="extras">Extras</button>
                 </div>
                 <div class="cloud-selector">
-                    <button class="cloud-btn ${currentCloud === 'azure' ? 'active' : ''}" data-cloud="azure">GCC-High</button>
-                    <button class="cloud-btn ${currentCloud === 'aws' ? 'active' : ''}" data-cloud="aws">AWS GovCloud</button>
-                    <button class="cloud-btn ${currentCloud === 'gcp' ? 'active' : ''}" data-cloud="gcp">GCP</button>
+                    <button class="cloud-btn ${currentCloud === 'azure' ? 'active' : ''}" data-cloud="azure" title="Azure Government / GCC-High">
+                        <svg viewBox="0 0 96 96" width="20" height="20"><path fill="#0089D6" d="M33.3 6.4l-19.2 56 38.9-6.6L28.7 89.6h13.7l37-83.2z"/><path fill="#0089D6" d="M51.4 18.1L33.3 53.2l22.6 26.2 32.7 6v-9.7L51.4 18.1z" opacity=".8"/></svg>
+                    </button>
+                    <button class="cloud-btn ${currentCloud === 'aws' ? 'active' : ''}" data-cloud="aws" title="AWS GovCloud">
+                        <svg viewBox="0 0 80 80" width="20" height="20"><path fill="#FF9900" d="M26.9 55.5c-6.6-4.9-10.4-12-10.4-20.1 0-14.4 11.8-26.1 26.4-26.1 10.7 0 20 6.3 24.2 15.5l5.5-2.3C67.7 11.6 55.9 3.5 42.9 3.5 25.1 3.5 10.6 17.8 10.6 35.4c0 10.3 5 19.8 13.3 25.8l3-5.7z"/><path fill="#FF9900" d="M69.4 35.4c0 10.2-4.9 19.7-13.2 25.7l-3-5.8c6.5-4.8 10.3-12 10.3-19.9 0-5.7-1.9-11.1-5.5-15.5l4.6-3.9c4.7 5.5 6.8 12.5 6.8 19.4z"/><path fill="#FF9900" d="M40 76.5c-1.4 0-2.8-.1-4.2-.2l.6-6c1.2.1 2.4.2 3.6.2 8.9 0 17.1-4.4 22-11.7l5.1 3.4C61.3 70.9 51 76.5 40 76.5z"/></svg>
+                    </button>
+                    <button class="cloud-btn ${currentCloud === 'gcp' ? 'active' : ''}" data-cloud="gcp" title="Google Cloud Platform">
+                        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#EA4335" d="M12 5.5l4.5 7.8H7.5L12 5.5z"/><path fill="#4285F4" d="M19.5 18.25H4.5L12 5.5l7.5 12.75z" opacity=".4"/><path fill="#34A853" d="M12 18.25l-4.5-7.8h9l-4.5 7.8z"/><path fill="#FBBC05" d="M7.5 13.3L12 5.5l4.5 7.8H7.5z" opacity=".4"/></svg>
+                    </button>
                 </div>
             </div>
             <div class="impl-guide-body" id="impl-guide-view-body">
