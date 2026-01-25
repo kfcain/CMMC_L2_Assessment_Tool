@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NIST 800-171A / CMMC L2 Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=9">
+    <link rel="stylesheet" href="styles.css?v=10">
     <link rel="stylesheet" href="css/evidence.css?v=1">
     <link rel="stylesheet" href="css/theme-picker.css?v=1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -184,10 +184,13 @@
 
             <!-- Dashboard View -->
             <div id="dashboard-view" class="view active">
-                <header class="view-header">
+                <header class="view-header dashboard-header-row">
                     <div class="header-left">
                         <h2>Compliance Dashboard</h2>
                         <p class="subtitle">Overview of assessment status by control family</p>
+                    </div>
+                    <div class="header-right dashboard-scores-inline" id="dashboard-header-scores">
+                        <!-- SPRS and Conditional scores rendered by app.js -->
                     </div>
                 </header>
                 <div id="dashboard-content" class="dashboard-content"></div>
@@ -364,7 +367,7 @@
     <script src="data/itar-guidance.js?v=1"></script>
     <script src="data/framework-mappings.js?v=1"></script>
     <script src="data/loader.js"></script>
-    <script src="app.js?v=11"></script>
+    <script src="app.js?v=12"></script>
     <script src="js/supabase-client.js?v=1"></script>
     <script src="js/evidence-ui.js?v=1"></script>
     <script src="js/theme-picker.js?v=1"></script>

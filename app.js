@@ -1689,6 +1689,7 @@ class AssessmentApp {
 
     renderDashboard() {
         const container = document.getElementById('dashboard-content');
+        const headerScores = document.getElementById('dashboard-header-scores');
         
         // Calculate overall stats
         let totalObjectives = 0, totalMet = 0, totalPartial = 0, totalNotMet = 0, totalNotAssessed = 0;
@@ -1711,43 +1712,27 @@ class AssessmentApp {
         const conditionalThreshold = 88;
         const meetsConditionalThreshold = controlsMet >= conditionalThreshold;
         const conditionalStatusClass = meetsConditionalThreshold ? 'eligible' : 'not-eligible';
-        const conditionalStatusIcon = meetsConditionalThreshold ? '✅' : '⚠️';
 
         // Calculate total SPRS score
         const sprsScore = this.calculateTotalSPRS();
         const sprsClass = sprsScore >= 0 ? 'positive' : sprsScore >= -50 ? 'moderate' : 'critical';
 
-        let html = `
-            <div class="dashboard-scores-row">
-                <div class="sprs-score-card ${sprsClass}">
-                    <div class="sprs-score-label">SPRS Score</div>
-                    <div class="sprs-score-value">${sprsScore}</div>
-                    <div class="sprs-score-range">Range: -203 to 110</div>
+        // Render inline header scores
+        if (headerScores) {
+            headerScores.innerHTML = `
+                <div class="dashboard-score-badge sprs ${sprsClass}">
+                    <span class="score-badge-label">SPRS:</span>
+                    <span class="score-badge-value">${sprsScore}</span>
                 </div>
-                <div class="conditional-status-banner ${conditionalStatusClass}">
-                    <div class="conditional-status-header">
-                        ${conditionalStatusIcon} <strong>CMMC Conditional Level 2 Status</strong>
-                    </div>
-                    <div class="conditional-status-body">
-                        <div class="conditional-score">
-                            <span class="score-current">${controlsMet}</span>
-                            <span class="score-separator">/</span>
-                            <span class="score-required">110</span>
-                            <span class="score-label">controls implemented</span>
-                        </div>
-                        <div class="conditional-message">
-                            ${meetsConditionalThreshold 
-                                ? 'You meet the minimum 88/110 (80%) threshold for Conditional Level 2 status eligibility.'
-                                : `You need <strong>${conditionalThreshold - controlsMet} more controls</strong> to reach the 88/110 (80%) minimum required for Conditional Level 2 status.`
-                            }
-                        </div>
-                        <div class="conditional-note">
-                            Per 32 CFR 170.21: Assessment score ÷ total requirements must be ≥ 0.8 before a POA&M is permitted.
-                        </div>
-                    </div>
+                <div class="dashboard-score-badge cmmc ${conditionalStatusClass}">
+                    <span class="score-badge-label">L2 Status:</span>
+                    <span class="score-badge-value">${controlsMet}/110</span>
+                    <span>${meetsConditionalThreshold ? '✓' : '⚠'}</span>
                 </div>
-            </div>
+            `;
+        }
 
+        let html = `
             <div class="dashboard-card summary-card">
                 <div class="summary-stat">
                     <div class="summary-stat-value">${totalObjectives}</div>
