@@ -3222,6 +3222,116 @@ body {
     visibility: visible;
 }
 
+/* No Sidebar Layout */
+.app-container.no-sidebar {
+    display: block;
+}
+
+.app-container.no-sidebar .main-content {
+    margin-left: 0;
+    width: 100%;
+}
+
+/* Hamburger Org Section */
+.hamburger-org-section {
+    padding: 8px 12px;
+}
+
+.hamburger-org-card {
+    margin-bottom: 12px;
+}
+
+.hamburger-org-card:last-child {
+    margin-bottom: 0;
+}
+
+.hamburger-org-label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.hamburger-org-input {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.hamburger-org-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.hamburger-org-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hamburger-org-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.hamburger-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.hamburger-logo-placeholder {
+    color: var(--text-muted);
+}
+
+.hamburger-org-url {
+    flex: 1;
+    padding: 4px 8px;
+    font-size: 0.6875rem;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-primary);
+}
+
+.hamburger-org-url:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.hamburger-fetch-btn {
+    padding: 4px 6px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hamburger-fetch-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
 /* Dashboard Hero Title */
 .dashboard-hero {
     text-align: center;

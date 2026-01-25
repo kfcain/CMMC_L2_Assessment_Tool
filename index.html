@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMMC Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=15">
+    <link rel="stylesheet" href="styles.css?v=16">
     <link rel="stylesheet" href="css/evidence.css?v=1">
     <link rel="stylesheet" href="css/theme-picker.css?v=2">
     <link rel="stylesheet" href="css/crosswalk.css?v=20260125b">
@@ -36,6 +36,47 @@
                     Crosswalk
                 </button>
             </nav>
+            <div class="hamburger-divider"></div>
+            <!-- Organization Info Section -->
+            <div class="hamburger-org-section">
+                <div class="hamburger-org-card">
+                    <div class="hamburger-org-label">Assessor</div>
+                    <input type="text" id="org-assessor-name" class="hamburger-org-input" placeholder="Company Name">
+                    <div class="hamburger-org-logo-row">
+                        <div class="hamburger-org-logo" id="assessor-logo-container">
+                            <img id="assessor-logo-img" class="hamburger-logo-img" style="display: none;" alt="Logo">
+                            <div class="hamburger-logo-placeholder" id="assessor-logo-placeholder">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </div>
+                        </div>
+                        <input type="text" id="org-assessor-url" class="hamburger-org-url" placeholder="website.com">
+                        <button id="fetch-assessor-logo-btn" class="hamburger-fetch-btn" title="Fetch logo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                        </button>
+                    </div>
+                    <input type="file" id="assessor-logo-input" accept="image/*" style="display: none;">
+                </div>
+                <div class="hamburger-org-card">
+                    <div class="hamburger-org-label">Organization Seeking Certification</div>
+                    <input type="text" id="org-osc-name" class="hamburger-org-input" placeholder="Company Name">
+                    <div class="hamburger-org-logo-row">
+                        <div class="hamburger-org-logo" id="osc-logo-container">
+                            <img id="osc-logo-img" class="hamburger-logo-img" style="display: none;" alt="Logo">
+                            <div class="hamburger-logo-placeholder" id="osc-logo-placeholder">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </div>
+                        </div>
+                        <input type="text" id="org-osc-url" class="hamburger-org-url" placeholder="website.com">
+                        <button id="fetch-osc-logo-btn" class="hamburger-fetch-btn" title="Fetch logo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                        </button>
+                    </div>
+                    <input type="file" id="osc-logo-input" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            <div class="hamburger-divider"></div>
+            <!-- Auth Container -->
+            <div class="auth-container" id="auth-container"></div>
         </div>
     </div>
     <div class="hamburger-overlay" id="hamburger-overlay"></div>
@@ -46,63 +87,7 @@
     </button>
     <div class="mobile-overlay" id="mobile-overlay"></div>
     
-    <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h1>CMMC Assessment Tool</h1>
-                <p>Self-Assessment, POA&M Generator, and Control Mapping Tool</p>
-            </div>
-            <!-- Auth Container for Google SSO -->
-            <div class="auth-container" id="auth-container">
-                <!-- Auth UI rendered by evidence-ui.js -->
-            </div>
-            <div class="org-info-section">
-                <div class="org-card assessor-card">
-                    <div class="org-card-label">Assessor</div>
-                    <div class="org-card-header">
-                        <input type="text" id="org-assessor-name" class="org-name-input" placeholder="Company Name">
-                    </div>
-                    <div class="org-logo-display" id="assessor-logo-container">
-                        <img id="assessor-logo-img" class="org-logo-large" style="display: none;" alt="Assessor Logo">
-                        <div class="org-logo-placeholder-large" id="assessor-logo-placeholder">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                            <span>Click to upload or fetch from URL</span>
-                        </div>
-                    </div>
-                    <div class="org-url-row">
-                        <input type="text" id="org-assessor-url" class="org-url-input" placeholder="Website URL (e.g., example.com)">
-                        <button id="fetch-assessor-logo-btn" class="fetch-logo-btn" title="Fetch logo from URL">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
-                        </button>
-                    </div>
-                    <input type="file" id="assessor-logo-input" accept="image/*" style="display: none;">
-                </div>
-                <div class="org-card osc-card">
-                    <div class="org-card-label">Organization Seeking Certification</div>
-                    <div class="org-card-header">
-                        <input type="text" id="org-osc-name" class="org-name-input" placeholder="Company Name">
-                    </div>
-                    <div class="org-logo-display" id="osc-logo-container">
-                        <img id="osc-logo-img" class="org-logo-large" style="display: none;" alt="OSC Logo">
-                        <div class="org-logo-placeholder-large" id="osc-logo-placeholder">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                            <span>Click to upload or fetch from URL</span>
-                        </div>
-                    </div>
-                    <div class="org-url-row">
-                        <input type="text" id="org-osc-url" class="org-url-input" placeholder="Website URL (e.g., example.com)">
-                        <button id="fetch-osc-logo-btn" class="fetch-logo-btn" title="Fetch logo from URL">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
-                        </button>
-                    </div>
-                    <input type="file" id="osc-logo-input" accept="image/*" style="display: none;">
-                </div>
-            </div>
-            <div class="sidebar-footer">
-            </div>
-        </aside>
-
+    <div class="app-container no-sidebar">
         <!-- Main Content -->
         <main class="main-content">
             <!-- Site Title Bar (visible on non-dashboard views) -->
