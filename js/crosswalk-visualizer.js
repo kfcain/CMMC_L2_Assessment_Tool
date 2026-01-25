@@ -138,209 +138,187 @@ const CrosswalkVisualizer = {
         }
     },
     
-    getMappingData() {
-        if (typeof FRAMEWORK_MAPPINGS === 'undefined') return [];
-        
-        const data = [];
-        let skippedByBaseline = 0;
-        
+    // Build reverse mapping: KSI → 800-53 controls
+    buildKsiTo80053Map() {
+        if (typeof FEDRAMP_20X_KSI === 'undefined') return {};
+        const map = {};
+        Object.entries(FEDRAMP_20X_KSI.nist80053ToKSI || {}).forEach(([ctrl, ksis]) => {
+            ksis.forEach(ksi => {
+                if (!map[ksi]) map[ksi] = [];
+                if (!map[ksi].includes(ctrl)) map[ksi].push(ctrl);
+            });
+        });
+        return map;
+    },
+    
+    // Build mapping: 800-53 → 171/CMMC controls
+    build80053To171Map() {
+        if (typeof FRAMEWORK_MAPPINGS === 'undefined') return {};
+        const map = {};
         Object.entries(FRAMEWORK_MAPPINGS).forEach(([controlId, mapping]) => {
-            // Skip internal/helper entries
             if (controlId.startsWith('_')) return;
-            
-            // Dynamically derive KSIs from 800-53 controls using authoritative mapping
-            let derivedKSIs = typeof getKSIsForControl === 'function' && mapping.nist80053 
-                ? getKSIsForControl(mapping.nist80053) 
-                : [];
-            
-            // Apply family filter
-            if (this.filters.family !== 'all') {
-                const familyId = this.getFamilyIdFromControl(controlId);
-                if (familyId !== this.filters.family) return;
+            (mapping.nist80053 || []).forEach(ctrl => {
+                const baseCtrl = ctrl.split('(')[0];
+                if (!map[baseCtrl]) map[baseCtrl] = [];
+                map[baseCtrl].push({
+                    id: controlId,
+                    cmmc: mapping.cmmc,
+                    description: mapping.description
+                });
+            });
+        });
+        return map;
+    },
+    
+    getKsiData() {
+        if (typeof FEDRAMP_20X_KSI === 'undefined') return { families: {}, indicators: [] };
+        
+        const ksiTo80053 = this.buildKsiTo80053Map();
+        const ctrl80053To171 = this.build80053To171Map();
+        
+        // Group KSIs by family
+        const familyGroups = {};
+        
+        Object.entries(FEDRAMP_20X_KSI.indicators || {}).forEach(([ksiId, ksi]) => {
+            const family = ksi.family;
+            if (!familyGroups[family]) {
+                familyGroups[family] = {
+                    ...FEDRAMP_20X_KSI.families[family],
+                    indicators: []
+                };
             }
             
-            // Apply FedRAMP 20x KSI filter
+            // Apply baseline filter
             if (this.filters.baseline !== 'all') {
-                // Filter: Has KSI Mapping
-                if (this.filters.baseline === 'has-ksi') {
-                    if (derivedKSIs.length === 0) {
-                        skippedByBaseline++;
-                        return;
-                    }
-                }
-                // Filter: No KSI Mapping
-                else if (this.filters.baseline === 'no-ksi') {
-                    if (derivedKSIs.length > 0) {
-                        skippedByBaseline++;
-                        return;
-                    }
-                }
-                // Filter: 20x Low Only (KSIs with low: true)
-                else if (this.filters.baseline === 'low') {
-                    if (derivedKSIs.length === 0) {
-                        skippedByBaseline++;
-                        return;
-                    }
-                    const filteredKSIs = derivedKSIs.filter(ksi => {
-                        if (typeof FEDRAMP_20X_KSI === 'undefined') return false;
-                        const ksiInfo = FEDRAMP_20X_KSI.indicators[ksi];
-                        return ksiInfo && ksiInfo.low === true;
-                    });
-                    if (filteredKSIs.length === 0) {
-                        skippedByBaseline++;
-                        return;
-                    }
-                    derivedKSIs = filteredKSIs;
-                }
-                // Filter: 20x Moderate Only (KSIs with moderate: true but low: false)
-                else if (this.filters.baseline === 'moderate-only') {
-                    if (derivedKSIs.length === 0) {
-                        skippedByBaseline++;
-                        return;
-                    }
-                    const filteredKSIs = derivedKSIs.filter(ksi => {
-                        if (typeof FEDRAMP_20X_KSI === 'undefined') return false;
-                        const ksiInfo = FEDRAMP_20X_KSI.indicators[ksi];
-                        return ksiInfo && ksiInfo.moderate === true && ksiInfo.low === false;
-                    });
-                    if (filteredKSIs.length === 0) {
-                        skippedByBaseline++;
-                        return;
-                    }
-                    derivedKSIs = filteredKSIs;
-                }
+                if (this.filters.baseline === 'low' && !ksi.low) return;
+                if (this.filters.baseline === 'moderate-only' && (ksi.low || !ksi.moderate)) return;
             }
+            
+            // Get 800-53 controls for this KSI
+            const nist80053Controls = ksiTo80053[ksiId] || [];
+            
+            // Get related 171/CMMC controls
+            const related171 = [];
+            nist80053Controls.forEach(ctrl => {
+                const baseCtrl = ctrl.split('.')[0];
+                (ctrl80053To171[baseCtrl] || []).forEach(m => {
+                    if (!related171.find(r => r.id === m.id)) {
+                        related171.push(m);
+                    }
+                });
+                (ctrl80053To171[ctrl] || []).forEach(m => {
+                    if (!related171.find(r => r.id === m.id)) {
+                        related171.push(m);
+                    }
+                });
+            });
             
             // Apply search filter
             if (this.filters.search) {
-                const searchStr = `${controlId} ${mapping.description || ''} ${mapping.nist80053?.join(' ') || ''} ${derivedKSIs.join(' ')} ${mapping.cmmc?.practice || ''}`.toLowerCase();
+                const searchStr = `${ksiId} ${ksi.title} ${ksi.description} ${nist80053Controls.join(' ')}`.toLowerCase();
                 if (!searchStr.includes(this.filters.search)) return;
             }
             
-            data.push({
-                controlId,
-                ...mapping,
-                fedramp20x: derivedKSIs // Override with dynamically derived KSIs
+            // Apply family filter (KSI family, not 171 family)
+            if (this.filters.family !== 'all' && family !== this.filters.family) return;
+            
+            familyGroups[family].indicators.push({
+                id: ksiId,
+                ...ksi,
+                nist80053: nist80053Controls,
+                related171
             });
         });
         
-        return data;
-    },
-    
-    getFamilyIdFromControl(controlId) {
-        const prefix = controlId.split('.')[0];
-        const familyMap = {
-            '3.1': 'AC', '3.2': 'AT', '3.3': 'AU', '3.4': 'CM',
-            '3.5': 'IA', '3.6': 'IR', '3.7': 'MA', '3.8': 'MP',
-            '3.9': 'PS', '3.10': 'PE', '3.11': 'RA', '3.12': 'CA',
-            '3.13': 'SC', '3.14': 'SI'
-        };
-        return familyMap[prefix] || prefix;
+        return familyGroups;
     },
     
     renderTable() {
         const container = document.getElementById('crosswalk-table-view');
         if (!container) return;
         
-        const data = this.getMappingData();
+        const familyGroups = this.getKsiData();
+        const familyOrder = ['AFR', 'CED', 'CMT', 'CNA', 'IAM', 'INR', 'MLA', 'PIY', 'RPL', 'SVC', 'TPR'];
         
-        if (data.length === 0) {
+        // Count total indicators
+        let totalIndicators = 0;
+        familyOrder.forEach(fam => {
+            if (familyGroups[fam]) totalIndicators += familyGroups[fam].indicators.length;
+        });
+        
+        if (totalIndicators === 0) {
             container.innerHTML = `
                 <div class="crosswalk-empty">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
-                    <p>No mappings found matching your filters</p>
+                    <p>No KSIs found matching your filters</p>
                 </div>
             `;
             return;
         }
         
-        let html = '<div class="control-cards">';
+        let html = '<div class="ksi-families">';
         
-        data.forEach(item => {
-            const cmmcPractice = item.cmmc?.practice || '';
-            const cmmcLevel = item.cmmc?.level;
-            const classification = item.classification;
-            const levelClass = cmmcLevel === 1 ? 'cmmc-l1' : 'cmmc-l2';
-            const classificationClass = classification === 'Basic' ? 'cmmc-basic' : 'cmmc-derived';
-            
-            // Build NIST 800-53 mappings
-            const nist53Links = (item.nist80053 || []).map(c => {
-                const urlId = c.toLowerCase().replace(/\((\d+)\)/g, '-$1');
-                return `<a href="https://www.myctrl.tools/frameworks/nist-800-53-r5/${urlId}" target="_blank" rel="noopener" class="mapping-link nist-53">${c}</a>`;
-            }).join('');
-            
-            // Build FedRAMP 20x KSI mappings with details
-            const ksiItems = (item.fedramp20x || []).map(ksi => {
-                const urlId = ksi.toLowerCase().replace(/-0+(\d)/g, '-$1');
-                const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? FEDRAMP_20X_KSI.indicators[ksi] : null;
-                const title = ksiInfo?.title || ksi;
-                const desc = ksiInfo?.description || '';
-                const isLow = ksiInfo?.low ? '<span class="ksi-level ksi-low">Low</span>' : '';
-                const isMod = ksiInfo?.moderate ? '<span class="ksi-level ksi-moderate">Moderate</span>' : '';
-                return `
-                    <div class="ksi-item">
-                        <div class="ksi-header">
-                            <a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="ksi-id">${ksi}</a>
-                            <span class="ksi-title">${title}</span>
-                            <div class="ksi-levels">${isLow}${isMod}</div>
-                        </div>
-                        ${desc ? `<p class="ksi-desc">${desc}</p>` : ''}
-                    </div>
-                `;
-            }).join('');
+        familyOrder.forEach(familyId => {
+            const family = familyGroups[familyId];
+            if (!family || family.indicators.length === 0) return;
             
             html += `
-                <div class="control-card">
-                    <div class="card-header">
-                        <div class="control-id-wrap">
-                            <span class="control-id">${item.controlId}</span>
-                            ${cmmcPractice ? `<span class="cmmc-badge ${levelClass}">L${cmmcLevel}</span>` : ''}
-                            ${cmmcPractice ? `<span class="cmmc-practice">${cmmcPractice}</span>` : ''}
-                            ${classification ? `<span class="classification-badge ${classificationClass}">${classification}</span>` : ''}
-                        </div>
-                        <h3 class="control-title">${item.description || ''}</h3>
+                <div class="ksi-family-section">
+                    <div class="family-header">
+                        <span class="family-code">${familyId}</span>
+                        <span class="family-name">${family.name}</span>
+                        <span class="family-count">${family.indicators.length} indicators</span>
                     </div>
-                    
-                    <div class="card-section">
-                        <button class="section-toggle" data-section="nist53-${item.controlId.replace(/\./g, '-')}">
-                            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                            <span>NIST 800-53 Mappings</span>
-                            <span class="section-count">${(item.nist80053 || []).length}</span>
-                        </button>
-                        <div class="section-content" id="nist53-${item.controlId.replace(/\./g, '-')}">
-                            <div class="mapping-links">${nist53Links || '<span class="no-mapping">No mappings</span>'}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="card-section">
-                        <button class="section-toggle" data-section="ksi-${item.controlId.replace(/\./g, '-')}">
-                            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                            <span>FedRAMP 20x Key Security Indicators</span>
-                            <span class="section-count">${(item.fedramp20x || []).length}</span>
-                        </button>
-                        <div class="section-content" id="ksi-${item.controlId.replace(/\./g, '-')}">
-                            ${ksiItems || '<span class="no-mapping">No KSI mappings for this control</span>'}
-                        </div>
-                    </div>
-                </div>
+                    <div class="family-indicators">
             `;
+            
+            family.indicators.forEach(ksi => {
+                const urlId = ksi.id.toLowerCase().replace(/-0+(\d)/g, '-$1');
+                const isLow = ksi.low ? '<span class="ksi-level ksi-low">Low</span>' : '';
+                const isMod = ksi.moderate ? '<span class="ksi-level ksi-moderate">Moderate</span>' : '';
+                
+                // Build 800-53 control links
+                const nist53Links = (ksi.nist80053 || []).map(c => {
+                    const ctrlUrlId = c.toLowerCase().replace(/\./g, '-');
+                    return `<a href="https://www.myctrl.tools/frameworks/nist-800-53-r5/${ctrlUrlId}" target="_blank" rel="noopener" class="mapping-link nist-53">${c}</a>`;
+                }).join('');
+                
+                // Build related 171/CMMC info
+                const related171Html = ksi.related171.length > 0 ? `
+                    <div class="related-171">
+                        <span class="related-label">Related CMMC/171:</span>
+                        ${ksi.related171.slice(0, 5).map(r => `<span class="related-ctrl">${r.id}${r.cmmc ? ` (${r.cmmc.practice})` : ''}</span>`).join('')}
+                        ${ksi.related171.length > 5 ? `<span class="related-more">+${ksi.related171.length - 5} more</span>` : ''}
+                    </div>
+                ` : '';
+                
+                html += `
+                    <div class="ksi-card">
+                        <div class="ksi-card-header">
+                            <a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="ksi-id">${ksi.id}</a>
+                            <span class="ksi-title">${ksi.title}</span>
+                            <div class="ksi-levels">${isLow}${isMod}</div>
+                        </div>
+                        <p class="ksi-desc">${ksi.description}</p>
+                        
+                        <div class="ksi-mappings">
+                            <div class="mapping-section">
+                                <span class="mapping-label">NIST 800-53 / FedRAMP Rev5:</span>
+                                <div class="mapping-links">${nist53Links || '<span class="no-mapping">No mappings</span>'}</div>
+                            </div>
+                            ${related171Html}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div></div>';
         });
         
         html += '</div>';
         container.innerHTML = html;
-        
-        // Bind toggle events
-        container.querySelectorAll('.section-toggle').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const sectionId = btn.dataset.section;
-                const section = document.getElementById(sectionId);
-                const isOpen = btn.classList.contains('open');
-                btn.classList.toggle('open', !isOpen);
-                section.classList.toggle('open', !isOpen);
-            });
-        });
     },
     
     renderGraph() {

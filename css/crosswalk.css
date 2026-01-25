@@ -282,171 +282,143 @@ a.mapping-tag:hover {
     color: #3b82f6;
 }
 
-/* Card-Based Layout */
-.control-cards {
+/* KSI Family-Based Layout */
+.ksi-families {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 24px;
 }
 
-.control-card {
+.ksi-family-section {
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     overflow: hidden;
-    transition: box-shadow 0.2s ease;
 }
 
-.control-card:hover {
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-.card-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--bg-secondary);
-}
-
-.control-id-wrap {
+.family-header {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    padding: 16px 20px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.family-code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #22d3ee;
+    background: rgba(6, 182, 212, 0.15);
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+.family-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.family-count {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.family-indicators {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--border-color);
+}
+
+.ksi-card {
+    background: var(--bg-primary);
+    padding: 16px 20px;
+}
+
+.ksi-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 8px;
     flex-wrap: wrap;
 }
 
-.control-id {
+.ksi-card .ksi-id {
     font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: var(--accent-blue);
-}
-
-.cmmc-badge {
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.6875rem;
-    font-weight: 600;
-}
-
-.cmmc-badge.cmmc-l1 {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-}
-
-.cmmc-badge.cmmc-l2 {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-}
-
-.cmmc-practice {
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    background: var(--bg-tertiary);
-    padding: 2px 8px;
-    border-radius: 4px;
-}
-
-.classification-badge {
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.6875rem;
-    font-weight: 500;
-}
-
-.classification-badge.cmmc-basic {
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
-}
-
-.classification-badge.cmmc-derived {
-    background: rgba(168, 85, 247, 0.15);
-    color: #a855f7;
-}
-
-.control-title {
-    margin: 0;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    line-height: 1.5;
-}
-
-.card-section {
-    border-bottom: 1px solid var(--border-color);
-}
-
-.card-section:last-child {
-    border-bottom: none;
-}
-
-.section-toggle {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 20px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--text-secondary);
-    text-align: left;
-    transition: background 0.15s ease;
+    color: #22d3ee;
+    text-decoration: none;
+    background: rgba(6, 182, 212, 0.15);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(6, 182, 212, 0.3);
 }
 
-.section-toggle:hover {
-    background: var(--bg-tertiary);
+.ksi-card .ksi-id:hover {
+    background: rgba(6, 182, 212, 0.25);
 }
 
-.toggle-icon {
-    width: 16px;
-    height: 16px;
-    stroke: var(--text-muted);
-    transition: transform 0.2s ease;
-    flex-shrink: 0;
+.ksi-card .ksi-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
 }
 
-.section-toggle.open .toggle-icon {
-    transform: rotate(180deg);
-}
-
-.section-count {
+.ksi-card .ksi-levels {
+    display: flex;
+    gap: 6px;
     margin-left: auto;
-    background: var(--bg-tertiary);
-    padding: 2px 8px;
-    border-radius: 10px;
+}
+
+.ksi-card .ksi-desc {
+    margin: 0 0 12px 0;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.ksi-mappings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.mapping-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mapping-label {
     font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: var(--text-muted);
-}
-
-.section-content {
-    display: none;
-    padding: 16px 20px;
-    background: var(--bg-secondary);
-}
-
-.section-content.open {
-    display: block;
 }
 
 .mapping-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
 }
 
 .mapping-link {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
-    background: var(--bg-primary);
+    padding: 4px 10px;
+    background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 4px;
     font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     text-decoration: none;
     color: var(--text-primary);
     transition: all 0.15s ease;
@@ -454,7 +426,7 @@ a.mapping-tag:hover {
 
 .mapping-link:hover {
     border-color: var(--accent-blue);
-    box-shadow: 0 2px 8px var(--shadow-color);
+    box-shadow: 0 2px 6px var(--shadow-color);
     transform: translateY(-1px);
 }
 
@@ -472,7 +444,36 @@ a.mapping-tag:hover {
 .no-mapping {
     color: var(--text-muted);
     font-style: italic;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
+}
+
+.related-171 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.related-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.related-ctrl {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.6875rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.related-more {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
 }
 
 /* KSI Items */

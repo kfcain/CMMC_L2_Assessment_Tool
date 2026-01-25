@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="styles.css?v=18">
     <link rel="stylesheet" href="css/evidence.css?v=1">
     <link rel="stylesheet" href="css/theme-picker.css?v=2">
-    <link rel="stylesheet" href="css/crosswalk.css?v=20260125f">
+    <link rel="stylesheet" href="css/crosswalk.css?v=20260125g">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -221,24 +221,33 @@
                 </header>
                 <div class="crosswalk-filters">
                     <div class="filter-group">
-                        <label>Family</label>
+                        <label>KSI Family</label>
                         <select id="crosswalk-family-filter">
                             <option value="all">All Families</option>
+                            <option value="AFR">AFR — Authorization by FedRAMP</option>
+                            <option value="CED">CED — Cybersecurity Education</option>
+                            <option value="CMT">CMT — Change Management</option>
+                            <option value="CNA">CNA — Cloud Native Architecture</option>
+                            <option value="IAM">IAM — Identity & Access Management</option>
+                            <option value="INR">INR — Incident Response</option>
+                            <option value="MLA">MLA — Monitoring, Logging & Auditing</option>
+                            <option value="PIY">PIY — Policy and Inventory</option>
+                            <option value="RPL">RPL — Recovery Planning</option>
+                            <option value="SVC">SVC — Service Configuration</option>
+                            <option value="TPR">TPR — Third-Party Resources</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>FedRAMP 20x KSI</label>
+                        <label>Baseline Level</label>
                         <select id="crosswalk-baseline-filter">
-                            <option value="all">All Controls</option>
-                            <option value="has-ksi">Has KSI Mapping</option>
-                            <option value="no-ksi">No KSI Mapping</option>
-                            <option value="low">20x Low Only</option>
+                            <option value="all">All Indicators</option>
+                            <option value="low">20x Low</option>
                             <option value="moderate-only">20x Moderate Only</option>
                         </select>
                     </div>
                     <div class="filter-group search-filter">
                         <label>Search</label>
-                        <input type="text" id="crosswalk-search" placeholder="Search controls...">
+                        <input type="text" id="crosswalk-search" placeholder="Search KSIs...">
                     </div>
                 </div>
                 <div id="crosswalk-content" class="crosswalk-content">
@@ -430,6 +439,6 @@
     <script src="js/supabase-client.js?v=1"></script>
     <script src="js/evidence-ui.js?v=1"></script>
     <script src="js/theme-picker.js?v=4"></script>
-    <script src="js/crosswalk-visualizer.js?v=20260125q"></script>
+    <script src="js/crosswalk-visualizer.js?v=20260125r"></script>
 </body>
 </html>
