@@ -1924,6 +1924,19 @@ body {
     flex-shrink: 0;
 }
 
+.guidance-doc-link.cui-training-link {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: rgba(168, 85, 247, 0.3);
+    color: #a855f7;
+    margin-left: 8px;
+}
+
+.guidance-doc-link.cui-training-link:hover {
+    background: rgba(168, 85, 247, 0.2);
+    border-color: rgba(168, 85, 247, 0.5);
+    color: #c084fc;
+}
+
 /* Data Storage Notice Styles */
 .data-storage-notice {
     display: none;

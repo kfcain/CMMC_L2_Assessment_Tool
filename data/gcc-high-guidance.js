@@ -520,7 +520,8 @@ Write-Host "Public Release Registry Created." -ForegroundColor Green`
         automation: "Document risks in Purview Compliance Manager. Use Defender for Cloud risk assessments.",
         azureService: "Compliance Manager, Defender for Cloud",
         humanIntervention: "Required - Identify CUI-specific security risks.",
-        docLink: "https://learn.microsoft.com/en-us/purview/compliance-manager"
+        docLink: "https://learn.microsoft.com/en-us/purview/compliance-manager",
+        cuiTrainingTemplate: "https://www.dcsa.mil/Portals/128/Documents/CTP/CUI/DCSA%20CUI%20Training%20Template%20Version%203.pdf"
     },
     "3.2.1[b]": {
         automation: "Store policies in SharePoint with version control. Track in Compliance Manager.",
@@ -529,10 +530,11 @@ Write-Host "Public Release Registry Created." -ForegroundColor Green`
         docLink: "https://learn.microsoft.com/en-us/sharepoint/document-library-overview"
     },
     "3.2.1[c]": {
-        automation: "Deploy Viva Learning for security awareness. Use Attack Simulation Training. Create SharePoint training tracker.",
+        automation: "Deploy Viva Learning for security awareness. Use Attack Simulation Training. Create SharePoint training tracker. Use DCSA CUI Training Template.",
         azureService: "Viva Learning, Attack Simulation, SharePoint",
         humanIntervention: "Review training completion. Address non-compliant users.",
         docLink: "https://learn.microsoft.com/en-us/defender-office-365/attack-simulation-training-get-started",
+        cuiTrainingTemplate: "https://www.dcsa.mil/Portals/128/Documents/CTP/CUI/DCSA%20CUI%20Training%20Template%20Version%203.pdf",
         automationScripts: [{
             name: "Setup_Training_Infrastructure.ps1",
             description: "Creates Training Tracker Lists in GCC High SharePoint for annual security training automation",
@@ -577,10 +579,11 @@ Write-Host "Training Infrastructure Created." -ForegroundColor Green`
         docLink: "https://learn.microsoft.com/en-us/entra/identity/app-provisioning/what-is-hr-driven-provisioning"
     },
     "3.2.2[c]": {
-        automation: "Assign role-based training via Viva Learning. Track completion and send reminders.",
+        automation: "Assign role-based training via Viva Learning. Track completion and send reminders. Use DCSA CUI Training Template for CUI handlers.",
         azureService: "Viva Learning",
         humanIntervention: "Verify training adequacy. Update as duties change.",
-        docLink: "https://learn.microsoft.com/en-us/viva/learning/overview-viva-learning"
+        docLink: "https://learn.microsoft.com/en-us/viva/learning/overview-viva-learning",
+        cuiTrainingTemplate: "https://www.dcsa.mil/Portals/128/Documents/CTP/CUI/DCSA%20CUI%20Training%20Template%20Version%203.pdf"
     },
     "3.2.3[a]": {
         automation: "Use Purview Insider Risk Management indicators as baseline.",

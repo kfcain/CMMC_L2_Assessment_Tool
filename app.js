@@ -1048,6 +1048,10 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 View Documentation
             </a>` : ''}
+            ${guidance.cuiTrainingTemplate ? `<a href="${guidance.cuiTrainingTemplate}" target="_blank" rel="noopener noreferrer" class="guidance-doc-link cui-training-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                DCSA CUI Training Template (PDF)
+            </a>` : ''}
         `;
     }
 
