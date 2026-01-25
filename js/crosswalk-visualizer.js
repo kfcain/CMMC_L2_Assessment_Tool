@@ -148,7 +148,7 @@ const CrosswalkVisualizer = {
             if (controlId.startsWith('_')) return;
             
             // Dynamically derive KSIs from 800-53 controls using authoritative mapping
-            const derivedKSIs = typeof getKSIsForControl === 'function' && mapping.nist80053 
+            let derivedKSIs = typeof getKSIsForControl === 'function' && mapping.nist80053 
                 ? getKSIsForControl(mapping.nist80053) 
                 : [];
             
@@ -158,9 +158,19 @@ const CrosswalkVisualizer = {
                 if (familyId !== this.filters.family) return;
             }
             
-            // Apply baseline filter (filter by whether control has 20x KSI mappings)
+            // Apply baseline filter (filter by FedRAMP baseline level)
             if (this.filters.baseline !== 'all') {
-                if (derivedKSIs.length === 0) return;
+                // Filter KSIs that match the selected baseline
+                const baselineKSIs = derivedKSIs.filter(ksi => {
+                    const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? FEDRAMP_20X_KSI.indicators[ksi] : null;
+                    if (!ksiInfo) return false;
+                    if (this.filters.baseline === 'low') return ksiInfo.low === true;
+                    if (this.filters.baseline === 'moderate') return ksiInfo.moderate === true;
+                    if (this.filters.baseline === 'high') return ksiInfo.moderate === true; // High includes moderate
+                    return false;
+                });
+                if (baselineKSIs.length === 0) return;
+                derivedKSIs = baselineKSIs;
             }
             
             // Apply search filter
