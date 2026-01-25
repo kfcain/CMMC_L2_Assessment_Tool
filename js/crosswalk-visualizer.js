@@ -169,30 +169,56 @@ const CrosswalkVisualizer = {
                 if (familyId !== this.filters.family) return;
             }
             
-            // Apply FedRAMP 20x level filter
+            // Apply FedRAMP 20x KSI filter
             if (this.filters.baseline !== 'all') {
-                // If control has no KSIs, exclude it when filtering
-                if (derivedKSIs.length === 0) {
-                    skippedByBaseline++;
-                    return;
+                // Filter: Has KSI Mapping
+                if (this.filters.baseline === 'has-ksi') {
+                    if (derivedKSIs.length === 0) {
+                        skippedByBaseline++;
+                        return;
+                    }
                 }
-                
-                // Filter KSIs to only those matching the selected level
-                const filteredKSIs = derivedKSIs.filter(ksi => {
-                    if (typeof FEDRAMP_20X_KSI === 'undefined') return false;
-                    const ksiInfo = FEDRAMP_20X_KSI.indicators[ksi];
-                    if (!ksiInfo) return false;
-                    if (this.filters.baseline === 'low') return ksiInfo.low === true;
-                    if (this.filters.baseline === 'moderate') return ksiInfo.moderate === true;
-                    return false;
-                });
-                
-                // Exclude control if no KSIs match the filter
-                if (filteredKSIs.length === 0) {
-                    skippedByBaseline++;
-                    return;
+                // Filter: No KSI Mapping
+                else if (this.filters.baseline === 'no-ksi') {
+                    if (derivedKSIs.length > 0) {
+                        skippedByBaseline++;
+                        return;
+                    }
                 }
-                derivedKSIs = filteredKSIs;
+                // Filter: 20x Low Only (KSIs with low: true)
+                else if (this.filters.baseline === 'low') {
+                    if (derivedKSIs.length === 0) {
+                        skippedByBaseline++;
+                        return;
+                    }
+                    const filteredKSIs = derivedKSIs.filter(ksi => {
+                        if (typeof FEDRAMP_20X_KSI === 'undefined') return false;
+                        const ksiInfo = FEDRAMP_20X_KSI.indicators[ksi];
+                        return ksiInfo && ksiInfo.low === true;
+                    });
+                    if (filteredKSIs.length === 0) {
+                        skippedByBaseline++;
+                        return;
+                    }
+                    derivedKSIs = filteredKSIs;
+                }
+                // Filter: 20x Moderate Only (KSIs with moderate: true but low: false)
+                else if (this.filters.baseline === 'moderate-only') {
+                    if (derivedKSIs.length === 0) {
+                        skippedByBaseline++;
+                        return;
+                    }
+                    const filteredKSIs = derivedKSIs.filter(ksi => {
+                        if (typeof FEDRAMP_20X_KSI === 'undefined') return false;
+                        const ksiInfo = FEDRAMP_20X_KSI.indicators[ksi];
+                        return ksiInfo && ksiInfo.moderate === true && ksiInfo.low === false;
+                    });
+                    if (filteredKSIs.length === 0) {
+                        skippedByBaseline++;
+                        return;
+                    }
+                    derivedKSIs = filteredKSIs;
+                }
             }
             
             // Apply search filter

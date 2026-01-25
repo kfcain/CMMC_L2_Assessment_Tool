@@ -227,11 +227,13 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>FedRAMP 20x Level</label>
+                        <label>FedRAMP 20x KSI</label>
                         <select id="crosswalk-baseline-filter">
-                            <option value="all">All Levels</option>
-                            <option value="low">20x Low</option>
-                            <option value="moderate">20x Moderate</option>
+                            <option value="all">All Controls</option>
+                            <option value="has-ksi">Has KSI Mapping</option>
+                            <option value="no-ksi">No KSI Mapping</option>
+                            <option value="low">20x Low Only</option>
+                            <option value="moderate-only">20x Moderate Only</option>
                         </select>
                     </div>
                     <div class="filter-group search-filter">
@@ -428,6 +430,6 @@
     <script src="js/supabase-client.js?v=1"></script>
     <script src="js/evidence-ui.js?v=1"></script>
     <script src="js/theme-picker.js?v=4"></script>
-    <script src="js/crosswalk-visualizer.js?v=20260125n"></script>
+    <script src="js/crosswalk-visualizer.js?v=20260125o"></script>
 </body>
 </html>
