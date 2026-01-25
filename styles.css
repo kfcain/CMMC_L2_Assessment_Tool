@@ -2738,6 +2738,105 @@ body {
     border-color: #8b949e;
 }
 
+/* Automation Scripts Styles */
+.scripts-section {
+    margin-top: 12px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
+}
+
+.automation-scripts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.automation-script-item {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.script-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, rgba(136, 46, 224, 0.15), rgba(59, 130, 246, 0.1));
+    border-bottom: 1px solid #30363d;
+}
+
+.script-name {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #a371f7;
+}
+
+.script-copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    color: #8b949e;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.script-copy-btn:hover {
+    background: #21262d;
+    color: #c9d1d9;
+    border-color: #8b949e;
+}
+
+.script-description {
+    padding: 10px 12px;
+    font-size: 0.75rem;
+    color: #8b949e;
+    line-height: 1.5;
+}
+
+.script-details {
+    border-top: 1px solid #30363d;
+}
+
+.script-details summary {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #58a6ff;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+.script-details summary:hover {
+    background: rgba(88, 166, 255, 0.1);
+}
+
+.script-details[open] summary {
+    border-bottom: 1px solid #30363d;
+}
+
+.script-code {
+    margin: 0;
+    padding: 12px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.7rem;
+    line-height: 1.6;
+    color: #c9d1d9;
+    background: #0d1117;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 /* Framework Mappings Styles */
 .framework-mappings-section {
     margin: 12px 0;

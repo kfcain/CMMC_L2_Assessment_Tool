@@ -216,10 +216,32 @@ const GCC_HIGH_GUIDANCE = {
         docLink: "https://learn.microsoft.com/en-us/entra/fundamentals/how-to-customize-branding"
     },
     "3.1.10[a]": {
-        automation: "Configure screen lock timeout via Intune device configuration policies.",
+        automation: "Configure screen lock timeout via Intune device configuration policies. Deploy CMMC baseline profile via Graph API.",
         azureService: "Microsoft Intune",
         humanIntervention: "Define acceptable inactivity timeout (typically 15 minutes or less).",
-        docLink: "https://learn.microsoft.com/en-us/mem/intune/configuration/device-restrictions-windows-10"
+        docLink: "https://learn.microsoft.com/en-us/mem/intune/configuration/device-restrictions-windows-10",
+        automationScripts: [{
+            name: "01_Deploy_CMMC_Baselines_GCCH.ps1",
+            description: "Deploys CMMC L2 baselines to GCC High including screen lock (15 min timeout), password complexity (14 char alphanumeric)",
+            script: `# Deploy CMMC Baselines to GCC High (graph.microsoft.us)
+Import-Module Microsoft.Graph.DeviceManagement.Administration
+Connect-MgGraph -Scopes "DeviceManagementConfiguration.ReadWrite.All" -Environment USGov
+
+$Uri = "https://graph.microsoft.us/beta/deviceManagement/deviceConfigurations"
+
+$HardeningJSON = @{
+    "@odata.type" = "#microsoft.graph.windows10GeneralConfiguration"
+    "displayName" = "CMMC - Workstation Hardening Baseline"
+    "screenLockBlocked" = \$false
+    "passwordBlockSimple" = \$true
+    "passwordRequiredType" = "alphanumeric"
+    "passwordMinimumLength" = 14
+    "passwordMinutesOfInactivityBeforeScreenTimeout" = 15
+    "dmaGuardEnabled" = \$true
+} | ConvertTo-Json -Depth 3
+
+Invoke-MgGraphRequest -Method POST -Uri \$Uri -Body \$HardeningJSON -ContentType "application/json"`
+        }]
     },
     "3.1.10[b]": {
         automation: "Deploy Intune policies for automatic screen lock. Configure idle session timeout for M365 apps.",
@@ -408,10 +430,28 @@ const GCC_HIGH_GUIDANCE = {
         docLink: "https://learn.microsoft.com/en-us/defender-cloud-apps/what-is-defender-for-cloud-apps"
     },
     "3.1.21[a]": {
-        automation: "Document portable storage policy. Use Intune to detect removable storage usage.",
+        automation: "Document portable storage policy. Use Intune to detect removable storage usage. Deploy Device Control XML policy.",
         azureService: "Intune, Defender Device Control",
         humanIntervention: "Required - Document portable storage use cases.",
-        docLink: "https://learn.microsoft.com/en-us/defender-endpoint/device-control-removable-storage-access-control"
+        docLink: "https://learn.microsoft.com/en-us/defender-endpoint/device-control-removable-storage-access-control",
+        automationScripts: [{
+            name: "MP_Defender_Device_Control.xml",
+            description: "Import into Intune (Custom OMA-URI) to block all USBs except approved devices (e.g., IronKeys)",
+            script: `<!-- Defender Device Control Policy - Block Unapproved USB -->
+<PolicyRules>
+    <PolicyRule Id="{a2f3g4h5-1111-2222-3333-444455556666}">
+        <Name>Allow IronKeys</Name>
+        <IncludedIdList><GroupId>{65fa64e9-1111-2222-3333-444455556666}</GroupId></IncludedIdList>
+        <AccessMask>15</AccessMask>
+    </PolicyRule>
+    <PolicyRule Id="{b3c4d5e6-9999-8888-7777-666655554444}">
+        <Name>Block Unapproved</Name>
+        <IncludedIdList><GroupId>{9b28fae8-72f7-4267-a1a5-685f747a7146}</GroupId></IncludedIdList>
+        <ExcludedIdList><GroupId>{65fa64e9-1111-2222-3333-444455556666}</GroupId></ExcludedIdList>
+        <AccessMask>6</AccessMask>
+    </PolicyRule>
+</PolicyRules>`
+        }]
     },
     "3.1.21[b]": {
         automation: "Define restrictions in Intune device configuration. Configure Device Control policies.",
@@ -426,10 +466,29 @@ const GCC_HIGH_GUIDANCE = {
         docLink: "https://learn.microsoft.com/en-us/defender-endpoint/device-control-removable-storage-access-control"
     },
     "3.1.22[a]": {
-        automation: "Define authorized publishers in Entra ID groups. Use CA to restrict public content access.",
-        azureService: "Entra ID Groups",
+        automation: "Define authorized publishers in Entra ID groups. Use CA to restrict public content access. Create Public Release Registry in SharePoint.",
+        azureService: "Entra ID Groups, SharePoint",
         humanIntervention: "Required - Identify authorized individuals for public posting.",
-        docLink: "https://learn.microsoft.com/en-us/entra/fundamentals/groups-view-azure-portal"
+        docLink: "https://learn.microsoft.com/en-us/entra/fundamentals/groups-view-azure-portal",
+        automationScripts: [{
+            name: "AC_Public_Release_Registry.ps1",
+            description: "Creates Public Release Registry list in GCC High SharePoint for tracking approvals of public website content",
+            script: `# Creates Public Release Registry in GCC High SharePoint (.us)
+Import-Module PnP.PowerShell
+
+\$SiteUrl = "https://yourtenant.sharepoint.us/sites/Compliance"
+\$Config = Get-Content ".\\CMMC_App_Config.json" | ConvertFrom-Json
+
+Connect-PnPOnline -Url \$SiteUrl -ClientId \$Config.ClientId -Thumbprint \$Config.Thumbprint -Tenant \$Config.Tenant -AzureEnvironment USGovernment
+
+\$ListName = "Public Release Registry"
+New-PnPList -Title \$ListName -Template GenericList
+Add-PnPField -List \$ListName -DisplayName "Platform" -InternalName "Platform" -Type Choice -Choices "Website","LinkedIn","Twitter"
+Add-PnPField -List \$ListName -DisplayName "Approver" -InternalName "Approver" -Type User
+Add-PnPField -List \$ListName -DisplayName "CUI_Check" -InternalName "CUICheck" -Type Boolean
+
+Write-Host "Public Release Registry Created." -ForegroundColor Green`
+        }]
     },
     "3.1.22[b]": {
         automation: "Implement DLP policies scanning for CUI in public content. Use sensitivity labels.",
@@ -470,10 +529,34 @@ const GCC_HIGH_GUIDANCE = {
         docLink: "https://learn.microsoft.com/en-us/sharepoint/document-library-overview"
     },
     "3.2.1[c]": {
-        automation: "Deploy Viva Learning for security awareness. Use Attack Simulation Training.",
-        azureService: "Viva Learning, Attack Simulation",
+        automation: "Deploy Viva Learning for security awareness. Use Attack Simulation Training. Create SharePoint training tracker.",
+        azureService: "Viva Learning, Attack Simulation, SharePoint",
         humanIntervention: "Review training completion. Address non-compliant users.",
-        docLink: "https://learn.microsoft.com/en-us/defender-office-365/attack-simulation-training-get-started"
+        docLink: "https://learn.microsoft.com/en-us/defender-office-365/attack-simulation-training-get-started",
+        automationScripts: [{
+            name: "Setup_Training_Infrastructure.ps1",
+            description: "Creates Training Tracker Lists in GCC High SharePoint for annual security training automation",
+            script: `# Creates Training Tracker Lists in GCC High SharePoint
+Import-Module PnP.PowerShell
+
+\$SiteUrl = "https://yourtenant.sharepoint.us/sites/HR"
+\$Config = Get-Content ".\\CMMC_App_Config.json" | ConvertFrom-Json
+
+Connect-PnPOnline -Url \$SiteUrl -ClientId \$Config.ClientId -Thumbprint \$Config.Thumbprint -Tenant \$Config.Tenant -AzureEnvironment USGovernment
+
+# Create Document Library for training materials
+New-PnPList -Title "Training_Materials" -Template DocumentLibrary
+
+# Create the Tracking List
+\$ListName = "Training_Assignments"
+New-PnPList -Title \$ListName -Template GenericList
+Add-PnPField -List \$ListName -DisplayName "EmployeeEmail" -InternalName "EmpEmail" -Type Text
+Add-PnPField -List \$ListName -DisplayName "TrainingTopic" -InternalName "Topic" -Type Choice -Choices "Security Awareness","Insider Threat","CUI Handling"
+Add-PnPField -List \$ListName -DisplayName "DueDate" -InternalName "DueDate" -Type DateTime
+Add-PnPField -List \$ListName -DisplayName "Status" -InternalName "Status" -Type Choice -Choices "Pending","Completed","Overdue"
+
+Write-Host "Training Infrastructure Created." -ForegroundColor Green`
+        }]
     },
     "3.2.1[d]": {
         automation: "Distribute policies via SharePoint requiring acknowledgment. Track via Terms of Use.",
@@ -526,10 +609,27 @@ const GCC_HIGH_GUIDANCE = {
         docLink: "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log-schema"
     },
     "3.3.1[c]": {
-        automation: "Enable via Entra ID diagnostic settings. Route to Log Analytics workspace.",
+        automation: "Enable via Entra ID diagnostic settings. Route to Log Analytics workspace. Run weekly evidence export.",
         azureService: "Azure Monitor, Log Analytics",
         humanIntervention: "Verify logs are generated correctly.",
-        docLink: "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings"
+        docLink: "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings",
+        automationScripts: [{
+            name: "02_Run_Weekly_Evidence_GCCH.ps1",
+            description: "Exports CMMC audit evidence from GCC High to JSON files. Schedule to run weekly (e.g., Friday).",
+            script: `# Exports CMMC Evidence from GCC High - Run Weekly
+\$EvidenceRoot = "C:\\CMMC_Evidence\\Week_\$(Get-Date -Format 'yyyy-MM-dd')"
+New-Item -Path \$EvidenceRoot -ItemType Directory -Force | Out-Null
+
+# CRITICAL: Connects to USGov environment
+Connect-MgGraph -Scopes "DeviceManagementConfiguration.Read.All","Policy.Read.All" -Environment USGov
+
+Write-Host "Exporting Evidence (Target: Azure Gov)..."
+Get-MgIdentityConditionalAccessPolicy | ConvertTo-Json -Depth 5 | Out-File "\$EvidenceRoot\\AC_Policies.json"
+Get-MgDeviceManagementDeviceConfiguration | Select-Object DisplayName, LastModifiedDateTime, Version | ConvertTo-Json | Out-File "\$EvidenceRoot\\CM_Config_Versions.json"
+Get-MgDeviceManagementManagedDevice | Select-Object DeviceName, IsEncrypted, OperatingSystem, SerialNumber | ConvertTo-Json | Out-File "\$EvidenceRoot\\SI_BitLocker_Status.json"
+
+Write-Host "Done. Files at \$EvidenceRoot" -ForegroundColor Green`
+        }]
     },
     "3.3.1[d]": {
         automation: "Use KQL queries to validate log content. Create workbooks for completeness visualization.",
@@ -686,6 +786,201 @@ const GCC_HIGH_GUIDANCE = {
         azureService: "PIM, Azure Policy",
         humanIntervention: "Approve PIM requests for audit management.",
         docLink: "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/manage-access"
+    },
+
+    // === CONFIGURATION MANAGEMENT (CM) ===
+    "3.4.1[a]": {
+        automation: "Deploy Change Management SharePoint lists for CCB tracking. Use Intune for baseline configuration deployment.",
+        azureService: "SharePoint, Intune, Azure DevOps",
+        humanIntervention: "Required - Establish baseline configurations with stakeholders.",
+        docLink: "https://learn.microsoft.com/en-us/mem/intune/configuration/device-profile-create",
+        automationScripts: [{
+            name: "Create_CM_Lists_GCCH.ps1",
+            description: "Deploys Change Management Lists to GCC High SharePoint for Change Control Board (CCB) and Software Catalog tracking",
+            script: `# Deploys Change Management Lists to GCC High SharePoint (.us)
+Import-Module PnP.PowerShell
+
+# CRITICAL: Update to your .sharepoint.us URL
+\$SiteUrl = "https://yourtenant.sharepoint.us/sites/IT"
+
+# Load the Registered App Identity
+if (Test-Path ".\\CMMC_App_Config.json") {
+    \$Config = Get-Content ".\\CMMC_App_Config.json" | ConvertFrom-Json
+} else {
+    Write-Error "Config file missing. Run 00_Setup_PnP_App_GCCH.ps1 first."
+    exit
+}
+
+Connect-PnPOnline -Url \$SiteUrl -ClientId \$Config.ClientId -Thumbprint \$Config.Thumbprint -Tenant \$Config.Tenant -AzureEnvironment USGovernment
+
+\$ListName = "Change Requests"
+New-PnPList -Title \$ListName -Template GenericList
+Add-PnPField -List \$ListName -DisplayName "ChangeType" -InternalName "ChangeType" -Type Choice -Choices "Infrastructure","Software","Access"
+Add-PnPField -List \$ListName -DisplayName "RiskScore" -InternalName "RiskScore" -Type Number
+Add-PnPField -List \$ListName -DisplayName "SecurityReview" -InternalName "SecReview" -Type Choice -Choices "Pending","Approved","Rejected"
+
+Write-Host "Change DB Created in GCC High (\$SiteUrl)." -ForegroundColor Green`
+        }]
+    },
+    "3.4.2[a]": {
+        automation: "Deploy security configuration settings via Intune. Track changes in SharePoint Change Requests list.",
+        azureService: "Intune, SharePoint",
+        humanIntervention: "Approve security setting changes via CCB process.",
+        docLink: "https://learn.microsoft.com/en-us/mem/intune/configuration/settings-catalog"
+    },
+
+    // === MEDIA PROTECTION (MP) ===
+    "3.8.1[a]": {
+        automation: "Use Intune Device Control to detect and control removable media. Deploy Defender Device Control policies.",
+        azureService: "Intune, Defender for Endpoint",
+        humanIntervention: "Required - Define approved media types and devices.",
+        docLink: "https://learn.microsoft.com/en-us/defender-endpoint/device-control-removable-storage-access-control",
+        automationScripts: [{
+            name: "MP_Defender_Device_Control.xml",
+            description: "Import into Intune (Custom OMA-URI) to block all USBs except approved devices like IronKeys",
+            script: `<!-- Defender Device Control Policy - Block Unapproved USB -->
+<PolicyRules>
+    <PolicyRule Id="{a2f3g4h5-1111-2222-3333-444455556666}">
+        <Name>Allow IronKeys</Name>
+        <IncludedIdList><GroupId>{65fa64e9-1111-2222-3333-444455556666}</GroupId></IncludedIdList>
+        <AccessMask>15</AccessMask>
+    </PolicyRule>
+    <PolicyRule Id="{b3c4d5e6-9999-8888-7777-666655554444}">
+        <Name>Block Unapproved</Name>
+        <IncludedIdList><GroupId>{9b28fae8-72f7-4267-a1a5-685f747a7146}</GroupId></IncludedIdList>
+        <ExcludedIdList><GroupId>{65fa64e9-1111-2222-3333-444455556666}</GroupId></ExcludedIdList>
+        <AccessMask>6</AccessMask>
+    </PolicyRule>
+</PolicyRules>`
+        }]
+    },
+
+    // === PHYSICAL PROTECTION (PE) ===
+    "3.10.3[a]": {
+        automation: "Create SharePoint Visitor Log list. Integrate with badge systems via Power Automate.",
+        azureService: "SharePoint, Power Automate",
+        humanIntervention: "Required - Review visitor logs. Escort foreign nationals.",
+        docLink: "https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/get-started/build-a-hello-world-web-part",
+        automationScripts: [{
+            name: "PE_Visitor_Log_Schema.json",
+            description: "JSON schema to create Visitor Log list in SharePoint for CMMC 3.10 Physical Access tracking",
+            script: `{
+  "list": {
+    "title": "Security_Visitor_Log",
+    "description": "CMMC 3.10 Physical Access Log",
+    "columns": [
+      { "name": "VisitorName", "type": "Text", "required": true },
+      { "name": "Company", "type": "Text", "required": true },
+      { "name": "CitizenshipStatus", "type": "Choice", "choices": ["US Citizen", "Foreign National"], "required": true },
+      { "name": "HostUser", "type": "User", "required": true },
+      { "name": "CheckInTime", "type": "DateTime", "default": "[Today]" },
+      { "name": "EscortRequired", "type": "Boolean", "default": "false" }
+    ]
+  }
+}`
+        }]
+    },
+
+    // === SYSTEM AND COMMUNICATIONS PROTECTION (SC) ===
+    "3.13.8[a]": {
+        automation: "Deploy Azure VPN Gateway with FIPS-compliant IPsec policies. Use AES256/SHA384 encryption.",
+        azureService: "Azure VPN Gateway, Azure Firewall",
+        humanIntervention: "Required - Document approved cryptographic mechanisms.",
+        docLink: "https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-compliance-crypto",
+        automationScripts: [{
+            name: "SC_Setup_VPN_AzureGov.ps1",
+            description: "Deploys a FIPS-compliant VPN Gateway in Azure Government with AES256/SHA384/DHGroup24 encryption",
+            script: `# Configures FIPS VPN in Azure Gov
+Connect-AzAccount -Environment AzureUSGovernment
+
+\$RG = "RG-Network-Sec"
+\$Location = "USGovVirginia"
+\$ipsecPolicy = New-AzIpsecPolicy -IkeEncryption AES256 -IkeIntegrity SHA384 -DhGroup DHGroup24 -IpsecEncryption AES256 -IpsecIntegrity GCMAES256 -PfsGroup PFS24
+
+# Create Resource Group
+New-AzResourceGroup -Name \$RG -Location \$Location
+
+# Create VNet & Gateway
+\$SubnetConfig = New-AzVirtualNetworkSubnetConfig -Name "GatewaySubnet" -AddressPrefix "10.1.255.0/27"
+\$VNet = New-AzVirtualNetwork -ResourceGroupName \$RG -Name "VNet-Hub-Gov" -Location \$Location -AddressPrefix "10.1.0.0/16" -Subnet \$SubnetConfig
+\$Pip = New-AzPublicIpAddress -ResourceGroupName \$RG -Name "Vpn-Gw-Pip" -Location \$Location -AllocationMethod Static -Sku Standard
+
+Write-Host "Creating Gateway (45 Mins)..."
+\$Gw = New-AzVirtualNetworkGateway -Name "Vpn-Gw-Gov" -ResourceGroupName \$RG -Location \$Location -IpConfigurations (New-AzVirtualNetworkGatewayIpConfig -Name "GwIpConfig" -SubnetId \$SubnetConfig.Id -PublicIpAddressId \$Pip.Id) -GatewayType "Vpn" -VpnType "RouteBased" -GatewaySku "VpnGw2" -IpsecPolicies \$ipsecPolicy`
+        }]
+    },
+    "3.13.11[a]": {
+        automation: "Deploy BitLocker encryption via Intune with XTS-AES 256-bit. Use FIPS-compliant algorithms.",
+        azureService: "Intune, BitLocker",
+        humanIntervention: "Verify encryption status. Store recovery keys securely.",
+        docLink: "https://learn.microsoft.com/en-us/mem/intune/protect/encrypt-devices",
+        automationScripts: [{
+            name: "01_Deploy_CMMC_Baselines_GCCH.ps1",
+            description: "Deploys BitLocker encryption profile with FIPS XTS-AES 256 to GCC High via Graph API",
+            script: `# Deploy BitLocker FIPS Profile to GCC High
+Import-Module Microsoft.Graph.DeviceManagement.Administration
+Connect-MgGraph -Scopes "DeviceManagementConfiguration.ReadWrite.All" -Environment USGov
+
+\$Uri = "https://graph.microsoft.us/beta/deviceManagement/deviceConfigurations"
+
+\$BitLockerJSON = @{
+    "@odata.type" = "#microsoft.graph.windows10EndpointProtectionConfiguration"
+    "displayName" = "CMMC - BitLocker Encryption"
+    "bitLockerWindowsSettings" = @{
+        "encryptionMethod" = "xtsAes256"
+        "removableDriveEncryptionMethod" = "xtsAes256"
+        "osDriveSettings" = @{
+            "recoveryOptions" = @{
+                "keyUsage" = "allowed"
+                "hideRecoveryOptions" = \$true
+            }
+        }
+    }
+} | ConvertTo-Json -Depth 5
+
+Invoke-MgGraphRequest -Method POST -Uri \$Uri -Body \$BitLockerJSON -ContentType "application/json"
+Write-Host "BitLocker Profile Deployed" -ForegroundColor Green`
+        }]
+    },
+
+    // === AUTOMATION IDENTITY SETUP (Prerequisite) ===
+    "_setup": {
+        automation: "Register an Entra ID App for PnP PowerShell in GCC High with certificate-based authentication for unattended automation.",
+        azureService: "Entra ID, PnP PowerShell",
+        humanIntervention: "Required - Run once with Global Admin credentials to register the automation identity.",
+        docLink: "https://pnp.github.io/powershell/articles/registerapplication.html",
+        automationScripts: [{
+            name: "00_Setup_PnP_App_GCCH.ps1",
+            description: "PREREQUISITE: Creates Service Principal identity in Azure Gov for automated scripts (run first with Global Admin)",
+            script: `# Registers an Entra ID App for PnP PowerShell in GCC High
+Write-Host "Setting up CMMC Automation Identity..." -ForegroundColor Cyan
+
+# Install PnP Module if missing
+if (-not (Get-Module -ListAvailable PnP.PowerShell)) {
+    Write-Host "Installing PnP.PowerShell..."
+    Install-Module PnP.PowerShell -Scope CurrentUser -Force -AllowClobber
+}
+
+\$AppName = "CMMC_Automation_Identity"
+\$TenantName = Read-Host "Enter your Tenant Domain (e.g., contoso.onmicrosoft.us)"
+
+# CRITICAL: -AzureEnvironment USGovernment
+Write-Host "Please log in with Global Admin credentials when prompted..." -ForegroundColor Yellow
+
+\$RegOutput = Register-PnPAzureADApp -ApplicationName \$AppName -Tenant \$TenantName -AzureEnvironment USGovernment -Store CurrentUser -GraphApplicationPermissions "User.Read.All","Group.Read.All","DeviceManagementConfiguration.Read.All" -SharePointDelegatePermissions "Sites.FullControl.All" -Interactive
+
+Write-Host "--- SETUP COMPLETE ---" -ForegroundColor Green
+Write-Host "Client ID: \$(\$RegOutput.ClientId)"
+Write-Host "Thumbprint: \$(\$RegOutput.Certificate.Thumbprint)"
+
+# Save config for other scripts
+@{
+    ClientId = \$RegOutput.ClientId
+    Thumbprint = \$RegOutput.Certificate.Thumbprint
+    Tenant = \$TenantName
+} | ConvertTo-Json | Out-File ".\\CMMC_App_Config.json"
+Write-Host "Config saved to CMMC_App_Config.json"`
+        }]
     },
 
     // Default guidance for objectives without specific guidance

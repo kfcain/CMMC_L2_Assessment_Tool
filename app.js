@@ -832,6 +832,32 @@ class AssessmentApp {
             `;
         }
 
+        // Build automation scripts HTML if available (Azure/GCC High only)
+        let scriptsHtml = '';
+        if (cloud === 'azure' && guidance.automationScripts && guidance.automationScripts.length > 0) {
+            const scriptsList = guidance.automationScripts.map(script => `
+                <div class="automation-script-item">
+                    <div class="script-header">
+                        <span class="script-name">${script.name}</span>
+                        <button class="script-copy-btn" title="Copy script" onclick="navigator.clipboard.writeText(this.closest('.automation-script-item').querySelector('pre').textContent)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        </button>
+                    </div>
+                    <div class="script-description">${script.description}</div>
+                    <details class="script-details">
+                        <summary>View Script</summary>
+                        <pre class="script-code">${script.script.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                    </details>
+                </div>
+            `).join('');
+            scriptsHtml = `
+                <div class="guidance-item scripts-section">
+                    <span class="guidance-label">Automation Scripts:</span>
+                    <div class="automation-scripts">${scriptsList}</div>
+                </div>
+            `;
+        }
+
         return `
             <div class="guidance-item">
                 <span class="guidance-label">Automation:</span>
@@ -846,6 +872,7 @@ class AssessmentApp {
                 <span class="guidance-value">${guidance.humanIntervention}</span>
             </div>
             ${cliHtml}
+            ${scriptsHtml}
             ${guidance.docLink ? `<a href="${guidance.docLink}" target="_blank" rel="noopener noreferrer" class="guidance-doc-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 View Documentation
