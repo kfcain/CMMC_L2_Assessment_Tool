@@ -331,7 +331,7 @@ const ThemePicker = {
             option.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const theme = option.dataset.theme;
-                this.setTheme(theme);
+                this.applyTheme(theme);
                 menu.classList.remove('open');
                 this.renderHeaderPicker();
             });
