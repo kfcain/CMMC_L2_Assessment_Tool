@@ -4969,11 +4969,11 @@ body {
 }
 
 /* Adjust body padding when disclaimer is visible */
-body:has(.disclaimer-banner) .top-header-bar {
+body.has-disclaimer .top-header-bar {
     top: 36px;
 }
 
-body:has(.disclaimer-banner) .app-container {
+body.has-disclaimer .app-container {
     padding-top: 36px;
 }
 
