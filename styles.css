@@ -217,6 +217,17 @@ body {
     background-color: var(--bg-secondary);
 }
 
+.filter-select.level-select {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+    border-color: rgba(245, 158, 11, 0.3);
+    font-weight: 600;
+    color: #fbbf24;
+}
+
+.filter-select.level-select:hover {
+    border-color: rgba(245, 158, 11, 0.5);
+}
+
 /* Progress Bar */
 .progress-bar-container {
     background-color: var(--bg-secondary);

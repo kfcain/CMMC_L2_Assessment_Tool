@@ -8,6 +8,7 @@ class AssessmentApp {
         this.deficiencyData = {}; // Tracks non-POA&M eligible deficiencies
         this.implementationData = {}; // Tracks how objectives are met
         this.orgData = {}; // Organization info (assessor, OSC)
+        this.assessmentLevel = localStorage.getItem('nist-assessment-level') || '2'; // '1' for L1, '2' for L2
         this.currentView = localStorage.getItem('nist-current-view') || 'dashboard';
         this.init();
     }
@@ -364,6 +365,19 @@ class AssessmentApp {
             this.filterControls();
         });
 
+        // Assessment Level Selector
+        const levelSelect = document.getElementById('assessment-level-select');
+        if (levelSelect) {
+            levelSelect.value = this.assessmentLevel;
+            levelSelect.addEventListener('change', (e) => {
+                this.assessmentLevel = e.target.value;
+                localStorage.setItem('nist-assessment-level', this.assessmentLevel);
+                this.renderControls();
+                this.updateProgress();
+                this.filterControls();
+            });
+        }
+
         // Filters
         document.getElementById('filter-status').addEventListener('change', () => this.filterControls());
         document.getElementById('filter-family').addEventListener('change', () => this.filterControls());
@@ -506,9 +520,21 @@ class AssessmentApp {
         const container = document.getElementById('controls-list');
         container.innerHTML = '';
 
+        // Filter families based on assessment level
         CONTROL_FAMILIES.forEach(family => {
-            const familyEl = this.createFamilyElement(family);
-            container.appendChild(familyEl);
+            // Filter controls within each family based on level
+            const filteredControls = family.controls.filter(control => {
+                const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
+                const cmmcLevel = mapping?.cmmc?.level || 2;
+                // L1 assessment: only show L1 controls; L2 assessment: show all controls
+                return this.assessmentLevel === '1' ? cmmcLevel === 1 : true;
+            });
+            
+            // Only render family if it has controls after filtering
+            if (filteredControls.length > 0) {
+                const familyEl = this.createFamilyElement({ ...family, controls: filteredControls });
+                container.appendChild(familyEl);
+            }
         });
     }
 
@@ -609,7 +635,8 @@ class AssessmentApp {
         const status = this.assessmentData[objective.id]?.status || 'not-assessed';
         const hasImplData = !!this.implementationData[objective.id]?.description;
         const hasPoamData = !!(this.poamData[objective.id] || this.deficiencyData[objective.id]);
-        const showPoamLink = status === 'not-met' || status === 'partial';
+        const isL1 = this.assessmentLevel === '1';
+        const showPoamLink = !isL1 && (status === 'not-met' || status === 'partial'); // No POA&M for L1
         const xrefId = typeof CTRL_XREF !== 'undefined' ? (CTRL_XREF[objective.id] || '') : '';
 
         // Build assessor cheat sheet section
@@ -658,6 +685,14 @@ class AssessmentApp {
             </div>
         `;
 
+        // Build status buttons - L1 has only Met/Not Met, L2 has Met/Partial/Not Met
+        const statusButtonsHtml = isL1 
+            ? `<button class="status-btn ${status === 'met' ? 'met' : ''}" data-status="met">Met</button>
+               <button class="status-btn ${status === 'not-met' ? 'not-met' : ''}" data-status="not-met">Not Met</button>`
+            : `<button class="status-btn ${status === 'met' ? 'met' : ''}" data-status="met">Met</button>
+               <button class="status-btn ${status === 'partial' ? 'partial' : ''}" data-status="partial">Partial</button>
+               <button class="status-btn ${status === 'not-met' ? 'not-met' : ''}" data-status="not-met">Not Met</button>`;
+
         objectiveDiv.innerHTML = `
             <div class="objective-main">
                 <button class="objective-expand" title="Show details">
@@ -668,9 +703,7 @@ class AssessmentApp {
                     <div class="objective-text">${objective.text}</div>
                 </div>
                 <div class="objective-actions">
-                    <button class="status-btn ${status === 'met' ? 'met' : ''}" data-status="met">Met</button>
-                    <button class="status-btn ${status === 'partial' ? 'partial' : ''}" data-status="partial">Partial</button>
-                    <button class="status-btn ${status === 'not-met' ? 'not-met' : ''}" data-status="not-met">Not Met</button>
+                    ${statusButtonsHtml}
                     <button class="impl-link ${hasImplData ? 'has-data' : ''}" title="Document Implementation">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
@@ -1261,6 +1294,11 @@ class AssessmentApp {
 
         CONTROL_FAMILIES.forEach(family => {
             family.controls.forEach(control => {
+                // Filter controls based on assessment level
+                const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
+                const cmmcLevel = mapping?.cmmc?.level || 2;
+                if (this.assessmentLevel === '1' && cmmcLevel !== 1) return;
+                
                 control.objectives.forEach(objective => {
                     total++;
                     const status = this.assessmentData[objective.id]?.status;
@@ -1274,16 +1312,17 @@ class AssessmentApp {
             });
         });
 
-        // Update text
-        document.getElementById('progress-text').textContent = `${assessed} of ${total} assessed`;
+        // Update text with level indicator
+        const levelLabel = this.assessmentLevel === '1' ? 'L1' : 'L2';
+        document.getElementById('progress-text').textContent = `${assessed} of ${total} assessed (${levelLabel})`;
         
         const complianceRate = assessed > 0 ? Math.round((met / assessed) * 100) : 0;
         document.getElementById('compliance-text').textContent = `${complianceRate}% compliant`;
 
         // Update progress bars
-        const metWidth = (met / total) * 100;
-        const partialWidth = (partial / total) * 100;
-        const notMetWidth = (notMet / total) * 100;
+        const metWidth = total > 0 ? (met / total) * 100 : 0;
+        const partialWidth = total > 0 ? (partial / total) * 100 : 0;
+        const notMetWidth = total > 0 ? (notMet / total) * 100 : 0;
 
         document.getElementById('progress-met').style.width = `${metWidth}%`;
         document.getElementById('progress-partial').style.width = `${partialWidth}%`;
@@ -1909,6 +1948,7 @@ class AssessmentApp {
 
     exportAssessmentCSV() {
         const items = [];
+        const isL1 = this.assessmentLevel === '1';
         
         // Get org info for export
         const assessorName = this.orgData.assessorName || '';
@@ -1918,6 +1958,11 @@ class AssessmentApp {
         
         CONTROL_FAMILIES.forEach(family => {
             family.controls.forEach(control => {
+                // Filter controls based on assessment level
+                const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
+                const cmmcLevel = mapping?.cmmc?.level || 2;
+                if (isL1 && cmmcLevel !== 1) return;
+                
                 control.objectives.forEach(objective => {
                     const assessment = this.assessmentData[objective.id] || {};
                     const impl = this.implementationData[objective.id] || {};
@@ -1925,7 +1970,10 @@ class AssessmentApp {
                     const deficiency = this.deficiencyData[objective.id] || {};
                     
                     const xrefId = typeof CTRL_XREF !== 'undefined' ? (CTRL_XREF[objective.id] || '') : '';
-                    items.push({
+                    
+                    // Build item based on level - L1 has simpler structure (no POA&M)
+                    const item = {
+                        'CMMC Level': isL1 ? 'L1' : 'L2',
                         'Control Family': `${family.id} - ${family.name}`,
                         'Control ID': control.id,
                         'Control Name': control.name,
@@ -1935,23 +1983,35 @@ class AssessmentApp {
                         'Status': assessment.status || 'Not Assessed',
                         'Implementation Description': impl.description || '',
                         'Implementation Evidence': impl.evidence || '',
-                        'Implementation Notes': impl.notes || '',
-                        'POA&M Weakness': poam.weakness || '',
-                        'POA&M Remediation': poam.remediation || '',
-                        'POA&M Scheduled Date': poam.scheduledDate || '',
-                        'POA&M Responsible Party': poam.responsible || '',
-                        'POA&M Risk Level': poam.risk || '',
-                        'POA&M Cost': poam.cost || '',
-                        'POA&M Notes': poam.notes || '',
-                        'Deficiency Notes': deficiency.notes || ''
-                    });
+                        'Implementation Notes': impl.notes || ''
+                    };
+                    
+                    // Add POA&M fields only for L2
+                    if (!isL1) {
+                        item['POA&M Weakness'] = poam.weakness || '';
+                        item['POA&M Remediation'] = poam.remediation || '';
+                        item['POA&M Scheduled Date'] = poam.scheduledDate || '';
+                        item['POA&M Responsible Party'] = poam.responsible || '';
+                        item['POA&M Risk Level'] = poam.risk || '';
+                        item['POA&M Cost'] = poam.cost || '';
+                        item['POA&M Notes'] = poam.notes || '';
+                        item['Deficiency Notes'] = deficiency.notes || '';
+                    }
+                    
+                    items.push(item);
                 });
             });
         });
 
+        if (items.length === 0) {
+            this.showToast('No assessment data to export', 'error');
+            return;
+        }
+
         // Convert to CSV with header row for Assessor | OSC
         const headers = Object.keys(items[0]);
-        const orgInfoRow = `"${assessorName}${assessorUrl ? ' (' + assessorUrl + ')' : ''} | ${oscName}${oscUrl ? ' (' + oscUrl + ')' : ''}"`;
+        const levelLabel = isL1 ? 'CMMC L1 Self-Assessment' : 'CMMC L2 Assessment';
+        const orgInfoRow = `"${levelLabel} | ${assessorName}${assessorUrl ? ' (' + assessorUrl + ')' : ''} | ${oscName}${oscUrl ? ' (' + oscUrl + ')' : ''}"`;
         const csvContent = [
             orgInfoRow,
             headers.join(','),
@@ -1966,11 +2026,12 @@ class AssessmentApp {
         a.href = url;
         
         const oscSlug = oscName ? oscName.replace(/[^a-z0-9]/gi, '-').toLowerCase() + '-' : '';
-        a.download = `Assessment-${oscSlug}${new Date().toISOString().split('T')[0]}.csv`;
+        const levelSlug = isL1 ? 'L1-' : 'L2-';
+        a.download = `CMMC-${levelSlug}Assessment-${oscSlug}${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
         URL.revokeObjectURL(url);
 
-        this.showToast(`Exported ${items.length} assessment items`, 'success');
+        this.showToast(`Exported ${items.length} ${isL1 ? 'L1' : 'L2'} assessment items`, 'success');
     }
 
     exportPOAMCSV() {
