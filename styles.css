@@ -4919,11 +4919,6 @@ body {
 
 /* Disclaimer Banner */
 .disclaimer-banner {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 10000;
     background: linear-gradient(135deg, #1e3a5f 0%, #0f2942 100%);
     border-bottom: 2px solid #f59e0b;
     padding: 8px 16px;
@@ -4968,14 +4963,6 @@ body {
     color: #f59e0b;
 }
 
-/* Adjust body padding when disclaimer is visible */
-body.has-disclaimer .top-header-bar {
-    top: 36px;
-}
-
-body.has-disclaimer .app-container {
-    padding-top: 36px;
-}
 
 /* Global Text Alignment Fixes */
 .impl-section p,
