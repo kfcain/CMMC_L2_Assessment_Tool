@@ -5,18 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMMC Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=17">
+    <link rel="stylesheet" href="styles.css?v=18">
     <link rel="stylesheet" href="css/evidence.css?v=1">
     <link rel="stylesheet" href="css/theme-picker.css?v=2">
     <link rel="stylesheet" href="css/crosswalk.css?v=20260125b">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Hamburger Menu -->
-    <div class="hamburger-menu-container">
+    <!-- Top Header Bar -->
+    <header class="top-header-bar">
         <button class="hamburger-menu-toggle" id="hamburger-menu-toggle" aria-label="Toggle menu">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
+        <div class="header-branding">
+            <span class="header-badge">CMMC 2.0</span>
+            <span class="header-title">Assessment Tool</span>
+        </div>
         <div class="hamburger-dropdown" id="hamburger-dropdown">
             <nav class="hamburger-nav">
                 <button class="hamburger-nav-btn active" data-view="dashboard">
@@ -78,7 +82,7 @@
             <!-- Auth Container -->
             <div class="auth-container" id="auth-container"></div>
         </div>
-    </div>
+    </header>
     <div class="hamburger-overlay" id="hamburger-overlay"></div>
     
     <!-- Mobile Menu Toggle (legacy) -->

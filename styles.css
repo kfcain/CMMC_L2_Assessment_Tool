@@ -156,7 +156,6 @@ body {
     margin-bottom: 24px;
     flex-wrap: wrap;
     gap: 16px;
-    padding-left: 52px;
 }
 
 .header-left h2 {
@@ -3109,27 +3108,59 @@ body {
     font-weight: 700;
 }
 
-/* Hamburger Menu Styles */
-.hamburger-menu-container {
+/* Top Header Bar */
+.top-header-bar {
     position: fixed;
-    top: 8px;
-    left: 8px;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 52px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
     z-index: 1000;
+}
+
+.header-branding {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    color: white;
+    border-radius: 4px;
+}
+
+.header-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .hamburger-menu-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    background: var(--bg-secondary);
+    width: 36px;
+    height: 36px;
+    background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     color: var(--text-primary);
     transition: all 0.15s;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
 }
 
 .hamburger-menu-toggle:hover {
@@ -3138,8 +3169,8 @@ body {
 }
 
 .hamburger-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
+    position: fixed;
+    top: 52px;
     left: 0;
     min-width: 220px;
     background: var(--bg-secondary);
@@ -3226,6 +3257,7 @@ body {
 /* No Sidebar Layout */
 .app-container.no-sidebar {
     display: block;
+    padding-top: 52px;
 }
 
 .app-container.no-sidebar .main-content {
@@ -3337,7 +3369,6 @@ body {
 .dashboard-hero {
     text-align: center;
     padding: 48px 24px 32px;
-    padding-left: 52px;
     margin-bottom: 8px;
 }
 
@@ -3375,11 +3406,6 @@ body {
 /* Site Title Bar (non-dashboard views) */
 .site-title-bar {
     display: none;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 24px 12px 68px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
 }
 
 .site-title-badge {
