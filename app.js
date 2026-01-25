@@ -874,15 +874,48 @@ class AssessmentApp {
             const implNotes = getImplNotes(objectiveId, cloud);
             if (implNotes) {
                 const stepsList = implNotes.steps ? implNotes.steps.map(s => `<li>${s}</li>`).join('') : '';
+                const humanList = implNotes.humanInTheLoop ? implNotes.humanInTheLoop.map(h => `<li>${h}</li>`).join('') : '';
+                const policyList = implNotes.policyEvidence ? implNotes.policyEvidence.map(p => `<li>${p}</li>`).join('') : '';
+                const manualList = implNotes.manualEvidence ? implNotes.manualEvidence.map(m => `<li>${m}</li>`).join('') : '';
+                
                 implNotesHtml = `
                     <div class="impl-notes-section">
                         <div class="impl-notes-header">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
-                            <span>Implementation Steps</span>
+                            <span>Implementation Guide</span>
                         </div>
-                        <ol class="impl-notes-steps">${stepsList}</ol>
-                        ${implNotes.quickWin ? `<div class="impl-quick-win"><strong>Quick Win:</strong> ${implNotes.quickWin}</div>` : ''}
-                        ${implNotes.evidenceArtifact ? `<div class="impl-evidence-artifact"><strong>Evidence:</strong> <code>${implNotes.evidenceArtifact}</code></div>` : ''}
+                        
+                        <details class="impl-details" open>
+                            <summary class="impl-summary">Technical Implementation</summary>
+                            <ol class="impl-notes-steps">${stepsList}</ol>
+                            ${implNotes.quickWin ? `<div class="impl-quick-win"><strong>Quick Win:</strong> ${implNotes.quickWin}</div>` : ''}
+                        </details>
+                        
+                        ${humanList ? `
+                        <details class="impl-details">
+                            <summary class="impl-summary impl-human">Human-in-the-Loop</summary>
+                            <ul class="impl-notes-list">${humanList}</ul>
+                        </details>` : ''}
+                        
+                        ${policyList ? `
+                        <details class="impl-details">
+                            <summary class="impl-summary impl-policy">Policy/Procedural Evidence</summary>
+                            <ul class="impl-notes-list">${policyList}</ul>
+                        </details>` : ''}
+                        
+                        ${manualList ? `
+                        <details class="impl-details">
+                            <summary class="impl-summary impl-manual">Manual Evidence Collection</summary>
+                            <ul class="impl-notes-list">${manualList}</ul>
+                        </details>` : ''}
+                        
+                        ${implNotes.evidenceMethodology ? `
+                        <details class="impl-details">
+                            <summary class="impl-summary impl-methodology">Evidence Collection Methodology</summary>
+                            <p class="impl-methodology-text">${implNotes.evidenceMethodology}</p>
+                        </details>` : ''}
+                        
+                        ${implNotes.evidenceArtifact ? `<div class="impl-evidence-artifact"><strong>Machine-Readable Artifact:</strong> <code>${implNotes.evidenceArtifact}</code></div>` : ''}
                     </div>
                 `;
             }

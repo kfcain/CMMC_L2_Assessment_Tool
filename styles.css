@@ -3870,6 +3870,82 @@ body {
     color: #60a5fa;
 }
 
+/* Collapsible Implementation Details */
+.impl-details {
+    margin-top: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.impl-details[open] {
+    background: var(--bg-secondary);
+}
+
+.impl-summary {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.impl-summary::-webkit-details-marker {
+    display: none;
+}
+
+.impl-summary::before {
+    content: '▶';
+    font-size: 0.6rem;
+    transition: transform 0.2s;
+}
+
+.impl-details[open] .impl-summary::before {
+    transform: rotate(90deg);
+}
+
+.impl-summary.impl-human {
+    color: #a855f7;
+}
+
+.impl-summary.impl-policy {
+    color: #f59e0b;
+}
+
+.impl-summary.impl-manual {
+    color: #ec4899;
+}
+
+.impl-summary.impl-methodology {
+    color: #06b6d4;
+}
+
+.impl-notes-list {
+    margin: 0;
+    padding: 10px 12px 10px 28px;
+    font-size: 0.7rem;
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+
+.impl-notes-list li {
+    margin-bottom: 4px;
+}
+
+.impl-methodology-text {
+    margin: 0;
+    padding: 10px 12px;
+    font-size: 0.7rem;
+    color: var(--text-primary);
+    line-height: 1.7;
+    font-style: italic;
+}
+
 .hamburger-org-url {
     flex: 1;
     padding: 4px 8px;

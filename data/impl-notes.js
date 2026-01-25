@@ -1,6 +1,6 @@
 // Implementation Notes for Assessment Objectives
-// Provides step-by-step guidance for implementing each CMMC L2 control objective
-// Organized by control family with cloud-specific guidance
+// Provides comprehensive guidance for implementing each CMMC L2 control objective
+// Includes technical implementation, human-in-the-loop, policy/procedural, and evidence collection
 
 const IMPL_NOTES = {
     // === ACCESS CONTROL (3.1) ===
@@ -14,7 +14,23 @@ const IMPL_NOTES = {
                 "5. Set up SCIM provisioning from HR system for automation"
             ],
             quickWin: "Run `Get-MgUser -All | Export-Csv users.csv` to generate evidence",
-            evidenceArtifact: "AC_UserList.csv"
+            evidenceArtifact: "AC_UserList.csv",
+            humanInTheLoop: [
+                "HR Manager must validate user list against employment records quarterly",
+                "FSO must approve any additions to CUI-accessing user groups",
+                "Department managers must certify their team's access needs annually"
+            ],
+            policyEvidence: [
+                "Access Control Policy documenting user authorization process",
+                "User Account Management Procedure (onboarding/offboarding)",
+                "Signed Acceptable Use Agreements for each user"
+            ],
+            manualEvidence: [
+                "Screenshot of Entra ID user list with filter applied",
+                "Quarterly access review meeting minutes",
+                "HR certification letter confirming employment status"
+            ],
+            evidenceMethodology: "Export user list via Graph API weekly. Compare against HR HRIS export. Document discrepancies in access review log. Retain JSON exports for 1 year."
         },
         aws: {
             steps: [
@@ -25,7 +41,23 @@ const IMPL_NOTES = {
                 "5. Document in SSP"
             ],
             quickWin: "Run `aws iam get-credential-report` for comprehensive user inventory",
-            evidenceArtifact: "IAM_CredentialReport.csv"
+            evidenceArtifact: "IAM_CredentialReport.csv",
+            humanInTheLoop: [
+                "HR must validate IAM users against employment records",
+                "Security team must approve new IAM user creation",
+                "Managers must certify direct reports' access quarterly"
+            ],
+            policyEvidence: [
+                "IAM User Management Policy",
+                "Account Provisioning/Deprovisioning Procedure",
+                "AWS Access Request Form template"
+            ],
+            manualEvidence: [
+                "IAM credential report screenshot",
+                "Access review spreadsheet with manager sign-off",
+                "Terminated user removal confirmation emails"
+            ],
+            evidenceMethodology: "Generate credential report weekly. Cross-reference with HR termination list. Archive reports in S3 with Object Lock."
         },
         gcp: {
             steps: [
@@ -36,7 +68,23 @@ const IMPL_NOTES = {
                 "5. Enable Cloud Identity sync with HR"
             ],
             quickWin: "Use Admin Console Reports for user inventory export",
-            evidenceArtifact: "CloudIdentity_Users.csv"
+            evidenceArtifact: "CloudIdentity_Users.csv",
+            humanInTheLoop: [
+                "HR validates user accounts against employment records",
+                "IT Admin approves new account creation requests",
+                "Department heads certify team access needs"
+            ],
+            policyEvidence: [
+                "Identity Management Policy",
+                "User Lifecycle Management Procedure",
+                "Access Request and Approval Form"
+            ],
+            manualEvidence: [
+                "Cloud Identity user export screenshot",
+                "Access certification spreadsheet",
+                "Offboarding checklist completion records"
+            ],
+            evidenceMethodology: "Export user list from Admin Console monthly. Compare with HR system. Document in access review tracker."
         }
     },
     "3.1.1[b]": {
@@ -49,7 +97,23 @@ const IMPL_NOTES = {
                 "5. Enable workload identity federation where possible"
             ],
             quickWin: "Run `Get-MgServicePrincipal -All | Select DisplayName, AppId`",
-            evidenceArtifact: "AC_ServicePrincipals.json"
+            evidenceArtifact: "AC_ServicePrincipals.json",
+            humanInTheLoop: [
+                "Application owner must document business justification for each service principal",
+                "Security team reviews service principal permissions quarterly",
+                "IT Admin must approve new service principal creation"
+            ],
+            policyEvidence: [
+                "Service Account Management Policy",
+                "Non-Person Entity (NPE) Registration Procedure",
+                "Service Principal Inventory Spreadsheet with owners"
+            ],
+            manualEvidence: [
+                "Service principal inventory with owner assignments",
+                "Business justification forms for each service account",
+                "Quarterly review meeting minutes"
+            ],
+            evidenceMethodology: "Export service principals monthly via Graph API. Maintain ownership registry in SharePoint. Review unused accounts (no sign-ins >90 days) quarterly."
         },
         aws: {
             steps: [
@@ -60,7 +124,23 @@ const IMPL_NOTES = {
                 "5. Remove unused roles"
             ],
             quickWin: "Use IAM Access Analyzer to identify unused roles",
-            evidenceArtifact: "IAM_Roles.json"
+            evidenceArtifact: "IAM_Roles.json",
+            humanInTheLoop: [
+                "Application owner must justify each IAM role",
+                "Security team reviews trust policies quarterly",
+                "CloudOps approves new role creation"
+            ],
+            policyEvidence: [
+                "IAM Role Management Policy",
+                "Service Account Governance Procedure",
+                "Role inventory with business owners"
+            ],
+            manualEvidence: [
+                "IAM role inventory spreadsheet",
+                "Trust policy review documentation",
+                "Unused role removal tickets"
+            ],
+            evidenceMethodology: "Run IAM Access Analyzer monthly. Document findings. Track role usage via CloudTrail. Archive reports in S3."
         },
         gcp: {
             steps: [
@@ -71,7 +151,23 @@ const IMPL_NOTES = {
                 "5. Remove long-lived keys"
             ],
             quickWin: "Use Policy Analyzer to find unused service accounts",
-            evidenceArtifact: "ServiceAccounts.json"
+            evidenceArtifact: "ServiceAccounts.json",
+            humanInTheLoop: [
+                "Application owner must document each service account purpose",
+                "Security reviews service account permissions quarterly",
+                "IT approves new service account requests"
+            ],
+            policyEvidence: [
+                "Service Account Policy",
+                "Workload Identity Procedure",
+                "Service account registry with owners"
+            ],
+            manualEvidence: [
+                "Service account inventory export",
+                "Key rotation evidence",
+                "Quarterly review documentation"
+            ],
+            evidenceMethodology: "Export service accounts monthly. Use Recommender to identify unused accounts. Document in Cloud Asset Inventory."
         }
     },
     "3.1.1[c]": {
@@ -84,7 +180,23 @@ const IMPL_NOTES = {
                 "5. Export device inventory for SSP"
             ],
             quickWin: "Create CA policy: Require compliant device for all cloud apps",
-            evidenceArtifact: "Intune_DeviceInventory.json"
+            evidenceArtifact: "Intune_DeviceInventory.json",
+            humanInTheLoop: [
+                "IT Admin reviews device enrollment requests",
+                "FSO approves BYOD exceptions (if any)",
+                "Help desk processes device retirement/wipe requests"
+            ],
+            policyEvidence: [
+                "Device Management Policy (corporate vs BYOD)",
+                "Endpoint Compliance Requirements document",
+                "Device Retirement/Sanitization Procedure"
+            ],
+            manualEvidence: [
+                "Device inventory spreadsheet with assigned users",
+                "Non-compliant device remediation tickets",
+                "Device wipe confirmation logs"
+            ],
+            evidenceMethodology: "Export Intune device compliance report weekly. Track non-compliant devices in ticketing system. Require remediation within 7 days or block access."
         },
         aws: {
             steps: [
@@ -95,7 +207,23 @@ const IMPL_NOTES = {
                 "5. Document in SSP"
             ],
             quickWin: "Run `aws ssm describe-instance-information` for inventory",
-            evidenceArtifact: "SSM_ManagedInstances.json"
+            evidenceArtifact: "SSM_ManagedInstances.json",
+            humanInTheLoop: [
+                "IT Admin verifies SSM agent deployment on new instances",
+                "Security reviews compliance status weekly",
+                "Operations handles non-compliant instance remediation"
+            ],
+            policyEvidence: [
+                "Endpoint Management Policy",
+                "SSM Agent Deployment Procedure",
+                "Instance Compliance Requirements"
+            ],
+            manualEvidence: [
+                "SSM managed instances report",
+                "Compliance status dashboard screenshot",
+                "Remediation action tickets"
+            ],
+            evidenceMethodology: "Query SSM inventory daily. Track compliance via AWS Config. Alert on unmanaged instances. Archive reports in S3."
         },
         gcp: {
             steps: [
@@ -106,7 +234,23 @@ const IMPL_NOTES = {
                 "5. Document approved devices"
             ],
             quickWin: "Enable Endpoint Verification + Context-Aware Access",
-            evidenceArtifact: "EndpointVerification_Devices.csv"
+            evidenceArtifact: "EndpointVerification_Devices.csv",
+            humanInTheLoop: [
+                "IT Admin reviews device enrollment requests",
+                "Security approves Context-Aware Access policy changes",
+                "Help desk processes device removal requests"
+            ],
+            policyEvidence: [
+                "Endpoint Verification Policy",
+                "Device Trust Requirements",
+                "BYOD Acceptable Use Policy (if applicable)"
+            ],
+            manualEvidence: [
+                "Endpoint verification enrollment report",
+                "Context-Aware Access policy screenshot",
+                "Device trust level assignments"
+            ],
+            evidenceMethodology: "Export device inventory from Admin Console monthly. Monitor Context-Aware Access denials. Document in compliance tracker."
         }
     },
     "3.1.2[a]": {
@@ -119,7 +263,23 @@ const IMPL_NOTES = {
                 "5. Use PIM for privileged roles"
             ],
             quickWin: "Export role definitions: `Get-AzRoleDefinition | Export-Csv roles.csv`",
-            evidenceArtifact: "RBAC_RoleDefinitions.json"
+            evidenceArtifact: "RBAC_RoleDefinitions.json",
+            humanInTheLoop: [
+                "HR/Management must define job functions and responsibilities",
+                "Security team maps job functions to technical access",
+                "Business owners validate role assignments for their teams"
+            ],
+            policyEvidence: [
+                "Role-Based Access Control Policy",
+                "Job Function to Role Mapping Matrix",
+                "Principle of Least Privilege Standard"
+            ],
+            manualEvidence: [
+                "Completed role mapping matrix spreadsheet",
+                "Management approval of role definitions",
+                "Annual role review meeting minutes"
+            ],
+            evidenceMethodology: "Document role mapping in spreadsheet. Get management sign-off. Export RBAC definitions quarterly. Compare against job descriptions annually."
         },
         aws: {
             steps: [
@@ -130,7 +290,23 @@ const IMPL_NOTES = {
                 "5. Document in SSP"
             ],
             quickWin: "Use IAM Access Analyzer to validate least privilege",
-            evidenceArtifact: "IAM_Policies.json"
+            evidenceArtifact: "IAM_Policies.json",
+            humanInTheLoop: [
+                "HR defines job functions and duties",
+                "Security creates corresponding IAM policies",
+                "Managers validate team member role assignments"
+            ],
+            policyEvidence: [
+                "IAM Policy Management Standard",
+                "Job Function Access Matrix",
+                "Permission Boundary Policy"
+            ],
+            manualEvidence: [
+                "Job function to policy mapping document",
+                "IAM policy review approvals",
+                "Access matrix with management sign-off"
+            ],
+            evidenceMethodology: "Maintain access matrix in documentation. Use Access Analyzer for policy validation. Review and update quarterly."
         },
         gcp: {
             steps: [
@@ -141,7 +317,23 @@ const IMPL_NOTES = {
                 "5. Document role assignments"
             ],
             quickWin: "Run `gcloud iam roles list --project PROJECT_ID`",
-            evidenceArtifact: "IAM_Roles.json"
+            evidenceArtifact: "IAM_Roles.json",
+            humanInTheLoop: [
+                "HR defines organizational job functions",
+                "Security team creates role mappings",
+                "Department heads validate access for their teams"
+            ],
+            policyEvidence: [
+                "GCP IAM Role Assignment Policy",
+                "Job Function Access Matrix",
+                "Custom Role Creation Standard"
+            ],
+            manualEvidence: [
+                "Role mapping spreadsheet",
+                "IAM Recommender review documentation",
+                "Management approval records"
+            ],
+            evidenceMethodology: "Document role mappings. Run IAM Recommender monthly. Archive role binding exports. Review with management quarterly."
         }
     },
     "3.1.5[a]": {
@@ -154,7 +346,23 @@ const IMPL_NOTES = {
                 "5. Set up quarterly access reviews"
             ],
             quickWin: "Run `Get-MgDirectoryRoleMember -DirectoryRoleId [GlobalAdmin-ID]`",
-            evidenceArtifact: "PIM_PrivilegedAccounts.json"
+            evidenceArtifact: "PIM_PrivilegedAccounts.json",
+            humanInTheLoop: [
+                "Executive sponsor must approve privileged account list",
+                "FSO reviews and validates business need quarterly",
+                "IT Director approves new privileged access requests"
+            ],
+            policyEvidence: [
+                "Privileged Access Management Policy",
+                "Administrator Account Standards",
+                "PIM Activation Approval Procedure"
+            ],
+            manualEvidence: [
+                "Signed privileged account authorization forms",
+                "Quarterly access review completion records",
+                "PIM activation audit logs with approver names"
+            ],
+            evidenceMethodology: "Export PIM eligible/active assignments weekly. Conduct quarterly access reviews with business justification. Maintain signed authorization forms for each privileged account."
         },
         aws: {
             steps: [
@@ -165,7 +373,23 @@ const IMPL_NOTES = {
                 "5. Use AWS Organizations SCPs to limit"
             ],
             quickWin: "Run `aws iam list-users` + check attached policies",
-            evidenceArtifact: "IAM_AdminUsers.json"
+            evidenceArtifact: "IAM_AdminUsers.json",
+            humanInTheLoop: [
+                "Security team validates admin user list",
+                "Management approves each admin account",
+                "Quarterly review with business justification"
+            ],
+            policyEvidence: [
+                "Privileged User Management Policy",
+                "AWS Admin Account Standard",
+                "Root Account Usage Policy"
+            ],
+            manualEvidence: [
+                "Admin account authorization forms",
+                "Quarterly review meeting minutes",
+                "MFA enrollment verification screenshots"
+            ],
+            evidenceMethodology: "Generate IAM credential report weekly. Document admin accounts with justification. Conduct quarterly reviews with sign-off. Archive in S3 with versioning."
         },
         gcp: {
             steps: [
@@ -176,7 +400,23 @@ const IMPL_NOTES = {
                 "5. Set up regular access reviews"
             ],
             quickWin: "Run `gcloud projects get-iam-policy PROJECT_ID`",
-            evidenceArtifact: "IAM_PrivilegedBindings.json"
+            evidenceArtifact: "IAM_PrivilegedBindings.json",
+            humanInTheLoop: [
+                "Security reviews privileged role assignments",
+                "Management approves each privileged account",
+                "Quarterly access review with justification"
+            ],
+            policyEvidence: [
+                "GCP Privileged Access Policy",
+                "Super Admin Account Standards",
+                "Organization Admin Procedure"
+            ],
+            manualEvidence: [
+                "Privileged account authorization forms",
+                "Access review completion records",
+                "Security key enrollment evidence"
+            ],
+            evidenceMethodology: "Export IAM bindings monthly. Document privileged accounts with business justification. Conduct quarterly reviews. Archive in Cloud Storage."
         }
     },
     "3.1.9[a]": {
@@ -190,6 +430,22 @@ const IMPL_NOTES = {
             ],
             quickWin: "Create CA policy requiring Terms of Use for all apps",
             evidenceArtifact: "TermsOfUse_Config.json",
+            humanInTheLoop: [
+                "Legal/Compliance must approve banner text content",
+                "FSO validates banner meets DoD/DFARS requirements",
+                "IT verifies banner displays on all access paths"
+            ],
+            policyEvidence: [
+                "System Use Notification Policy",
+                "Approved banner text document (signed by Legal)",
+                "Terms of Use acceptance tracking procedure"
+            ],
+            manualEvidence: [
+                "Screenshot of login banner on Windows endpoint",
+                "Screenshot of Terms of Use in web portal",
+                "User acceptance log export from Entra ID"
+            ],
+            evidenceMethodology: "Capture banner screenshots from each device type (Windows, Mac, mobile, web). Export ToU acceptance logs monthly. Document any users who haven't accepted.",
             bannerText: "You are accessing a U.S. Government information system..."
         },
         aws: {
@@ -201,7 +457,23 @@ const IMPL_NOTES = {
                 "5. Test user acknowledgment"
             ],
             quickWin: "Use SSM to deploy /etc/motd banner to all Linux instances",
-            evidenceArtifact: "SystemBanner_Deployment.json"
+            evidenceArtifact: "SystemBanner_Deployment.json",
+            humanInTheLoop: [
+                "Legal approves banner text",
+                "Security validates banner deployment coverage",
+                "IT tests banner on all system entry points"
+            ],
+            policyEvidence: [
+                "System Use Notification Policy",
+                "Banner Text Approval Document",
+                "SSM Document for banner deployment"
+            ],
+            manualEvidence: [
+                "Screenshot of SSO login page with banner",
+                "Screenshot of EC2 SSH login banner",
+                "SSM compliance report showing banner deployment"
+            ],
+            evidenceMethodology: "Deploy banner via SSM State Manager. Capture screenshots from each entry point. Document in evidence repository. Verify monthly."
         },
         gcp: {
             steps: [
@@ -212,7 +484,23 @@ const IMPL_NOTES = {
                 "5. Test acknowledgment flow"
             ],
             quickWin: "Enable custom login page with security notice in Workspace",
-            evidenceArtifact: "LoginBanner_Config.json"
+            evidenceArtifact: "LoginBanner_Config.json",
+            humanInTheLoop: [
+                "Legal approves banner content",
+                "Security validates all access points covered",
+                "IT tests user acknowledgment flow"
+            ],
+            policyEvidence: [
+                "System Use Notification Policy",
+                "Banner Text Approval (Legal sign-off)",
+                "Workspace Login Customization Procedure"
+            ],
+            manualEvidence: [
+                "Screenshot of Workspace login page",
+                "Screenshot of VM SSH banner",
+                "Terms of Use acceptance report"
+            ],
+            evidenceMethodology: "Configure custom login page. Deploy startup scripts for VM banners. Capture screenshots. Export acceptance logs monthly."
         }
     },
     "3.1.10[a]": {
@@ -225,7 +513,23 @@ const IMPL_NOTES = {
                 "5. Monitor compliance status"
             ],
             quickWin: "Deploy Settings Catalog: 'Interactive logon: Machine inactivity limit' = 900",
-            evidenceArtifact: "Intune_ScreenLock.json"
+            evidenceArtifact: "Intune_ScreenLock.json",
+            humanInTheLoop: [
+                "Security defines acceptable inactivity timeout (max 15 min)",
+                "IT validates policy deployment across all device types",
+                "Help desk handles user exception requests"
+            ],
+            policyEvidence: [
+                "Session Lock Policy (15-min requirement)",
+                "Endpoint Security Baseline Standard",
+                "Exception Request Procedure"
+            ],
+            manualEvidence: [
+                "Intune compliance report showing screen lock status",
+                "Screenshot of Settings Catalog configuration",
+                "Test verification on sample device"
+            ],
+            evidenceMethodology: "Export Intune compliance report weekly. Document non-compliant devices. Test screen lock on sample devices during audit. Retain configuration screenshots."
         },
         aws: {
             steps: [
@@ -236,7 +540,23 @@ const IMPL_NOTES = {
                 "5. Verify compliance via SSM Compliance"
             ],
             quickWin: "Deploy Group Policy via SSM for screen lock settings",
-            evidenceArtifact: "SSM_ScreenLock.json"
+            evidenceArtifact: "SSM_ScreenLock.json",
+            humanInTheLoop: [
+                "Security approves screen lock timeout value",
+                "IT validates SSM association deployment",
+                "Operations monitors compliance status"
+            ],
+            policyEvidence: [
+                "Session Lock Policy",
+                "SSM State Manager Configuration Standard",
+                "Workstation Security Baseline"
+            ],
+            manualEvidence: [
+                "SSM compliance report",
+                "Screenshot of SSM document configuration",
+                "Test verification log"
+            ],
+            evidenceMethodology: "Run SSM compliance scan weekly. Export compliance report. Test on sample instances. Document in evidence repository."
         },
         gcp: {
             steps: [
@@ -247,7 +567,23 @@ const IMPL_NOTES = {
                 "5. Monitor compliance"
             ],
             quickWin: "Set Chrome policy: ScreenLockDelaySeconds = 900",
-            evidenceArtifact: "Workspace_ScreenLock.json"
+            evidenceArtifact: "Workspace_ScreenLock.json",
+            humanInTheLoop: [
+                "Security defines timeout requirement",
+                "IT deploys Chrome policies",
+                "Operations validates compliance"
+            ],
+            policyEvidence: [
+                "Session Lock Policy",
+                "Chrome Enterprise Configuration Standard",
+                "Endpoint Security Baseline"
+            ],
+            manualEvidence: [
+                "Admin Console policy screenshot",
+                "Chrome policy export",
+                "Test verification on enrolled device"
+            ],
+            evidenceMethodology: "Export Chrome policies from Admin Console. Test on sample devices. Document compliance status monthly."
         }
     },
     "3.1.12[a]": {
@@ -260,7 +596,23 @@ const IMPL_NOTES = {
                 "5. Enable MFA for all remote access"
             ],
             quickWin: "Create CA policy: Block access from untrusted locations except VPN",
-            evidenceArtifact: "VPN_Config.json"
+            evidenceArtifact: "VPN_Config.json",
+            humanInTheLoop: [
+                "FSO must approve each remote access method",
+                "IT documents approved VPN/AVD configurations",
+                "Security reviews remote access logs weekly"
+            ],
+            policyEvidence: [
+                "Remote Access Policy (approved methods)",
+                "Telework Agreement template",
+                "VPN Usage Acceptable Use Policy"
+            ],
+            manualEvidence: [
+                "Network diagram showing remote access paths",
+                "Signed telework agreements for remote workers",
+                "Weekly remote access log review sign-off"
+            ],
+            evidenceMethodology: "Document approved remote access methods in SSP. Maintain signed telework agreements. Export VPN connection logs weekly. Review for anomalies."
         },
         aws: {
             steps: [
@@ -271,7 +623,23 @@ const IMPL_NOTES = {
                 "5. Enable CloudWatch logging"
             ],
             quickWin: "Deploy Client VPN with certificate + MFA authentication",
-            evidenceArtifact: "ClientVPN_Config.json"
+            evidenceArtifact: "ClientVPN_Config.json",
+            humanInTheLoop: [
+                "Security approves VPN configuration",
+                "IT manages certificate issuance",
+                "Operations reviews connection logs"
+            ],
+            policyEvidence: [
+                "Remote Access Policy",
+                "Certificate Management Procedure",
+                "VPN Authorization Rules document"
+            ],
+            manualEvidence: [
+                "Client VPN endpoint configuration screenshot",
+                "Certificate authority setup documentation",
+                "CloudWatch VPN connection logs"
+            ],
+            evidenceMethodology: "Export Client VPN configuration. Archive CloudWatch logs. Review connection patterns weekly. Document in evidence repository."
         },
         gcp: {
             steps: [
@@ -282,7 +650,23 @@ const IMPL_NOTES = {
                 "5. Require 2SV for all access"
             ],
             quickWin: "Enable IAP for zero-trust application access",
-            evidenceArtifact: "CloudVPN_Config.json"
+            evidenceArtifact: "CloudVPN_Config.json",
+            humanInTheLoop: [
+                "Security approves IAP/VPN configurations",
+                "IT manages tunnel setup",
+                "Operations reviews access logs"
+            ],
+            policyEvidence: [
+                "Remote Access Policy",
+                "BeyondCorp Implementation Guide",
+                "IAP Access Policy document"
+            ],
+            manualEvidence: [
+                "Cloud VPN tunnel status screenshot",
+                "IAP configuration export",
+                "Access logs from Cloud Logging"
+            ],
+            evidenceMethodology: "Export VPN and IAP configurations. Monitor access via Cloud Logging. Review patterns weekly. Archive in Cloud Storage."
         }
     },
     "3.1.21[a]": {
@@ -295,7 +679,23 @@ const IMPL_NOTES = {
                 "5. Monitor block events"
             ],
             quickWin: "Deploy Defender Device Control policy to block USB storage",
-            evidenceArtifact: "DeviceControl_USBBlock.json"
+            evidenceArtifact: "DeviceControl_USBBlock.json",
+            humanInTheLoop: [
+                "FSO approves list of authorized portable storage devices",
+                "IT maintains inventory of FIPS-encrypted USB drives",
+                "Security reviews USB block events for policy violations"
+            ],
+            policyEvidence: [
+                "Portable Storage Device Policy",
+                "Approved USB Device List (with serial numbers)",
+                "Media Handling and Transport Procedure"
+            ],
+            manualEvidence: [
+                "Device Control policy configuration screenshot",
+                "Authorized USB device inventory spreadsheet",
+                "USB block event logs showing enforcement"
+            ],
+            evidenceMethodology: "Export Device Control policy configuration. Maintain signed USB device issuance log. Review block events weekly. Conduct spot checks during physical audits."
         },
         aws: {
             steps: [
@@ -306,7 +706,23 @@ const IMPL_NOTES = {
                 "5. Monitor compliance"
             ],
             quickWin: "Deploy USB storage blocking via SSM association",
-            evidenceArtifact: "SSM_USBBlock.json"
+            evidenceArtifact: "SSM_USBBlock.json",
+            humanInTheLoop: [
+                "Security approves USB blocking policy",
+                "IT manages approved device exceptions",
+                "Operations monitors compliance status"
+            ],
+            policyEvidence: [
+                "Removable Media Policy",
+                "Approved Device Exception List",
+                "SSM Document for USB Control"
+            ],
+            manualEvidence: [
+                "SSM document configuration",
+                "Compliance status report",
+                "Exception approval records"
+            ],
+            evidenceMethodology: "Deploy via SSM State Manager. Run compliance scans weekly. Document exceptions with approval. Archive reports in S3."
         },
         gcp: {
             steps: [
@@ -317,7 +733,23 @@ const IMPL_NOTES = {
                 "5. Monitor policy compliance"
             ],
             quickWin: "Set Chrome policy: RemovableStoragePolicy = BlockAll",
-            evidenceArtifact: "ChromePolicy_USB.json"
+            evidenceArtifact: "ChromePolicy_USB.json",
+            humanInTheLoop: [
+                "Security defines USB blocking requirements",
+                "IT configures and deploys policies",
+                "FSO approves any exceptions"
+            ],
+            policyEvidence: [
+                "Removable Storage Policy",
+                "Chrome Enterprise Configuration Standard",
+                "Exception Request Procedure"
+            ],
+            manualEvidence: [
+                "Admin Console policy screenshot",
+                "Chrome policy export",
+                "Exception approval documentation"
+            ],
+            evidenceMethodology: "Export Chrome policies from Admin Console. Test on enrolled devices. Document exceptions. Review compliance monthly."
         }
     },
 
@@ -332,7 +764,23 @@ const IMPL_NOTES = {
                 "5. Export completion reports for SSP"
             ],
             quickWin: "Deploy Defender Attack Simulation training to all users",
-            evidenceArtifact: "Training_CompletionReport.csv"
+            evidenceArtifact: "Training_CompletionReport.csv",
+            humanInTheLoop: [
+                "FSO defines required training topics (CUI handling, insider threat, etc.)",
+                "HR tracks training completion and follows up on delinquent users",
+                "Managers certify team members have completed required training"
+            ],
+            policyEvidence: [
+                "Security Awareness Training Policy",
+                "Training Requirements Matrix (by role)",
+                "Training Curriculum document (topics covered)"
+            ],
+            manualEvidence: [
+                "LMS/Defender training completion report",
+                "Signed training acknowledgment forms",
+                "Training attendance sheets (if in-person)"
+            ],
+            evidenceMethodology: "Export training completion report monthly. Track delinquent users. Require manager sign-off on team completion. Maintain signed acknowledgment forms. Retain for duration of employment + 3 years."
         },
         aws: {
             steps: [
@@ -343,7 +791,23 @@ const IMPL_NOTES = {
                 "5. Document in SSP"
             ],
             quickWin: "Deploy security awareness training via integrated LMS",
-            evidenceArtifact: "LMS_CompletionReport.csv"
+            evidenceArtifact: "LMS_CompletionReport.csv",
+            humanInTheLoop: [
+                "FSO/Security defines training requirements",
+                "HR assigns training to new hires within 30 days",
+                "Managers follow up on incomplete training"
+            ],
+            policyEvidence: [
+                "Security Awareness Training Policy",
+                "New Hire Training Checklist",
+                "Annual Training Requirements"
+            ],
+            manualEvidence: [
+                "LMS completion report export",
+                "Signed training acknowledgments",
+                "New hire training completion records"
+            ],
+            evidenceMethodology: "Export LMS reports monthly. Track completion rates. Follow up on delinquent users. Archive in S3 or document repository."
         },
         gcp: {
             steps: [
@@ -354,7 +818,23 @@ const IMPL_NOTES = {
                 "5. Export reports"
             ],
             quickWin: "Deploy phishing awareness via Workspace Security Center",
-            evidenceArtifact: "Workspace_TrainingReport.csv"
+            evidenceArtifact: "Workspace_TrainingReport.csv",
+            humanInTheLoop: [
+                "FSO defines training content requirements",
+                "HR assigns and tracks completion",
+                "Managers certify team completion"
+            ],
+            policyEvidence: [
+                "Security Awareness Training Policy",
+                "Training Curriculum and Schedule",
+                "Role-Based Training Requirements"
+            ],
+            manualEvidence: [
+                "Workspace Learning completion report",
+                "Signed acknowledgment forms",
+                "Phishing simulation results"
+            ],
+            evidenceMethodology: "Export completion reports from Admin Console monthly. Run phishing simulations quarterly. Document completion rates. Archive reports."
         }
     },
     "3.2.2[a]": {
@@ -367,7 +847,23 @@ const IMPL_NOTES = {
                 "5. Track and report completion"
             ],
             quickWin: "Add insider threat module to existing security training",
-            evidenceArtifact: "InsiderThreat_Training.csv"
+            evidenceArtifact: "InsiderThreat_Training.csv",
+            humanInTheLoop: [
+                "FSO develops insider threat training content with HR",
+                "Managers identify high-risk roles requiring enhanced training",
+                "HR tracks completion and escalates non-compliance"
+            ],
+            policyEvidence: [
+                "Insider Threat Program Policy",
+                "Insider Threat Training Curriculum",
+                "Reporting Procedures for Suspicious Behavior"
+            ],
+            manualEvidence: [
+                "Training completion certificates",
+                "Signed acknowledgment of insider threat policy",
+                "Attendance records for in-person sessions"
+            ],
+            evidenceMethodology: "Track completion in LMS. Require signed acknowledgments. Document escalation for non-compliance. Retain records for employment duration + 3 years."
         },
         aws: {
             steps: [
@@ -378,7 +874,23 @@ const IMPL_NOTES = {
                 "5. Document completion evidence"
             ],
             quickWin: "Add insider threat awareness to onboarding training",
-            evidenceArtifact: "InsiderThreat_Training.csv"
+            evidenceArtifact: "InsiderThreat_Training.csv",
+            humanInTheLoop: [
+                "Security develops insider threat content",
+                "HR assigns during onboarding",
+                "Managers verify team completion"
+            ],
+            policyEvidence: [
+                "Insider Threat Program Policy",
+                "Training Content Outline",
+                "Behavioral Indicators Guide"
+            ],
+            manualEvidence: [
+                "LMS completion report",
+                "Signed policy acknowledgments",
+                "New hire training checklist"
+            ],
+            evidenceMethodology: "Export LMS reports quarterly. Track completion rates. Follow up on delinquent users. Archive reports."
         },
         gcp: {
             steps: [
@@ -389,7 +901,23 @@ const IMPL_NOTES = {
                 "5. Export completion reports"
             ],
             quickWin: "Add insider threat content to security training",
-            evidenceArtifact: "InsiderThreat_Training.csv"
+            evidenceArtifact: "InsiderThreat_Training.csv",
+            humanInTheLoop: [
+                "Security develops training content",
+                "HR manages assignments",
+                "Managers verify completion"
+            ],
+            policyEvidence: [
+                "Insider Threat Program Policy",
+                "Training Curriculum",
+                "Suspicious Activity Reporting Procedure"
+            ],
+            manualEvidence: [
+                "Workspace Learning completion report",
+                "Signed acknowledgments",
+                "Attendance records"
+            ],
+            evidenceMethodology: "Export completion reports quarterly. Require signed acknowledgments. Document in compliance tracker."
         }
     },
 
@@ -404,7 +932,23 @@ const IMPL_NOTES = {
                 "5. Document logging architecture in SSP"
             ],
             quickWin: "Deploy Sentinel with all Microsoft 365 data connectors",
-            evidenceArtifact: "Sentinel_DataConnectors.json"
+            evidenceArtifact: "Sentinel_DataConnectors.json",
+            humanInTheLoop: [
+                "Security team defines audit events to capture",
+                "FSO reviews audit logs weekly for anomalies",
+                "IT Admin responds to log ingestion failures"
+            ],
+            policyEvidence: [
+                "Audit and Accountability Policy",
+                "Log Retention Schedule (365 days min)",
+                "Log Review Procedure (weekly sign-off)"
+            ],
+            manualEvidence: [
+                "Sentinel data connector status screenshot",
+                "Weekly log review sign-off sheets",
+                "Log retention configuration documentation"
+            ],
+            evidenceMethodology: "Export Sentinel data connector status weekly. Conduct weekly log reviews with documented sign-off. Archive log review findings. Verify retention settings quarterly."
         },
         aws: {
             steps: [
@@ -415,7 +959,23 @@ const IMPL_NOTES = {
                 "5. Enable CloudTrail Insights"
             ],
             quickWin: "Create organization trail with data events enabled",
-            evidenceArtifact: "CloudTrail_Config.json"
+            evidenceArtifact: "CloudTrail_Config.json",
+            humanInTheLoop: [
+                "Security defines audit requirements",
+                "FSO reviews CloudTrail logs weekly",
+                "Operations monitors trail health"
+            ],
+            policyEvidence: [
+                "Audit Logging Policy",
+                "CloudTrail Configuration Standard",
+                "Log Review Procedure"
+            ],
+            manualEvidence: [
+                "CloudTrail configuration screenshot",
+                "Weekly log review documentation",
+                "S3 lifecycle policy for retention"
+            ],
+            evidenceMethodology: "Export CloudTrail configuration. Review logs weekly via Athena queries. Document findings. Verify S3 Object Lock for integrity."
         },
         gcp: {
             steps: [
@@ -426,7 +986,23 @@ const IMPL_NOTES = {
                 "5. Enable Chronicle SIEM"
             ],
             quickWin: "Enable Data Access logs on all CUI projects",
-            evidenceArtifact: "AuditLogs_Config.json"
+            evidenceArtifact: "AuditLogs_Config.json",
+            humanInTheLoop: [
+                "Security defines logging requirements",
+                "FSO reviews audit logs weekly",
+                "IT monitors log export jobs"
+            ],
+            policyEvidence: [
+                "Audit Logging Policy",
+                "Cloud Audit Log Configuration Standard",
+                "Log Review Procedure"
+            ],
+            manualEvidence: [
+                "Audit log configuration screenshot",
+                "Weekly log review sign-off",
+                "Log sink configuration"
+            ],
+            evidenceMethodology: "Export audit log configuration. Review logs weekly via Chronicle or BigQuery. Document findings. Verify retention settings."
         }
     },
     "3.3.1[b]": {
