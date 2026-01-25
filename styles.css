@@ -4867,6 +4867,56 @@ body {
     margin-bottom: 4px;
 }
 
+/* Cloud Selector for Impl Guide View */
+.cloud-selector {
+    display: flex;
+    gap: 6px;
+}
+
+.cloud-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.cloud-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+}
+
+.cloud-btn.active {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #3b82f6;
+}
+
+.cloud-btn svg {
+    flex-shrink: 0;
+}
+
+/* Impl Guide View Content */
+#impl-guide-view .impl-guide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#impl-guide-view .impl-guide-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+}
+
 /* Disclaimer Banner */
 .disclaimer-banner {
     position: fixed;

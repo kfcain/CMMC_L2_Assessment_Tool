@@ -528,7 +528,61 @@ class AssessmentApp {
             if (typeof CrosswalkVisualizer !== 'undefined') {
                 CrosswalkVisualizer.init();
             }
+        } else if (view === 'impl-guide') {
+            this.renderImplGuideView();
         }
+    }
+    
+    renderImplGuideView() {
+        const container = document.getElementById('impl-guide-content');
+        if (!container) return;
+        
+        const guide = this.getImplGuide();
+        if (!guide) {
+            container.innerHTML = '<p style="padding:20px;color:var(--text-muted)">No implementation guide available.</p>';
+            return;
+        }
+        
+        // Bind cloud selector buttons
+        document.querySelectorAll('.cloud-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.cloud-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                this.selectedCloud = e.currentTarget.dataset.cloud;
+                this.renderImplGuideView();
+            });
+        });
+        
+        // Render the implementation guide tabs and content
+        container.innerHTML = `
+            <div class="impl-guide-tabs" id="impl-guide-view-tabs">
+                <button class="impl-tab active" data-tab="project-plan">Project Plan</button>
+                <button class="impl-tab" data-tab="evidence">Evidence Strategy</button>
+                <button class="impl-tab" data-tab="policies">Policy Templates</button>
+                <button class="impl-tab" data-tab="ssp">SSP Statements</button>
+                <button class="impl-tab" data-tab="services">Services</button>
+                <button class="impl-tab" data-tab="extras">Extras</button>
+            </div>
+            <div class="impl-guide-body" id="impl-guide-view-body">
+                ${this.renderImplProjectPlan(guide)}
+            </div>
+        `;
+        
+        // Bind tab switching
+        container.querySelectorAll('.impl-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                container.querySelectorAll('.impl-tab').forEach(t => t.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                const tabName = e.currentTarget.dataset.tab;
+                const body = document.getElementById('impl-guide-view-body');
+                if (tabName === 'project-plan') body.innerHTML = this.renderImplProjectPlan(guide);
+                else if (tabName === 'evidence') body.innerHTML = this.renderImplEvidence(guide);
+                else if (tabName === 'policies') body.innerHTML = this.renderImplPolicies(guide);
+                else if (tabName === 'ssp') body.innerHTML = this.renderImplSSP(guide);
+                else if (tabName === 'services') body.innerHTML = this.renderImplServices(guide);
+                else if (tabName === 'extras') body.innerHTML = this.renderImplExtras(guide);
+            });
+        });
     }
 
     renderControls() {
