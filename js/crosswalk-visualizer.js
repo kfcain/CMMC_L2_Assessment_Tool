@@ -223,11 +223,11 @@ const CrosswalkVisualizer = {
         
         data.forEach(item => {
             const nist53Tags = (item.nist80053 || []).map(c => 
-                `<span class="mapping-tag nist-53">${c}</span>`
+                `<a href="https://www.myctrl.tools/frameworks/nist-800-53-rev-5/${c.toLowerCase().replace(/[()]/g, '')}" target="_blank" rel="noopener" class="mapping-tag nist-53">${c}</a>`
             ).join('');
             
             const fed20xTags = (item.fedramp20x || []).map(ksi => 
-                `<span class="mapping-tag fedramp-20x">${ksi}</span>`
+                `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${ksi.toLowerCase()}" target="_blank" rel="noopener" class="mapping-tag fedramp-20x">${ksi}</a>`
             ).join('') || '<span class="mapping-tag empty">—</span>';
             
             // Combined NIST 800-171 / CMMC column
