@@ -266,7 +266,8 @@ const ThemePicker = {
 
     // Render the theme picker component
     renderPicker() {
-        const container = document.getElementById('theme-picker-container');
+        // Try hamburger menu first, fall back to sidebar
+        const container = document.getElementById('hamburger-theme-picker') || document.getElementById('theme-picker-container');
         if (!container) return;
 
         const currentTheme = this.themes[this.currentTheme];

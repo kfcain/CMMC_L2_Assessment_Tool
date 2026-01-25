@@ -322,7 +322,36 @@ class AssessmentApp {
     }
 
     bindEvents() {
-        // Navigation
+        // Hamburger Menu Toggle
+        const hamburgerToggle = document.getElementById('hamburger-menu-toggle');
+        const hamburgerDropdown = document.getElementById('hamburger-dropdown');
+        const hamburgerOverlay = document.getElementById('hamburger-overlay');
+        
+        hamburgerToggle?.addEventListener('click', () => {
+            hamburgerDropdown?.classList.toggle('active');
+            hamburgerOverlay?.classList.toggle('active');
+        });
+        
+        hamburgerOverlay?.addEventListener('click', () => {
+            hamburgerDropdown?.classList.remove('active');
+            hamburgerOverlay?.classList.remove('active');
+        });
+        
+        // Hamburger Navigation
+        document.querySelectorAll('.hamburger-nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const view = e.currentTarget.dataset.view;
+                this.switchView(view);
+                // Update active state in hamburger menu
+                document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                // Close dropdown
+                hamburgerDropdown?.classList.remove('active');
+                hamburgerOverlay?.classList.remove('active');
+            });
+        });
+
+        // Legacy Sidebar Navigation
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const view = e.currentTarget.dataset.view;
