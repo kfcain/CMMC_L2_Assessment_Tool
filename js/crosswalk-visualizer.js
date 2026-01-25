@@ -144,6 +144,8 @@ const CrosswalkVisualizer = {
         const data = [];
         
         Object.entries(FRAMEWORK_MAPPINGS).forEach(([controlId, mapping]) => {
+            // Skip internal/helper entries
+            if (controlId.startsWith('_')) return;
             // Apply family filter
             if (this.filters.family !== 'all') {
                 const familyPrefix = controlId.split('.')[0];
