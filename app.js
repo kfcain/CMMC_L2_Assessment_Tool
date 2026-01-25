@@ -412,6 +412,15 @@ class AssessmentApp {
             }
         });
 
+        // Implementation Guide Modal
+        document.getElementById('open-impl-guide-btn')?.addEventListener('click', () => this.openImplGuideModal());
+        document.getElementById('close-impl-guide-btn')?.addEventListener('click', () => this.closeImplGuideModal());
+        document.querySelector('.impl-guide-backdrop')?.addEventListener('click', () => this.closeImplGuideModal());
+        document.querySelectorAll('.impl-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => this.switchImplGuideTab(e.target.dataset.tab));
+        });
+        document.getElementById('export-project-plan-btn')?.addEventListener('click', () => this.exportImplGuidePlan());
+
         // Org info auto-save on blur
         document.getElementById('org-assessor-name')?.addEventListener('blur', () => this.saveOrgData());
         document.getElementById('org-assessor-url')?.addEventListener('blur', () => {
@@ -2355,6 +2364,259 @@ class AssessmentApp {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    }
+
+    // Implementation Guide Modal Methods
+    openImplGuideModal() {
+        const modal = document.getElementById('impl-guide-modal');
+        modal?.classList.add('active');
+        this.switchImplGuideTab('project-plan');
+    }
+
+    closeImplGuideModal() {
+        document.getElementById('impl-guide-modal')?.classList.remove('active');
+    }
+
+    switchImplGuideTab(tabId) {
+        document.querySelectorAll('.impl-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.impl-tab[data-tab="${tabId}"]`)?.classList.add('active');
+        
+        const body = document.getElementById('impl-guide-body');
+        if (!body || typeof GCC_HIGH_IMPL_GUIDE === 'undefined') return;
+        
+        const guide = GCC_HIGH_IMPL_GUIDE;
+        let html = '';
+        
+        switch(tabId) {
+            case 'project-plan':
+                html = this.renderImplProjectPlan(guide);
+                break;
+            case 'evidence':
+                html = this.renderImplEvidence(guide);
+                break;
+            case 'policies':
+                html = this.renderImplPolicies(guide);
+                break;
+            case 'ssp':
+                html = this.renderImplSSP(guide);
+                break;
+            case 'labels':
+                html = this.renderImplLabels(guide);
+                break;
+            case 'providers':
+                html = this.renderImplProviders(guide);
+                break;
+        }
+        body.innerHTML = html;
+    }
+
+    renderImplProjectPlan(guide) {
+        const phaseClass = (phase) => {
+            if (phase.includes('Foundation')) return 'foundation';
+            if (phase.includes('People')) return 'people';
+            if (phase.includes('Governance')) return 'governance';
+            if (phase.includes('Audit')) return 'audit';
+            return '';
+        };
+        
+        const planRows = guide.projectPlan.map(t => `
+            <tr>
+                <td><span class="impl-phase-badge ${phaseClass(t.phase)}">${t.phase}</span></td>
+                <td>Week ${t.week}</td>
+                <td>${t.task}</td>
+                <td>${t.owner}</td>
+                <td>${t.accountable}</td>
+                <td>${t.deliverable}</td>
+            </tr>
+        `).join('');
+        
+        const recurringRows = guide.recurringOps.map(r => `
+            <tr>
+                <td><strong>${r.frequency}</strong></td>
+                <td>${r.activity}</td>
+                <td>${r.owner}</td>
+                <td>${r.purpose}</td>
+            </tr>
+        `).join('');
+        
+        return `
+            <div class="impl-section">
+                <div class="impl-section-title">8-Week Implementation Timeline</div>
+                <table class="impl-table">
+                    <thead><tr><th>Phase</th><th>Week</th><th>Task</th><th>Owner</th><th>Accountable</th><th>Deliverable</th></tr></thead>
+                    <tbody>${planRows}</tbody>
+                </table>
+            </div>
+            <div class="impl-section">
+                <div class="impl-section-title">Recurring Operations (Post-Implementation)</div>
+                <table class="impl-table">
+                    <thead><tr><th>Frequency</th><th>Activity</th><th>Owner</th><th>Purpose</th></tr></thead>
+                    <tbody>${recurringRows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    renderImplEvidence(guide) {
+        const rows = guide.evidenceStrategy.map(e => `
+            <tr>
+                <td><strong>${e.domain}</strong></td>
+                <td><code class="impl-code">${e.artifact}</code></td>
+                <td>${e.source}</td>
+                <td><code class="impl-code" style="font-size:0.6rem">${e.command}</code></td>
+                <td>${e.proves}</td>
+            </tr>
+        `).join('');
+        
+        return `
+            <div class="impl-section">
+                <div class="impl-section-title">Machine-Readable Evidence Strategy</div>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px">Run these commands weekly to generate JSON evidence artifacts for your assessor.</p>
+                <table class="impl-table">
+                    <thead><tr><th>Domain</th><th>Artifact</th><th>Source</th><th>PowerShell Command</th><th>Proves</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    renderImplPolicies(guide) {
+        const policies = Object.values(guide.policyTemplates).map(p => `
+            <div class="impl-policy-card">
+                <div class="impl-policy-header">
+                    <h4>${p.title}</h4>
+                    <p>${p.purpose}</p>
+                </div>
+                <div class="impl-policy-body">
+                    ${p.sections.map(s => `
+                        <div class="impl-policy-section">
+                            <h5>${s.heading}</h5>
+                            <ul>${s.items.map(i => `<li>${i}</li>`).join('')}</ul>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+        
+        return `
+            <div class="impl-section">
+                <div class="impl-section-title">Policy Templates</div>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px">Copy and customize these policy templates for your organization.</p>
+                ${policies}
+            </div>
+        `;
+    }
+
+    renderImplSSP(guide) {
+        const items = Object.entries(guide.sspStatements).map(([ctrl, text]) => `
+            <div class="impl-ssp-item">
+                <div class="impl-ssp-control">${ctrl}</div>
+                <div class="impl-ssp-text">${text}</div>
+                <button class="impl-copy-btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent);this.textContent='Copied!'">
+                    Copy
+                </button>
+            </div>
+        `).join('');
+        
+        return `
+            <div class="impl-section">
+                <div class="impl-section-title">SSP Conformity Statements</div>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px">Copy these statements directly into your System Security Plan (SSP).</p>
+                ${items}
+            </div>
+        `;
+    }
+
+    renderImplLabels(guide) {
+        const rows = guide.sensitivityLabels.map(l => `
+            <tr>
+                <td><strong>${l.name}</strong></td>
+                <td>${l.displayName}</td>
+                <td>${l.encryption}</td>
+                <td>${l.marking}</td>
+                <td>${l.audience}</td>
+            </tr>
+        `).join('');
+        
+        const caRows = guide.conditionalAccessPolicies.map(p => `
+            <tr>
+                <td><strong>${p.name}</strong>${p.critical ? ' <span style="color:#ef4444">*</span>' : ''}</td>
+                <td>${p.description}</td>
+                <td>${p.reason}</td>
+            </tr>
+        `).join('');
+        
+        return `
+            <div class="impl-section">
+                <div class="impl-section-title">Sensitivity Label Taxonomy (Purview)</div>
+                <table class="impl-table">
+                    <thead><tr><th>Label</th><th>Display Name</th><th>Encryption</th><th>Visual Marking</th><th>Audience</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+            <div class="impl-section">
+                <div class="impl-section-title">Conditional Access Policies to Deploy</div>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px"><span style="color:#ef4444">*</span> = Critical for ITAR/CMMC compliance</p>
+                <table class="impl-table">
+                    <thead><tr><th>Policy Name</th><th>Description</th><th>Reason</th></tr></thead>
+                    <tbody>${caRows}</tbody>
+                </table>
+            </div>
+            <div class="impl-section">
+                <div class="impl-section-title">System Use Banner (3.1.9)</div>
+                <div class="impl-policy-card">
+                    <div class="impl-policy-header">
+                        <h4>${guide.systemUseBanner.title}</h4>
+                    </div>
+                    <div class="impl-policy-body">
+                        <p style="font-size:0.7rem;line-height:1.6">${guide.systemUseBanner.text}</p>
+                        <button class="impl-copy-btn" onclick="navigator.clipboard.writeText('${guide.systemUseBanner.text.replace(/'/g, "\\'")}');this.textContent='Copied!'">Copy Banner Text</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderImplProviders(guide) {
+        const rows = guide.fedrampProviders.map(p => `
+            <tr>
+                <td><strong>${p.category}</strong></td>
+                <td>${p.provider}</td>
+                <td>${p.notes}</td>
+            </tr>
+        `).join('');
+        
+        return `
+            <div class="impl-section">
+                <div class="impl-section-title">FedRAMP Authorized Providers</div>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px">Use these providers to extend GCC High capabilities while maintaining compliance.</p>
+                <table class="impl-table">
+                    <thead><tr><th>Category</th><th>Recommended Provider</th><th>Notes</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    exportImplGuidePlan() {
+        if (typeof GCC_HIGH_IMPL_GUIDE === 'undefined') return;
+        
+        const guide = GCC_HIGH_IMPL_GUIDE;
+        const headers = ["Phase", "Week", "Task_ID", "Task", "Owner", "Accountable", "Deliverable", "Status"];
+        const rows = guide.projectPlan.map(t => 
+            [t.phase, t.week, t.taskId, `"${t.task}"`, t.owner, t.accountable, t.deliverable, "Pending"].join(",")
+        );
+        const csv = [headers.join(","), ...rows].join("\n");
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `CMMC-L2-Implementation-Plan-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        this.showToast('Exported project plan to CSV', 'success');
     }
 }
 
