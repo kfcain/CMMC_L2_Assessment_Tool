@@ -3527,10 +3527,34 @@ body {
     position: relative;
 }
 
+.impl-guide-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 4px;
+}
+
 .impl-guide-header h2 {
-    margin: 0 0 4px 0;
+    margin: 0;
     font-size: 1.25rem;
     color: var(--text-primary);
+}
+
+.impl-cloud-selector {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.impl-cloud-selector:focus {
+    outline: none;
+    border-color: var(--accent-blue);
 }
 
 .impl-guide-subtitle {

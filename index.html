@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMMC Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=22">
+    <link rel="stylesheet" href="styles.css?v=23">
     <link rel="stylesheet" href="css/evidence.css?v=1">
     <link rel="stylesheet" href="css/theme-picker.css?v=2">
     <link rel="stylesheet" href="css/crosswalk.css?v=20260125g">
@@ -419,19 +419,26 @@
         <div class="impl-guide-backdrop"></div>
         <div class="impl-guide-content">
             <div class="impl-guide-header">
-                <h2>GCC High Implementation Guide</h2>
-                <p class="impl-guide-subtitle">CMMC L2 Deployment Resources for M365 GCC High / Azure Government</p>
+                <div class="impl-guide-title-row">
+                    <h2 id="impl-guide-title">GCC High Implementation Guide</h2>
+                    <select id="impl-cloud-selector" class="impl-cloud-selector">
+                        <option value="azure">Azure / M365 GCC High</option>
+                        <option value="aws">AWS GovCloud</option>
+                        <option value="gcp">GCP / Google Workspace</option>
+                    </select>
+                </div>
+                <p class="impl-guide-subtitle" id="impl-guide-subtitle">CMMC L2 Deployment Resources for M365 GCC High / Azure Government</p>
                 <button class="impl-guide-close" id="close-impl-guide-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
-            <div class="impl-guide-tabs">
+            <div class="impl-guide-tabs" id="impl-guide-tabs">
                 <button class="impl-tab active" data-tab="project-plan">Project Plan</button>
                 <button class="impl-tab" data-tab="evidence">Evidence Strategy</button>
                 <button class="impl-tab" data-tab="policies">Policy Templates</button>
                 <button class="impl-tab" data-tab="ssp">SSP Statements</button>
-                <button class="impl-tab" data-tab="labels">Sensitivity Labels</button>
-                <button class="impl-tab" data-tab="providers">FedRAMP Providers</button>
+                <button class="impl-tab" data-tab="services">Services</button>
+                <button class="impl-tab" data-tab="extras">Extras</button>
             </div>
             <div class="impl-guide-body" id="impl-guide-body">
                 <!-- Content loaded dynamically -->
@@ -469,6 +476,8 @@
     <script src="data/ctrl-xref.js?v=2"></script>
     <script src="data/gcc-high-guidance.js?v=3"></script>
     <script src="data/gcc-high-impl-guide.js?v=1"></script>
+    <script src="data/aws-govcloud-impl-guide.js?v=1"></script>
+    <script src="data/gcp-impl-guide.js?v=1"></script>
     <script src="data/aws-govcloud-guidance.js?v=2"></script>
     <script src="data/gcp-guidance.js?v=2"></script>
     <script src="data/cca-questions.js?v=1"></script>
@@ -478,7 +487,7 @@
     <script src="data/fedramp-20x-ksi.js?v=3"></script>
     <script src="data/framework-mappings.js?v=20260125c"></script>
     <script src="data/loader.js"></script>
-    <script src="app.js?v=26"></script>
+    <script src="app.js?v=27"></script>
     <script src="js/supabase-client.js?v=1"></script>
     <script src="js/evidence-ui.js?v=1"></script>
     <script src="js/theme-picker.js?v=4"></script>

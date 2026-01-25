@@ -420,6 +420,7 @@ class AssessmentApp {
             tab.addEventListener('click', (e) => this.switchImplGuideTab(e.target.dataset.tab));
         });
         document.getElementById('export-project-plan-btn')?.addEventListener('click', () => this.exportImplGuidePlan());
+        document.getElementById('impl-cloud-selector')?.addEventListener('change', (e) => this.switchImplGuideCloud(e.target.value));
 
         // Org info auto-save on blur
         document.getElementById('org-assessor-name')?.addEventListener('blur', () => this.saveOrgData());
@@ -2367,9 +2368,15 @@ class AssessmentApp {
     }
 
     // Implementation Guide Modal Methods
+    implGuideCloud = 'azure';
+    implGuideTab = 'project-plan';
+
     openImplGuideModal() {
         const modal = document.getElementById('impl-guide-modal');
         modal?.classList.add('active');
+        this.implGuideCloud = 'azure';
+        document.getElementById('impl-cloud-selector').value = 'azure';
+        this.updateImplGuideHeader();
         this.switchImplGuideTab('project-plan');
     }
 
@@ -2377,14 +2384,40 @@ class AssessmentApp {
         document.getElementById('impl-guide-modal')?.classList.remove('active');
     }
 
+    switchImplGuideCloud(cloud) {
+        this.implGuideCloud = cloud;
+        this.updateImplGuideHeader();
+        this.switchImplGuideTab(this.implGuideTab);
+    }
+
+    updateImplGuideHeader() {
+        const titles = {
+            azure: { title: 'GCC High Implementation Guide', subtitle: 'CMMC L2 Deployment Resources for M365 GCC High / Azure Government' },
+            aws: { title: 'AWS GovCloud Implementation Guide', subtitle: 'CMMC L2 Deployment Resources for AWS GovCloud (US-Gov-West/East)' },
+            gcp: { title: 'GCP Implementation Guide', subtitle: 'CMMC L2 Deployment Resources for Google Cloud Platform / Google Workspace' }
+        };
+        const info = titles[this.implGuideCloud] || titles.azure;
+        document.getElementById('impl-guide-title').textContent = info.title;
+        document.getElementById('impl-guide-subtitle').textContent = info.subtitle;
+    }
+
+    getImplGuide() {
+        switch(this.implGuideCloud) {
+            case 'aws': return typeof AWS_GOVCLOUD_IMPL_GUIDE !== 'undefined' ? AWS_GOVCLOUD_IMPL_GUIDE : null;
+            case 'gcp': return typeof GCP_IMPL_GUIDE !== 'undefined' ? GCP_IMPL_GUIDE : null;
+            default: return typeof GCC_HIGH_IMPL_GUIDE !== 'undefined' ? GCC_HIGH_IMPL_GUIDE : null;
+        }
+    }
+
     switchImplGuideTab(tabId) {
+        this.implGuideTab = tabId;
         document.querySelectorAll('.impl-tab').forEach(t => t.classList.remove('active'));
         document.querySelector(`.impl-tab[data-tab="${tabId}"]`)?.classList.add('active');
         
         const body = document.getElementById('impl-guide-body');
-        if (!body || typeof GCC_HIGH_IMPL_GUIDE === 'undefined') return;
+        const guide = this.getImplGuide();
+        if (!body || !guide) return;
         
-        const guide = GCC_HIGH_IMPL_GUIDE;
         let html = '';
         
         switch(tabId) {
@@ -2400,11 +2433,11 @@ class AssessmentApp {
             case 'ssp':
                 html = this.renderImplSSP(guide);
                 break;
-            case 'labels':
-                html = this.renderImplLabels(guide);
+            case 'services':
+                html = this.renderImplServices(guide);
                 break;
-            case 'providers':
-                html = this.renderImplProviders(guide);
+            case 'extras':
+                html = this.renderImplExtras(guide);
                 break;
         }
         body.innerHTML = html;
@@ -2527,81 +2560,258 @@ class AssessmentApp {
         `;
     }
 
-    renderImplLabels(guide) {
-        const rows = guide.sensitivityLabels.map(l => `
-            <tr>
-                <td><strong>${l.name}</strong></td>
-                <td>${l.displayName}</td>
-                <td>${l.encryption}</td>
-                <td>${l.marking}</td>
-                <td>${l.audience}</td>
-            </tr>
-        `).join('');
+    renderImplServices(guide) {
+        // Handle different data structures for each cloud
+        let servicesHtml = '';
+        let fedrampHtml = '';
         
-        const caRows = guide.conditionalAccessPolicies.map(p => `
-            <tr>
-                <td><strong>${p.name}</strong>${p.critical ? ' <span style="color:#ef4444">*</span>' : ''}</td>
-                <td>${p.description}</td>
-                <td>${p.reason}</td>
-            </tr>
-        `).join('');
-        
-        return `
-            <div class="impl-section">
-                <div class="impl-section-title">Sensitivity Label Taxonomy (Purview)</div>
-                <table class="impl-table">
-                    <thead><tr><th>Label</th><th>Display Name</th><th>Encryption</th><th>Visual Marking</th><th>Audience</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            </div>
-            <div class="impl-section">
-                <div class="impl-section-title">Conditional Access Policies to Deploy</div>
-                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px"><span style="color:#ef4444">*</span> = Critical for ITAR/CMMC compliance</p>
-                <table class="impl-table">
-                    <thead><tr><th>Policy Name</th><th>Description</th><th>Reason</th></tr></thead>
-                    <tbody>${caRows}</tbody>
-                </table>
-            </div>
-            <div class="impl-section">
-                <div class="impl-section-title">System Use Banner (3.1.9)</div>
-                <div class="impl-policy-card">
-                    <div class="impl-policy-header">
-                        <h4>${guide.systemUseBanner.title}</h4>
-                    </div>
-                    <div class="impl-policy-body">
-                        <p style="font-size:0.7rem;line-height:1.6">${guide.systemUseBanner.text}</p>
-                        <button class="impl-copy-btn" onclick="navigator.clipboard.writeText('${guide.systemUseBanner.text.replace(/'/g, "\\'")}');this.textContent='Copied!'">Copy Banner Text</button>
-                    </div>
+        // AWS services
+        if (guide.awsServices) {
+            const rows = guide.awsServices.map(s => `
+                <tr>
+                    <td><strong>${s.control}</strong></td>
+                    <td>${s.service}</td>
+                    <td>${s.purpose}</td>
+                </tr>
+            `).join('');
+            servicesHtml = `
+                <div class="impl-section">
+                    <div class="impl-section-title">AWS Services for CMMC Controls</div>
+                    <table class="impl-table">
+                        <thead><tr><th>Control</th><th>AWS Service</th><th>Purpose</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
                 </div>
-            </div>
-        `;
+            `;
+        }
+        
+        // GCP services
+        if (guide.gcpServices) {
+            const rows = guide.gcpServices.map(s => `
+                <tr>
+                    <td><strong>${s.control}</strong></td>
+                    <td>${s.service}</td>
+                    <td>${s.purpose}</td>
+                </tr>
+            `).join('');
+            servicesHtml = `
+                <div class="impl-section">
+                    <div class="impl-section-title">GCP Services for CMMC Controls</div>
+                    <table class="impl-table">
+                        <thead><tr><th>Control</th><th>GCP Service</th><th>Purpose</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // Azure sensitivity labels (only for Azure)
+        if (guide.sensitivityLabels) {
+            const rows = guide.sensitivityLabels.map(l => `
+                <tr>
+                    <td><strong>${l.name}</strong></td>
+                    <td>${l.displayName}</td>
+                    <td>${l.encryption}</td>
+                    <td>${l.marking}</td>
+                    <td>${l.audience}</td>
+                </tr>
+            `).join('');
+            servicesHtml = `
+                <div class="impl-section">
+                    <div class="impl-section-title">Sensitivity Label Taxonomy (Purview)</div>
+                    <table class="impl-table">
+                        <thead><tr><th>Label</th><th>Display Name</th><th>Encryption</th><th>Visual Marking</th><th>Audience</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+            
+            if (guide.conditionalAccessPolicies) {
+                const caRows = guide.conditionalAccessPolicies.map(p => `
+                    <tr>
+                        <td><strong>${p.name}</strong>${p.critical ? ' <span style="color:#ef4444">*</span>' : ''}</td>
+                        <td>${p.description}</td>
+                        <td>${p.reason}</td>
+                    </tr>
+                `).join('');
+                servicesHtml += `
+                    <div class="impl-section">
+                        <div class="impl-section-title">Conditional Access Policies to Deploy</div>
+                        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px"><span style="color:#ef4444">*</span> = Critical for ITAR/CMMC compliance</p>
+                        <table class="impl-table">
+                            <thead><tr><th>Policy Name</th><th>Description</th><th>Reason</th></tr></thead>
+                            <tbody>${caRows}</tbody>
+                        </table>
+                    </div>
+                `;
+            }
+        }
+        
+        // FedRAMP services (AWS/GCP)
+        if (guide.fedrampServices) {
+            const rows = guide.fedrampServices.map(s => `
+                <tr>
+                    <td><strong>${s.category}</strong></td>
+                    <td>${s.service}</td>
+                    <td>${s.authorization}</td>
+                </tr>
+            `).join('');
+            fedrampHtml = `
+                <div class="impl-section">
+                    <div class="impl-section-title">FedRAMP Authorized Services</div>
+                    <table class="impl-table">
+                        <thead><tr><th>Category</th><th>Service</th><th>Authorization</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // FedRAMP providers (Azure)
+        if (guide.fedrampProviders) {
+            const rows = guide.fedrampProviders.map(p => `
+                <tr>
+                    <td><strong>${p.category}</strong></td>
+                    <td>${p.provider}</td>
+                    <td>${p.notes}</td>
+                </tr>
+            `).join('');
+            fedrampHtml = `
+                <div class="impl-section">
+                    <div class="impl-section-title">FedRAMP Authorized Providers</div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px">Third-party providers to extend capabilities while maintaining compliance.</p>
+                    <table class="impl-table">
+                        <thead><tr><th>Category</th><th>Recommended Provider</th><th>Notes</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        return servicesHtml + fedrampHtml || '<p style="color:var(--text-muted)">No services data available.</p>';
     }
 
-    renderImplProviders(guide) {
-        const rows = guide.fedrampProviders.map(p => `
-            <tr>
-                <td><strong>${p.category}</strong></td>
-                <td>${p.provider}</td>
-                <td>${p.notes}</td>
-            </tr>
-        `).join('');
+    renderImplExtras(guide) {
+        let html = '';
         
-        return `
-            <div class="impl-section">
-                <div class="impl-section-title">FedRAMP Authorized Providers</div>
-                <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px">Use these providers to extend GCC High capabilities while maintaining compliance.</p>
-                <table class="impl-table">
-                    <thead><tr><th>Category</th><th>Recommended Provider</th><th>Notes</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            </div>
-        `;
+        // System Use Banner (Azure)
+        if (guide.systemUseBanner) {
+            html += `
+                <div class="impl-section">
+                    <div class="impl-section-title">System Use Banner (3.1.9)</div>
+                    <div class="impl-policy-card">
+                        <div class="impl-policy-header">
+                            <h4>${guide.systemUseBanner.title}</h4>
+                        </div>
+                        <div class="impl-policy-body">
+                            <p style="font-size:0.7rem;line-height:1.6">${guide.systemUseBanner.text}</p>
+                            <button class="impl-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.impl-policy-body').querySelector('p').textContent);this.textContent='Copied!'">Copy Banner Text</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // RACI Matrix (Azure)
+        if (guide.raciMatrix) {
+            const headerCells = guide.raciMatrix.roles.map(r => `<th>${r}</th>`).join('');
+            const rows = guide.raciMatrix.tasks.map(t => `
+                <tr>
+                    <td><strong>${t.category}</strong></td>
+                    <td>${t.action}</td>
+                    ${t.raci.map(r => `<td style="text-align:center;font-weight:600;color:${r.includes('R') ? '#22c55e' : r.includes('A') ? '#f59e0b' : 'var(--text-muted)'}">${r}</td>`).join('')}
+                </tr>
+            `).join('');
+            html += `
+                <div class="impl-section">
+                    <div class="impl-section-title">RACI Matrix</div>
+                    <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:8px">R=Responsible, A=Accountable, C=Consulted, I=Informed</p>
+                    <table class="impl-table">
+                        <thead><tr><th>Category</th><th>Action</th>${headerCells}</tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // SCP Examples (AWS)
+        if (guide.scpExamples) {
+            const items = guide.scpExamples.map(s => `
+                <div class="impl-policy-card">
+                    <div class="impl-policy-header">
+                        <h4>${s.name}</h4>
+                        <p>${s.description}</p>
+                    </div>
+                    <div class="impl-policy-body">
+                        <pre class="script-code" style="font-size:0.65rem;max-height:150px;overflow:auto">${s.policy}</pre>
+                        <button class="impl-copy-btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent);this.textContent='Copied!'">Copy Policy</button>
+                    </div>
+                </div>
+            `).join('');
+            html += `
+                <div class="impl-section">
+                    <div class="impl-section-title">Service Control Policy (SCP) Examples</div>
+                    ${items}
+                </div>
+            `;
+        }
+        
+        // Organization Policy Examples (GCP)
+        if (guide.orgPolicyExamples) {
+            const rows = guide.orgPolicyExamples.map(p => `
+                <tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td><code class="impl-code">${p.constraint}</code></td>
+                    <td>${p.description}</td>
+                    <td>${p.effect}</td>
+                </tr>
+            `).join('');
+            html += `
+                <div class="impl-section">
+                    <div class="impl-section-title">Organization Policy Constraints</div>
+                    <table class="impl-table">
+                        <thead><tr><th>Policy Name</th><th>Constraint</th><th>Description</th><th>Effect</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // Assured Workloads (GCP)
+        if (guide.assuredWorkloads) {
+            const aw = guide.assuredWorkloads;
+            html += `
+                <div class="impl-section">
+                    <div class="impl-section-title">Assured Workloads (GCP)</div>
+                    <div class="impl-policy-card">
+                        <div class="impl-policy-header">
+                            <h4>Compliance Frameworks</h4>
+                            <p>${aw.description}</p>
+                        </div>
+                        <div class="impl-policy-body">
+                            <div class="impl-policy-section">
+                                <h5>Supported Compliance Regimes</h5>
+                                <ul>${aw.complianceRegimes.map(c => `<li>${c}</li>`).join('')}</ul>
+                            </div>
+                            <div class="impl-policy-section">
+                                <h5>Features</h5>
+                                <ul>${aw.features.map(f => `<li>${f}</li>`).join('')}</ul>
+                            </div>
+                            <p style="font-size:0.7rem;color:#f59e0b;margin-top:12px"><strong>Note:</strong> ${aw.note}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        return html || '<p style="color:var(--text-muted)">No additional resources available.</p>';
     }
 
     exportImplGuidePlan() {
-        if (typeof GCC_HIGH_IMPL_GUIDE === 'undefined') return;
+        const guide = this.getImplGuide();
+        if (!guide) return;
         
-        const guide = GCC_HIGH_IMPL_GUIDE;
+        const cloudNames = { azure: 'GCC-High', aws: 'AWS-GovCloud', gcp: 'GCP' };
         const headers = ["Phase", "Week", "Task_ID", "Task", "Owner", "Accountable", "Deliverable", "Status"];
         const rows = guide.projectPlan.map(t => 
             [t.phase, t.week, t.taskId, `"${t.task}"`, t.owner, t.accountable, t.deliverable, "Pending"].join(",")
@@ -2612,11 +2822,11 @@ class AssessmentApp {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `CMMC-L2-Implementation-Plan-${new Date().toISOString().split('T')[0]}.csv`;
+        a.download = `CMMC-L2-${cloudNames[this.implGuideCloud]}-Implementation-Plan-${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
         URL.revokeObjectURL(url);
         
-        this.showToast('Exported project plan to CSV', 'success');
+        this.showToast(`Exported ${cloudNames[this.implGuideCloud]} project plan to CSV`, 'success');
     }
 }
 
