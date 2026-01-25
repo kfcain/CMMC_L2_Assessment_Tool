@@ -803,25 +803,130 @@ class AssessmentApp {
     }
 
     renderCloudGuidance(cloud, objectiveId) {
-        let guidance, serviceName, serviceLabel;
+        let guidance, serviceName, serviceLabel, consoleLinks, psConnectScript;
         
         if (cloud === 'azure') {
             guidance = typeof getGCCHighGuidance === 'function' ? getGCCHighGuidance(objectiveId) : null;
             serviceName = guidance?.azureService || 'N/A';
-            serviceLabel = 'Azure Service';
+            serviceLabel = 'Azure Gov Service';
+            consoleLinks = [
+                { name: 'Azure Gov Portal', url: 'https://portal.azure.us', icon: 'cloud' },
+                { name: 'Entra ID (Azure AD)', url: 'https://entra.microsoft.us', icon: 'users' },
+                { name: 'Intune', url: 'https://intune.microsoft.us', icon: 'smartphone' },
+                { name: 'Defender Portal', url: 'https://security.microsoft.us', icon: 'shield' },
+                { name: 'Purview', url: 'https://compliance.microsoft.us', icon: 'lock' }
+            ];
+            psConnectScript = `# Connect to Azure Government & M365 GCC High
+# Prerequisites: Install-Module Az, Microsoft.Graph, ExchangeOnlineManagement
+
+# Azure Government (Az Module)
+Connect-AzAccount -Environment AzureUSGovernment
+
+# Microsoft Graph (GCC High)
+Connect-MgGraph -Environment USGov -Scopes "User.Read.All","Directory.Read.All"
+
+# Exchange Online (GCC High)
+Connect-ExchangeOnline -ExchangeEnvironmentName O365USGovGCCHigh
+
+# Security & Compliance Center
+Connect-IPPSSession -ConnectionUri https://ps.compliance.protection.office365.us/powershell-liveid/
+
+# SharePoint Online (replace TENANT with your tenant name)
+Connect-SPOService -Url https://TENANT-admin.sharepoint.us
+
+# Teams (GCC High)
+Connect-MicrosoftTeams -TeamsEnvironmentName TeamsGCCH`;
         } else if (cloud === 'aws') {
             guidance = typeof getAWSGovCloudGuidance === 'function' ? getAWSGovCloudGuidance(objectiveId) : null;
             serviceName = guidance?.awsService || 'N/A';
-            serviceLabel = 'AWS Service';
+            serviceLabel = 'AWS GovCloud Service';
+            consoleLinks = [
+                { name: 'AWS GovCloud Console', url: 'https://console.amazonaws-us-gov.com', icon: 'cloud' },
+                { name: 'IAM', url: 'https://console.amazonaws-us-gov.com/iam', icon: 'users' },
+                { name: 'CloudTrail', url: 'https://console.amazonaws-us-gov.com/cloudtrail', icon: 'activity' },
+                { name: 'Security Hub', url: 'https://console.amazonaws-us-gov.com/securityhub', icon: 'shield' },
+                { name: 'GuardDuty', url: 'https://console.amazonaws-us-gov.com/guardduty', icon: 'eye' }
+            ];
+            psConnectScript = `# Configure AWS CLI for GovCloud
+# Prerequisites: Install AWS CLI v2
+
+# Set GovCloud region (us-gov-west-1 or us-gov-east-1)
+aws configure set region us-gov-west-1
+
+# Verify GovCloud connection
+aws sts get-caller-identity
+
+# Common GovCloud CLI Commands
+aws iam list-users --output table
+aws cloudtrail describe-trails
+aws securityhub get-findings --filters '{"RecordState":[{"Value":"ACTIVE","Comparison":"EQUALS"}]}'
+aws guardduty list-detectors
+
+# Export credential report
+aws iam generate-credential-report
+aws iam get-credential-report --output text --query Content | base64 -d > credential_report.csv`;
         } else if (cloud === 'gcp') {
             guidance = typeof getGCPGuidance === 'function' ? getGCPGuidance(objectiveId) : null;
             serviceName = guidance?.gcpService || 'N/A';
             serviceLabel = 'GCP Service';
+            consoleLinks = [
+                { name: 'GCP Console', url: 'https://console.cloud.google.com', icon: 'cloud' },
+                { name: 'Cloud Identity', url: 'https://admin.google.com', icon: 'users' },
+                { name: 'Security Command Center', url: 'https://console.cloud.google.com/security/command-center', icon: 'shield' },
+                { name: 'IAM & Admin', url: 'https://console.cloud.google.com/iam-admin', icon: 'key' },
+                { name: 'Logging', url: 'https://console.cloud.google.com/logs', icon: 'activity' }
+            ];
+            psConnectScript = `# Configure gcloud CLI for GCP
+# Prerequisites: Install Google Cloud SDK
+
+# Authenticate with GCP
+gcloud auth login
+gcloud auth application-default login
+
+# Set project (replace PROJECT_ID)
+gcloud config set project PROJECT_ID
+
+# Common GCP CLI Commands
+gcloud iam service-accounts list
+gcloud projects get-iam-policy PROJECT_ID
+gcloud logging read "logName:cloudaudit.googleapis.com" --limit=50
+gcloud asset search-all-iam-policies --scope=projects/PROJECT_ID
+
+# For Assured Workloads (FedRAMP/IL4)
+gcloud assured workloads list --location=us-central1
+gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         }
 
         if (!guidance) {
             return `<div class="guidance-unavailable">Guidance not available for this cloud provider.</div>`;
         }
+
+        // Build console quick links
+        const consoleLinksHtml = consoleLinks ? `
+            <div class="cloud-console-links">
+                <span class="console-links-label">Quick Access:</span>
+                <div class="console-links-row">
+                    ${consoleLinks.map(link => `
+                        <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="console-link-btn" title="Open ${link.name}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            ${link.name}
+                        </a>
+                    `).join('')}
+                </div>
+            </div>
+        ` : '';
+
+        // Build PowerShell/CLI connection script
+        const psScriptHtml = psConnectScript ? `
+            <details class="ps-connect-section">
+                <summary class="ps-connect-summary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                    <span>${cloud === 'azure' ? 'PowerShell Connection Scripts' : 'CLI Connection Commands'}</span>
+                    <button class="ps-copy-all-btn" onclick="event.stopPropagation();navigator.clipboard.writeText(this.closest('.ps-connect-section').querySelector('pre').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy All',2000)">Copy All</button>
+                </summary>
+                <pre class="ps-connect-code">${psConnectScript}</pre>
+            </details>
+        ` : '';
 
         // Build CLI commands HTML if available
         let cliHtml = '';
@@ -922,6 +1027,8 @@ class AssessmentApp {
         }
 
         return `
+            ${consoleLinksHtml}
+            ${psScriptHtml}
             <div class="guidance-item">
                 <span class="guidance-label">Automation:</span>
                 <span class="guidance-value">${guidance.automation}</span>

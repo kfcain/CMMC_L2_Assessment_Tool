@@ -3946,6 +3946,120 @@ body {
     font-style: italic;
 }
 
+/* Cloud Console Quick Links */
+.cloud-console-links {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.console-links-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.console-links-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.console-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.console-link-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+.console-link-btn svg {
+    flex-shrink: 0;
+}
+
+/* PowerShell/CLI Connection Section */
+.ps-connect-section {
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.ps-connect-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #3b82f6;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    list-style: none;
+}
+
+.ps-connect-summary::-webkit-details-marker {
+    display: none;
+}
+
+.ps-connect-summary::before {
+    content: '▶';
+    font-size: 0.6rem;
+    transition: transform 0.2s;
+}
+
+.ps-connect-section[open] .ps-connect-summary::before {
+    transform: rotate(90deg);
+}
+
+.ps-copy-all-btn {
+    margin-left: auto;
+    padding: 4px 10px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ps-copy-all-btn:hover {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.ps-connect-code {
+    margin: 0;
+    padding: 12px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.65rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    overflow-x: auto;
+    white-space: pre;
+}
+
 .hamburger-org-url {
     flex: 1;
     padding: 4px 8px;
