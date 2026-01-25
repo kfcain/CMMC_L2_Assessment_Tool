@@ -4904,7 +4904,7 @@ body {
 }
 
 /* Impl Guide View Content */
-#impl-guide-view {
+#impl-guide-view.active {
     display: flex;
     flex-direction: column;
     height: 100%;
