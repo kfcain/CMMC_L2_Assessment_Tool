@@ -1,7 +1,7 @@
 // Cross-Framework Control Mappings
 // Maps NIST 800-171 Rev 2 controls to NIST 800-53 Rev 5 and CMMC L1/L2
-// Reference: NIST SP 800-171 Rev 2 Appendix D
-// Classification: Basic = CMMC L1, Derived = CMMC L2
+// Reference: NIST SP 800-171 Rev 2 Appendix D, CMMC Level 1 Assessment Guide
+// Classification: Basic/Derived per NIST 800-171; L1/L2 per CMMC 2.0 (17 L1 controls from FAR 52.204-21)
 // NOTE: FedRAMP 20x KSIs are dynamically derived from 800-53 controls via fedramp-20x-ksi.js
 
 const FRAMEWORK_MAPPINGS = {
@@ -122,7 +122,7 @@ const FRAMEWORK_MAPPINGS = {
     },
     "3.1.20": {
         nist80053: ["AC-20(1)"],
-        cmmc: { level: 2, domain: "AC", practice: "AC.L2-3.1.20" },
+        cmmc: { level: 1, domain: "AC", practice: "AC.L1-3.1.20" },
         classification: "Derived",
         description: "Verify external systems implement required controls"
     },
@@ -134,7 +134,7 @@ const FRAMEWORK_MAPPINGS = {
     },
     "3.1.22": {
         nist80053: ["AC-22"],
-        cmmc: { level: 2, domain: "AC", practice: "AC.L2-3.1.22" },
+        cmmc: { level: 1, domain: "AC", practice: "AC.L1-3.1.22" },
         classification: "Derived",
         description: "Control publicly accessible content"
     },
@@ -142,13 +142,13 @@ const FRAMEWORK_MAPPINGS = {
     // === AWARENESS AND TRAINING (AT) ===
     "3.2.1": {
         nist80053: ["AT-2", "AT-2(2)"],
-        cmmc: { level: 1, domain: "AT", practice: "AT.L1-3.2.1" },
+        cmmc: { level: 2, domain: "AT", practice: "AT.L2-3.2.1" },
         classification: "Basic",
         description: "Ensure personnel are aware of security risks"
     },
     "3.2.2": {
         nist80053: ["AT-3"],
-        cmmc: { level: 1, domain: "AT", practice: "AT.L1-3.2.2" },
+        cmmc: { level: 2, domain: "AT", practice: "AT.L2-3.2.2" },
         classification: "Basic",
         description: "Train personnel on security responsibilities"
     },
@@ -162,13 +162,13 @@ const FRAMEWORK_MAPPINGS = {
     // === AUDIT AND ACCOUNTABILITY (AU) ===
     "3.3.1": {
         nist80053: ["AU-2", "AU-3", "AU-3(1)", "AU-6", "AU-11", "AU-12"],
-        cmmc: { level: 1, domain: "AU", practice: "AU.L1-3.3.1" },
+        cmmc: { level: 2, domain: "AU", practice: "AU.L2-3.3.1" },
         classification: "Basic",
         description: "Create and retain audit records"
     },
     "3.3.2": {
         nist80053: ["AU-2(3)", "AU-3(1)"],
-        cmmc: { level: 1, domain: "AU", practice: "AU.L1-3.3.2" },
+        cmmc: { level: 2, domain: "AU", practice: "AU.L2-3.3.2" },
         classification: "Basic",
         description: "Ensure actions are uniquely traced to individuals"
     },
@@ -218,13 +218,13 @@ const FRAMEWORK_MAPPINGS = {
     // === CONFIGURATION MANAGEMENT (CM) ===
     "3.4.1": {
         nist80053: ["CM-2", "CM-6", "CM-8", "CM-8(1)"],
-        cmmc: { level: 1, domain: "CM", practice: "CM.L1-3.4.1" },
+        cmmc: { level: 2, domain: "CM", practice: "CM.L2-3.4.1" },
         classification: "Basic",
         description: "Establish and maintain baseline configurations"
     },
     "3.4.2": {
         nist80053: ["CM-2(7)", "CM-7", "CM-7(1)", "CM-7(2)", "CM-7(5)"],
-        cmmc: { level: 1, domain: "CM", practice: "CM.L1-3.4.2" },
+        cmmc: { level: 2, domain: "CM", practice: "CM.L2-3.4.2" },
         classification: "Basic",
         description: "Establish security configuration settings"
     },
@@ -342,13 +342,13 @@ const FRAMEWORK_MAPPINGS = {
     // === INCIDENT RESPONSE (IR) ===
     "3.6.1": {
         nist80053: ["IR-2", "IR-4", "IR-5", "IR-6", "IR-7"],
-        cmmc: { level: 1, domain: "IR", practice: "IR.L1-3.6.1" },
+        cmmc: { level: 2, domain: "IR", practice: "IR.L2-3.6.1" },
         classification: "Basic",
         description: "Establish incident-handling capability"
     },
     "3.6.2": {
         nist80053: ["IR-6"],
-        cmmc: { level: 1, domain: "IR", practice: "IR.L1-3.6.2" },
+        cmmc: { level: 2, domain: "IR", practice: "IR.L2-3.6.2" },
         classification: "Basic",
         description: "Track, document, and report incidents"
     },
@@ -362,13 +362,13 @@ const FRAMEWORK_MAPPINGS = {
     // === MAINTENANCE (MA) ===
     "3.7.1": {
         nist80053: ["MA-2", "MA-3", "MA-3(1)", "MA-3(2)"],
-        cmmc: { level: 1, domain: "MA", practice: "MA.L1-3.7.1" },
+        cmmc: { level: 2, domain: "MA", practice: "MA.L2-3.7.1" },
         classification: "Basic",
         description: "Perform maintenance on organizational systems"
     },
     "3.7.2": {
         nist80053: ["MA-2", "MA-3"],
-        cmmc: { level: 1, domain: "MA", practice: "MA.L1-3.7.2" },
+        cmmc: { level: 2, domain: "MA", practice: "MA.L2-3.7.2" },
         classification: "Basic",
         description: "Control tools and media for maintenance"
     },
@@ -400,13 +400,13 @@ const FRAMEWORK_MAPPINGS = {
     // === MEDIA PROTECTION (MP) ===
     "3.8.1": {
         nist80053: ["MP-2", "MP-4", "MP-6"],
-        cmmc: { level: 1, domain: "MP", practice: "MP.L1-3.8.1" },
+        cmmc: { level: 2, domain: "MP", practice: "MP.L2-3.8.1" },
         classification: "Basic",
         description: "Protect system media containing CUI"
     },
     "3.8.2": {
         nist80053: ["MP-4"],
-        cmmc: { level: 1, domain: "MP", practice: "MP.L1-3.8.2" },
+        cmmc: { level: 2, domain: "MP", practice: "MP.L2-3.8.2" },
         classification: "Basic",
         description: "Limit access to CUI on system media"
     },
@@ -456,13 +456,13 @@ const FRAMEWORK_MAPPINGS = {
     // === PERSONNEL SECURITY (PS) ===
     "3.9.1": {
         nist80053: ["PS-3", "PS-6", "PS-7"],
-        cmmc: { level: 1, domain: "PS", practice: "PS.L1-3.9.1" },
+        cmmc: { level: 2, domain: "PS", practice: "PS.L2-3.9.1" },
         classification: "Basic",
         description: "Screen individuals before CUI access"
     },
     "3.9.2": {
         nist80053: ["PS-4", "PS-5"],
-        cmmc: { level: 1, domain: "PS", practice: "PS.L1-3.9.2" },
+        cmmc: { level: 2, domain: "PS", practice: "PS.L2-3.9.2" },
         classification: "Basic",
         description: "Protect CUI during personnel actions"
     },
@@ -476,25 +476,25 @@ const FRAMEWORK_MAPPINGS = {
     },
     "3.10.2": {
         nist80053: ["PE-2", "PE-3", "PE-4", "PE-5"],
-        cmmc: { level: 1, domain: "PE", practice: "PE.L1-3.10.2" },
+        cmmc: { level: 2, domain: "PE", practice: "PE.L2-3.10.2" },
         classification: "Basic",
         description: "Protect and monitor physical facility"
     },
     "3.10.3": {
         nist80053: ["PE-3"],
-        cmmc: { level: 2, domain: "PE", practice: "PE.L2-3.10.3" },
+        cmmc: { level: 1, domain: "PE", practice: "PE.L1-3.10.3" },
         classification: "Derived",
         description: "Escort and monitor visitors"
     },
     "3.10.4": {
         nist80053: ["PE-6"],
-        cmmc: { level: 2, domain: "PE", practice: "PE.L2-3.10.4" },
+        cmmc: { level: 1, domain: "PE", practice: "PE.L1-3.10.4" },
         classification: "Derived",
         description: "Maintain audit logs of physical access"
     },
     "3.10.5": {
         nist80053: ["PE-6(1)"],
-        cmmc: { level: 2, domain: "PE", practice: "PE.L2-3.10.5" },
+        cmmc: { level: 1, domain: "PE", practice: "PE.L1-3.10.5" },
         classification: "Derived",
         description: "Control and manage physical access devices"
     },
@@ -508,7 +508,7 @@ const FRAMEWORK_MAPPINGS = {
     // === RISK ASSESSMENT (RA) ===
     "3.11.1": {
         nist80053: ["RA-3"],
-        cmmc: { level: 1, domain: "RA", practice: "RA.L1-3.11.1" },
+        cmmc: { level: 2, domain: "RA", practice: "RA.L2-3.11.1" },
         classification: "Basic",
         description: "Periodically assess risk to operations"
     },
@@ -528,25 +528,25 @@ const FRAMEWORK_MAPPINGS = {
     // === SECURITY ASSESSMENT (CA) ===
     "3.12.1": {
         nist80053: ["CA-2", "CA-5", "CA-7", "PL-2"],
-        cmmc: { level: 1, domain: "CA", practice: "CA.L1-3.12.1" },
+        cmmc: { level: 2, domain: "CA", practice: "CA.L2-3.12.1" },
         classification: "Basic",
         description: "Periodically assess security controls"
     },
     "3.12.2": {
         nist80053: ["CA-2", "CA-5", "CA-7"],
-        cmmc: { level: 1, domain: "CA", practice: "CA.L1-3.12.2" },
+        cmmc: { level: 2, domain: "CA", practice: "CA.L2-3.12.2" },
         classification: "Basic",
         description: "Develop and implement remediation plans"
     },
     "3.12.3": {
         nist80053: ["CA-7"],
-        cmmc: { level: 1, domain: "CA", practice: "CA.L1-3.12.3" },
+        cmmc: { level: 2, domain: "CA", practice: "CA.L2-3.12.3" },
         classification: "Basic",
         description: "Monitor security controls on ongoing basis"
     },
     "3.12.4": {
         nist80053: ["PL-2", "PM-1", "PM-6"],
-        cmmc: { level: 1, domain: "CA", practice: "CA.L1-3.12.4" },
+        cmmc: { level: 2, domain: "CA", practice: "CA.L2-3.12.4" },
         classification: "Basic",
         description: "Develop and update system security plans"
     },
@@ -560,7 +560,7 @@ const FRAMEWORK_MAPPINGS = {
     },
     "3.13.2": {
         nist80053: ["SA-8"],
-        cmmc: { level: 1, domain: "SC", practice: "SC.L1-3.13.2" },
+        cmmc: { level: 2, domain: "SC", practice: "SC.L2-3.13.2" },
         classification: "Basic",
         description: "Employ architectural designs for security"
     },
@@ -664,19 +664,19 @@ const FRAMEWORK_MAPPINGS = {
     },
     "3.14.3": {
         nist80053: ["SI-5"],
-        cmmc: { level: 1, domain: "SI", practice: "SI.L1-3.14.3" },
+        cmmc: { level: 2, domain: "SI", practice: "SI.L2-3.14.3" },
         classification: "Basic",
         description: "Monitor system security alerts and advisories"
     },
     "3.14.4": {
         nist80053: ["SI-3"],
-        cmmc: { level: 2, domain: "SI", practice: "SI.L2-3.14.4" },
+        cmmc: { level: 1, domain: "SI", practice: "SI.L1-3.14.4" },
         classification: "Derived",
         description: "Update malicious code protection mechanisms"
     },
     "3.14.5": {
         nist80053: ["SI-3"],
-        cmmc: { level: 2, domain: "SI", practice: "SI.L2-3.14.5" },
+        cmmc: { level: 1, domain: "SI", practice: "SI.L1-3.14.5" },
         classification: "Derived",
         description: "Perform periodic and real-time scans"
     },
