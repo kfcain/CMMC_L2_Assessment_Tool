@@ -868,6 +868,26 @@ class AssessmentApp {
             `;
         }
 
+        // Get implementation notes
+        let implNotesHtml = '';
+        if (typeof getImplNotes === 'function') {
+            const implNotes = getImplNotes(objectiveId, cloud);
+            if (implNotes) {
+                const stepsList = implNotes.steps ? implNotes.steps.map(s => `<li>${s}</li>`).join('') : '';
+                implNotesHtml = `
+                    <div class="impl-notes-section">
+                        <div class="impl-notes-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+                            <span>Implementation Steps</span>
+                        </div>
+                        <ol class="impl-notes-steps">${stepsList}</ol>
+                        ${implNotes.quickWin ? `<div class="impl-quick-win"><strong>Quick Win:</strong> ${implNotes.quickWin}</div>` : ''}
+                        ${implNotes.evidenceArtifact ? `<div class="impl-evidence-artifact"><strong>Evidence:</strong> <code>${implNotes.evidenceArtifact}</code></div>` : ''}
+                    </div>
+                `;
+            }
+        }
+
         return `
             <div class="guidance-item">
                 <span class="guidance-label">Automation:</span>
@@ -883,6 +903,7 @@ class AssessmentApp {
             </div>
             ${cliHtml}
             ${scriptsHtml}
+            ${implNotesHtml}
             ${guidance.docLink ? `<a href="${guidance.docLink}" target="_blank" rel="noopener noreferrer" class="guidance-doc-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 View Documentation
