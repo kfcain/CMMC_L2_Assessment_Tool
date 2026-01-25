@@ -3127,6 +3127,146 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             `;
         }
         
+        // CUI Regex Patterns for Microsoft Purview (Azure)
+        if (guide.cuiRegexPatterns) {
+            const crp = guide.cuiRegexPatterns;
+            
+            // Group patterns by category
+            const patternsByCategory = {};
+            crp.patterns.forEach(p => {
+                if (!patternsByCategory[p.category]) patternsByCategory[p.category] = [];
+                patternsByCategory[p.category].push(p);
+            });
+            
+            let patternsHtml = '';
+            Object.entries(patternsByCategory).forEach(([category, patterns]) => {
+                const categoryClass = category.toLowerCase().replace(/[^a-z]/g, '-');
+                const rows = patterns.map(p => `
+                    <tr>
+                        <td><strong>${p.name}</strong></td>
+                        <td><code class="regex-code">${p.regex.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>
+                            <button class="regex-copy-btn" onclick="navigator.clipboard.writeText('${p.regex.replace(/'/g, "\\'")}');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+                        </td>
+                        <td style="font-size:0.65rem">${p.description}</td>
+                        <td style="font-size:0.6rem;color:var(--text-muted)">${p.examples.join(', ')}</td>
+                    </tr>
+                `).join('');
+                patternsHtml += `
+                    <details class="regex-category-card ${categoryClass}">
+                        <summary class="regex-category-header">
+                            <span class="regex-category-badge ${categoryClass}">${category}</span>
+                            <span class="regex-count">${patterns.length} patterns</span>
+                        </summary>
+                        <table class="impl-table compact">
+                            <thead><tr><th>Pattern Name</th><th>Regex</th><th>Description</th><th>Examples</th></tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </details>
+                `;
+            });
+            
+            // ITAR/EAR specific patterns
+            if (crp.itarEarPatterns) {
+                const itarRows = crp.itarEarPatterns.map(p => `
+                    <tr>
+                        <td><strong>${p.name}</strong></td>
+                        <td><span class="regex-category-badge ${p.category.toLowerCase()}">${p.category}</span></td>
+                        <td><code class="regex-code">${p.regex.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>
+                            <button class="regex-copy-btn" onclick="navigator.clipboard.writeText('${p.regex.replace(/'/g, "\\'")}');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+                        </td>
+                        <td style="font-size:0.65rem">${p.description}</td>
+                    </tr>
+                `).join('');
+                patternsHtml += `
+                    <details class="regex-category-card itar-ear">
+                        <summary class="regex-category-header">
+                            <span class="regex-category-badge itar">ITAR</span>
+                            <span class="regex-category-badge ear">EAR</span>
+                            <span class="regex-count">${crp.itarEarPatterns.length} patterns</span>
+                        </summary>
+                        <table class="impl-table compact">
+                            <thead><tr><th>Pattern Name</th><th>Type</th><th>Regex</th><th>Description</th></tr></thead>
+                            <tbody>${itarRows}</tbody>
+                        </table>
+                    </details>
+                `;
+            }
+            
+            html += `
+                <div class="impl-section">
+                    <div class="impl-section-title">CUI Marking Regex Patterns (Purview SITs)</div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">${crp.description}</p>
+                    <div class="regex-patterns-container">${patternsHtml}</div>
+                </div>
+            `;
+        }
+        
+        // Purview Sensitivity Label Configurations (Azure)
+        if (guide.purviewLabelConfigs) {
+            const plc = guide.purviewLabelConfigs;
+            
+            const labelCards = plc.labels.map(l => `
+                <div class="purview-label-card">
+                    <div class="purview-label-header" style="border-left-color:${l.color}">
+                        <span class="purview-label-name">${l.displayName}</span>
+                        <span class="purview-label-id">${l.name}</span>
+                    </div>
+                    <div class="purview-label-body">
+                        <p class="purview-label-tooltip">${l.tooltip}</p>
+                        <div class="purview-label-settings">
+                            <div class="purview-setting">
+                                <span class="setting-label">Encryption:</span>
+                                <span class="setting-value ${l.encryption.enabled ? 'enabled' : 'disabled'}">${l.encryption.enabled ? 'Enabled' : 'Disabled'}</span>
+                            </div>
+                            <div class="purview-setting">
+                                <span class="setting-label">Offline Access:</span>
+                                <span class="setting-value">${l.encryption.offlineAccess} days</span>
+                            </div>
+                            <div class="purview-setting">
+                                <span class="setting-label">Permissions:</span>
+                                <span class="setting-value">${l.encryption.permissions.join(', ')}</span>
+                            </div>
+                            ${l.encryption.requireMFA ? '<div class="purview-setting"><span class="setting-label">MFA Required:</span><span class="setting-value enabled">Yes</span></div>' : ''}
+                            ${l.encryption.blockExternalSharing ? '<div class="purview-setting"><span class="setting-label">Block External:</span><span class="setting-value enabled">Yes</span></div>' : ''}
+                        </div>
+                        <div class="purview-content-marking">
+                            <div class="marking-item"><strong>Header:</strong> ${l.contentMarking.header}</div>
+                            <div class="marking-item"><strong>Footer:</strong> <span style="font-size:0.6rem">${l.contentMarking.footer}</span></div>
+                            <div class="marking-item"><strong>Watermark:</strong> ${l.contentMarking.watermark ? 'Yes' : 'No'}</div>
+                        </div>
+                        <div class="purview-auto-labeling">
+                            <strong>Auto-Labeling SITs:</strong> ${l.autoLabeling.sensitiveInfoTypes.join(', ')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            html += `
+                <div class="impl-section">
+                    <div class="impl-section-title">Microsoft Purview Sensitivity Labels</div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">${plc.description}</p>
+                    <div class="purview-labels-grid">${labelCards}</div>
+                </div>
+            `;
+            
+            // PowerShell deployment script
+            if (plc.powershellDeployment) {
+                html += `
+                    <div class="impl-section">
+                        <div class="impl-section-title">Deploy Sensitivity Labels (PowerShell)</div>
+                        <details class="ps-deploy-section">
+                            <summary class="ps-deploy-summary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                                <span>View Deployment Script</span>
+                                <button class="ps-copy-all-btn" onclick="event.stopPropagation();navigator.clipboard.writeText(this.closest('.ps-deploy-section').querySelector('pre').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy All',2000)">Copy All</button>
+                            </summary>
+                            <pre class="ps-deploy-code">${plc.powershellDeployment}</pre>
+                        </details>
+                    </div>
+                `;
+            }
+        }
+        
         return html || '<p style="color:var(--text-muted)">No additional resources available.</p>';
     }
 

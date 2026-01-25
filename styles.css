@@ -4241,6 +4241,281 @@ body {
     color: var(--text-muted);
 }
 
+/* CUI Regex Patterns Section */
+.regex-patterns-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.regex-category-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.regex-category-card[open] {
+    border-color: var(--accent-blue);
+}
+
+.regex-category-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    list-style: none;
+}
+
+.regex-category-header::-webkit-details-marker {
+    display: none;
+}
+
+.regex-category-header::before {
+    content: '▶';
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+}
+
+.regex-category-card[open] .regex-category-header::before {
+    transform: rotate(90deg);
+    color: var(--accent-blue);
+}
+
+.regex-category-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    border-radius: 4px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.regex-category-badge.cui-basic {
+    background: rgba(255, 185, 0, 0.2);
+    color: #FFB900;
+}
+
+.regex-category-badge.cui-specified {
+    background: rgba(255, 140, 0, 0.2);
+    color: #FF8C00;
+}
+
+.regex-category-badge.fouo--legacy- {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+}
+
+.regex-category-badge.distribution {
+    background: rgba(16, 124, 16, 0.2);
+    color: #107C10;
+}
+
+.regex-category-badge.itar {
+    background: rgba(232, 17, 35, 0.2);
+    color: #E81123;
+}
+
+.regex-category-badge.ear {
+    background: rgba(209, 52, 56, 0.2);
+    color: #D13438;
+}
+
+.regex-category-badge.itar-ear {
+    background: rgba(232, 17, 35, 0.15);
+    color: #E81123;
+}
+
+.regex-count {
+    margin-left: auto;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.regex-code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.55rem;
+    background: var(--bg-tertiary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    max-width: 280px;
+    overflow-x: auto;
+    white-space: nowrap;
+    color: #22c55e;
+}
+
+.regex-copy-btn {
+    margin-left: 6px;
+    padding: 2px 6px;
+    font-size: 0.55rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    color: var(--text-muted);
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.regex-copy-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+/* Purview Sensitivity Labels Grid */
+.purview-labels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.purview-label-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-secondary);
+}
+
+.purview-label-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--bg-tertiary);
+    border-left: 4px solid;
+}
+
+.purview-label-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.purview-label-id {
+    font-size: 0.6rem;
+    font-family: 'SF Mono', monospace;
+    color: var(--text-muted);
+}
+
+.purview-label-body {
+    padding: 12px;
+}
+
+.purview-label-tooltip {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin: 0 0 10px 0;
+    font-style: italic;
+}
+
+.purview-label-settings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.purview-setting {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+}
+
+.setting-label {
+    color: var(--text-muted);
+}
+
+.setting-value {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.setting-value.enabled {
+    color: #22c55e;
+}
+
+.setting-value.disabled {
+    color: #ef4444;
+}
+
+.purview-content-marking {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.marking-item {
+    font-size: 0.65rem;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.marking-item strong {
+    color: var(--text-muted);
+}
+
+.purview-auto-labeling {
+    font-size: 0.65rem;
+    color: var(--text-primary);
+}
+
+.purview-auto-labeling strong {
+    color: var(--text-muted);
+}
+
+/* PowerShell Deployment Section */
+.ps-deploy-section {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.ps-deploy-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #3b82f6;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    list-style: none;
+}
+
+.ps-deploy-summary::-webkit-details-marker {
+    display: none;
+}
+
+.ps-deploy-summary::before {
+    content: '▶';
+    font-size: 0.6rem;
+    transition: transform 0.2s;
+}
+
+.ps-deploy-section[open] .ps-deploy-summary::before {
+    transform: rotate(90deg);
+}
+
+.ps-deploy-code {
+    margin: 0;
+    padding: 12px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.6rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    overflow-x: auto;
+    white-space: pre;
+}
+
 .hamburger-org-url {
     flex: 1;
     padding: 4px 8px;

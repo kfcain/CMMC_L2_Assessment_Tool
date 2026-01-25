@@ -398,6 +398,357 @@ const GCC_HIGH_IMPL_GUIDE = {
         { type: "Out of Scope", description: "Systems with no CUI nexus", examples: "Marketing website, public-facing apps" }
     ],
 
+    // CUI Marking Regex Patterns for Microsoft Purview
+    cuiRegexPatterns: {
+        description: "Use these regex patterns in Microsoft Purview Sensitive Information Types (SITs) to detect CUI markings in documents and emails.",
+        patterns: [
+            // CUI Basic
+            {
+                name: "CUI Basic Banner",
+                category: "CUI Basic",
+                regex: "(?i)\\bCUI\\b|\\bCONTROLLED\\s+UNCLASSIFIED\\s+INFORMATION\\b",
+                description: "Detects 'CUI' or 'CONTROLLED UNCLASSIFIED INFORMATION' banner markings",
+                examples: ["CUI", "CONTROLLED UNCLASSIFIED INFORMATION"]
+            },
+            {
+                name: "CUI Basic with Category",
+                category: "CUI Basic",
+                regex: "(?i)\\bCUI\\s*\\/\\/\\s*[A-Z]+\\b",
+                description: "Detects CUI with category designation (e.g., CUI//SP-CTI)",
+                examples: ["CUI//SP-CTI", "CUI // PRVCY", "CUI//ITAR"]
+            },
+            // FOUO (Legacy - still commonly used)
+            {
+                name: "FOUO Banner",
+                category: "FOUO (Legacy)",
+                regex: "(?i)\\bFOR\\s+OFFICIAL\\s+USE\\s+ONLY\\b|\\bFOUO\\b",
+                description: "Detects legacy FOUO markings (now mapped to CUI Basic)",
+                examples: ["FOR OFFICIAL USE ONLY", "FOUO"]
+            },
+            // Specified CUI Categories
+            {
+                name: "CUI Specified - ITAR",
+                category: "CUI Specified",
+                regex: "(?i)\\bCUI\\s*\\/\\/\\s*SP-ITAR\\b|\\bITAR\\s+CONTROLLED\\b|\\bEXPORT\\s+CONTROLLED\\b",
+                description: "Detects ITAR-controlled technical data markings",
+                examples: ["CUI//SP-ITAR", "ITAR CONTROLLED", "EXPORT CONTROLLED"]
+            },
+            {
+                name: "CUI Specified - Export Control",
+                category: "CUI Specified",
+                regex: "(?i)\\bCUI\\s*\\/\\/\\s*SP-EXPT\\b|\\bEAR\\s+CONTROLLED\\b|\\bECCN\\s*:\\s*[0-9A-Z]+",
+                description: "Detects EAR/ECCN export control markings",
+                examples: ["CUI//SP-EXPT", "EAR CONTROLLED", "ECCN: 5A002"]
+            },
+            {
+                name: "CUI Specified - CTI",
+                category: "CUI Specified",
+                regex: "(?i)\\bCUI\\s*\\/\\/\\s*SP-CTI\\b|\\bCONTROLLED\\s+TECHNICAL\\s+INFORMATION\\b",
+                description: "Detects Controlled Technical Information markings",
+                examples: ["CUI//SP-CTI", "CONTROLLED TECHNICAL INFORMATION"]
+            },
+            {
+                name: "CUI Specified - Privacy",
+                category: "CUI Specified",
+                regex: "(?i)\\bCUI\\s*\\/\\/\\s*SP-PRVCY\\b|\\bPRIVACY\\s+ACT\\s+INFORMATION\\b",
+                description: "Detects Privacy Act protected information",
+                examples: ["CUI//SP-PRVCY", "PRIVACY ACT INFORMATION"]
+            },
+            {
+                name: "CUI Specified - PCII",
+                category: "CUI Specified",
+                regex: "(?i)\\bCUI\\s*\\/\\/\\s*SP-PCII\\b|\\bPROTECTED\\s+CRITICAL\\s+INFRASTRUCTURE\\b",
+                description: "Detects Protected Critical Infrastructure Information",
+                examples: ["CUI//SP-PCII", "PROTECTED CRITICAL INFRASTRUCTURE"]
+            },
+            {
+                name: "CUI Specified - Law Enforcement",
+                category: "CUI Specified",
+                regex: "(?i)\\bCUI\\s*\\/\\/\\s*SP-LES\\b|\\bLAW\\s+ENFORCEMENT\\s+SENSITIVE\\b",
+                description: "Detects Law Enforcement Sensitive markings",
+                examples: ["CUI//SP-LES", "LAW ENFORCEMENT SENSITIVE"]
+            },
+            // Distribution Statements
+            {
+                name: "Distribution Statement A",
+                category: "Distribution",
+                regex: "(?i)DISTRIBUTION\\s+STATEMENT\\s+A[:\\.]?\\s*APPROVED\\s+FOR\\s+PUBLIC\\s+RELEASE",
+                description: "Public release approved (no restrictions)",
+                examples: ["DISTRIBUTION STATEMENT A: APPROVED FOR PUBLIC RELEASE"]
+            },
+            {
+                name: "Distribution Statement B",
+                category: "Distribution",
+                regex: "(?i)DISTRIBUTION\\s+STATEMENT\\s+B[:\\.]?\\s*DISTRIBUTION\\s+AUTHORIZED\\s+TO\\s+U\\.?S\\.?\\s+GOVERNMENT\\s+AGENCIES",
+                description: "Limited to U.S. Government agencies only",
+                examples: ["DISTRIBUTION STATEMENT B: DISTRIBUTION AUTHORIZED TO U.S. GOVERNMENT AGENCIES"]
+            },
+            {
+                name: "Distribution Statement C",
+                category: "Distribution",
+                regex: "(?i)DISTRIBUTION\\s+STATEMENT\\s+C[:\\.]?\\s*DISTRIBUTION\\s+AUTHORIZED\\s+TO\\s+U\\.?S\\.?\\s+GOVERNMENT\\s+AGENCIES\\s+AND\\s+THEIR\\s+CONTRACTORS",
+                description: "Limited to U.S. Government agencies and contractors",
+                examples: ["DISTRIBUTION STATEMENT C: DISTRIBUTION AUTHORIZED TO U.S. GOVERNMENT AGENCIES AND THEIR CONTRACTORS"]
+            },
+            {
+                name: "Distribution Statement D",
+                category: "Distribution",
+                regex: "(?i)DISTRIBUTION\\s+STATEMENT\\s+D[:\\.]?\\s*DISTRIBUTION\\s+AUTHORIZED\\s+TO\\s+(DOD|DEPARTMENT\\s+OF\\s+DEFENSE)",
+                description: "Limited to DoD and DoD contractors only",
+                examples: ["DISTRIBUTION STATEMENT D: DISTRIBUTION AUTHORIZED TO DOD"]
+            },
+            {
+                name: "Distribution Statement E",
+                category: "Distribution",
+                regex: "(?i)DISTRIBUTION\\s+STATEMENT\\s+E[:\\.]?\\s*DISTRIBUTION\\s+AUTHORIZED\\s+TO\\s+DOD\\s+COMPONENTS",
+                description: "Limited to DoD components only",
+                examples: ["DISTRIBUTION STATEMENT E: DISTRIBUTION AUTHORIZED TO DOD COMPONENTS"]
+            },
+            {
+                name: "Distribution Statement F",
+                category: "Distribution",
+                regex: "(?i)DISTRIBUTION\\s+STATEMENT\\s+F[:\\.]?\\s*FURTHER\\s+DISSEMINATION",
+                description: "Further dissemination only as directed",
+                examples: ["DISTRIBUTION STATEMENT F: FURTHER DISSEMINATION ONLY AS DIRECTED"]
+            }
+        ],
+        // ITAR/EAR Specific Patterns
+        itarEarPatterns: [
+            {
+                name: "ITAR Warning Statement",
+                category: "ITAR",
+                regex: "(?i)THIS\\s+(DOCUMENT|INFORMATION|DATA|MATERIAL)\\s+(CONTAINS|INCLUDES)\\s+TECHNICAL\\s+DATA\\s+(WHOSE|THAT)\\s+EXPORT\\s+IS\\s+RESTRICTED\\s+BY\\s+(THE\\s+)?ARMS\\s+EXPORT\\s+CONTROL\\s+ACT|(?i)22\\s*C\\.?F\\.?R\\.?\\s*1[2-9][0-9]",
+                description: "Detects standard ITAR warning statement or CFR reference",
+                examples: ["This document contains technical data whose export is restricted by the Arms Export Control Act (22 CFR 120-130)"]
+            },
+            {
+                name: "EAR Warning Statement",
+                category: "EAR",
+                regex: "(?i)THIS\\s+(DOCUMENT|INFORMATION|DATA|MATERIAL)\\s+(CONTAINS|INCLUDES|IS\\s+SUBJECT\\s+TO)\\s+(THE\\s+)?EXPORT\\s+ADMINISTRATION\\s+REGULATIONS|(?i)15\\s*C\\.?F\\.?R\\.?\\s*7[3-9][0-9]",
+                description: "Detects EAR warning statement or CFR reference",
+                examples: ["This document is subject to the Export Administration Regulations (15 CFR 730-774)"]
+            },
+            {
+                name: "USML Category Reference",
+                category: "ITAR",
+                regex: "(?i)USML\\s+CATEGORY\\s+(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX|XXI)|(?i)UNITED\\s+STATES\\s+MUNITIONS\\s+LIST",
+                description: "Detects USML category references",
+                examples: ["USML Category IV", "United States Munitions List"]
+            },
+            {
+                name: "ECCN Classification",
+                category: "EAR",
+                regex: "(?i)ECCN[:\\s]+[0-9][A-E][0-9]{3}[A-Z]?|(?i)EXPORT\\s+CONTROL\\s+CLASSIFICATION\\s+NUMBER",
+                description: "Detects ECCN classification numbers",
+                examples: ["ECCN: 5A002", "ECCN 3A001.a", "Export Control Classification Number"]
+            },
+            {
+                name: "No Foreign Nationals",
+                category: "ITAR/EAR",
+                regex: "(?i)NO\\s+FOREIGN\\s+(NATIONALS|PERSONS)|(?i)NOFORN|(?i)U\\.?S\\.?\\s+PERSONS\\s+ONLY",
+                description: "Detects no foreign nationals/NOFORN markings",
+                examples: ["NO FOREIGN NATIONALS", "NOFORN", "U.S. PERSONS ONLY"]
+            }
+        ]
+    },
+
+    // Microsoft Purview Sensitivity Label Configurations
+    purviewLabelConfigs: {
+        description: "Pre-configured sensitivity labels for Microsoft Purview to protect CUI and ITAR/EAR data.",
+        labels: [
+            {
+                name: "CUI-Basic",
+                displayName: "CUI // Basic",
+                tooltip: "Controlled Unclassified Information - Basic category",
+                color: "#FFB900",
+                encryption: {
+                    enabled: true,
+                    offlineAccess: 7,
+                    permissions: ["View", "Edit", "Print"],
+                    restrictToOrg: true
+                },
+                contentMarking: {
+                    header: "CUI // BASIC",
+                    footer: "CONTROLLED UNCLASSIFIED INFORMATION",
+                    watermark: false
+                },
+                autoLabeling: {
+                    enabled: true,
+                    sensitiveInfoTypes: ["CUI Basic Banner", "FOUO Banner"]
+                }
+            },
+            {
+                name: "CUI-SP-CTI",
+                displayName: "CUI // SP-CTI",
+                tooltip: "Controlled Unclassified Information - Controlled Technical Information",
+                color: "#FF8C00",
+                encryption: {
+                    enabled: true,
+                    offlineAccess: 3,
+                    permissions: ["View", "Edit"],
+                    restrictToOrg: true,
+                    requireMFA: true
+                },
+                contentMarking: {
+                    header: "CUI // SP-CTI",
+                    footer: "CONTROLLED TECHNICAL INFORMATION - DISTRIBUTION LIMITED",
+                    watermark: true
+                },
+                autoLabeling: {
+                    enabled: true,
+                    sensitiveInfoTypes: ["CUI Specified - CTI"]
+                }
+            },
+            {
+                name: "CUI-SP-ITAR",
+                displayName: "CUI // SP-ITAR",
+                tooltip: "ITAR Controlled Technical Data - Export Restricted",
+                color: "#E81123",
+                encryption: {
+                    enabled: true,
+                    offlineAccess: 1,
+                    permissions: ["View"],
+                    restrictToOrg: true,
+                    requireMFA: true,
+                    blockExternalSharing: true
+                },
+                contentMarking: {
+                    header: "CUI // SP-ITAR // EXPORT CONTROLLED",
+                    footer: "WARNING: This document contains technical data whose export is restricted by the Arms Export Control Act (22 CFR 120-130). Violations may result in criminal penalties.",
+                    watermark: true
+                },
+                autoLabeling: {
+                    enabled: true,
+                    sensitiveInfoTypes: ["CUI Specified - ITAR", "ITAR Warning Statement", "USML Category Reference", "No Foreign Nationals"]
+                }
+            },
+            {
+                name: "CUI-SP-EXPT",
+                displayName: "CUI // SP-EXPT",
+                tooltip: "EAR Export Controlled Information",
+                color: "#D13438",
+                encryption: {
+                    enabled: true,
+                    offlineAccess: 3,
+                    permissions: ["View", "Edit"],
+                    restrictToOrg: true,
+                    requireMFA: true
+                },
+                contentMarking: {
+                    header: "CUI // SP-EXPT // EXPORT CONTROLLED",
+                    footer: "This document is subject to the Export Administration Regulations (15 CFR 730-774).",
+                    watermark: true
+                },
+                autoLabeling: {
+                    enabled: true,
+                    sensitiveInfoTypes: ["CUI Specified - Export Control", "EAR Warning Statement", "ECCN Classification"]
+                }
+            },
+            {
+                name: "CUI-SP-PRVCY",
+                displayName: "CUI // SP-PRVCY",
+                tooltip: "Privacy Act Protected Information",
+                color: "#8764B8",
+                encryption: {
+                    enabled: true,
+                    offlineAccess: 7,
+                    permissions: ["View"],
+                    restrictToOrg: true
+                },
+                contentMarking: {
+                    header: "CUI // SP-PRVCY",
+                    footer: "PRIVACY ACT INFORMATION - FOR OFFICIAL USE ONLY",
+                    watermark: false
+                },
+                autoLabeling: {
+                    enabled: true,
+                    sensitiveInfoTypes: ["CUI Specified - Privacy", "U.S. SSN", "Credit Card Number"]
+                }
+            },
+            {
+                name: "DIST-B",
+                displayName: "Distribution B - USG Only",
+                tooltip: "Distribution authorized to U.S. Government agencies only",
+                color: "#107C10",
+                encryption: {
+                    enabled: true,
+                    offlineAccess: 3,
+                    permissions: ["View", "Edit"],
+                    restrictToOrg: true
+                },
+                contentMarking: {
+                    header: "DISTRIBUTION STATEMENT B",
+                    footer: "DISTRIBUTION AUTHORIZED TO U.S. GOVERNMENT AGENCIES ONLY",
+                    watermark: false
+                },
+                autoLabeling: {
+                    enabled: true,
+                    sensitiveInfoTypes: ["Distribution Statement B"]
+                }
+            },
+            {
+                name: "DIST-C",
+                displayName: "Distribution C - USG + Contractors",
+                tooltip: "Distribution authorized to U.S. Government agencies and their contractors",
+                color: "#0078D4",
+                encryption: {
+                    enabled: true,
+                    offlineAccess: 7,
+                    permissions: ["View", "Edit", "Print"],
+                    restrictToOrg: false,
+                    allowedDomains: ["*.gov", "*.mil"]
+                },
+                contentMarking: {
+                    header: "DISTRIBUTION STATEMENT C",
+                    footer: "DISTRIBUTION AUTHORIZED TO U.S. GOVERNMENT AGENCIES AND THEIR CONTRACTORS",
+                    watermark: false
+                },
+                autoLabeling: {
+                    enabled: true,
+                    sensitiveInfoTypes: ["Distribution Statement C"]
+                }
+            }
+        ],
+        powershellDeployment: `# Deploy CUI Sensitivity Labels to GCC High via PowerShell
+# Prerequisites: Connect-IPPSSession to GCC High
+
+# Create Custom Sensitive Information Type for CUI Basic
+$cuiBasicParams = @{
+    Name = "CUI Basic Banner"
+    Description = "Detects CUI or CONTROLLED UNCLASSIFIED INFORMATION markings"
+    Pattern = @(@{
+        Pattern = '(?i)\\bCUI\\b|\\bCONTROLLED\\s+UNCLASSIFIED\\s+INFORMATION\\b'
+        Confidence = 85
+    })
+}
+New-DlpSensitiveInformationType @cuiBasicParams
+
+# Create Custom SIT for ITAR
+$itarParams = @{
+    Name = "ITAR Export Control Warning"
+    Description = "Detects ITAR warning statements and USML references"
+    Pattern = @(@{
+        Pattern = '(?i)ITAR|(?i)22\\s*C\\.?F\\.?R\\.?\\s*1[2-9][0-9]|(?i)USML\\s+CATEGORY'
+        Confidence = 90
+    })
+}
+New-DlpSensitiveInformationType @itarParams
+
+# Create Sensitivity Label for CUI Basic
+New-Label -Name "CUI-Basic" -DisplayName "CUI // Basic" \\
+    -Tooltip "Controlled Unclassified Information - Basic" \\
+    -ContentType "File, Email" \\
+    -EncryptionEnabled $true \\
+    -EncryptionOfflineAccessDays 7 \\
+    -EncryptionProtectionType "Template"
+
+# Apply auto-labeling policy
+New-AutoSensitivityLabelPolicy -Name "Auto-Label CUI Content" \\
+    -ExchangeLocation All -SharePointLocation All -OneDriveLocation All \\
+    -ApplySensitivityLabel "CUI-Basic" \\
+    -OverwriteLabel $false`
+    },
+
     // Azure Government Environment Info
     azureGovEndpoints: {
         description: "Azure Government uses separate endpoints from commercial Azure for FedRAMP High compliance.",
