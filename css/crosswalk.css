@@ -282,6 +282,272 @@ a.mapping-tag:hover {
     color: #3b82f6;
 }
 
+/* Card-Based Layout */
+.control-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.control-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.control-card:hover {
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.control-id-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.control-id {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+}
+
+.cmmc-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+.cmmc-badge.cmmc-l1 {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.cmmc-badge.cmmc-l2 {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.cmmc-practice {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.classification-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 500;
+}
+
+.classification-badge.cmmc-basic {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.classification-badge.cmmc-derived {
+    background: rgba(168, 85, 247, 0.15);
+    color: #a855f7;
+}
+
+.control-title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+.card-section {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-section:last-child {
+    border-bottom: none;
+}
+
+.section-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: left;
+    transition: background 0.15s ease;
+}
+
+.section-toggle:hover {
+    background: var(--bg-tertiary);
+}
+
+.toggle-icon {
+    width: 16px;
+    height: 16px;
+    stroke: var(--text-muted);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.section-toggle.open .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.section-count {
+    margin-left: auto;
+    background: var(--bg-tertiary);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+}
+
+.section-content {
+    display: none;
+    padding: 16px 20px;
+    background: var(--bg-secondary);
+}
+
+.section-content.open {
+    display: block;
+}
+
+.mapping-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mapping-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8125rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.15s ease;
+}
+
+.mapping-link:hover {
+    border-color: var(--accent-blue);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transform: translateY(-1px);
+}
+
+.mapping-link.nist-53 {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.3);
+    color: #a78bfa;
+}
+
+.mapping-link.nist-53:hover {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.no-mapping {
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 0.8125rem;
+}
+
+/* KSI Items */
+.ksi-item {
+    padding: 12px 16px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.ksi-item:last-child {
+    margin-bottom: 0;
+}
+
+.ksi-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.ksi-id {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #22d3ee;
+    text-decoration: none;
+    background: rgba(6, 182, 212, 0.15);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.ksi-id:hover {
+    background: rgba(6, 182, 212, 0.25);
+}
+
+.ksi-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.ksi-levels {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.ksi-level {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ksi-level.ksi-low {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.ksi-level.ksi-moderate {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.ksi-desc {
+    margin: 10px 0 0 0;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
 /* Graph View */
 .crosswalk-graph-container {
     position: relative;

@@ -256,50 +256,91 @@ const CrosswalkVisualizer = {
             return;
         }
         
-        let html = `
-            <table class="crosswalk-table">
-                <thead>
-                    <tr>
-                        <th>NIST 800-171 / CMMC L2</th>
-                        <th>Description</th>
-                        <th>NIST 800-53</th>
-                        <th>FedRAMP 20x KSI</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
+        let html = '<div class="control-cards">';
         
         data.forEach(item => {
-            const nist53Tags = (item.nist80053 || []).map(c => {
-                // Convert AC-6(1) to ac-6-1 for myctrl.tools URL format
-                const urlId = c.toLowerCase().replace(/\((\d+)\)/g, '-$1');
-                return `<a href="https://www.myctrl.tools/frameworks/nist-800-53-r5/${urlId}" target="_blank" rel="noopener" class="mapping-tag nist-53">${c}</a>`;
-            }).join('');
-            
-            const fed20xTags = (item.fedramp20x || []).map(ksi => {
-                // Convert KSI-IAM-04 to ksi-iam-4 (strip leading zeros)
-                const urlId = ksi.toLowerCase().replace(/-0+(\d)/g, '-$1');
-                // Get KSI details for tooltip
-                const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? FEDRAMP_20X_KSI.indicators[ksi] : null;
-                const tooltip = ksiInfo ? `${ksiInfo.title}: ${ksiInfo.description}` : ksi;
-                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="mapping-tag fedramp-20x" title="${tooltip}">${ksi}</a>`;
-            }).join('') || '<span class="mapping-tag empty">—</span>';
-            
-            // Combined NIST 800-171 / CMMC column with L1/L2 and Basic/Derived badges
             const cmmcPractice = item.cmmc?.practice || '';
             const cmmcLevel = item.cmmc?.level;
             const classification = item.classification;
             const levelClass = cmmcLevel === 1 ? 'cmmc-l1' : 'cmmc-l2';
             const classificationClass = classification === 'Basic' ? 'cmmc-basic' : 'cmmc-derived';
-            const controlDisplay = cmmcPractice ? 
-                `<span class="mapping-tag nist-171">${item.controlId}</span><span class="cmmc-level ${levelClass}">L${cmmcLevel}</span><span class="mapping-tag cmmc">${cmmcPractice}</span><span class="cmmc-classification ${classificationClass}">${classification}</span>` :
-                `<span class="mapping-tag nist-171">${item.controlId}</span>`;
             
-            html += `<tr><td class="control-col"><div class="tags-wrap">${controlDisplay}</div></td><td class="control-desc">${item.description || ''}</td><td class="nist53-col"><div class="tags-wrap">${nist53Tags || '—'}</div></td><td class="ksi-col"><div class="tags-wrap">${fed20xTags}</div></td></tr>`;
+            // Build NIST 800-53 mappings
+            const nist53Links = (item.nist80053 || []).map(c => {
+                const urlId = c.toLowerCase().replace(/\((\d+)\)/g, '-$1');
+                return `<a href="https://www.myctrl.tools/frameworks/nist-800-53-r5/${urlId}" target="_blank" rel="noopener" class="mapping-link nist-53">${c}</a>`;
+            }).join('');
+            
+            // Build FedRAMP 20x KSI mappings with details
+            const ksiItems = (item.fedramp20x || []).map(ksi => {
+                const urlId = ksi.toLowerCase().replace(/-0+(\d)/g, '-$1');
+                const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? FEDRAMP_20X_KSI.indicators[ksi] : null;
+                const title = ksiInfo?.title || ksi;
+                const desc = ksiInfo?.description || '';
+                const isLow = ksiInfo?.low ? '<span class="ksi-level ksi-low">Low</span>' : '';
+                const isMod = ksiInfo?.moderate ? '<span class="ksi-level ksi-moderate">Moderate</span>' : '';
+                return `
+                    <div class="ksi-item">
+                        <div class="ksi-header">
+                            <a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="ksi-id">${ksi}</a>
+                            <span class="ksi-title">${title}</span>
+                            <div class="ksi-levels">${isLow}${isMod}</div>
+                        </div>
+                        ${desc ? `<p class="ksi-desc">${desc}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            html += `
+                <div class="control-card">
+                    <div class="card-header">
+                        <div class="control-id-wrap">
+                            <span class="control-id">${item.controlId}</span>
+                            ${cmmcPractice ? `<span class="cmmc-badge ${levelClass}">L${cmmcLevel}</span>` : ''}
+                            ${cmmcPractice ? `<span class="cmmc-practice">${cmmcPractice}</span>` : ''}
+                            ${classification ? `<span class="classification-badge ${classificationClass}">${classification}</span>` : ''}
+                        </div>
+                        <h3 class="control-title">${item.description || ''}</h3>
+                    </div>
+                    
+                    <div class="card-section">
+                        <button class="section-toggle" data-section="nist53-${item.controlId.replace(/\./g, '-')}">
+                            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            <span>NIST 800-53 Mappings</span>
+                            <span class="section-count">${(item.nist80053 || []).length}</span>
+                        </button>
+                        <div class="section-content" id="nist53-${item.controlId.replace(/\./g, '-')}">
+                            <div class="mapping-links">${nist53Links || '<span class="no-mapping">No mappings</span>'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-section">
+                        <button class="section-toggle" data-section="ksi-${item.controlId.replace(/\./g, '-')}">
+                            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            <span>FedRAMP 20x Key Security Indicators</span>
+                            <span class="section-count">${(item.fedramp20x || []).length}</span>
+                        </button>
+                        <div class="section-content" id="ksi-${item.controlId.replace(/\./g, '-')}">
+                            ${ksiItems || '<span class="no-mapping">No KSI mappings for this control</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
         });
         
-        html += '</tbody></table>';
+        html += '</div>';
         container.innerHTML = html;
+        
+        // Bind toggle events
+        container.querySelectorAll('.section-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const sectionId = btn.dataset.section;
+                const section = document.getElementById(sectionId);
+                const isOpen = btn.classList.contains('open');
+                btn.classList.toggle('open', !isOpen);
+                section.classList.toggle('open', !isOpen);
+            });
+        });
     },
     
     renderGraph() {
