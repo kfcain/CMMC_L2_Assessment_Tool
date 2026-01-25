@@ -115,13 +115,23 @@
     letter-spacing: 0.5px;
     color: var(--text-muted);
     border-bottom: 2px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
     white-space: nowrap;
+}
+
+.crosswalk-table th:last-child {
+    border-right: none;
 }
 
 .crosswalk-table td {
     padding: 10px 12px;
     border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
     vertical-align: top;
+}
+
+.crosswalk-table td:last-child {
+    border-right: none;
 }
 
 .crosswalk-table tr:hover {
