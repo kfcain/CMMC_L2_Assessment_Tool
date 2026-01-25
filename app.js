@@ -978,14 +978,10 @@ class AssessmentApp {
             ? mapping.nist80053.map(ctrl => `<a href="https://csf.tools/reference/nist-sp-800-53/r5/${ctrl.toLowerCase().replace(/[()]/g, '')}/" target="_blank" rel="noopener" class="framework-link nist53">${ctrl}</a>`).join('')
             : '<span class="framework-na">N/A</span>';
 
-        // Build FedRAMP baseline badges
-        const fedrampHtml = `
-            <div class="fedramp-baselines">
-                <span class="baseline-badge ${mapping.fedramp.low ? 'active' : 'inactive'}" title="FedRAMP Low">L</span>
-                <span class="baseline-badge ${mapping.fedramp.moderate ? 'active' : 'inactive'}" title="FedRAMP Moderate">M</span>
-                <span class="baseline-badge ${mapping.fedramp.high ? 'active' : 'inactive'}" title="FedRAMP High">H</span>
-            </div>
-        `;
+        // Build FedRAMP 20x KSI badges
+        const fedramp20xHtml = mapping.fedramp20x && mapping.fedramp20x.length > 0
+            ? mapping.fedramp20x.map(ksi => `<span class="framework-link fedramp20x">${ksi}</span>`).join('')
+            : '<span class="framework-na">N/A</span>';
 
         // Build CMMC practice badge
         const cmmcHtml = mapping.cmmc 
@@ -999,8 +995,8 @@ class AssessmentApp {
                     <div class="framework-links">${nist53Html}</div>
                 </div>
                 <div class="framework-row">
-                    <span class="framework-label">FedRAMP Baseline:</span>
-                    ${fedrampHtml}
+                    <span class="framework-label">FedRAMP 20x KSI:</span>
+                    <div class="framework-links">${fedramp20xHtml}</div>
                 </div>
                 <div class="framework-row">
                     <span class="framework-label">CMMC 2.0:</span>
