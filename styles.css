@@ -4678,6 +4678,302 @@ body {
     background: #7c3aed;
 }
 
+/* Tabletop Exercises Section */
+.ttx-section {
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 8px;
+    padding: 16px;
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.ttx-section .impl-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #f59e0b;
+}
+
+.ttx-scenarios-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ttx-scenario-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.ttx-scenario-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ttx-scenario-id {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+.ttx-scenario-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.ttx-difficulty {
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.ttx-difficulty.high {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.ttx-difficulty.medium {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.ttx-difficulty.low {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.ttx-duration {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+}
+
+.ttx-participants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ttx-participant {
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 3px;
+    color: #60a5fa;
+}
+
+.ttx-scenario-body {
+    padding: 12px 14px;
+}
+
+.ttx-scenario-text {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+}
+
+.ttx-details {
+    margin-bottom: 8px;
+}
+
+.ttx-details summary {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 4px 0;
+}
+
+.ttx-details summary:hover {
+    color: #f59e0b;
+}
+
+.ttx-injects,
+.ttx-questions,
+.ttx-actions {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+}
+
+.ttx-injects li,
+.ttx-questions li,
+.ttx-actions li {
+    margin-bottom: 4px;
+}
+
+/* Lessons Learned Section */
+.ll-section-container {
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 8px;
+    padding: 16px;
+    background: rgba(34, 197, 94, 0.05);
+}
+
+.ll-section-container .impl-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #22c55e;
+}
+
+.ll-template-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.ll-header {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 12px 14px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ll-header-field {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+}
+
+.ll-header-field strong {
+    color: var(--text-primary);
+}
+
+.ll-sections {
+    padding: 12px 14px;
+}
+
+.ll-section {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ll-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.ll-section h5 {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+}
+
+.ll-prompts {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.ll-prompts li {
+    margin-bottom: 4px;
+}
+
+.ll-table {
+    margin-top: 8px;
+}
+
+.ll-priority {
+    font-size: 0.55rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+}
+
+.ll-priority.critical {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.ll-priority.high {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.ll-priority.medium {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+}
+
+.ll-priority.low {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.ll-approvals {
+    margin-top: 8px;
+}
+
+.ll-approval-row {
+    display: flex;
+    gap: 16px;
+    padding: 6px 0;
+    border-bottom: 1px dotted var(--border-color);
+    font-size: 0.65rem;
+}
+
+.ll-approval-row:last-child {
+    border-bottom: none;
+}
+
+.ll-role {
+    flex: 1;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.ll-sig,
+.ll-date {
+    color: var(--text-muted);
+}
+
+.ll-best-practices {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 6px;
+}
+
+.ll-best-practices h5 {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #22c55e;
+    margin: 0 0 8px 0;
+}
+
+.ll-best-practices ul {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+}
+
+.ll-best-practices li {
+    margin-bottom: 4px;
+}
+
 .hamburger-org-url {
     flex: 1;
     padding: 4px 8px;

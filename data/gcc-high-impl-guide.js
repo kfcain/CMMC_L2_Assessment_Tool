@@ -238,6 +238,257 @@ const GCC_HIGH_IMPL_GUIDE = {
         contact: "https://www.celerium.com/contact"
     },
 
+    // Tabletop Exercise Scenarios
+    tabletopExercises: {
+        description: "Annual tabletop exercises are required per CMMC 3.6.3. These scenarios help test incident response procedures without impacting production systems.",
+        scenarios: [
+            {
+                id: "TTX-001",
+                name: "Ransomware Attack",
+                difficulty: "High",
+                duration: "2-3 hours",
+                participants: ["CMMC Lead", "IT Admin", "FSO", "Exec Sponsor", "Legal"],
+                scenario: "At 2:00 AM on a Monday, your SIEM alerts on unusual file encryption activity. By 6:00 AM, 40% of file shares are encrypted. A ransom note demands $500,000 in Bitcoin within 48 hours. The attackers claim to have exfiltrated 50GB of data including CUI.",
+                injects: [
+                    { time: "T+0", event: "Initial detection: Sentinel alerts on mass file modifications" },
+                    { time: "T+15min", event: "Helpdesk receives calls from early employees unable to access files" },
+                    { time: "T+30min", event: "Ransom note discovered on CEO's desktop" },
+                    { time: "T+1hr", event: "Attackers post sample of stolen data on dark web leak site" },
+                    { time: "T+2hr", event: "Media outlet contacts PR asking for comment" },
+                    { time: "T+4hr", event: "DoD prime contractor calls asking about CUI exposure" }
+                ],
+                discussionQuestions: [
+                    "Who makes the decision to pay or not pay the ransom?",
+                    "At what point do we notify DC3/DCISE (72-hour clock)?",
+                    "How do we communicate with employees if email is compromised?",
+                    "What is our backup restoration timeline?",
+                    "How do we notify affected DoD prime contractors?",
+                    "What forensic preservation steps must occur before remediation?"
+                ],
+                expectedActions: [
+                    "Isolate affected systems from network",
+                    "Activate incident response team",
+                    "Preserve forensic evidence (memory dumps, logs)",
+                    "Report to DC3/DCISE within 72 hours",
+                    "Engage cyber insurance carrier",
+                    "Begin restoration from immutable backups"
+                ]
+            },
+            {
+                id: "TTX-002",
+                name: "Insider Threat - Data Exfiltration",
+                difficulty: "Medium",
+                duration: "1.5-2 hours",
+                participants: ["CMMC Lead", "IT Admin", "HR Manager", "Legal", "FSO"],
+                scenario: "A departing engineer with access to CUI has submitted their two-week notice. DLP alerts show they've been uploading files to a personal cloud storage account over the past week. The files include technical drawings marked CUI//SP-ITAR.",
+                injects: [
+                    { time: "T+0", event: "DLP alert: 200+ files uploaded to personal OneDrive" },
+                    { time: "T+15min", event: "Review shows files include ITAR-controlled technical data" },
+                    { time: "T+30min", event: "Employee is a foreign national (green card holder)" },
+                    { time: "T+1hr", event: "Manager confirms employee is joining a competitor" },
+                    { time: "T+1.5hr", event: "Legal asks if this constitutes an ITAR violation" }
+                ],
+                discussionQuestions: [
+                    "Do we immediately revoke access or monitor further?",
+                    "Is this a reportable cyber incident under DFARS 7012?",
+                    "What are our ITAR violation reporting obligations?",
+                    "How do we preserve evidence for potential litigation?",
+                    "Should we involve law enforcement?"
+                ],
+                expectedActions: [
+                    "Preserve all audit logs and DLP evidence",
+                    "Consult with legal on ITAR implications",
+                    "Consider voluntary disclosure to DDTC if ITAR violation",
+                    "Revoke access and retrieve company devices",
+                    "Document timeline for HR file"
+                ]
+            },
+            {
+                id: "TTX-003",
+                name: "Business Email Compromise (BEC)",
+                difficulty: "Medium",
+                duration: "1-1.5 hours",
+                participants: ["CMMC Lead", "IT Admin", "Finance", "Exec Sponsor"],
+                scenario: "The CFO receives an urgent email appearing to be from the CEO requesting an immediate wire transfer of $175,000 to a new vendor for a classified project. The email came from a lookalike domain (company-inc.com vs company.inc.com).",
+                injects: [
+                    { time: "T+0", event: "Finance flags suspicious wire request" },
+                    { time: "T+15min", event: "Investigation reveals CEO's email was not compromised" },
+                    { time: "T+30min", event: "Lookalike domain registered 3 days ago" },
+                    { time: "T+45min", event: "Similar emails found sent to 5 other executives" }
+                ],
+                discussionQuestions: [
+                    "How did attackers know about the classified project?",
+                    "Is this a reportable incident if no CUI was accessed?",
+                    "What controls failed that allowed this email through?",
+                    "How do we warn employees without causing panic?"
+                ],
+                expectedActions: [
+                    "Block lookalike domain at email gateway",
+                    "Alert all executives and finance staff",
+                    "Review for potential reconnaissance/prior compromise",
+                    "Implement DMARC/DKIM if not already configured",
+                    "Add wire transfer verification procedures"
+                ]
+            },
+            {
+                id: "TTX-004",
+                name: "Supply Chain Compromise",
+                difficulty: "High",
+                duration: "2-3 hours",
+                participants: ["CMMC Lead", "IT Admin", "Procurement", "Legal", "FSO"],
+                scenario: "CISA releases an emergency advisory about a backdoor discovered in network monitoring software your organization uses. The software has had access to all network traffic for 18 months. You're a subcontractor on 3 DoD programs.",
+                injects: [
+                    { time: "T+0", event: "CISA advisory published identifying your vendor" },
+                    { time: "T+30min", event: "Vendor confirms your version is affected" },
+                    { time: "T+1hr", event: "Prime contractor calls asking for impact assessment" },
+                    { time: "T+2hr", event: "Media reports DoD is briefing Congress on the breach" },
+                    { time: "T+3hr", event: "Another vendor you use is also implicated" }
+                ],
+                discussionQuestions: [
+                    "What CUI could have been exposed through network traffic?",
+                    "How do we assess 18 months of potential compromise?",
+                    "What do we tell our prime contractors?",
+                    "How do we report when the scope is unknown?",
+                    "Should we assume all credentials are compromised?"
+                ],
+                expectedActions: [
+                    "Isolate affected monitoring infrastructure",
+                    "Report to DC3/DCISE within 72 hours",
+                    "Notify all DoD prime contractors",
+                    "Begin credential rotation for all accounts",
+                    "Engage incident response firm for forensic analysis"
+                ]
+            },
+            {
+                id: "TTX-005",
+                name: "Physical Security Breach",
+                difficulty: "Low",
+                duration: "1 hour",
+                participants: ["FSO", "CMMC Lead", "Facilities", "HR Manager"],
+                scenario: "A contractor badge was found in the parking lot. Review of access logs shows the badge was used to enter the facility at 11:30 PM last night, 4 hours after the badge owner left for the day. The badge owner is currently on vacation overseas.",
+                injects: [
+                    { time: "T+0", event: "Security guard finds badge in parking lot" },
+                    { time: "T+15min", event: "Access logs show unauthorized after-hours entry" },
+                    { time: "T+30min", event: "Camera footage shows unknown individual" },
+                    { time: "T+45min", event: "Individual accessed the server room" }
+                ],
+                discussionQuestions: [
+                    "Is this a cyber incident or physical security incident?",
+                    "What systems in the server room contain CUI?",
+                    "Should we report to DC3 if no confirmed data access?",
+                    "How do we verify no tampering with hardware?"
+                ],
+                expectedActions: [
+                    "Deactivate compromised badge immediately",
+                    "Review all camera footage",
+                    "Inspect server room for physical tampering",
+                    "Check system logs for unauthorized access",
+                    "File police report",
+                    "Consider reporting to DC3 if CUI systems potentially accessed"
+                ]
+            }
+        ]
+    },
+
+    // Lessons Learned Template
+    lessonsLearnedTemplate: {
+        description: "After-action review template for documenting lessons learned from incidents and exercises. Required for continuous improvement per CMMC 3.6.2.",
+        template: {
+            header: {
+                incidentId: "[IR-YYYY-NNN]",
+                exerciseId: "[TTX-YYYY-NNN]",
+                date: "[Date of incident/exercise]",
+                facilitator: "[Name]",
+                participants: "[List all participants]",
+                classification: "[CUI/Unclassified]"
+            },
+            sections: [
+                {
+                    title: "1. Executive Summary",
+                    prompts: [
+                        "Brief description of the incident/exercise (2-3 sentences)",
+                        "Overall outcome (contained, escalated, successful test)",
+                        "Key takeaways (1-3 bullet points)"
+                    ]
+                },
+                {
+                    title: "2. Timeline of Events",
+                    prompts: [
+                        "Detection time",
+                        "Initial response time",
+                        "Escalation points",
+                        "Containment time",
+                        "Resolution/exercise completion time"
+                    ]
+                },
+                {
+                    title: "3. What Went Well",
+                    prompts: [
+                        "Procedures that worked as designed",
+                        "Team members who performed exceptionally",
+                        "Tools/technologies that aided response",
+                        "Communication that was effective"
+                    ]
+                },
+                {
+                    title: "4. Areas for Improvement",
+                    prompts: [
+                        "Gaps in procedures or playbooks",
+                        "Missing tools or capabilities",
+                        "Communication breakdowns",
+                        "Training needs identified",
+                        "Resource constraints encountered"
+                    ]
+                },
+                {
+                    title: "5. Action Items",
+                    columns: ["Action", "Owner", "Due Date", "Priority", "Status"],
+                    examples: [
+                        { action: "Update ransomware playbook with new containment steps", owner: "IT Admin", dueDate: "30 days", priority: "High" },
+                        { action: "Conduct additional training on forensic preservation", owner: "CMMC Lead", dueDate: "60 days", priority: "Medium" },
+                        { action: "Procure additional backup storage for faster recovery", owner: "IT Admin", dueDate: "90 days", priority: "High" },
+                        { action: "Update contact list with after-hours numbers", owner: "FSO", dueDate: "7 days", priority: "Critical" }
+                    ]
+                },
+                {
+                    title: "6. Metrics",
+                    metrics: [
+                        { name: "Mean Time to Detect (MTTD)", target: "< 1 hour", actual: "[Actual time]" },
+                        { name: "Mean Time to Respond (MTTR)", target: "< 4 hours", actual: "[Actual time]" },
+                        { name: "Mean Time to Contain (MTTC)", target: "< 24 hours", actual: "[Actual time]" },
+                        { name: "DC3 Reporting Compliance", target: "< 72 hours", actual: "[Actual time]" }
+                    ]
+                },
+                {
+                    title: "7. Regulatory Reporting Summary",
+                    prompts: [
+                        "DC3/DCISE report submitted: [Yes/No/N/A] - Date: [Date]",
+                        "CISA report submitted: [Yes/No/N/A] - Date: [Date]",
+                        "Prime contractor notifications: [List contractors notified]",
+                        "Insurance carrier notified: [Yes/No/N/A] - Date: [Date]"
+                    ]
+                },
+                {
+                    title: "8. Sign-Off",
+                    approvals: [
+                        { role: "CMMC Lead / Compliance Officer", signature: "_____________", date: "_______" },
+                        { role: "IT Director / CISO", signature: "_____________", date: "_______" },
+                        { role: "Executive Sponsor", signature: "_____________", date: "_______" }
+                    ]
+                }
+            ]
+        },
+        bestPractices: [
+            "Conduct lessons learned meeting within 5 business days of incident closure",
+            "Include all stakeholders who participated in response",
+            "Focus on process improvement, not blame",
+            "Track action items in POA&M for CMMC evidence",
+            "Review previous lessons learned to identify recurring issues",
+            "Share sanitized lessons learned with industry peers (ISAC)",
+            "Update incident response plan based on findings"
+        ]
+    },
+
     // FedRAMP Authorized Providers
     fedrampProviders: [
         { category: "MFA / Identity", provider: "Cisco Duo (Federal)", notes: "FedRAMP Authorized. Hardware token management." },

@@ -3328,6 +3328,114 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             `;
         }
         
+        // Tabletop Exercises (Azure)
+        if (guide.tabletopExercises) {
+            const ttx = guide.tabletopExercises;
+            const scenarioCards = ttx.scenarios.map(s => {
+                const difficultyClass = s.difficulty === 'High' ? 'high' : s.difficulty === 'Medium' ? 'medium' : 'low';
+                const injectsList = s.injects.map(i => `<li><strong>${i.time}:</strong> ${i.event}</li>`).join('');
+                const questionsList = s.discussionQuestions.map(q => `<li>${q}</li>`).join('');
+                const actionsList = s.expectedActions.map(a => `<li>${a}</li>`).join('');
+                const participantBadges = s.participants.map(p => `<span class="ttx-participant">${p}</span>`).join('');
+                
+                return `
+                    <div class="ttx-scenario-card">
+                        <div class="ttx-scenario-header">
+                            <span class="ttx-scenario-id">${s.id}</span>
+                            <span class="ttx-scenario-name">${s.name}</span>
+                            <span class="ttx-difficulty ${difficultyClass}">${s.difficulty}</span>
+                            <span class="ttx-duration">${s.duration}</span>
+                        </div>
+                        <div class="ttx-participants">${participantBadges}</div>
+                        <div class="ttx-scenario-body">
+                            <p class="ttx-scenario-text">${s.scenario}</p>
+                            
+                            <details class="ttx-details">
+                                <summary>Scenario Injects (${s.injects.length})</summary>
+                                <ol class="ttx-injects">${injectsList}</ol>
+                            </details>
+                            
+                            <details class="ttx-details">
+                                <summary>Discussion Questions (${s.discussionQuestions.length})</summary>
+                                <ul class="ttx-questions">${questionsList}</ul>
+                            </details>
+                            
+                            <details class="ttx-details">
+                                <summary>Expected Actions (${s.expectedActions.length})</summary>
+                                <ul class="ttx-actions">${actionsList}</ul>
+                            </details>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            html += `
+                <div class="impl-section ttx-section">
+                    <div class="impl-section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+                        Tabletop Exercise Scenarios
+                    </div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">${ttx.description}</p>
+                    <div class="ttx-scenarios-grid">${scenarioCards}</div>
+                </div>
+            `;
+        }
+        
+        // Lessons Learned Template (Azure)
+        if (guide.lessonsLearnedTemplate) {
+            const ll = guide.lessonsLearnedTemplate;
+            const sectionsList = ll.template.sections.map(s => {
+                let content = '';
+                if (s.prompts) {
+                    content = `<ul class="ll-prompts">${s.prompts.map(p => `<li>${p}</li>`).join('')}</ul>`;
+                }
+                if (s.examples) {
+                    content += `<table class="impl-table compact ll-table"><thead><tr><th>Action</th><th>Owner</th><th>Due</th><th>Priority</th></tr></thead><tbody>
+                        ${s.examples.map(e => `<tr><td>${e.action}</td><td>${e.owner}</td><td>${e.dueDate}</td><td><span class="ll-priority ${e.priority.toLowerCase()}">${e.priority}</span></td></tr>`).join('')}
+                    </tbody></table>`;
+                }
+                if (s.metrics) {
+                    content += `<table class="impl-table compact ll-table"><thead><tr><th>Metric</th><th>Target</th><th>Actual</th></tr></thead><tbody>
+                        ${s.metrics.map(m => `<tr><td>${m.name}</td><td>${m.target}</td><td>${m.actual}</td></tr>`).join('')}
+                    </tbody></table>`;
+                }
+                if (s.approvals) {
+                    content += `<div class="ll-approvals">
+                        ${s.approvals.map(a => `<div class="ll-approval-row"><span class="ll-role">${a.role}</span><span class="ll-sig">Signature: ${a.signature}</span><span class="ll-date">Date: ${a.date}</span></div>`).join('')}
+                    </div>`;
+                }
+                return `<div class="ll-section"><h5>${s.title}</h5>${content}</div>`;
+            }).join('');
+            
+            const bestPracticesList = ll.bestPractices.map(bp => `<li>${bp}</li>`).join('');
+            
+            html += `
+                <div class="impl-section ll-section-container">
+                    <div class="impl-section-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        Lessons Learned Template
+                    </div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">${ll.description}</p>
+                    
+                    <div class="ll-template-card">
+                        <div class="ll-header">
+                            <div class="ll-header-field"><strong>Incident ID:</strong> ${ll.template.header.incidentId}</div>
+                            <div class="ll-header-field"><strong>Exercise ID:</strong> ${ll.template.header.exerciseId}</div>
+                            <div class="ll-header-field"><strong>Date:</strong> ${ll.template.header.date}</div>
+                            <div class="ll-header-field"><strong>Classification:</strong> ${ll.template.header.classification}</div>
+                        </div>
+                        
+                        <div class="ll-sections">${sectionsList}</div>
+                    </div>
+                    
+                    <div class="ll-best-practices">
+                        <h5>Best Practices</h5>
+                        <ul>${bestPracticesList}</ul>
+                    </div>
+                </div>
+            `;
+        }
+        
         // Celerium Dark Cubed (Azure)
         if (guide.celeriumDarkCubed) {
             const dc = guide.celeriumDarkCubed;
