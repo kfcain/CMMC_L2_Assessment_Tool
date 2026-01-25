@@ -1000,9 +1000,14 @@ class AssessmentApp {
             }).join('')
             : '<span class="framework-na">N/A</span>';
 
-        // Build CMMC practice badge
+        // Build CMMC practice badge with level and classification
+        const level = mapping.cmmc?.level;
+        const classification = mapping.classification;
+        const levelClass = level === 1 ? 'cmmc-l1' : 'cmmc-l2';
+        const classificationClass = classification === 'Basic' ? 'cmmc-basic' : 'cmmc-derived';
+        
         const cmmcHtml = mapping.cmmc 
-            ? `<span class="cmmc-practice">${mapping.cmmc.practice}</span>`
+            ? `<span class="cmmc-level ${levelClass}">L${level}</span><span class="cmmc-practice">${mapping.cmmc.practice}</span><span class="cmmc-classification ${classificationClass}">${classification}</span>`
             : '';
 
         return `

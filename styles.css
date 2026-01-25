@@ -2831,6 +2831,26 @@ body {
     opacity: 0.5;
 }
 
+.cmmc-level {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 0.625rem;
+    font-weight: 700;
+    border-radius: 4px 0 0 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.cmmc-level.cmmc-l1 {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: white;
+}
+
+.cmmc-level.cmmc-l2 {
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    color: white;
+}
+
 .cmmc-practice {
     display: inline-block;
     padding: 4px 10px;
@@ -2838,8 +2858,29 @@ body {
     font-weight: 600;
     background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
     color: white;
-    border-radius: 4px;
+    border-radius: 0;
     letter-spacing: 0.3px;
+}
+
+.cmmc-classification {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    border-radius: 0 4px 4px 0;
+    letter-spacing: 0.3px;
+}
+
+.cmmc-classification.cmmc-basic {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.cmmc-classification.cmmc-derived {
+    background: rgba(139, 92, 246, 0.2);
+    color: #a78bfa;
+    border: 1px solid rgba(139, 92, 246, 0.3);
 }
 
 /* SPRS Family Score Styles */
