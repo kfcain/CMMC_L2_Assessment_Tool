@@ -77,26 +77,34 @@ const CrosswalkVisualizer = {
     
     populateControlSelector() {
         const select = document.getElementById('graph-control-selector');
-        if (!select || typeof FRAMEWORK_MAPPINGS === 'undefined') return;
+        if (!select || typeof FEDRAMP_20X_KSI === 'undefined') return;
         
-        // Get all control IDs sorted
-        const controlIds = Object.keys(FRAMEWORK_MAPPINGS).sort((a, b) => {
-            const [aMaj, aMin] = a.split('.').map(Number);
-            const [bMaj, bMin] = b.split('.').map(Number);
-            return aMaj - bMaj || aMin - bMin;
-        });
+        select.innerHTML = '';
         
-        // Set default
-        if (controlIds.length > 0 && !this.selectedControl) {
-            this.selectedControl = controlIds[0];
+        const ksiIds = Object.keys(FEDRAMP_20X_KSI.indicators || {});
+        
+        if (ksiIds.length > 0 && !this.selectedControl) {
+            this.selectedControl = ksiIds[0];
         }
         
-        controlIds.forEach(id => {
-            const mapping = FRAMEWORK_MAPPINGS[id];
-            const option = document.createElement('option');
-            option.value = id;
-            option.textContent = `${id} - ${mapping.description?.substring(0, 50) || ''}...`;
-            select.appendChild(option);
+        // Group by family
+        const families = {};
+        ksiIds.forEach(id => {
+            const ksi = FEDRAMP_20X_KSI.indicators[id];
+            if (!families[ksi.family]) families[ksi.family] = [];
+            families[ksi.family].push({ id, ...ksi });
+        });
+        
+        Object.entries(families).forEach(([familyId, ksis]) => {
+            const group = document.createElement('optgroup');
+            group.label = `${familyId} — ${FEDRAMP_20X_KSI.families[familyId]?.name || familyId}`;
+            ksis.forEach(ksi => {
+                const option = document.createElement('option');
+                option.value = ksi.id;
+                option.textContent = `${ksi.id} - ${ksi.title}`;
+                group.appendChild(option);
+            });
+            select.appendChild(group);
         });
     },
     
@@ -387,13 +395,11 @@ const CrosswalkVisualizer = {
         const radius = Math.min(width, height) * 0.35;
         const spokes = this.nodes.filter(n => !n.isHub);
         const nist53Spokes = spokes.filter(n => n.type === 'nist-53');
-        const ksiSpokes = spokes.filter(n => n.type === 'fedramp-20x');
         const cmmcSpokes = spokes.filter(n => n.type === 'cmmc');
         
-        // Set target positions in arcs - NIST 800-53 left, 20x KSI right, CMMC bottom
+        // Set target positions in arcs - NIST 800-53 top arc, CMMC/171 bottom arc
         this.setTargetPositionsInArc(nist53Spokes, centerX, centerY, radius, -Math.PI * 0.85, -Math.PI * 0.15);
-        this.setTargetPositionsInArc(ksiSpokes, centerX, centerY, radius, Math.PI * 0.15, Math.PI * 0.65);
-        this.setTargetPositionsInArc(cmmcSpokes, centerX, centerY, radius * 0.6, Math.PI * 0.75, Math.PI * 0.85);
+        this.setTargetPositionsInArc(cmmcSpokes, centerX, centerY, radius * 0.8, Math.PI * 0.15, Math.PI * 0.85);
         
         // Start spokes from center with random offset for springy effect
         spokes.forEach(node => {
@@ -456,14 +462,14 @@ const CrosswalkVisualizer = {
     },
     
     buildHubSpokeData() {
-        if (!this.selectedControl || typeof FRAMEWORK_MAPPINGS === 'undefined') {
+        if (!this.selectedControl || typeof FEDRAMP_20X_KSI === 'undefined') {
             this.nodes = [];
             this.edges = [];
             return;
         }
         
-        const mapping = FRAMEWORK_MAPPINGS[this.selectedControl];
-        if (!mapping) {
+        const ksi = FEDRAMP_20X_KSI.indicators[this.selectedControl];
+        if (!ksi) {
             this.nodes = [];
             this.edges = [];
             return;
@@ -472,18 +478,28 @@ const CrosswalkVisualizer = {
         this.nodes = [];
         this.edges = [];
         
-        // Center hub node - NIST 800-171
+        // Build reverse mapping: KSI → 800-53
+        const ksiTo80053 = this.buildKsiTo80053Map();
+        const nist80053Controls = ksiTo80053[this.selectedControl] || [];
+        
+        // Build 800-53 → 171 mapping
+        const ctrl80053To171 = this.build80053To171Map();
+        
+        // Center hub node - KSI
+        const levelBadge = ksi.low && ksi.moderate ? 'Low + Moderate' : (ksi.low ? 'Low' : 'Moderate');
         this.nodes.push({
             id: this.selectedControl,
             label: this.selectedControl,
-            type: 'nist-171',
-            description: mapping.description,
+            type: 'fedramp-20x',
+            description: ksi.title,
+            fullDesc: ksi.description,
+            level: levelBadge,
             isHub: true,
             x: 0, y: 0
         });
         
         // NIST 800-53 spoke nodes
-        (mapping.nist80053 || []).forEach(ctrl => {
+        nist80053Controls.forEach(ctrl => {
             this.nodes.push({
                 id: ctrl,
                 label: ctrl,
@@ -493,31 +509,28 @@ const CrosswalkVisualizer = {
             this.edges.push({ source: this.selectedControl, target: ctrl, type: 'nist-53' });
         });
         
-        // FedRAMP 20x KSI spoke nodes (Low/Moderate pilot)
-        (mapping.fedramp20x || []).forEach(ksi => {
-            // Get KSI title if available
-            const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? 
-                FEDRAMP_20X_KSI.indicators?.[ksi] : null;
-            this.nodes.push({
-                id: ksi,
-                label: ksi,
-                title: ksiInfo?.title || '',
-                type: 'fedramp-20x',
-                x: 0, y: 0
-            });
-            this.edges.push({ source: this.selectedControl, target: ksi, type: 'fedramp-20x' });
+        // Related 171/CMMC controls (secondary spokes)
+        const related171 = new Set();
+        nist80053Controls.forEach(ctrl => {
+            const baseCtrl = ctrl.split('.')[0];
+            (ctrl80053To171[baseCtrl] || []).forEach(m => related171.add(JSON.stringify(m)));
+            (ctrl80053To171[ctrl] || []).forEach(m => related171.add(JSON.stringify(m)));
         });
         
-        // CMMC spoke node
-        if (mapping.cmmc?.practice) {
-            this.nodes.push({
-                id: mapping.cmmc.practice,
-                label: mapping.cmmc.practice,
-                type: 'cmmc',
-                x: 0, y: 0
-            });
-            this.edges.push({ source: this.selectedControl, target: mapping.cmmc.practice, type: 'cmmc' });
-        }
+        Array.from(related171).slice(0, 8).forEach(mStr => {
+            const m = JSON.parse(mStr);
+            const label = m.cmmc?.practice || m.id;
+            if (!this.nodes.find(n => n.id === label)) {
+                this.nodes.push({
+                    id: label,
+                    label: label,
+                    type: 'cmmc',
+                    description: m.description,
+                    x: 0, y: 0
+                });
+                this.edges.push({ source: this.selectedControl, target: label, type: 'cmmc' });
+            }
+        });
     },
     
     layoutHubSpoke(width, height) {
@@ -666,20 +679,16 @@ const CrosswalkVisualizer = {
         legend.className = 'graph-legend';
         legend.innerHTML = `
             <div class="graph-legend-item">
-                <span class="legend-color nist-171"></span>
-                <span>NIST 800-171</span>
+                <span class="legend-color fedramp-20x"></span>
+                <span>FedRAMP 20x KSI (Hub)</span>
             </div>
             <div class="graph-legend-item">
                 <span class="legend-color nist-53"></span>
-                <span>NIST 800-53</span>
-            </div>
-            <div class="graph-legend-item">
-                <span class="legend-color fedramp-20x"></span>
-                <span>FedRAMP 20x KSI</span>
+                <span>NIST 800-53 / FedRAMP Rev5</span>
             </div>
             <div class="graph-legend-item">
                 <span class="legend-color cmmc"></span>
-                <span>CMMC L2</span>
+                <span>Related CMMC/171</span>
             </div>
         `;
         container.appendChild(legend);
