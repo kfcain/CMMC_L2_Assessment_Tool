@@ -151,15 +151,15 @@ const CrosswalkVisualizer = {
                 if (familyId !== this.filters.family) return;
             }
             
-            // Apply baseline filter
+            // Apply baseline filter (filter by whether control has 20x KSI mappings)
             if (this.filters.baseline !== 'all') {
-                const baselineControls = mapping.fedramp?.[this.filters.baseline];
-                if (!baselineControls || baselineControls.length === 0) return;
+                // If filtering, only show controls with 20x KSI mappings
+                if (!mapping.fedramp20x || mapping.fedramp20x.length === 0) return;
             }
             
             // Apply search filter
             if (this.filters.search) {
-                const searchStr = `${controlId} ${mapping.description || ''} ${mapping.nist80053?.join(' ') || ''}`.toLowerCase();
+                const searchStr = `${controlId} ${mapping.description || ''} ${mapping.nist80053?.join(' ') || ''} ${mapping.fedramp20x?.join(' ') || ''} ${mapping.cmmc?.practice || ''}`.toLowerCase();
                 if (!searchStr.includes(this.filters.search)) return;
             }
             
@@ -208,10 +208,8 @@ const CrosswalkVisualizer = {
                         <th>NIST 800-171</th>
                         <th>Description</th>
                         <th>NIST 800-53</th>
-                        <th>FedRAMP Low</th>
-                        <th>FedRAMP Mod</th>
-                        <th>FedRAMP High</th>
-                        <th>CMMC</th>
+                        <th>FedRAMP 20x KSI</th>
+                        <th>CMMC L2</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -222,30 +220,24 @@ const CrosswalkVisualizer = {
                 `<span class="mapping-tag nist-53">${c}</span>`
             ).join('');
             
-            const fedLowTags = (item.fedramp?.low || []).map(c => 
-                `<span class="mapping-tag fedramp-low">${c}</span>`
-            ).join('') || '<span class="mapping-tag">—</span>';
-            
-            const fedModTags = (item.fedramp?.moderate || []).map(c => 
-                `<span class="mapping-tag fedramp-mod">${c}</span>`
-            ).join('') || '<span class="mapping-tag">—</span>';
-            
-            const fedHighTags = (item.fedramp?.high || []).map(c => 
-                `<span class="mapping-tag fedramp-high">${c}</span>`
-            ).join('') || '<span class="mapping-tag">—</span>';
+            const fed20xTags = (item.fedramp20x || []).map(ksi => {
+                // Get KSI title if available
+                const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? 
+                    FEDRAMP_20X_KSI.indicators?.[ksi] : null;
+                const title = ksiInfo?.title ? ` title="${ksiInfo.title}"` : '';
+                return `<span class="mapping-tag fedramp-20x"${title}>${ksi}</span>`;
+            }).join('') || '<span class="mapping-tag empty">—</span>';
             
             const cmmcTag = item.cmmc ? 
                 `<span class="mapping-tag cmmc">${item.cmmc.practice}</span>` : 
-                '<span class="mapping-tag">—</span>';
+                '<span class="mapping-tag empty">—</span>';
             
             html += `
                 <tr>
                     <td class="control-id">${item.controlId}</td>
                     <td class="control-desc">${item.description || ''}</td>
-                    <td class="mapping-tags">${nist53Tags || '<span class="mapping-tag">—</span>'}</td>
-                    <td class="mapping-tags">${fedLowTags}</td>
-                    <td class="mapping-tags">${fedModTags}</td>
-                    <td class="mapping-tags">${fedHighTags}</td>
+                    <td class="mapping-tags">${nist53Tags || '<span class="mapping-tag empty">—</span>'}</td>
+                    <td class="mapping-tags">${fed20xTags}</td>
                     <td class="mapping-tags">${cmmcTag}</td>
                 </tr>
             `;

@@ -159,11 +159,30 @@
 }
 
 .mapping-tag.nist-53 {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: rgba(99, 102, 241, 0.3);
-    color: #818cf8;
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+    border-color: rgba(139, 92, 246, 0.3);
 }
 
+.mapping-tag.fedramp-20x {
+    background: rgba(6, 182, 212, 0.15);
+    color: #22d3ee;
+    border-color: rgba(6, 182, 212, 0.3);
+}
+
+.mapping-tag.cmmc {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.mapping-tag.empty {
+    background: transparent;
+    color: var(--text-muted);
+    border-color: transparent;
+}
+
+/* Legacy styles - can be removed */
 .mapping-tag.fedramp-low {
     background: rgba(16, 185, 129, 0.1);
     border-color: rgba(16, 185, 129, 0.3);
