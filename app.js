@@ -494,6 +494,10 @@ class AssessmentApp {
             this.renderPOAM();
         } else if (view === 'dashboard') {
             this.renderDashboard();
+        } else if (view === 'crosswalk') {
+            if (typeof CrosswalkVisualizer !== 'undefined') {
+                CrosswalkVisualizer.init();
+            }
         }
     }
 
