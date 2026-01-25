@@ -214,6 +214,190 @@ const GCC_HIGH_IMPL_GUIDE = {
         { control: "3.14.x (SI)", service: "Azure Update Manager", purpose: "Patch management for Azure VMs" }
     ],
 
+    // Native Services by Control Family
+    servicesByFamily: {
+        "Access Control (AC)": {
+            native: [
+                { service: "Microsoft Entra ID", type: "Identity Provider", purpose: "User/group management, SSO, Conditional Access" },
+                { service: "Intune", type: "MDM/MAM", purpose: "Device compliance, app protection, enrollment" },
+                { service: "Azure RBAC", type: "Authorization", purpose: "Role-based access control for Azure resources" },
+                { service: "Privileged Identity Management (PIM)", type: "PAM", purpose: "Just-in-time privileged access, approval workflows" },
+                { service: "Azure Bastion", type: "Secure Access", purpose: "Secure RDP/SSH without public IPs" }
+            ],
+            thirdParty: [
+                { service: "Cisco Duo", type: "MFA", fedramp: "High", assetType: "Security Protection Asset", purpose: "Hardware tokens, push notifications, adaptive MFA" },
+                { service: "Okta (Fed)", type: "Identity Provider", fedramp: "High", assetType: "Security Protection Asset", purpose: "SSO, lifecycle management, directory integration" },
+                { service: "CyberArk", type: "PAM", fedramp: "High", assetType: "Security Protection Asset", purpose: "Privileged credential vaulting, session recording" },
+                { service: "BeyondTrust", type: "PAM", fedramp: "High", assetType: "Security Protection Asset", purpose: "Privileged remote access, password management" },
+                { service: "SailPoint", type: "IGA", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Identity governance, access certifications" }
+            ]
+        },
+        "Awareness & Training (AT)": {
+            native: [
+                { service: "Defender for Office 365", type: "Security Training", purpose: "Attack simulation, phishing campaigns" },
+                { service: "Microsoft Viva Learning", type: "LMS", purpose: "Training content delivery, tracking" }
+            ],
+            thirdParty: [
+                { service: "KnowBe4", type: "Security Awareness", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Phishing simulation, security training modules" },
+                { service: "Proofpoint", type: "Security Awareness", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Security awareness training, threat simulation" },
+                { service: "SANS Security Awareness", type: "Training", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Role-based security training content" }
+            ]
+        },
+        "Audit & Accountability (AU)": {
+            native: [
+                { service: "Microsoft Sentinel", type: "SIEM", purpose: "Log aggregation, threat detection, analytics rules" },
+                { service: "Azure Monitor", type: "Logging", purpose: "Resource diagnostics, metrics, alerts" },
+                { service: "Microsoft Purview Audit", type: "Audit Logs", purpose: "M365 audit logs, search, retention" },
+                { service: "Log Analytics", type: "Log Management", purpose: "KQL queries, workbooks, dashboards" }
+            ],
+            thirdParty: [
+                { service: "Splunk (GovCloud)", type: "SIEM", fedramp: "High", assetType: "Security Protection Asset", purpose: "Log management, security analytics, dashboards" },
+                { service: "Elastic (GovCloud)", type: "SIEM", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Log aggregation, search, visualization" },
+                { service: "Sumo Logic (Fed)", type: "SIEM", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Cloud-native log analytics" },
+                { service: "LogRhythm", type: "SIEM", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "On-prem/hybrid SIEM, SOAR capabilities" }
+            ]
+        },
+        "Configuration Management (CM)": {
+            native: [
+                { service: "Intune Configuration Profiles", type: "MDM", purpose: "Device settings, baselines, compliance" },
+                { service: "Azure Policy", type: "Governance", purpose: "Resource compliance, NIST initiatives" },
+                { service: "Azure Automation", type: "Automation", purpose: "Runbooks, DSC, update management" },
+                { service: "Microsoft Defender for Cloud", type: "CSPM", purpose: "Security posture, recommendations" }
+            ],
+            thirdParty: [
+                { service: "Tenable.io (Fed)", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Vulnerability scanning, configuration assessment" },
+                { service: "Qualys (Fed)", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Asset inventory, vulnerability scanning" },
+                { service: "Rapid7 InsightVM", type: "Vulnerability Management", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Vulnerability management, remediation tracking" },
+                { service: "Tanium", type: "Endpoint Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Endpoint visibility, configuration compliance" }
+            ]
+        },
+        "Identification & Authentication (IA)": {
+            native: [
+                { service: "Entra ID MFA", type: "MFA", purpose: "Microsoft Authenticator, FIDO2, phone" },
+                { service: "Windows Hello for Business", type: "Passwordless", purpose: "Biometric/PIN authentication" },
+                { service: "Certificate-Based Auth", type: "PKI", purpose: "Smart card, certificate authentication" },
+                { service: "Azure Key Vault", type: "Secrets Management", purpose: "Certificate storage, key management" }
+            ],
+            thirdParty: [
+                { service: "Yubico YubiKey", type: "Hardware Token", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "FIDO2 security keys, PIV smart cards" },
+                { service: "RSA SecurID", type: "MFA", fedramp: "High", assetType: "Security Protection Asset", purpose: "Hardware/software tokens, risk-based auth" },
+                { service: "Thales SafeNet", type: "PKI/HSM", fedramp: "High", assetType: "Security Protection Asset", purpose: "HSM, certificate management" },
+                { service: "Entrust", type: "PKI", fedramp: "High", assetType: "Security Protection Asset", purpose: "Certificate authority, identity verification" }
+            ]
+        },
+        "Incident Response (IR)": {
+            native: [
+                { service: "Microsoft Defender XDR", type: "XDR", purpose: "Unified incident management, automated response" },
+                { service: "Sentinel Playbooks", type: "SOAR", purpose: "Logic Apps automation, incident enrichment" },
+                { service: "Defender for Endpoint", type: "EDR", purpose: "Endpoint detection, live response, isolation" }
+            ],
+            thirdParty: [
+                { service: "CrowdStrike Falcon (GovCloud)", type: "EDR", fedramp: "High", assetType: "Security Protection Asset", purpose: "Endpoint detection, threat hunting, IR" },
+                { service: "Palo Alto Cortex XSOAR", type: "SOAR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Playbook automation, case management" },
+                { service: "ServiceNow SecOps", type: "ITSM/SOAR", fedramp: "High", assetType: "Security Protection Asset", purpose: "Security incident management, workflows" },
+                { service: "Swimlane", type: "SOAR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Low-code security automation" }
+            ]
+        },
+        "Maintenance (MA)": {
+            native: [
+                { service: "Azure Update Manager", type: "Patch Management", purpose: "VM patching, update scheduling" },
+                { service: "Intune Windows Update", type: "Patch Management", purpose: "Update rings, feature updates" },
+                { service: "Azure Bastion", type: "Remote Access", purpose: "Secure maintenance access" },
+                { service: "Intune Remote Help", type: "Remote Support", purpose: "Helpdesk remote assistance" }
+            ],
+            thirdParty: [
+                { service: "SCCM/MECM", type: "Endpoint Management", fedramp: "N/A (on-prem)", assetType: "Security Protection Asset", purpose: "Software deployment, patching, inventory" },
+                { service: "Ivanti", type: "Patch Management", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Patch management, endpoint security" },
+                { service: "ManageEngine", type: "IT Management", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Patch management, remote support" }
+            ]
+        },
+        "Media Protection (MP)": {
+            native: [
+                { service: "BitLocker", type: "Encryption", purpose: "Full disk encryption, TPM integration" },
+                { service: "Defender Device Control", type: "DLP", purpose: "USB blocking, removable media policies" },
+                { service: "Purview Information Protection", type: "DLP", purpose: "Sensitivity labels, encryption" },
+                { service: "Intune Wipe", type: "Sanitization", purpose: "Remote wipe, selective wipe" }
+            ],
+            thirdParty: [
+                { service: "Virtru", type: "Email Encryption", fedramp: "Moderate", assetType: "CUI Asset", purpose: "End-to-end email encryption, key management" },
+                { service: "Digital Guardian", type: "DLP", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Data loss prevention, endpoint DLP" },
+                { service: "Forcepoint DLP", type: "DLP", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Cloud and endpoint DLP" },
+                { service: "IronKey", type: "Encrypted Storage", fedramp: "N/A", assetType: "CUI Asset", purpose: "FIPS 140-2 encrypted USB drives" }
+            ]
+        },
+        "Physical Protection (PE)": {
+            native: [
+                { service: "Azure Datacenter (Inherited)", type: "Physical Security", purpose: "Microsoft manages physical datacenter security" }
+            ],
+            thirdParty: [
+                { service: "Envoy", type: "Visitor Management", fedramp: "N/A", assetType: "Contractor Risk Managed Asset", purpose: "Digital visitor logs, badge printing" },
+                { service: "Verkada", type: "Physical Security", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Cloud-managed cameras, access control" },
+                { service: "Brivo", type: "Access Control", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Cloud-based door access control" }
+            ]
+        },
+        "Personnel Security (PS)": {
+            native: [
+                { service: "Entra ID Lifecycle Workflows", type: "Identity Lifecycle", purpose: "Onboarding/offboarding automation" }
+            ],
+            thirdParty: [
+                { service: "Sterling", type: "Background Check", fedramp: "N/A", assetType: "Contractor Risk Managed Asset", purpose: "Employment verification, background screening" },
+                { service: "HireRight", type: "Background Check", fedramp: "N/A", assetType: "Contractor Risk Managed Asset", purpose: "Background checks, drug screening" },
+                { service: "Workday", type: "HCM", fedramp: "Moderate", assetType: "Contractor Risk Managed Asset", purpose: "HR system of record, personnel tracking" }
+            ]
+        },
+        "Risk Assessment (RA)": {
+            native: [
+                { service: "Microsoft Defender for Cloud", type: "CSPM", purpose: "Security posture, vulnerability assessment" },
+                { service: "Defender Vulnerability Management", type: "Vulnerability Scanner", purpose: "Continuous vulnerability scanning" },
+                { service: "Microsoft Secure Score", type: "Security Posture", purpose: "Security recommendations, benchmarking" }
+            ],
+            thirdParty: [
+                { service: "Tenable.sc", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "On-prem vulnerability management" },
+                { service: "Qualys VMDR", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Vulnerability detection and response" },
+                { service: "Archer", type: "GRC", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Risk management, compliance tracking" },
+                { service: "ServiceNow GRC", type: "GRC", fedramp: "High", assetType: "Security Protection Asset", purpose: "Risk register, policy management" }
+            ]
+        },
+        "System & Communications Protection (SC)": {
+            native: [
+                { service: "Azure Firewall", type: "Network Security", purpose: "L3-L7 filtering, threat intelligence" },
+                { service: "Azure VPN Gateway", type: "VPN", purpose: "FIPS IPsec, site-to-site connectivity" },
+                { service: "Azure Front Door + WAF", type: "WAF", purpose: "Web application firewall, DDoS protection" },
+                { service: "Azure Key Vault HSM", type: "HSM", purpose: "FIPS 140-2 Level 3 key storage" },
+                { service: "Azure Private Link", type: "Network Isolation", purpose: "Private connectivity to PaaS services" }
+            ],
+            thirdParty: [
+                { service: "Palo Alto Networks (VM-Series)", type: "NGFW", fedramp: "High", assetType: "Security Protection Asset", purpose: "Next-gen firewall, threat prevention" },
+                { service: "Zscaler (GovCloud)", type: "SASE/SSE", fedramp: "High", assetType: "Security Protection Asset", purpose: "Zero trust network access, SWG" },
+                { service: "Netskope (GovCloud)", type: "CASB/SSE", fedramp: "High", assetType: "Security Protection Asset", purpose: "Cloud security, DLP, CASB" },
+                { service: "Cloudflare (Gov)", type: "CDN/WAF", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "DDoS protection, WAF, CDN" },
+                { service: "Cisco Umbrella", type: "DNS Security", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "DNS filtering, secure web gateway" }
+            ]
+        },
+        "System & Information Integrity (SI)": {
+            native: [
+                { service: "Microsoft Defender for Endpoint", type: "EDR", purpose: "Antimalware, EDR, threat analytics" },
+                { service: "Microsoft Defender Antivirus", type: "Antimalware", purpose: "Real-time protection, cloud-delivered" },
+                { service: "Azure DDoS Protection", type: "DDoS", purpose: "Volumetric attack mitigation" }
+            ],
+            thirdParty: [
+                { service: "CrowdStrike Falcon", type: "EDR/XDR", fedramp: "High", assetType: "Security Protection Asset", purpose: "Next-gen antivirus, threat intelligence" },
+                { service: "SentinelOne", type: "EDR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Autonomous endpoint protection" },
+                { service: "Carbon Black", type: "EDR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Endpoint detection, application control" },
+                { service: "Trend Micro", type: "Endpoint Security", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Server and endpoint protection" }
+            ]
+        }
+    },
+
+    // CUI Asset Categories
+    cuiAssetTypes: [
+        { type: "CUI Asset", description: "Systems that store, process, or transmit CUI directly", examples: "SharePoint libraries, file shares, databases with CUI" },
+        { type: "Security Protection Asset", description: "Systems that provide security functions protecting CUI", examples: "Firewalls, SIEM, EDR, MFA providers" },
+        { type: "Contractor Risk Managed Asset", description: "Systems managed by contractors with appropriate controls", examples: "Background check services, HR systems, visitor management" },
+        { type: "Specialized Asset", description: "OT/IoT systems with limited security capability", examples: "Manufacturing equipment, lab instruments" },
+        { type: "Out of Scope", description: "Systems with no CUI nexus", examples: "Marketing website, public-facing apps" }
+    ],
+
     // Azure Government Environment Info
     azureGovEndpoints: {
         description: "Azure Government uses separate endpoints from commercial Azure for FedRAMP High compliance.",

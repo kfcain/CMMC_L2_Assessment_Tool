@@ -2725,8 +2725,95 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // Handle different data structures for each cloud
         let servicesHtml = '';
         let fedrampHtml = '';
+        let servicesByFamilyHtml = '';
         
-        // AWS services
+        // Services by Control Family (comprehensive view with native + third-party)
+        if (guide.servicesByFamily) {
+            const familyCards = Object.entries(guide.servicesByFamily).map(([family, data]) => {
+                const nativeRows = data.native.map(s => `
+                    <tr class="native-service-row">
+                        <td><strong>${s.service}</strong></td>
+                        <td><span class="service-type-badge native">${s.type}</span></td>
+                        <td>${s.purpose}</td>
+                    </tr>
+                `).join('');
+                
+                const thirdPartyRows = data.thirdParty.map(s => `
+                    <tr class="thirdparty-service-row">
+                        <td><strong>${s.service}</strong></td>
+                        <td><span class="service-type-badge">${s.type}</span></td>
+                        <td><span class="fedramp-badge ${s.fedramp === 'High' ? 'high' : s.fedramp === 'Moderate' ? 'moderate' : 'na'}">${s.fedramp}</span></td>
+                        <td><span class="asset-type-badge ${s.assetType.toLowerCase().replace(/\s+/g, '-')}">${s.assetType}</span></td>
+                        <td>${s.purpose}</td>
+                    </tr>
+                `).join('');
+                
+                return `
+                    <details class="service-family-card">
+                        <summary class="service-family-header">
+                            <span class="family-name">${family}</span>
+                            <span class="family-counts">
+                                <span class="native-count">${data.native.length} Native</span>
+                                <span class="thirdparty-count">${data.thirdParty.length} Third-Party</span>
+                            </span>
+                        </summary>
+                        <div class="service-family-content">
+                            <div class="native-services-section">
+                                <h4 class="services-subheader native-header">Native Cloud Services</h4>
+                                <table class="impl-table compact">
+                                    <thead><tr><th>Service</th><th>Type</th><th>Purpose</th></tr></thead>
+                                    <tbody>${nativeRows}</tbody>
+                                </table>
+                            </div>
+                            <div class="thirdparty-services-section">
+                                <h4 class="services-subheader thirdparty-header">Third-Party Integrations</h4>
+                                <table class="impl-table compact">
+                                    <thead><tr><th>Service</th><th>Type</th><th>FedRAMP</th><th>Asset Type</th><th>Purpose</th></tr></thead>
+                                    <tbody>${thirdPartyRows}</tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </details>
+                `;
+            }).join('');
+            
+            servicesByFamilyHtml = `
+                <div class="impl-section">
+                    <div class="impl-section-title">Services by Control Family</div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px">
+                        Native cloud services and FedRAMP-authorized third-party integrations organized by CMMC control family. 
+                        Click each family to expand and view available options.
+                    </p>
+                    <div class="service-families-container">${familyCards}</div>
+                </div>
+            `;
+        }
+        
+        // CUI Asset Types reference
+        if (guide.cuiAssetTypes) {
+            const assetRows = guide.cuiAssetTypes.map(a => `
+                <tr>
+                    <td><span class="asset-type-badge ${a.type.toLowerCase().replace(/\s+/g, '-')}">${a.type}</span></td>
+                    <td>${a.description}</td>
+                    <td style="font-size:0.7rem;color:var(--text-muted)">${a.examples}</td>
+                </tr>
+            `).join('');
+            
+            servicesByFamilyHtml += `
+                <div class="impl-section">
+                    <div class="impl-section-title">CUI Asset Categories</div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">
+                        Categorize your systems using these asset types for your CMMC assessment scope.
+                    </p>
+                    <table class="impl-table">
+                        <thead><tr><th>Asset Type</th><th>Description</th><th>Examples</th></tr></thead>
+                        <tbody>${assetRows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // AWS services (legacy format)
         if (guide.awsServices) {
             const rows = guide.awsServices.map(s => `
                 <tr>
@@ -2746,7 +2833,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             `;
         }
         
-        // GCP services
+        // GCP services (legacy format)
         if (guide.gcpServices) {
             const rows = guide.gcpServices.map(s => `
                 <tr>
@@ -2766,8 +2853,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             `;
         }
         
-        // M365 GCC High services
-        if (guide.m365Services) {
+        // M365 GCC High services (legacy format - now supplementary)
+        if (guide.m365Services && !guide.servicesByFamily) {
             const rows = guide.m365Services.map(s => `
                 <tr>
                     <td><strong>${s.control}</strong></td>
@@ -2786,8 +2873,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             `;
         }
         
-        // Azure Government services
-        if (guide.azureGovServices) {
+        // Azure Government services (legacy format - now supplementary)
+        if (guide.azureGovServices && !guide.servicesByFamily) {
             const rows = guide.azureGovServices.map(s => `
                 <tr>
                     <td><strong>${s.control}</strong></td>
@@ -2889,7 +2976,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             `;
         }
         
-        return servicesHtml + fedrampHtml || '<p style="color:var(--text-muted)">No services data available.</p>';
+        return servicesByFamilyHtml + servicesHtml + fedrampHtml || '<p style="color:var(--text-muted)">No services data available.</p>';
     }
 
     renderImplExtras(guide) {
