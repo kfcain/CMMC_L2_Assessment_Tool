@@ -159,19 +159,25 @@ const CrosswalkVisualizer = {
             }
             
             // Apply FedRAMP 20x level filter
-            if (this.filters.baseline !== 'all') {
+            // Only filter if we have KSIs and a filter is selected
+            if (this.filters.baseline !== 'all' && derivedKSIs.length > 0) {
                 // Filter KSIs that match the selected 20x level
                 const filteredKSIs = derivedKSIs.filter(ksi => {
-                    const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? FEDRAMP_20X_KSI.indicators[ksi] : null;
-                    if (!ksiInfo) return false;
+                    if (typeof FEDRAMP_20X_KSI === 'undefined') return true;
+                    const ksiInfo = FEDRAMP_20X_KSI.indicators[ksi];
+                    if (!ksiInfo) return true; // Keep if no info found
                     // 20x Low: KSIs with low: true
                     if (this.filters.baseline === 'low') return ksiInfo.low === true;
-                    // 20x Moderate: KSIs with moderate: true (includes all Low KSIs plus additional)
+                    // 20x Moderate: KSIs with moderate: true
                     if (this.filters.baseline === 'moderate') return ksiInfo.moderate === true;
-                    return false;
+                    return true;
                 });
+                // Only exclude control if NO KSIs match the filter
                 if (filteredKSIs.length === 0) return;
                 derivedKSIs = filteredKSIs;
+            } else if (this.filters.baseline !== 'all' && derivedKSIs.length === 0) {
+                // If filtering by 20x level but control has no KSIs, exclude it
+                return;
             }
             
             // Apply search filter
