@@ -988,9 +988,13 @@ class AssessmentApp {
             ? getKSIsForControl(mapping.nist80053) 
             : [];
         
-        // Build FedRAMP 20x KSI badges
+        // Build FedRAMP 20x KSI badges (clickable links to myctrl.tools)
         const fedramp20xHtml = derivedKSIs.length > 0
-            ? derivedKSIs.map(ksi => `<span class="framework-link fedramp20x">${ksi}</span>`).join('')
+            ? derivedKSIs.map(ksi => {
+                // Convert KSI-IAM-04 to ksi-iam-4 (strip leading zeros)
+                const urlId = ksi.toLowerCase().replace(/-0+(\d)/g, '-$1');
+                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="framework-link fedramp20x">${ksi}</a>`;
+            }).join('')
             : '<span class="framework-na">N/A</span>';
 
         // Build CMMC practice badge
