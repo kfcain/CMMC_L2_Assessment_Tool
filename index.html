@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="styles.css?v=11">
     <link rel="stylesheet" href="css/evidence.css?v=1">
     <link rel="stylesheet" href="css/theme-picker.css?v=2">
-    <link rel="stylesheet" href="css/crosswalk.css?v=1">
+    <link rel="stylesheet" href="css/crosswalk.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -243,6 +243,10 @@
                 <div id="crosswalk-content" class="crosswalk-content">
                     <div id="crosswalk-table-view" class="crosswalk-table-container"></div>
                     <div id="crosswalk-graph-view" class="crosswalk-graph-container" style="display: none;">
+                        <div id="graph-selector-container" class="graph-selector-container" style="display: none;">
+                            <label for="graph-control-selector">Select Control:</label>
+                            <select id="graph-control-selector"></select>
+                        </div>
                         <canvas id="crosswalk-canvas"></canvas>
                         <div id="graph-tooltip" class="graph-tooltip"></div>
                     </div>
@@ -424,6 +428,6 @@
     <script src="js/supabase-client.js?v=1"></script>
     <script src="js/evidence-ui.js?v=1"></script>
     <script src="js/theme-picker.js?v=3"></script>
-    <script src="js/crosswalk-visualizer.js?v=1"></script>
+    <script src="js/crosswalk-visualizer.js?v=2"></script>
 </body>
 </html>

@@ -279,6 +279,44 @@
 .legend-color.fedramp { background: #10b981; }
 .legend-color.cmmc { background: #f59e0b; }
 
+/* Graph Control Selector */
+.graph-selector-container {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 14px;
+    z-index: 10;
+}
+
+.graph-selector-container label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.graph-selector-container select {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    min-width: 280px;
+    max-width: 400px;
+}
+
+.graph-selector-container select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
 /* Graph Controls */
 .graph-controls {
     position: absolute;

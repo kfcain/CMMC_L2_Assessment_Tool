@@ -8,12 +8,13 @@ const CrosswalkVisualizer = {
         baseline: 'all',
         search: ''
     },
-    graph: null,
+    selectedControl: null,
     nodes: [],
     edges: [],
     
     init() {
         this.populateFamilyFilter();
+        this.populateControlSelector();
         this.bindEvents();
         this.renderTable();
     },
@@ -51,6 +52,42 @@ const CrosswalkVisualizer = {
                 this.render();
             });
         }
+        
+        // Control selector for graph view
+        const controlSelector = document.getElementById('graph-control-selector');
+        if (controlSelector) {
+            controlSelector.addEventListener('change', (e) => {
+                this.selectedControl = e.target.value;
+                if (this.currentMode === 'graph') {
+                    this.renderGraph();
+                }
+            });
+        }
+    },
+    
+    populateControlSelector() {
+        const select = document.getElementById('graph-control-selector');
+        if (!select || typeof FRAMEWORK_MAPPINGS === 'undefined') return;
+        
+        // Get all control IDs sorted
+        const controlIds = Object.keys(FRAMEWORK_MAPPINGS).sort((a, b) => {
+            const [aMaj, aMin] = a.split('.').map(Number);
+            const [bMaj, bMin] = b.split('.').map(Number);
+            return aMaj - bMaj || aMin - bMin;
+        });
+        
+        // Set default
+        if (controlIds.length > 0 && !this.selectedControl) {
+            this.selectedControl = controlIds[0];
+        }
+        
+        controlIds.forEach(id => {
+            const mapping = FRAMEWORK_MAPPINGS[id];
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = `${id} - ${mapping.description?.substring(0, 50) || ''}...`;
+            select.appendChild(option);
+        });
     },
     
     populateFamilyFilter() {
@@ -213,6 +250,10 @@ const CrosswalkVisualizer = {
         const canvas = document.getElementById('crosswalk-canvas');
         if (!container || !canvas) return;
         
+        // Show control selector
+        const selectorContainer = document.getElementById('graph-selector-container');
+        if (selectorContainer) selectorContainer.style.display = 'flex';
+        
         const ctx = canvas.getContext('2d');
         const rect = container.getBoundingClientRect();
         
@@ -226,14 +267,14 @@ const CrosswalkVisualizer = {
         const width = rect.width;
         const height = rect.height;
         
-        // Build nodes and edges
-        this.buildGraphData();
+        // Build hub-and-spoke for selected control
+        this.buildHubSpokeData();
         
-        // Simple force-directed layout
-        this.layoutGraph(width, height);
+        // Layout hub and spoke
+        this.layoutHubSpoke(width, height);
         
         // Draw
-        this.drawGraph(ctx, width, height);
+        this.drawHubSpoke(ctx, width, height);
         
         // Add legend
         this.addGraphLegend(container);
@@ -242,101 +283,131 @@ const CrosswalkVisualizer = {
         this.addGraphInteractivity(canvas, ctx, width, height);
     },
     
-    buildGraphData() {
-        const data = this.getMappingData();
+    buildHubSpokeData() {
+        if (!this.selectedControl || typeof FRAMEWORK_MAPPINGS === 'undefined') {
+            this.nodes = [];
+            this.edges = [];
+            return;
+        }
+        
+        const mapping = FRAMEWORK_MAPPINGS[this.selectedControl];
+        if (!mapping) {
+            this.nodes = [];
+            this.edges = [];
+            return;
+        }
+        
         this.nodes = [];
         this.edges = [];
         
-        const nodeMap = new Map();
-        
-        // Create nodes for each framework control
-        data.forEach(item => {
-            // NIST 800-171 node
-            if (!nodeMap.has(item.controlId)) {
-                nodeMap.set(item.controlId, {
-                    id: item.controlId,
-                    label: item.controlId,
-                    type: 'nist-171',
-                    description: item.description,
-                    x: 0, y: 0, vx: 0, vy: 0
-                });
-            }
-            
-            // NIST 800-53 nodes
-            (item.nist80053 || []).forEach(ctrl => {
-                if (!nodeMap.has(ctrl)) {
-                    nodeMap.set(ctrl, {
-                        id: ctrl,
-                        label: ctrl,
-                        type: 'nist-53',
-                        x: 0, y: 0, vx: 0, vy: 0
-                    });
-                }
-                this.edges.push({ source: item.controlId, target: ctrl });
-            });
-            
-            // CMMC node
-            if (item.cmmc?.practice) {
-                if (!nodeMap.has(item.cmmc.practice)) {
-                    nodeMap.set(item.cmmc.practice, {
-                        id: item.cmmc.practice,
-                        label: item.cmmc.practice,
-                        type: 'cmmc',
-                        x: 0, y: 0, vx: 0, vy: 0
-                    });
-                }
-                this.edges.push({ source: item.controlId, target: item.cmmc.practice });
-            }
+        // Center hub node - NIST 800-171
+        this.nodes.push({
+            id: this.selectedControl,
+            label: this.selectedControl,
+            type: 'nist-171',
+            description: mapping.description,
+            isHub: true,
+            x: 0, y: 0
         });
         
-        this.nodes = Array.from(nodeMap.values());
+        // NIST 800-53 spoke nodes
+        (mapping.nist80053 || []).forEach(ctrl => {
+            this.nodes.push({
+                id: ctrl,
+                label: ctrl,
+                type: 'nist-53',
+                x: 0, y: 0
+            });
+            this.edges.push({ source: this.selectedControl, target: ctrl, type: 'nist-53' });
+        });
+        
+        // FedRAMP spoke nodes (grouped by baseline)
+        const fedControls = new Set();
+        ['low', 'moderate', 'high'].forEach(baseline => {
+            (mapping.fedramp?.[baseline] || []).forEach(ctrl => {
+                const nodeId = `fed-${ctrl}`;
+                if (!fedControls.has(ctrl)) {
+                    fedControls.add(ctrl);
+                    this.nodes.push({
+                        id: nodeId,
+                        label: ctrl,
+                        type: 'fedramp',
+                        baseline: baseline,
+                        x: 0, y: 0
+                    });
+                    this.edges.push({ source: this.selectedControl, target: nodeId, type: 'fedramp' });
+                }
+            });
+        });
+        
+        // CMMC spoke node
+        if (mapping.cmmc?.practice) {
+            this.nodes.push({
+                id: mapping.cmmc.practice,
+                label: mapping.cmmc.practice,
+                type: 'cmmc',
+                x: 0, y: 0
+            });
+            this.edges.push({ source: this.selectedControl, target: mapping.cmmc.practice, type: 'cmmc' });
+        }
     },
     
-    layoutGraph(width, height) {
+    layoutHubSpoke(width, height) {
         const centerX = width / 2;
         const centerY = height / 2;
+        const radius = Math.min(width, height) * 0.35;
         
-        // Group nodes by type
-        const nist171Nodes = this.nodes.filter(n => n.type === 'nist-171');
-        const nist53Nodes = this.nodes.filter(n => n.type === 'nist-53');
-        const cmmcNodes = this.nodes.filter(n => n.type === 'cmmc');
+        // Position hub in center
+        const hub = this.nodes.find(n => n.isHub);
+        if (hub) {
+            hub.x = centerX;
+            hub.y = centerY;
+        }
         
-        // Position NIST 800-171 in center column
-        const col1X = width * 0.2;
-        nist171Nodes.forEach((node, i) => {
-            node.x = col1X;
-            node.y = 60 + (i * ((height - 120) / Math.max(1, nist171Nodes.length - 1) || 30));
-        });
+        // Group spokes by type
+        const spokes = this.nodes.filter(n => !n.isHub);
+        const nist53Spokes = spokes.filter(n => n.type === 'nist-53');
+        const fedSpokes = spokes.filter(n => n.type === 'fedramp');
+        const cmmcSpokes = spokes.filter(n => n.type === 'cmmc');
         
-        // Position NIST 800-53 in middle column
-        const col2X = width * 0.5;
-        nist53Nodes.forEach((node, i) => {
-            node.x = col2X;
-            node.y = 60 + (i * ((height - 120) / Math.max(1, nist53Nodes.length - 1) || 30));
-        });
+        // Position spokes in sectors around the hub
+        // NIST 800-53: top-left quadrant
+        this.positionSpokesInArc(nist53Spokes, centerX, centerY, radius, -Math.PI * 0.75, -Math.PI * 0.25);
         
-        // Position CMMC in right column
-        const col3X = width * 0.8;
-        cmmcNodes.forEach((node, i) => {
-            node.x = col3X;
-            node.y = 60 + (i * ((height - 120) / Math.max(1, cmmcNodes.length - 1) || 30));
+        // FedRAMP: top-right quadrant
+        this.positionSpokesInArc(fedSpokes, centerX, centerY, radius, -Math.PI * 0.25, Math.PI * 0.25);
+        
+        // CMMC: bottom quadrant
+        this.positionSpokesInArc(cmmcSpokes, centerX, centerY, radius, Math.PI * 0.4, Math.PI * 0.6);
+    },
+    
+    positionSpokesInArc(nodes, cx, cy, radius, startAngle, endAngle) {
+        if (nodes.length === 0) return;
+        
+        const angleStep = (endAngle - startAngle) / Math.max(1, nodes.length - 1);
+        
+        nodes.forEach((node, i) => {
+            const angle = nodes.length === 1 ? (startAngle + endAngle) / 2 : startAngle + i * angleStep;
+            node.x = cx + Math.cos(angle) * radius;
+            node.y = cy + Math.sin(angle) * radius;
         });
     },
     
-    drawGraph(ctx, width, height) {
+    drawHubSpoke(ctx, width, height) {
+        const styles = getComputedStyle(document.documentElement);
+        
         // Clear canvas
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim() || '#0d1117';
+        ctx.fillStyle = styles.getPropertyValue('--bg-primary').trim() || '#0d1117';
         ctx.fillRect(0, 0, width, height);
         
-        // Draw column headers
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#8b949e';
-        ctx.font = '600 11px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('NIST 800-171', width * 0.2, 30);
-        ctx.fillText('NIST 800-53', width * 0.5, 30);
-        ctx.fillText('CMMC L2', width * 0.8, 30);
+        const colors = {
+            'nist-171': '#3b82f6',
+            'nist-53': '#8b5cf6',
+            'fedramp': '#10b981',
+            'cmmc': '#f59e0b'
+        };
         
-        // Draw edges
+        // Draw edges first
         const nodeMap = new Map(this.nodes.map(n => [n.id, n]));
         
         this.edges.forEach(edge => {
@@ -346,38 +417,76 @@ const CrosswalkVisualizer = {
             
             ctx.beginPath();
             ctx.moveTo(source.x, source.y);
-            
-            // Curved line
-            const cpX = (source.x + target.x) / 2;
-            ctx.quadraticCurveTo(cpX, source.y, target.x, target.y);
-            
-            ctx.strokeStyle = 'rgba(139, 148, 158, 0.2)';
-            ctx.lineWidth = 1;
+            ctx.lineTo(target.x, target.y);
+            ctx.strokeStyle = colors[edge.type] || 'rgba(139, 148, 158, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.4;
             ctx.stroke();
+            ctx.globalAlpha = 1;
         });
         
         // Draw nodes
-        const colors = {
-            'nist-171': '#3b82f6',
-            'nist-53': '#8b5cf6',
-            'cmmc': '#f59e0b'
-        };
-        
         this.nodes.forEach(node => {
+            const nodeRadius = node.isHub ? 24 : 10;
+            
             // Node circle
             ctx.beginPath();
-            ctx.arc(node.x, node.y, 6, 0, Math.PI * 2);
+            ctx.arc(node.x, node.y, nodeRadius, 0, Math.PI * 2);
             ctx.fillStyle = colors[node.type] || '#6b7280';
             ctx.fill();
             
+            // Hub gets a border
+            if (node.isHub) {
+                ctx.strokeStyle = styles.getPropertyValue('--bg-primary').trim() || '#0d1117';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+            
             // Node label
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#c9d1d9';
-            ctx.font = '500 10px "SF Mono", "Fira Code", monospace';
-            ctx.textAlign = node.type === 'nist-171' ? 'right' : node.type === 'cmmc' ? 'left' : 'center';
-            const labelX = node.type === 'nist-171' ? node.x - 12 : node.type === 'cmmc' ? node.x + 12 : node.x;
-            const labelY = node.type === 'nist-53' ? node.y - 10 : node.y + 4;
-            ctx.fillText(node.label, labelX, labelY);
+            ctx.fillStyle = node.isHub ? '#ffffff' : (styles.getPropertyValue('--text-primary').trim() || '#e6edf3');
+            ctx.font = node.isHub ? 'bold 12px "SF Mono", monospace' : '500 11px "SF Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            if (node.isHub) {
+                ctx.fillText(node.label, node.x, node.y);
+            } else {
+                // Position label outside the node
+                const angle = Math.atan2(node.y - height/2, node.x - width/2);
+                const labelDist = nodeRadius + 8;
+                const labelX = node.x + Math.cos(angle) * labelDist;
+                const labelY = node.y + Math.sin(angle) * labelDist;
+                ctx.textAlign = Math.abs(angle) > Math.PI / 2 ? 'right' : 'left';
+                ctx.fillText(node.label, labelX, labelY);
+            }
         });
+        
+        // Draw description below hub
+        const hub = this.nodes.find(n => n.isHub);
+        if (hub?.description) {
+            ctx.fillStyle = styles.getPropertyValue('--text-muted').trim() || '#8b949e';
+            ctx.font = '400 12px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            // Word wrap description
+            const maxWidth = width * 0.6;
+            const words = hub.description.split(' ');
+            let line = '';
+            let y = hub.y + 40;
+            
+            words.forEach(word => {
+                const testLine = line + word + ' ';
+                if (ctx.measureText(testLine).width > maxWidth && line) {
+                    ctx.fillText(line.trim(), hub.x, y);
+                    line = word + ' ';
+                    y += 18;
+                } else {
+                    line = testLine;
+                }
+            });
+            ctx.fillText(line.trim(), hub.x, y);
+        }
     },
     
     addGraphLegend(container) {
@@ -395,6 +504,10 @@ const CrosswalkVisualizer = {
             <div class="graph-legend-item">
                 <span class="legend-color nist-53"></span>
                 <span>NIST 800-53</span>
+            </div>
+            <div class="graph-legend-item">
+                <span class="legend-color fedramp"></span>
+                <span>FedRAMP</span>
             </div>
             <div class="graph-legend-item">
                 <span class="legend-color cmmc"></span>
