@@ -179,12 +179,63 @@ const GCC_HIGH_IMPL_GUIDE = {
         },
         incidentResponse: {
             title: "Incident Response Policy (IR)",
-            purpose: "To ensure rapid reporting of cyber incidents.",
+            purpose: "To ensure rapid reporting of cyber incidents per DFARS 252.204-7012.",
             sections: [
-                { heading: "Reporting Timeline", items: ["All potential incidents must be reported to the FSO immediately.", "Confirmed incidents must be reported to DIBNet (https://dibnet.dod.mil) within 72 hours."] },
-                { heading: "Preservation", items: ["In the event of an incident, do not reboot the machine.", "Disconnect the network cable and await FSO instructions."] }
+                { heading: "Reporting Timeline", items: ["All potential incidents must be reported to the CMMC Lead/FSO immediately.", "Confirmed incidents affecting CUI must be reported to DC3/DCISE within 72 hours per DFARS 7012."] },
+                { heading: "Preservation", items: ["In the event of an incident, do not reboot the machine.", "Disconnect the network cable and await CMMC Lead instructions.", "Preserve all logs and forensic artifacts for 90 days minimum."] },
+                { heading: "DC3/DCISE Reporting", items: ["Primary Portal: https://dibnet.dod.mil (DoD DIBNet)", "Alternate: https://www.dc3.mil/DCISE/ (DC3 DCISE Portal)", "ECA Certificate required for portal access (Medium Assurance).", "Report within 72 hours of discovery per DFARS 252.204-7012(c)."] }
             ]
         }
+    },
+
+    // DFARS 7012 Incident Response Resources
+    dfars7012Resources: {
+        description: "Resources for DIB companies to comply with DFARS 252.204-7012 cyber incident reporting requirements.",
+        portals: [
+            { name: "DoD DIBNet Portal", url: "https://dibnet.dod.mil", purpose: "Primary portal for cyber incident reporting to DC3", requirements: "ECA Medium Assurance Certificate required" },
+            { name: "DC3 DCISE Portal", url: "https://www.dc3.mil/DCISE/", purpose: "Defense Cyber Crime Center - Defense Industrial Base Collaborative Information Sharing Environment", requirements: "Partnership enrollment" },
+            { name: "CISA Incident Reporting", url: "https://www.cisa.gov/report", purpose: "Report incidents to CISA (optional but recommended)", requirements: "None" }
+        ],
+        ecaCertificate: {
+            description: "External Certificate Authority (ECA) Medium Assurance Certificate is required for DIBNet access.",
+            providers: [
+                { name: "IdenTrust", url: "https://www.identrust.com/certificates/eca", type: "Commercial CA" },
+                { name: "DigiCert", url: "https://www.digicert.com/federal/eca-certificate", type: "Commercial CA" },
+                { name: "Entrust", url: "https://www.entrust.com/digital-security/certificate-solutions/products/pki/eca-certificates", type: "Commercial CA" }
+            ],
+            note: "ECA certificates typically cost $100-200/year and require identity verification. Plan for 1-2 weeks for issuance."
+        },
+        reportingRequirements: [
+            { requirement: "72-Hour Reporting", description: "Report cyber incidents to DC3 within 72 hours of discovery" },
+            { requirement: "Image Preservation", description: "Preserve images of affected systems for 90 days" },
+            { requirement: "Malware Submission", description: "Submit malware samples to DC3 if discovered" },
+            { requirement: "Cooperation", description: "Cooperate with DoD damage assessment activities" }
+        ]
+    },
+
+    // Celerium Dark Cubed Threat Intelligence
+    celeriumDarkCubed: {
+        description: "Celerium's Dark Cubed is a threat intelligence and monitoring service specifically designed for DIB companies. It provides real-time threat detection and integrates with your security infrastructure.",
+        service: "Dark Cubed",
+        provider: "Celerium",
+        website: "https://www.celerium.com/dark-cubed",
+        benefits: [
+            "Real-time threat intelligence feeds curated for DIB/defense contractors",
+            "Automatic IP blocklist updates for firewalls and security appliances",
+            "Integration with Conditional Access policies for dynamic threat response",
+            "Compliance support for DFARS 7012 and CMMC requirements",
+            "24/7 monitoring with DIB-specific threat hunting",
+            "Incident response support and forensic assistance"
+        ],
+        integrations: [
+            { type: "Firewall", examples: "Palo Alto, Fortinet, Cisco ASA - automatic blocklist updates" },
+            { type: "Conditional Access", examples: "Entra ID Named Locations - block traffic from threat IPs" },
+            { type: "SIEM", examples: "Microsoft Sentinel, Splunk - threat intelligence enrichment" },
+            { type: "EDR", examples: "Defender for Endpoint - IOC integration" },
+            { type: "DNS", examples: "DNS filtering - block malicious domains" }
+        ],
+        recommendation: "DIB companies should strongly consider partnering with Celerium for Dark Cubed monitoring to enhance threat visibility and meet DFARS 7012 continuous monitoring requirements.",
+        contact: "https://www.celerium.com/contact"
     },
 
     // FedRAMP Authorized Providers
