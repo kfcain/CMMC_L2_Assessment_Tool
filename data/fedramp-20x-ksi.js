@@ -763,14 +763,27 @@ const FEDRAMP_20X_KSI = {
 // Helper function to get KSIs for a NIST 800-171 control based on its 800-53 mappings
 function getKSIsForControl(nist80053Controls) {
     const ksis = new Set();
+    const mapping = FEDRAMP_20X_KSI.nist80053ToKSI;
+    
     nist80053Controls.forEach(ctrl => {
         // Strip enhancement numbers for base control lookup
         const baseCtrl = ctrl.split('(')[0];
-        const matches = FEDRAMP_20X_KSI.nist80053ToKSI[baseCtrl] || [];
-        matches.forEach(ksi => ksis.add(ksi));
-        // Also check full control with enhancement
-        const fullMatches = FEDRAMP_20X_KSI.nist80053ToKSI[ctrl] || [];
+        
+        // Check base control
+        const baseMatches = mapping[baseCtrl] || [];
+        baseMatches.forEach(ksi => ksis.add(ksi));
+        
+        // Check full control with enhancement (parenthesis format)
+        const fullMatches = mapping[ctrl] || [];
         fullMatches.forEach(ksi => ksis.add(ksi));
+        
+        // Also check for all enhancements of this base control (dot notation format)
+        // e.g., if ctrl is "CA-2", also check "CA-2.1", "CA-2.2", etc.
+        Object.keys(mapping).forEach(key => {
+            if (key.startsWith(baseCtrl + '.')) {
+                mapping[key].forEach(ksi => ksis.add(ksi));
+            }
+        });
     });
     return Array.from(ksis);
 }
