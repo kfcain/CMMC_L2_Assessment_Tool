@@ -988,15 +988,16 @@ class AssessmentApp {
             ? getKSIsForControl(mapping.nist80053) 
             : [];
         
-        // Build FedRAMP 20x KSI badges (clickable links to myctrl.tools with descriptions)
+        // Build FedRAMP 20x KSI badges (clickable links to myctrl.tools with descriptions and level badges)
         const fedramp20xHtml = derivedKSIs.length > 0
             ? derivedKSIs.map(ksi => {
                 // Convert KSI-IAM-04 to ksi-iam-4 (strip leading zeros)
                 const urlId = ksi.toLowerCase().replace(/-0+(\d)/g, '-$1');
-                // Get KSI details for tooltip
+                // Get KSI details for tooltip and level
                 const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? FEDRAMP_20X_KSI.indicators[ksi] : null;
                 const tooltip = ksiInfo ? `${ksiInfo.title}: ${ksiInfo.description}` : ksi;
-                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="framework-link fedramp20x" title="${tooltip}">${ksi}</a>`;
+                const levelBadge = ksiInfo ? (ksiInfo.low ? '<span class="ksi-level-badge ksi-low">L</span>' : '<span class="ksi-level-badge ksi-mod">M</span>') : '';
+                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="framework-link fedramp20x" title="${tooltip}">${ksi}${levelBadge}</a>`;
             }).join('')
             : '<span class="framework-na">N/A</span>';
 
