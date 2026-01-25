@@ -537,21 +537,31 @@ class AssessmentApp {
         const container = document.getElementById('impl-guide-content');
         if (!container) return;
         
+        // Update active state on cloud buttons
+        document.querySelectorAll('.cloud-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.cloud === this.implGuideCloud);
+        });
+        
         const guide = this.getImplGuide();
         if (!guide) {
-            container.innerHTML = '<p style="padding:20px;color:var(--text-muted)">No implementation guide available.</p>';
+            container.innerHTML = '<p style="padding:20px;color:var(--text-muted)">No implementation guide available for this cloud platform.</p>';
             return;
         }
         
-        // Bind cloud selector buttons
-        document.querySelectorAll('.cloud-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.cloud-btn').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                this.selectedCloud = e.currentTarget.dataset.cloud;
-                this.renderImplGuideView();
+        // Bind cloud selector buttons (use event delegation to avoid duplicate listeners)
+        const header = document.querySelector('#impl-guide-view .view-header');
+        if (header && !header.dataset.bound) {
+            header.dataset.bound = 'true';
+            header.addEventListener('click', (e) => {
+                const btn = e.target.closest('.cloud-btn');
+                if (btn) {
+                    document.querySelectorAll('.cloud-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    this.implGuideCloud = btn.dataset.cloud;
+                    this.renderImplGuideView();
+                }
             });
-        });
+        }
         
         // Render the implementation guide tabs and content
         container.innerHTML = `
