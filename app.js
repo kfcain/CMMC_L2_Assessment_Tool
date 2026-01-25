@@ -537,46 +537,39 @@ class AssessmentApp {
         const container = document.getElementById('impl-guide-content');
         if (!container) return;
         
-        // Update active state on cloud buttons
-        document.querySelectorAll('.cloud-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.cloud === this.implGuideCloud);
-        });
-        
         const guide = this.getImplGuide();
-        if (!guide) {
-            container.innerHTML = '<p style="padding:20px;color:var(--text-muted)">No implementation guide available for this cloud platform.</p>';
-            return;
-        }
+        const cloudNames = { azure: 'GCC-High', aws: 'AWS GovCloud', gcp: 'GCP' };
+        const currentCloud = this.implGuideCloud || 'azure';
         
-        // Bind cloud selector buttons (use event delegation to avoid duplicate listeners)
-        const header = document.querySelector('#impl-guide-view .view-header');
-        if (header && !header.dataset.bound) {
-            header.dataset.bound = 'true';
-            header.addEventListener('click', (e) => {
-                const btn = e.target.closest('.cloud-btn');
-                if (btn) {
-                    document.querySelectorAll('.cloud-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    this.implGuideCloud = btn.dataset.cloud;
-                    this.renderImplGuideView();
-                }
-            });
-        }
-        
-        // Render the implementation guide tabs and content
+        // Render the implementation guide header, tabs and content
         container.innerHTML = `
-            <div class="impl-guide-tabs" id="impl-guide-view-tabs">
-                <button class="impl-tab active" data-tab="project-plan">Project Plan</button>
-                <button class="impl-tab" data-tab="evidence">Evidence Strategy</button>
-                <button class="impl-tab" data-tab="policies">Policy Templates</button>
-                <button class="impl-tab" data-tab="ssp">SSP Statements</button>
-                <button class="impl-tab" data-tab="services">Services</button>
-                <button class="impl-tab" data-tab="extras">Extras</button>
+            <div class="impl-guide-view-header">
+                <div class="impl-guide-tabs" id="impl-guide-view-tabs">
+                    <button class="impl-tab active" data-tab="project-plan">Project Plan</button>
+                    <button class="impl-tab" data-tab="evidence">Evidence Strategy</button>
+                    <button class="impl-tab" data-tab="policies">Policy Templates</button>
+                    <button class="impl-tab" data-tab="ssp">SSP Statements</button>
+                    <button class="impl-tab" data-tab="services">Services</button>
+                    <button class="impl-tab" data-tab="extras">Extras</button>
+                </div>
+                <div class="cloud-selector">
+                    <button class="cloud-btn ${currentCloud === 'azure' ? 'active' : ''}" data-cloud="azure">GCC-High</button>
+                    <button class="cloud-btn ${currentCloud === 'aws' ? 'active' : ''}" data-cloud="aws">AWS GovCloud</button>
+                    <button class="cloud-btn ${currentCloud === 'gcp' ? 'active' : ''}" data-cloud="gcp">GCP</button>
+                </div>
             </div>
             <div class="impl-guide-body" id="impl-guide-view-body">
-                ${this.renderImplProjectPlan(guide)}
+                ${guide ? this.renderImplProjectPlan(guide) : '<p style="padding:20px;color:var(--text-muted)">No implementation guide available for this cloud platform.</p>'}
             </div>
         `;
+        
+        // Bind cloud selector
+        container.querySelectorAll('.cloud-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.implGuideCloud = e.currentTarget.dataset.cloud;
+                this.renderImplGuideView();
+            });
+        });
         
         // Bind tab switching
         container.querySelectorAll('.impl-tab').forEach(tab => {
