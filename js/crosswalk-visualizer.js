@@ -225,19 +225,13 @@ const CrosswalkVisualizer = {
                 `<span class="mapping-tag fedramp-20x">${ksi}</span>`
             ).join('') || '<span class="mapping-tag empty">—</span>';
             
-            // Debug: log generated HTML for first control
-            if (item.controlId === '3.1.1') {
-                console.log('nist53Tags HTML:', nist53Tags);
-                console.log('fed20xTags HTML:', fed20xTags);
-            }
-            
             // Combined NIST 800-171 / CMMC column
             const cmmcPractice = item.cmmc?.practice || '';
             const controlDisplay = cmmcPractice ? 
                 `<span class="mapping-tag nist-171">${item.controlId}</span><span class="mapping-tag cmmc">${cmmcPractice}</span>` :
                 `<span class="mapping-tag nist-171">${item.controlId}</span>`;
             
-            const rowHtml = `
+            html += `
                 <tr>
                     <td class="mapping-tags control-col">${controlDisplay}</td>
                     <td class="control-desc">${item.description || ''}</td>
@@ -245,13 +239,6 @@ const CrosswalkVisualizer = {
                     <td class="mapping-tags ksi-col">${fed20xTags}</td>
                 </tr>
             `;
-            
-            // Debug: log full row HTML for first control
-            if (item.controlId === '3.1.1') {
-                console.log('Full row HTML for 3.1.1:', rowHtml);
-            }
-            
-            html += rowHtml;
         });
         
         html += '</tbody></table>';
