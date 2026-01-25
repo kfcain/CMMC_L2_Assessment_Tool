@@ -143,7 +143,18 @@
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
+    min-width: 120px;
 }
+
+/* Column-specific widths for clarity */
+.crosswalk-table th:nth-child(1),
+.crosswalk-table td:nth-child(1) { min-width: 180px; }
+.crosswalk-table th:nth-child(2),
+.crosswalk-table td:nth-child(2) { min-width: 200px; max-width: 300px; }
+.crosswalk-table th:nth-child(3),
+.crosswalk-table td:nth-child(3) { min-width: 150px; }
+.crosswalk-table th:nth-child(4),
+.crosswalk-table td:nth-child(4) { min-width: 200px; }
 
 .mapping-tag {
     display: inline-flex;
