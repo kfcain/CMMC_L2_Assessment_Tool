@@ -1163,6 +1163,29 @@ class AssessmentApp {
         return { lost, maxPossible };
     }
 
+    calculateTotalSPRS() {
+        // SPRS starts at 110 and subtracts points for non-met controls
+        let score = 110;
+        
+        CONTROL_FAMILIES.forEach(family => {
+            family.controls.forEach(control => {
+                const pointValue = typeof SPRS_SCORING !== 'undefined' && SPRS_SCORING.pointValues 
+                    ? (SPRS_SCORING.pointValues[control.id] || 1) 
+                    : 1;
+                
+                const allObjectivesMet = control.objectives.every(objective => {
+                    return this.assessmentData[objective.id]?.status === 'met';
+                });
+                
+                if (!allObjectivesMet && control.objectives.length > 0) {
+                    score -= pointValue;
+                }
+            });
+        });
+        
+        return score;
+    }
+
     calculateControlsMet() {
         // Count how many controls have ALL objectives met
         let controlsMet = 0;
@@ -1661,26 +1684,37 @@ class AssessmentApp {
         const conditionalStatusClass = meetsConditionalThreshold ? 'eligible' : 'not-eligible';
         const conditionalStatusIcon = meetsConditionalThreshold ? '✅' : '⚠️';
 
+        // Calculate total SPRS score
+        const sprsScore = this.calculateTotalSPRS();
+        const sprsClass = sprsScore >= 0 ? 'positive' : sprsScore >= -50 ? 'moderate' : 'critical';
+
         let html = `
-            <div class="conditional-status-banner ${conditionalStatusClass}">
-                <div class="conditional-status-header">
-                    ${conditionalStatusIcon} <strong>CMMC Conditional Level 2 Status</strong>
+            <div class="dashboard-scores-row">
+                <div class="sprs-score-card ${sprsClass}">
+                    <div class="sprs-score-label">SPRS Score</div>
+                    <div class="sprs-score-value">${sprsScore}</div>
+                    <div class="sprs-score-range">Range: -203 to 110</div>
                 </div>
-                <div class="conditional-status-body">
-                    <div class="conditional-score">
-                        <span class="score-current">${controlsMet}</span>
-                        <span class="score-separator">/</span>
-                        <span class="score-required">110</span>
-                        <span class="score-label">controls implemented</span>
+                <div class="conditional-status-banner ${conditionalStatusClass}">
+                    <div class="conditional-status-header">
+                        ${conditionalStatusIcon} <strong>CMMC Conditional Level 2 Status</strong>
                     </div>
-                    <div class="conditional-message">
-                        ${meetsConditionalThreshold 
-                            ? 'You meet the minimum 88/110 (80%) threshold for Conditional Level 2 status eligibility.'
-                            : `You need <strong>${conditionalThreshold - controlsMet} more controls</strong> to reach the 88/110 (80%) minimum required for Conditional Level 2 status.`
-                        }
-                    </div>
-                    <div class="conditional-note">
-                        Per 32 CFR 170.21: Assessment score ÷ total requirements must be ≥ 0.8 before a POA&M is permitted.
+                    <div class="conditional-status-body">
+                        <div class="conditional-score">
+                            <span class="score-current">${controlsMet}</span>
+                            <span class="score-separator">/</span>
+                            <span class="score-required">110</span>
+                            <span class="score-label">controls implemented</span>
+                        </div>
+                        <div class="conditional-message">
+                            ${meetsConditionalThreshold 
+                                ? 'You meet the minimum 88/110 (80%) threshold for Conditional Level 2 status eligibility.'
+                                : `You need <strong>${conditionalThreshold - controlsMet} more controls</strong> to reach the 88/110 (80%) minimum required for Conditional Level 2 status.`
+                            }
+                        </div>
+                        <div class="conditional-note">
+                            Per 32 CFR 170.21: Assessment score ÷ total requirements must be ≥ 0.8 before a POA&M is permitted.
+                        </div>
                     </div>
                 </div>
             </div>
