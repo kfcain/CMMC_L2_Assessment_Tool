@@ -3720,6 +3720,7 @@ body {
 
 .impl-phase-badge.foundation { background: rgba(59, 130, 246, 0.2); color: #60a5fa; box-shadow: 0 0 8px rgba(59, 130, 246, 0.3); }
 .impl-phase-badge.security { background: rgba(239, 68, 68, 0.2); color: #f87171; box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); }
+.impl-phase-badge.workspace { background: rgba(236, 72, 153, 0.2); color: #f472b6; box-shadow: 0 0 8px rgba(236, 72, 153, 0.3); }
 .impl-phase-badge.people { background: rgba(16, 185, 129, 0.2); color: #34d399; box-shadow: 0 0 8px rgba(16, 185, 129, 0.3); }
 .impl-phase-badge.governance { background: rgba(245, 158, 11, 0.2); color: #fbbf24; box-shadow: 0 0 8px rgba(245, 158, 11, 0.3); }
 .impl-phase-badge.audit { background: rgba(139, 92, 246, 0.2); color: #a78bfa; box-shadow: 0 0 8px rgba(139, 92, 246, 0.3); }
