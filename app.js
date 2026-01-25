@@ -988,12 +988,15 @@ class AssessmentApp {
             ? getKSIsForControl(mapping.nist80053) 
             : [];
         
-        // Build FedRAMP 20x KSI badges (clickable links to myctrl.tools)
+        // Build FedRAMP 20x KSI badges (clickable links to myctrl.tools with descriptions)
         const fedramp20xHtml = derivedKSIs.length > 0
             ? derivedKSIs.map(ksi => {
                 // Convert KSI-IAM-04 to ksi-iam-4 (strip leading zeros)
                 const urlId = ksi.toLowerCase().replace(/-0+(\d)/g, '-$1');
-                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="framework-link fedramp20x">${ksi}</a>`;
+                // Get KSI details for tooltip
+                const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? FEDRAMP_20X_KSI.indicators[ksi] : null;
+                const tooltip = ksiInfo ? `${ksiInfo.title}: ${ksiInfo.description}` : ksi;
+                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="framework-link fedramp20x" title="${tooltip}">${ksi}</a>`;
             }).join('')
             : '<span class="framework-na">N/A</span>';
 

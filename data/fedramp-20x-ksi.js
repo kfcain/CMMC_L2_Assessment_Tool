@@ -24,79 +24,457 @@ const FEDRAMP_20X_KSI = {
         TPR: { name: "Third-Party Information Resources", description: "Supply chain and vendor risk" }
     },
     
-    // All 61 KSI indicators
+    // All 61 KSI indicators with descriptions
+    // Source: https://www.fedramp.gov/20x/ and myctrl.tools
     indicators: {
-        "KSI-AFR-01": { title: "Minimum Assessment Scope", family: "AFR", low: true, moderate: true },
-        "KSI-AFR-02": { title: "Key Security Indicators", family: "AFR", low: true, moderate: true },
-        "KSI-AFR-03": { title: "Authorization Data Sharing", family: "AFR", low: true, moderate: true },
-        "KSI-AFR-04": { title: "Vulnerability Detection and Response", family: "AFR", low: true, moderate: true },
-        "KSI-AFR-05": { title: "Significant Change Notifications", family: "AFR", low: true, moderate: true },
-        "KSI-AFR-06": { title: "Collaborative Continuous Monitoring", family: "AFR", low: true, moderate: true },
-        "KSI-AFR-07": { title: "Recommended Secure Configuration", family: "AFR", low: true, moderate: true },
-        "KSI-AFR-08": { title: "FedRAMP Security Inbox", family: "AFR", low: true, moderate: true },
-        "KSI-AFR-09": { title: "Persistent Validation and Assessment", family: "AFR", low: true, moderate: true },
-        "KSI-AFR-10": { title: "Incident Communications Procedures", family: "AFR", low: true, moderate: true },
-        "KSI-AFR-11": { title: "Using Cryptographic Modules", family: "AFR", low: true, moderate: true },
+        // Authorization by FedRAMP (AFR)
+        "KSI-AFR-01": { 
+            title: "Minimum Assessment Scope", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Apply the FedRAMP Minimum Assessment Scope (MAS) to identify and document the scope of the cloud service offering to be assessed for FedRAMP authorization and provide detailed documentation of the security boundary."
+        },
+        "KSI-AFR-02": { 
+            title: "Key Security Indicators", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Demonstrate compliance with all applicable Key Security Indicators (KSIs) for the target FedRAMP authorization level."
+        },
+        "KSI-AFR-03": { 
+            title: "Authorization Data Sharing", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Share authorization package data with FedRAMP and authorized agency customers, including continuous monitoring data, vulnerability scan results, and incident reports."
+        },
+        "KSI-AFR-04": { 
+            title: "Vulnerability Detection and Response", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Persistently detect and respond to vulnerabilities across all information resources within the authorization boundary, including timely remediation per FedRAMP requirements."
+        },
+        "KSI-AFR-05": { 
+            title: "Significant Change Notifications", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Notify FedRAMP and agency customers of significant changes to the system, security posture, or authorization boundary within required timeframes."
+        },
+        "KSI-AFR-06": { 
+            title: "Collaborative Continuous Monitoring", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Participate in FedRAMP's collaborative continuous monitoring program, including automated data feeds and regular security status reporting."
+        },
+        "KSI-AFR-07": { 
+            title: "Recommended Secure Configuration", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Publish and maintain recommended secure configurations for agency customers using the cloud service offering."
+        },
+        "KSI-AFR-08": { 
+            title: "FedRAMP Security Inbox", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Maintain a monitored security inbox for FedRAMP communications, incident notifications, and vulnerability disclosures with documented response procedures."
+        },
+        "KSI-AFR-09": { 
+            title: "Persistent Validation and Assessment", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Enable persistent validation and assessment of security controls through automated monitoring, continuous testing, and evidence collection."
+        },
+        "KSI-AFR-10": { 
+            title: "Incident Communications Procedures", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Establish and maintain incident communication procedures for notifying FedRAMP and agency customers of security incidents within required timeframes."
+        },
+        "KSI-AFR-11": { 
+            title: "Using Cryptographic Modules", 
+            family: "AFR", 
+            low: true, 
+            moderate: true,
+            description: "Use FIPS 140-2/140-3 validated cryptographic modules for all cryptographic operations protecting federal information."
+        },
         
-        "KSI-CED-01": { title: "General Training", family: "CED", low: true, moderate: true },
-        "KSI-CED-02": { title: "Role-Specific Training", family: "CED", low: true, moderate: true },
-        "KSI-CED-03": { title: "Development and Engineering Training", family: "CED", low: true, moderate: true },
-        "KSI-CED-04": { title: "Incident Response and Disaster Recovery Training", family: "CED", low: true, moderate: true },
+        // Cybersecurity Education (CED)
+        "KSI-CED-01": { 
+            title: "General Training", 
+            family: "CED", 
+            low: true, 
+            moderate: true,
+            description: "Persistently review the effectiveness of training given to all employees on policies, procedures, and security-related topics including phishing awareness and social engineering."
+        },
+        "KSI-CED-02": { 
+            title: "Role-Specific Training", 
+            family: "CED", 
+            low: true, 
+            moderate: true,
+            description: "Provide role-specific security training to personnel with significant security responsibilities, including administrators, developers, and incident responders."
+        },
+        "KSI-CED-03": { 
+            title: "Development and Engineering Training", 
+            family: "CED", 
+            low: true, 
+            moderate: true,
+            description: "Ensure development and engineering personnel receive training on secure coding practices, security architecture, and secure development lifecycle."
+        },
+        "KSI-CED-04": { 
+            title: "Incident Response and Disaster Recovery Training", 
+            family: "CED", 
+            low: true, 
+            moderate: true,
+            description: "Provide training on incident response and disaster recovery procedures to personnel with roles in these processes, including tabletop exercises."
+        },
         
-        "KSI-CMT-01": { title: "Log and Monitor Changes", family: "CMT", low: true, moderate: true },
-        "KSI-CMT-02": { title: "Redeployment", family: "CMT", low: true, moderate: true },
-        "KSI-CMT-03": { title: "Automated Testing and Validation", family: "CMT", low: true, moderate: true },
-        "KSI-CMT-04": { title: "Change Management Procedures", family: "CMT", low: true, moderate: true },
+        // Change Management (CMT)
+        "KSI-CMT-01": { 
+            title: "Log and Monitor Changes", 
+            family: "CMT", 
+            low: true, 
+            moderate: true,
+            description: "Log and monitor all changes to information resources, including configuration changes, code deployments, and infrastructure modifications."
+        },
+        "KSI-CMT-02": { 
+            title: "Redeployment", 
+            family: "CMT", 
+            low: true, 
+            moderate: true,
+            description: "Implement capability to rapidly redeploy information resources from a known-good state, supporting immutable infrastructure and rollback capabilities."
+        },
+        "KSI-CMT-03": { 
+            title: "Automated Testing and Validation", 
+            family: "CMT", 
+            low: true, 
+            moderate: true,
+            description: "Implement automated testing and validation of changes before deployment, including security testing, integration testing, and compliance checks."
+        },
+        "KSI-CMT-04": { 
+            title: "Change Management Procedures", 
+            family: "CMT", 
+            low: true, 
+            moderate: true,
+            description: "Establish and maintain change management procedures including approval workflows, impact assessment, and rollback procedures."
+        },
         
-        "KSI-CNA-01": { title: "Restrict Network Traffic", family: "CNA", low: true, moderate: true },
-        "KSI-CNA-02": { title: "Attack Surface", family: "CNA", low: true, moderate: true },
-        "KSI-CNA-03": { title: "Enforce Traffic Flow", family: "CNA", low: true, moderate: true },
-        "KSI-CNA-04": { title: "Immutable Infrastructure", family: "CNA", low: true, moderate: true },
-        "KSI-CNA-05": { title: "Unwanted Activity", family: "CNA", low: true, moderate: true },
-        "KSI-CNA-06": { title: "High Availability", family: "CNA", low: true, moderate: true },
-        "KSI-CNA-07": { title: "Best Practices", family: "CNA", low: true, moderate: true },
-        "KSI-CNA-08": { title: "Automated Enforcement", family: "CNA", low: false, moderate: true },
+        // Cloud Native Architecture (CNA)
+        "KSI-CNA-01": { 
+            title: "Restrict Network Traffic", 
+            family: "CNA", 
+            low: true, 
+            moderate: true,
+            description: "Persistently ensure all machine-based information resources are configured to limit inbound and outbound network traffic to only what is required."
+        },
+        "KSI-CNA-02": { 
+            title: "Attack Surface", 
+            family: "CNA", 
+            low: true, 
+            moderate: true,
+            description: "Minimize the attack surface of all information resources by disabling unnecessary services, ports, protocols, and removing unused software."
+        },
+        "KSI-CNA-03": { 
+            title: "Enforce Traffic Flow", 
+            family: "CNA", 
+            low: true, 
+            moderate: true,
+            description: "Enforce authorized traffic flows between network segments and services using network segmentation, microsegmentation, and zero-trust principles."
+        },
+        "KSI-CNA-04": { 
+            title: "Immutable Infrastructure", 
+            family: "CNA", 
+            low: true, 
+            moderate: true,
+            description: "Implement immutable infrastructure patterns where production systems are replaced rather than modified, ensuring consistent and auditable deployments."
+        },
+        "KSI-CNA-05": { 
+            title: "Unwanted Activity", 
+            family: "CNA", 
+            low: true, 
+            moderate: true,
+            description: "Detect and prevent unwanted activity including denial of service attacks, unauthorized access attempts, and malicious traffic patterns."
+        },
+        "KSI-CNA-06": { 
+            title: "High Availability", 
+            family: "CNA", 
+            low: true, 
+            moderate: true,
+            description: "Implement high availability architecture to ensure service continuity, including redundancy, load balancing, and failover capabilities."
+        },
+        "KSI-CNA-07": { 
+            title: "Best Practices", 
+            family: "CNA", 
+            low: true, 
+            moderate: true,
+            description: "Follow cloud-native security best practices including secure defaults, defense in depth, and leveraging cloud provider security services."
+        },
+        "KSI-CNA-08": { 
+            title: "Automated Enforcement", 
+            family: "CNA", 
+            low: false, 
+            moderate: true,
+            description: "Implement automated enforcement of security policies using infrastructure as code, policy as code, and automated compliance checking."
+        },
         
-        "KSI-IAM-01": { title: "Phishing-Resistant MFA", family: "IAM", low: true, moderate: true },
-        "KSI-IAM-02": { title: "Passwordless Authentication", family: "IAM", low: true, moderate: true },
-        "KSI-IAM-03": { title: "Non-User Accounts", family: "IAM", low: true, moderate: true },
-        "KSI-IAM-04": { title: "Just-in-Time Authorization", family: "IAM", low: true, moderate: true },
-        "KSI-IAM-05": { title: "Least Privilege", family: "IAM", low: true, moderate: true },
-        "KSI-IAM-06": { title: "Suspicious Activity", family: "IAM", low: true, moderate: true },
-        "KSI-IAM-07": { title: "Automated Account Management", family: "IAM", low: true, moderate: true },
+        // Identity and Access Management (IAM)
+        "KSI-IAM-01": { 
+            title: "Phishing-Resistant MFA", 
+            family: "IAM", 
+            low: true, 
+            moderate: true,
+            description: "Enforce multi-factor authentication (MFA) using methods that are difficult to intercept or impersonate (phishing-resistant MFA) for all user authentication, such as FIDO2/WebAuthn."
+        },
+        "KSI-IAM-02": { 
+            title: "Passwordless Authentication", 
+            family: "IAM", 
+            low: true, 
+            moderate: true,
+            description: "Implement passwordless authentication where feasible, reducing reliance on passwords and improving security posture against credential-based attacks."
+        },
+        "KSI-IAM-03": { 
+            title: "Non-User Accounts", 
+            family: "IAM", 
+            low: true, 
+            moderate: true,
+            description: "Manage non-user accounts (service accounts, machine identities) with the same rigor as user accounts, including credential rotation and least privilege."
+        },
+        "KSI-IAM-04": { 
+            title: "Just-in-Time Authorization", 
+            family: "IAM", 
+            low: true, 
+            moderate: true,
+            description: "Use a least-privileged, role and attribute-based, and just-in-time security authorization model for all user and non-user accounts and services."
+        },
+        "KSI-IAM-05": { 
+            title: "Least Privilege", 
+            family: "IAM", 
+            low: true, 
+            moderate: true,
+            description: "Enforce least privilege access across all accounts and services, ensuring users and systems only have permissions required for their functions."
+        },
+        "KSI-IAM-06": { 
+            title: "Suspicious Activity", 
+            family: "IAM", 
+            low: true, 
+            moderate: true,
+            description: "Monitor and respond to suspicious identity and access activity, including impossible travel, unusual access patterns, and privilege escalation attempts."
+        },
+        "KSI-IAM-07": { 
+            title: "Automated Account Management", 
+            family: "IAM", 
+            low: true, 
+            moderate: true,
+            description: "Implement automated account provisioning, deprovisioning, and access reviews aligned with personnel actions and role changes."
+        },
         
-        "KSI-INR-01": { title: "Incident Response Procedures", family: "INR", low: true, moderate: true },
-        "KSI-INR-02": { title: "Incident Review", family: "INR", low: true, moderate: true },
-        "KSI-INR-03": { title: "Incident After Action Reports", family: "INR", low: true, moderate: true },
+        // Incident Response (INR)
+        "KSI-INR-01": { 
+            title: "Incident Response Procedures", 
+            family: "INR", 
+            low: true, 
+            moderate: true,
+            description: "Establish and maintain incident response procedures including detection, analysis, containment, eradication, recovery, and post-incident activities."
+        },
+        "KSI-INR-02": { 
+            title: "Incident Review", 
+            family: "INR", 
+            low: true, 
+            moderate: true,
+            description: "Conduct reviews of security incidents to identify root causes, lessons learned, and improvements to security controls and procedures."
+        },
+        "KSI-INR-03": { 
+            title: "Incident After Action Reports", 
+            family: "INR", 
+            low: true, 
+            moderate: true,
+            description: "Produce after action reports for significant incidents, documenting timeline, impact, response actions, and recommendations for improvement."
+        },
         
-        "KSI-MLA-01": { title: "Security Information and Event Management (SIEM)", family: "MLA", low: true, moderate: true },
-        "KSI-MLA-02": { title: "Audit Logging", family: "MLA", low: true, moderate: true },
-        "KSI-MLA-05": { title: "Evaluate Configuration", family: "MLA", low: true, moderate: true },
-        "KSI-MLA-07": { title: "Event Types", family: "MLA", low: true, moderate: true },
-        "KSI-MLA-08": { title: "Log Data Access", family: "MLA", low: false, moderate: true },
+        // Monitoring, Logging, and Auditing (MLA)
+        "KSI-MLA-01": { 
+            title: "Security Information and Event Management (SIEM)", 
+            family: "MLA", 
+            low: true, 
+            moderate: true,
+            description: "Operate a Security Information and Event Management (SIEM) or similar system(s) for centralized, tamper-resistant logging of events, activities, and changes."
+        },
+        "KSI-MLA-02": { 
+            title: "Audit Logging", 
+            family: "MLA", 
+            low: true, 
+            moderate: true,
+            description: "Enable comprehensive audit logging across all information resources, capturing security-relevant events with sufficient detail for forensic analysis."
+        },
+        "KSI-MLA-05": { 
+            title: "Evaluate Configuration", 
+            family: "MLA", 
+            low: true, 
+            moderate: true,
+            description: "Persistently evaluate system configurations against security baselines and detect configuration drift or unauthorized changes."
+        },
+        "KSI-MLA-07": { 
+            title: "Event Types", 
+            family: "MLA", 
+            low: true, 
+            moderate: true,
+            description: "Capture and analyze required event types including authentication events, authorization decisions, administrative actions, and system events."
+        },
+        "KSI-MLA-08": { 
+            title: "Log Data Access", 
+            family: "MLA", 
+            low: false, 
+            moderate: true,
+            description: "Control and audit access to log data, ensuring log integrity and preventing unauthorized modification or deletion."
+        },
         
-        "KSI-PIY-01": { title: "Automated Inventory", family: "PIY", low: true, moderate: true },
-        "KSI-PIY-03": { title: "Vulnerability Disclosure Program", family: "PIY", low: true, moderate: true },
-        "KSI-PIY-04": { title: "CISA Secure By Design", family: "PIY", low: true, moderate: true },
-        "KSI-PIY-06": { title: "Security Investment Effectiveness", family: "PIY", low: true, moderate: true },
-        "KSI-PIY-08": { title: "Executive Support", family: "PIY", low: true, moderate: true },
+        // Policy and Inventory (PIY)
+        "KSI-PIY-01": { 
+            title: "Automated Inventory", 
+            family: "PIY", 
+            low: true, 
+            moderate: true,
+            description: "Maintain an automated, continuously updated inventory of all information resources within the authorization boundary."
+        },
+        "KSI-PIY-03": { 
+            title: "Vulnerability Disclosure Program", 
+            family: "PIY", 
+            low: true, 
+            moderate: true,
+            description: "Operate a vulnerability disclosure program allowing security researchers to responsibly report vulnerabilities in the cloud service."
+        },
+        "KSI-PIY-04": { 
+            title: "CISA Secure By Design", 
+            family: "PIY", 
+            low: true, 
+            moderate: true,
+            description: "Implement CISA Secure by Design principles throughout the development lifecycle, building security into products from the ground up."
+        },
+        "KSI-PIY-06": { 
+            title: "Security Investment Effectiveness", 
+            family: "PIY", 
+            low: true, 
+            moderate: true,
+            description: "Measure and report on the effectiveness of security investments, demonstrating continuous improvement in security posture."
+        },
+        "KSI-PIY-08": { 
+            title: "Executive Support", 
+            family: "PIY", 
+            low: true, 
+            moderate: true,
+            description: "Ensure executive-level support and accountability for security, including designated security leadership and adequate resource allocation."
+        },
         
-        "KSI-RPL-01": { title: "Recovery Objectives", family: "RPL", low: true, moderate: true },
-        "KSI-RPL-02": { title: "Recovery Plan", family: "RPL", low: true, moderate: true },
-        "KSI-RPL-03": { title: "System Backups", family: "RPL", low: true, moderate: true },
-        "KSI-RPL-04": { title: "Recovery Testing", family: "RPL", low: true, moderate: true },
+        // Recovery Planning (RPL)
+        "KSI-RPL-01": { 
+            title: "Recovery Objectives", 
+            family: "RPL", 
+            low: true, 
+            moderate: true,
+            description: "Persistently review desired Recovery Time Objectives (RTO) and Recovery Point Objectives (RPO) ensuring alignment with business requirements."
+        },
+        "KSI-RPL-02": { 
+            title: "Recovery Plan", 
+            family: "RPL", 
+            low: true, 
+            moderate: true,
+            description: "Maintain documented recovery plans for restoring system operations following disruption, including procedures for various failure scenarios."
+        },
+        "KSI-RPL-03": { 
+            title: "System Backups", 
+            family: "RPL", 
+            low: true, 
+            moderate: true,
+            description: "Implement and test system backup procedures ensuring data and configuration recoverability, including offsite/cross-region storage."
+        },
+        "KSI-RPL-04": { 
+            title: "Recovery Testing", 
+            family: "RPL", 
+            low: true, 
+            moderate: true,
+            description: "Regularly test recovery procedures to validate RTO/RPO achievement and identify improvements to recovery capabilities."
+        },
         
-        "KSI-SVC-01": { title: "Continuous Improvement", family: "SVC", low: true, moderate: true },
-        "KSI-SVC-02": { title: "Network Encryption", family: "SVC", low: true, moderate: true },
-        "KSI-SVC-04": { title: "Configuration Automation", family: "SVC", low: true, moderate: true },
-        "KSI-SVC-05": { title: "Resource Integrity", family: "SVC", low: true, moderate: true },
-        "KSI-SVC-06": { title: "Secret Management", family: "SVC", low: true, moderate: true },
-        "KSI-SVC-08": { title: "Prevent Residual Risk", family: "SVC", low: false, moderate: true },
-        "KSI-SVC-09": { title: "Communication Integrity", family: "SVC", low: false, moderate: true },
-        "KSI-SVC-10": { title: "Unwanted Data Removal", family: "SVC", low: false, moderate: true },
+        // Service Configuration (SVC)
+        "KSI-SVC-01": { 
+            title: "Continuous Improvement", 
+            family: "SVC", 
+            low: true, 
+            moderate: true,
+            description: "Implement improvements based on persistent evaluation of information resources for opportunities to improve security posture."
+        },
+        "KSI-SVC-02": { 
+            title: "Network Encryption", 
+            family: "SVC", 
+            low: true, 
+            moderate: true,
+            description: "Encrypt all network traffic using approved cryptographic protocols (TLS 1.2+), both in transit and at the network layer where applicable."
+        },
+        "KSI-SVC-04": { 
+            title: "Configuration Automation", 
+            family: "SVC", 
+            low: true, 
+            moderate: true,
+            description: "Automate configuration management using infrastructure as code, ensuring consistent, auditable, and repeatable deployments."
+        },
+        "KSI-SVC-05": { 
+            title: "Resource Integrity", 
+            family: "SVC", 
+            low: true, 
+            moderate: true,
+            description: "Verify and maintain the integrity of information resources, including code signing, artifact verification, and runtime integrity monitoring."
+        },
+        "KSI-SVC-06": { 
+            title: "Secret Management", 
+            family: "SVC", 
+            low: true, 
+            moderate: true,
+            description: "Implement secure secret management including credential vaulting, automated rotation, and preventing secrets in code or logs."
+        },
+        "KSI-SVC-08": { 
+            title: "Prevent Residual Risk", 
+            family: "SVC", 
+            low: false, 
+            moderate: true,
+            description: "Prevent information disclosure through residual data, including secure deletion, memory sanitization, and storage encryption."
+        },
+        "KSI-SVC-09": { 
+            title: "Communication Integrity", 
+            family: "SVC", 
+            low: false, 
+            moderate: true,
+            description: "Protect the integrity of communications including message authentication, replay protection, and tampering detection."
+        },
+        "KSI-SVC-10": { 
+            title: "Unwanted Data Removal", 
+            family: "SVC", 
+            low: false, 
+            moderate: true,
+            description: "Implement procedures for secure removal of unwanted data, including PII sanitization, data retention enforcement, and secure disposal."
+        },
         
-        "KSI-TPR-03": { title: "Supply Chain Risk Management", family: "TPR", low: true, moderate: true },
-        "KSI-TPR-04": { title: "Supply Chain Risk Monitoring", family: "TPR", low: true, moderate: true }
+        // Third-Party Information Resources (TPR)
+        "KSI-TPR-03": { 
+            title: "Supply Chain Risk Management", 
+            family: "TPR", 
+            low: true, 
+            moderate: true,
+            description: "Implement supply chain risk management processes including vendor assessment, software composition analysis, and third-party security requirements."
+        },
+        "KSI-TPR-04": { 
+            title: "Supply Chain Risk Monitoring", 
+            family: "TPR", 
+            low: true, 
+            moderate: true,
+            description: "Continuously monitor supply chain risks including vulnerability notifications for dependencies, vendor security incidents, and emerging threats."
+        }
     },
     
     // Authoritative mapping from NIST 800-53 controls to KSIs
