@@ -23,7 +23,6 @@ const CrosswalkVisualizer = {
     },
     
     init() {
-        console.log('CrosswalkVisualizer.init() called');
         this.populateFamilyFilter();
         this.populateControlSelector();
         this.bindEvents();
@@ -31,8 +30,6 @@ const CrosswalkVisualizer = {
     },
     
     bindEvents() {
-        console.log('bindEvents() called');
-        
         // View toggle
         document.querySelectorAll('.crosswalk-view-toggle .toggle-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -45,8 +42,6 @@ const CrosswalkVisualizer = {
         const baselineFilter = document.getElementById('crosswalk-baseline-filter');
         const searchInput = document.getElementById('crosswalk-search');
         
-        console.log('baselineFilter element:', baselineFilter);
-        
         if (familyFilter) {
             familyFilter.addEventListener('change', (e) => {
                 this.filters.family = e.target.value;
@@ -57,11 +52,8 @@ const CrosswalkVisualizer = {
         if (baselineFilter) {
             baselineFilter.addEventListener('change', (e) => {
                 this.filters.baseline = e.target.value;
-                console.log('Baseline filter changed to:', this.filters.baseline);
                 this.render();
             });
-        } else {
-            console.log('baselineFilter NOT FOUND');
         }
         
         if (searchInput) {
@@ -147,8 +139,6 @@ const CrosswalkVisualizer = {
     },
     
     getMappingData() {
-        console.log('getMappingData() called, filters:', this.filters);
-        
         if (typeof FRAMEWORK_MAPPINGS === 'undefined') return [];
         
         const data = [];
@@ -234,7 +224,6 @@ const CrosswalkVisualizer = {
             });
         });
         
-        console.log('getMappingData() returning', data.length, 'controls, skipped by baseline:', skippedByBaseline);
         return data;
     },
     
@@ -251,11 +240,9 @@ const CrosswalkVisualizer = {
     
     renderTable() {
         const container = document.getElementById('crosswalk-table-view');
-        console.log('renderTable() called, container:', container);
         if (!container) return;
         
         const data = this.getMappingData();
-        console.log('renderTable() rendering', data.length, 'rows');
         
         if (data.length === 0) {
             container.innerHTML = `
@@ -312,9 +299,7 @@ const CrosswalkVisualizer = {
         });
         
         html += '</tbody></table>';
-        console.log('Setting container.innerHTML with', data.length, 'rows');
         container.innerHTML = html;
-        console.log('Table updated, rows in DOM:', container.querySelectorAll('tbody tr').length);
     },
     
     renderGraph() {
