@@ -320,15 +320,13 @@ const CrosswalkVisualizer = {
         const radius = Math.min(width, height) * 0.35;
         const spokes = this.nodes.filter(n => !n.isHub);
         const nist53Spokes = spokes.filter(n => n.type === 'nist-53');
-        const fedSpokes = spokes.filter(n => n.type === 'fedramp');
         const ksiSpokes = spokes.filter(n => n.type === 'fedramp-20x');
         const cmmcSpokes = spokes.filter(n => n.type === 'cmmc');
         
-        // Set target positions in arcs
-        this.setTargetPositionsInArc(nist53Spokes, centerX, centerY, radius, -Math.PI * 0.8, -Math.PI * 0.3);
-        this.setTargetPositionsInArc(fedSpokes, centerX, centerY, radius, -Math.PI * 0.25, Math.PI * 0.15);
-        this.setTargetPositionsInArc(ksiSpokes, centerX, centerY, radius, Math.PI * 0.2, Math.PI * 0.5);
-        this.setTargetPositionsInArc(cmmcSpokes, centerX, centerY, radius * 0.6, Math.PI * 0.55, Math.PI * 0.7);
+        // Set target positions in arcs - NIST 800-53 left, 20x KSI right, CMMC bottom
+        this.setTargetPositionsInArc(nist53Spokes, centerX, centerY, radius, -Math.PI * 0.85, -Math.PI * 0.15);
+        this.setTargetPositionsInArc(ksiSpokes, centerX, centerY, radius, Math.PI * 0.15, Math.PI * 0.65);
+        this.setTargetPositionsInArc(cmmcSpokes, centerX, centerY, radius * 0.6, Math.PI * 0.75, Math.PI * 0.85);
         
         // Start spokes from center with random offset for springy effect
         spokes.forEach(node => {
@@ -428,45 +426,15 @@ const CrosswalkVisualizer = {
             this.edges.push({ source: this.selectedControl, target: ctrl, type: 'nist-53' });
         });
         
-        // FedRAMP Rev5 spoke nodes (show highest baseline)
-        if (mapping.fedrampRev5) {
-            const baseline = mapping.fedrampRev5.high ? 'HIGH' : 
-                           mapping.fedrampRev5.moderate ? 'MOD' : 
-                           mapping.fedrampRev5.low ? 'LOW' : null;
-            if (baseline) {
-                const nodeId = `fedramp-rev5`;
-                this.nodes.push({
-                    id: nodeId,
-                    label: `Rev5 ${baseline}`,
-                    type: 'fedramp',
-                    baseline: baseline.toLowerCase(),
-                    x: 0, y: 0
-                });
-                this.edges.push({ source: this.selectedControl, target: nodeId, type: 'fedramp' });
-            }
-        } else if (mapping.fedramp) {
-            // Fallback to old format
-            const baseline = mapping.fedramp.high ? 'HIGH' : 
-                           mapping.fedramp.moderate ? 'MOD' : 
-                           mapping.fedramp.low ? 'LOW' : null;
-            if (baseline) {
-                const nodeId = `fedramp-rev5`;
-                this.nodes.push({
-                    id: nodeId,
-                    label: `Rev5 ${baseline}`,
-                    type: 'fedramp',
-                    baseline: baseline.toLowerCase(),
-                    x: 0, y: 0
-                });
-                this.edges.push({ source: this.selectedControl, target: nodeId, type: 'fedramp' });
-            }
-        }
-        
-        // FedRAMP 20x KSI spoke nodes
+        // FedRAMP 20x KSI spoke nodes (Low/Moderate pilot)
         (mapping.fedramp20x || []).forEach(ksi => {
+            // Get KSI title if available
+            const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? 
+                FEDRAMP_20X_KSI.indicators?.[ksi] : null;
             this.nodes.push({
                 id: ksi,
                 label: ksi,
+                title: ksiInfo?.title || '',
                 type: 'fedramp-20x',
                 x: 0, y: 0
             });
@@ -536,7 +504,6 @@ const CrosswalkVisualizer = {
         const colors = {
             'nist-171': '#3b82f6',
             'nist-53': '#8b5cf6',
-            'fedramp': '#10b981',
             'fedramp-20x': '#06b6d4',
             'cmmc': '#f59e0b'
         };
@@ -638,10 +605,6 @@ const CrosswalkVisualizer = {
             <div class="graph-legend-item">
                 <span class="legend-color nist-53"></span>
                 <span>NIST 800-53</span>
-            </div>
-            <div class="graph-legend-item">
-                <span class="legend-color fedramp"></span>
-                <span>FedRAMP Rev5</span>
             </div>
             <div class="graph-legend-item">
                 <span class="legend-color fedramp-20x"></span>
