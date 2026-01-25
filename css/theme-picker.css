@@ -277,3 +277,114 @@ button {
 html.theme-switching * {
     animation: themeSwitch 0.3s ease;
 }
+
+/* Header Theme Picker (Compact) */
+.header-theme-picker {
+    position: relative;
+}
+
+.header-theme-dropdown {
+    position: relative;
+}
+
+.header-theme-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+}
+
+.header-theme-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+}
+
+.header-theme-btn svg:first-child {
+    color: var(--accent-blue);
+}
+
+.header-theme-btn svg:last-child {
+    opacity: 0.6;
+    transition: transform 0.2s ease;
+}
+
+.header-theme-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 6px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px var(--shadow-color, rgba(0, 0, 0, 0.2));
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: all 0.15s ease;
+    z-index: 1001;
+    min-width: 160px;
+    padding: 4px;
+}
+
+.header-theme-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.header-theme-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s ease;
+}
+
+.header-theme-option:hover {
+    background: var(--bg-tertiary);
+}
+
+.header-theme-option.active {
+    background: var(--accent-blue);
+}
+
+.header-theme-option.active:hover {
+    background: var(--accent-blue-hover);
+}
+
+.header-theme-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid;
+    flex-shrink: 0;
+}
+
+.header-theme-name {
+    flex: 1;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.header-theme-option.active .header-theme-name {
+    color: white;
+}
+
+.header-theme-check {
+    font-size: 0.6875rem;
+    color: white;
+}

@@ -266,37 +266,97 @@ const ThemePicker = {
 
     // Render the theme picker component
     renderPicker() {
-        // Try hamburger menu first, fall back to sidebar
-        const container = document.getElementById('hamburger-theme-picker') || document.getElementById('theme-picker-container');
+        // Render compact version in header
+        this.renderHeaderPicker();
+        
+        // Also render in hamburger menu if available
+        const hamburgerContainer = document.getElementById('hamburger-theme-picker');
+        if (hamburgerContainer) {
+            hamburgerContainer.innerHTML = `
+                <div class="theme-picker">
+                    <button class="theme-picker-btn" id="theme-picker-btn" aria-label="Choose theme" title="Choose theme">
+                        ${this.getIcon('palette')}
+                        <span class="theme-picker-label">Theme</span>
+                        ${this.getIcon('chevronDown')}
+                    </button>
+                    <div class="theme-picker-dropdown" id="theme-picker-dropdown">
+                        <div class="theme-picker-header">Choose Theme</div>
+                        <div class="theme-picker-options">
+                            ${Object.entries(this.themes).map(([key, theme]) => `
+                                <button class="theme-option ${key === this.currentTheme ? 'active' : ''}" data-theme="${key}">
+                                    <span class="theme-option-preview" style="background: ${theme.colors['--bg-primary']}; border-color: ${theme.colors['--border-color']};">
+                                        <span class="theme-option-preview-accent" style="background: ${theme.colors['--accent-blue']};"></span>
+                                    </span>
+                                    <span class="theme-option-info">
+                                        <span class="theme-option-name">${theme.name}</span>
+                                    </span>
+                                    ${key === this.currentTheme ? '<span class="theme-option-check">✓</span>' : ''}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    },
+    
+    // Render compact header theme picker
+    renderHeaderPicker() {
+        const container = document.getElementById('header-theme-picker');
         if (!container) return;
-
+        
         const currentTheme = this.themes[this.currentTheme];
-
+        
         container.innerHTML = `
-            <div class="theme-picker">
-                <button class="theme-picker-btn" id="theme-picker-btn" aria-label="Choose theme" title="Choose theme">
+            <div class="header-theme-dropdown">
+                <button class="header-theme-btn" id="header-theme-btn" aria-label="Choose theme" title="Choose theme: ${currentTheme.name}">
                     ${this.getIcon('palette')}
-                    <span class="theme-picker-label">Theme</span>
                     ${this.getIcon('chevronDown')}
                 </button>
-                <div class="theme-picker-dropdown" id="theme-picker-dropdown">
-                    <div class="theme-picker-header">Choose Theme</div>
-                    <div class="theme-picker-options">
-                        ${Object.entries(this.themes).map(([key, theme]) => `
-                            <button class="theme-option ${key === this.currentTheme ? 'active' : ''}" data-theme="${key}">
-                                <span class="theme-option-preview" style="background: ${theme.colors['--bg-primary']}; border-color: ${theme.colors['--border-color']};">
-                                    <span class="theme-option-preview-accent" style="background: ${theme.colors['--accent-blue']};"></span>
-                                </span>
-                                <span class="theme-option-info">
-                                    <span class="theme-option-name">${theme.name}</span>
-                                </span>
-                                ${key === this.currentTheme ? '<span class="theme-option-check">✓</span>' : ''}
-                            </button>
-                        `).join('')}
-                    </div>
+                <div class="header-theme-menu" id="header-theme-menu">
+                    ${Object.entries(this.themes).map(([key, theme]) => `
+                        <button class="header-theme-option ${key === this.currentTheme ? 'active' : ''}" data-theme="${key}">
+                            <span class="header-theme-swatch" style="background: ${theme.colors['--bg-primary']}; border-color: ${theme.colors['--border-color']};"></span>
+                            <span class="header-theme-name">${theme.name}</span>
+                            ${key === this.currentTheme ? '<span class="header-theme-check">✓</span>' : ''}
+                        </button>
+                    `).join('')}
                 </div>
             </div>
         `;
+        
+        // Bind header theme picker events
+        this.bindHeaderPickerEvents();
+    },
+    
+    // Bind events for header theme picker
+    bindHeaderPickerEvents() {
+        const btn = document.getElementById('header-theme-btn');
+        const menu = document.getElementById('header-theme-menu');
+        
+        if (!btn || !menu) return;
+        
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.classList.toggle('open');
+        });
+        
+        // Close on click outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.header-theme-dropdown')) {
+                menu.classList.remove('open');
+            }
+        });
+        
+        // Theme option clicks
+        menu.querySelectorAll('.header-theme-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const theme = option.dataset.theme;
+                this.setTheme(theme);
+                menu.classList.remove('open');
+                this.renderHeaderPicker();
+            });
+        });
     },
 
     // Update picker UI to reflect current theme
