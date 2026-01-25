@@ -156,6 +156,7 @@ body {
     margin-bottom: 24px;
     flex-wrap: wrap;
     gap: 16px;
+    padding-left: 52px;
 }
 
 .header-left h2 {
@@ -3336,6 +3337,7 @@ body {
 .dashboard-hero {
     text-align: center;
     padding: 48px 24px 32px;
+    padding-left: 52px;
     margin-bottom: 8px;
 }
 
@@ -3375,7 +3377,7 @@ body {
     display: none;
     align-items: center;
     gap: 10px;
-    padding: 12px 24px;
+    padding: 12px 24px 12px 68px;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
 }
