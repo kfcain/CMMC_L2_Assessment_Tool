@@ -237,10 +237,14 @@ const CrosswalkVisualizer = {
                 return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="mapping-tag fedramp-20x" title="${tooltip}">${ksi}</a>`;
             }).join('') || '<span class="mapping-tag empty">—</span>';
             
-            // Combined NIST 800-171 / CMMC column
+            // Combined NIST 800-171 / CMMC column with L1/L2 and Basic/Derived badges
             const cmmcPractice = item.cmmc?.practice || '';
+            const cmmcLevel = item.cmmc?.level;
+            const classification = item.classification;
+            const levelClass = cmmcLevel === 1 ? 'cmmc-l1' : 'cmmc-l2';
+            const classificationClass = classification === 'Basic' ? 'cmmc-basic' : 'cmmc-derived';
             const controlDisplay = cmmcPractice ? 
-                `<span class="mapping-tag nist-171">${item.controlId}</span><span class="mapping-tag cmmc">${cmmcPractice}</span>` :
+                `<span class="mapping-tag nist-171">${item.controlId}</span><span class="cmmc-level ${levelClass}">L${cmmcLevel}</span><span class="mapping-tag cmmc">${cmmcPractice}</span><span class="cmmc-classification ${classificationClass}">${classification}</span>` :
                 `<span class="mapping-tag nist-171">${item.controlId}</span>`;
             
             html += `<tr><td class="control-col"><div class="tags-wrap">${controlDisplay}</div></td><td class="control-desc">${item.description || ''}</td><td class="nist53-col"><div class="tags-wrap">${nist53Tags || '—'}</div></td><td class="ksi-col"><div class="tags-wrap">${fed20xTags}</div></td></tr>`;
