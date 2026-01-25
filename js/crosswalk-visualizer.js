@@ -191,6 +191,7 @@ const CrosswalkVisualizer = {
             // Apply baseline filter
             if (this.filters.baseline !== 'all') {
                 if (this.filters.baseline === 'low' && !ksi.low) return;
+                if (this.filters.baseline === 'moderate' && !ksi.moderate) return;
                 if (this.filters.baseline === 'moderate-only' && (ksi.low || !ksi.moderate)) return;
             }
             
