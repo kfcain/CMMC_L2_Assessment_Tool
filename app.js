@@ -976,7 +976,11 @@ class AssessmentApp {
 
         // Build NIST 800-53 links (myctrl.tools)
         const nist53Html = mapping.nist80053 && mapping.nist80053.length > 0
-            ? mapping.nist80053.map(ctrl => `<a href="https://www.myctrl.tools/frameworks/nist-800-53-rev-5/${ctrl.toLowerCase().replace(/[()]/g, '')}" target="_blank" rel="noopener" class="framework-link nist53">${ctrl}</a>`).join('')
+            ? mapping.nist80053.map(ctrl => {
+                // Convert AC-6(1) to ac-6-1 for myctrl.tools URL format
+                const urlId = ctrl.toLowerCase().replace(/\((\d+)\)/g, '-$1');
+                return `<a href="https://www.myctrl.tools/frameworks/nist-800-53-r5/${urlId}" target="_blank" rel="noopener" class="framework-link nist53">${ctrl}</a>`;
+            }).join('')
             : '<span class="framework-na">N/A</span>';
 
         // Dynamically derive KSIs from 800-53 controls using authoritative mapping

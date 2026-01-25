@@ -222,9 +222,11 @@ const CrosswalkVisualizer = {
         `;
         
         data.forEach(item => {
-            const nist53Tags = (item.nist80053 || []).map(c => 
-                `<a href="https://www.myctrl.tools/frameworks/nist-800-53-rev-5/${c.toLowerCase().replace(/[()]/g, '')}" target="_blank" rel="noopener" class="mapping-tag nist-53">${c}</a>`
-            ).join('');
+            const nist53Tags = (item.nist80053 || []).map(c => {
+                // Convert AC-6(1) to ac-6-1 for myctrl.tools URL format
+                const urlId = c.toLowerCase().replace(/\((\d+)\)/g, '-$1');
+                return `<a href="https://www.myctrl.tools/frameworks/nist-800-53-r5/${urlId}" target="_blank" rel="noopener" class="mapping-tag nist-53">${c}</a>`;
+            }).join('');
             
             const fed20xTags = (item.fedramp20x || []).map(ksi => {
                 // Convert KSI-IAM-04 to ksi-iam-4 (strip leading zeros)
