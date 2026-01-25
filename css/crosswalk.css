@@ -340,7 +340,7 @@ a.mapping-tag:hover {
 .ksi-families {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 12px;
 }
 
 .ksi-family-section {
@@ -350,18 +350,43 @@ a.mapping-tag:hover {
     overflow: hidden;
 }
 
+.ksi-family-section[open] {
+    border-color: rgba(6, 182, 212, 0.4);
+}
+
 .family-header {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px 20px;
+    padding: 14px 18px;
     background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s ease;
+}
+
+.family-header::-webkit-details-marker {
+    display: none;
+}
+
+.family-header:hover {
+    background: var(--bg-tertiary);
+}
+
+.family-chevron {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+.ksi-family-section[open] .family-chevron {
+    transform: rotate(180deg);
 }
 
 .family-code {
     font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: #22d3ee;
     background: rgba(6, 182, 212, 0.15);
@@ -370,15 +395,43 @@ a.mapping-tag:hover {
 }
 
 .family-name {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-primary);
+    flex: 1;
+}
+
+.family-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
 }
 
 .family-count {
-    margin-left: auto;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
     color: var(--text-muted);
+    background: var(--bg-tertiary);
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.family-level-badge {
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.family-level-badge.low {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.family-level-badge.mod {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
 }
 
 .family-indicators {
@@ -386,6 +439,7 @@ a.mapping-tag:hover {
     flex-direction: column;
     gap: 1px;
     background: var(--border-color);
+    border-top: 1px solid var(--border-color);
 }
 
 .ksi-card {

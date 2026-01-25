@@ -273,13 +273,22 @@ const CrosswalkVisualizer = {
             const family = familyGroups[familyId];
             if (!family || family.indicators.length === 0) return;
             
+            // Calculate low/moderate counts for summary
+            const lowCount = family.indicators.filter(k => k.low).length;
+            const modCount = family.indicators.filter(k => k.moderate).length;
+            
             html += `
-                <div class="ksi-family-section">
-                    <div class="family-header">
+                <details class="ksi-family-section">
+                    <summary class="family-header">
+                        <svg class="family-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                         <span class="family-code">${familyId}</span>
                         <span class="family-name">${family.name}</span>
-                        <span class="family-count">${family.indicators.length} indicators</span>
-                    </div>
+                        <div class="family-badges">
+                            <span class="family-count">${family.indicators.length} KSIs</span>
+                            ${lowCount > 0 ? `<span class="family-level-badge low">${lowCount} Low</span>` : ''}
+                            ${modCount > 0 ? `<span class="family-level-badge mod">${modCount} Mod</span>` : ''}
+                        </div>
+                    </summary>
                     <div class="family-indicators">
             `;
             
@@ -323,7 +332,7 @@ const CrosswalkVisualizer = {
                 `;
             });
             
-            html += '</div></div>';
+            html += '</div></details>';
         });
         
         html += '</div>';
