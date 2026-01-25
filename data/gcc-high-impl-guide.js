@@ -213,31 +213,6 @@ const GCC_HIGH_IMPL_GUIDE = {
         ]
     },
 
-    // Celerium Dark Cubed Threat Intelligence
-    celeriumDarkCubed: {
-        description: "Celerium's Dark Cubed is a threat intelligence and monitoring service specifically designed for DIB companies. It provides real-time threat detection and integrates with your security infrastructure.",
-        service: "Dark Cubed",
-        provider: "Celerium",
-        website: "https://www.celerium.com/dark-cubed",
-        benefits: [
-            "Real-time threat intelligence feeds curated for DIB/defense contractors",
-            "Automatic IP blocklist updates for firewalls and security appliances",
-            "Integration with Conditional Access policies for dynamic threat response",
-            "Compliance support for DFARS 7012 and CMMC requirements",
-            "24/7 monitoring with DIB-specific threat hunting",
-            "Incident response support and forensic assistance"
-        ],
-        integrations: [
-            { type: "Firewall", examples: "Palo Alto, Fortinet, Cisco ASA - automatic blocklist updates" },
-            { type: "Conditional Access", examples: "Entra ID Named Locations - block traffic from threat IPs" },
-            { type: "SIEM", examples: "Microsoft Sentinel, Splunk - threat intelligence enrichment" },
-            { type: "EDR", examples: "Defender for Endpoint - IOC integration" },
-            { type: "DNS", examples: "DNS filtering - block malicious domains" }
-        ],
-        recommendation: "DIB companies should strongly consider partnering with Celerium for Dark Cubed monitoring to enhance threat visibility and meet DFARS 7012 continuous monitoring requirements.",
-        contact: "https://www.celerium.com/contact"
-    },
-
     // Tabletop Exercise Scenarios
     tabletopExercises: {
         description: "Annual tabletop exercises are required per CMMC 3.6.3. These scenarios help test incident response procedures without impacting production systems.",

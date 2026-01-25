@@ -3441,58 +3441,6 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             `;
         }
         
-        // Celerium Dark Cubed (Azure)
-        if (guide.celeriumDarkCubed) {
-            const dc = guide.celeriumDarkCubed;
-            const benefitsList = dc.benefits.map(b => `<li>${b}</li>`).join('');
-            const integrationRows = dc.integrations.map(i => `
-                <tr>
-                    <td><strong>${i.type}</strong></td>
-                    <td style="font-size:0.65rem">${i.examples}</td>
-                </tr>
-            `).join('');
-            
-            html += `
-                <div class="impl-section dark-cubed-section">
-                    <div class="impl-section-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        Celerium Dark Cubed - DIB Threat Intelligence
-                    </div>
-                    <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">${dc.description}</p>
-                    
-                    <div class="dark-cubed-card">
-                        <div class="dark-cubed-header">
-                            <span class="dark-cubed-name">${dc.service}</span>
-                            <span class="dark-cubed-provider">by ${dc.provider}</span>
-                            <a href="${dc.website}" target="_blank" rel="noopener noreferrer" class="dark-cubed-link">Visit Website</a>
-                        </div>
-                        
-                        <div class="dark-cubed-benefits">
-                            <h5>Key Benefits for DIB Companies</h5>
-                            <ul>${benefitsList}</ul>
-                        </div>
-                        
-                        <div class="dark-cubed-integrations">
-                            <h5>Security Integrations</h5>
-                            <table class="impl-table compact">
-                                <thead><tr><th>Integration Type</th><th>Examples</th></tr></thead>
-                                <tbody>${integrationRows}</tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="dark-cubed-recommendation">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                            <span>${dc.recommendation}</span>
-                        </div>
-                        
-                        <a href="${dc.contact}" target="_blank" rel="noopener noreferrer" class="dark-cubed-contact-btn">
-                            Contact Celerium for Partnership
-                        </a>
-                    </div>
-                </div>
-            `;
-        }
-        
         return html || '<p style="color:var(--text-muted)">No additional resources available.</p>';
     }
 
