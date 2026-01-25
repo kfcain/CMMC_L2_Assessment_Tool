@@ -11,6 +11,16 @@ const CrosswalkVisualizer = {
     selectedControl: null,
     nodes: [],
     edges: [],
+    animationId: null,
+    isAnimating: false,
+    
+    // Physics settings for springy animation
+    physics: {
+        springStrength: 0.08,
+        damping: 0.85,
+        repulsion: 800,
+        centerPull: 0.02
+    },
     
     init() {
         this.populateFamilyFilter();
@@ -250,6 +260,12 @@ const CrosswalkVisualizer = {
         const canvas = document.getElementById('crosswalk-canvas');
         if (!container || !canvas) return;
         
+        // Stop any existing animation
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        
         // Show control selector
         const selectorContainer = document.getElementById('graph-selector-container');
         if (selectorContainer) selectorContainer.style.display = 'flex';
@@ -264,23 +280,114 @@ const CrosswalkVisualizer = {
         canvas.style.height = rect.height + 'px';
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
         
-        const width = rect.width;
-        const height = rect.height;
+        this.canvasWidth = rect.width;
+        this.canvasHeight = rect.height;
+        this.ctx = ctx;
         
         // Build hub-and-spoke for selected control
         this.buildHubSpokeData();
         
-        // Layout hub and spoke
-        this.layoutHubSpoke(width, height);
-        
-        // Draw
-        this.drawHubSpoke(ctx, width, height);
+        // Initialize positions with physics
+        this.initializePhysics(rect.width, rect.height);
         
         // Add legend
         this.addGraphLegend(container);
         
         // Add interactivity
-        this.addGraphInteractivity(canvas, ctx, width, height);
+        this.addGraphInteractivity(canvas, ctx, rect.width, rect.height);
+        
+        // Start animation loop
+        this.isAnimating = true;
+        this.animate();
+    },
+    
+    initializePhysics(width, height) {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        
+        // Initialize hub at center
+        const hub = this.nodes.find(n => n.isHub);
+        if (hub) {
+            hub.x = centerX;
+            hub.y = centerY;
+            hub.targetX = centerX;
+            hub.targetY = centerY;
+            hub.vx = 0;
+            hub.vy = 0;
+        }
+        
+        // Initialize spokes with random positions and target positions
+        const radius = Math.min(width, height) * 0.35;
+        const spokes = this.nodes.filter(n => !n.isHub);
+        const nist53Spokes = spokes.filter(n => n.type === 'nist-53');
+        const fedSpokes = spokes.filter(n => n.type === 'fedramp');
+        const ksiSpokes = spokes.filter(n => n.type === 'fedramp-20x');
+        const cmmcSpokes = spokes.filter(n => n.type === 'cmmc');
+        
+        // Set target positions in arcs
+        this.setTargetPositionsInArc(nist53Spokes, centerX, centerY, radius, -Math.PI * 0.8, -Math.PI * 0.3);
+        this.setTargetPositionsInArc(fedSpokes, centerX, centerY, radius, -Math.PI * 0.25, Math.PI * 0.15);
+        this.setTargetPositionsInArc(ksiSpokes, centerX, centerY, radius, Math.PI * 0.2, Math.PI * 0.5);
+        this.setTargetPositionsInArc(cmmcSpokes, centerX, centerY, radius * 0.6, Math.PI * 0.55, Math.PI * 0.7);
+        
+        // Start spokes from center with random offset for springy effect
+        spokes.forEach(node => {
+            node.x = centerX + (Math.random() - 0.5) * 50;
+            node.y = centerY + (Math.random() - 0.5) * 50;
+            node.vx = 0;
+            node.vy = 0;
+        });
+    },
+    
+    setTargetPositionsInArc(nodes, cx, cy, radius, startAngle, endAngle) {
+        if (nodes.length === 0) return;
+        
+        const angleStep = (endAngle - startAngle) / Math.max(1, nodes.length - 1);
+        
+        nodes.forEach((node, i) => {
+            const angle = nodes.length === 1 ? (startAngle + endAngle) / 2 : startAngle + i * angleStep;
+            node.targetX = cx + Math.cos(angle) * radius;
+            node.targetY = cy + Math.sin(angle) * radius;
+        });
+    },
+    
+    animate() {
+        if (!this.isAnimating) return;
+        
+        const { springStrength, damping } = this.physics;
+        let totalMovement = 0;
+        
+        // Apply spring forces to move nodes toward targets
+        this.nodes.forEach(node => {
+            if (node.isHub) return; // Hub stays fixed
+            
+            // Spring force toward target
+            const dx = node.targetX - node.x;
+            const dy = node.targetY - node.y;
+            
+            node.vx += dx * springStrength;
+            node.vy += dy * springStrength;
+            
+            // Apply damping
+            node.vx *= damping;
+            node.vy *= damping;
+            
+            // Update position
+            node.x += node.vx;
+            node.y += node.vy;
+            
+            totalMovement += Math.abs(node.vx) + Math.abs(node.vy);
+        });
+        
+        // Draw current state
+        this.drawHubSpoke(this.ctx, this.canvasWidth, this.canvasHeight);
+        
+        // Continue animating if nodes are still moving significantly
+        if (totalMovement > 0.1) {
+            this.animationId = requestAnimationFrame(() => this.animate());
+        } else {
+            this.isAnimating = false;
+        }
     },
     
     buildHubSpokeData() {
@@ -321,23 +428,49 @@ const CrosswalkVisualizer = {
             this.edges.push({ source: this.selectedControl, target: ctrl, type: 'nist-53' });
         });
         
-        // FedRAMP spoke nodes (grouped by baseline)
-        const fedControls = new Set();
-        ['low', 'moderate', 'high'].forEach(baseline => {
-            (mapping.fedramp?.[baseline] || []).forEach(ctrl => {
-                const nodeId = `fed-${ctrl}`;
-                if (!fedControls.has(ctrl)) {
-                    fedControls.add(ctrl);
-                    this.nodes.push({
-                        id: nodeId,
-                        label: ctrl,
-                        type: 'fedramp',
-                        baseline: baseline,
-                        x: 0, y: 0
-                    });
-                    this.edges.push({ source: this.selectedControl, target: nodeId, type: 'fedramp' });
-                }
+        // FedRAMP Rev5 spoke nodes (show highest baseline)
+        if (mapping.fedrampRev5) {
+            const baseline = mapping.fedrampRev5.high ? 'HIGH' : 
+                           mapping.fedrampRev5.moderate ? 'MOD' : 
+                           mapping.fedrampRev5.low ? 'LOW' : null;
+            if (baseline) {
+                const nodeId = `fedramp-rev5`;
+                this.nodes.push({
+                    id: nodeId,
+                    label: `Rev5 ${baseline}`,
+                    type: 'fedramp',
+                    baseline: baseline.toLowerCase(),
+                    x: 0, y: 0
+                });
+                this.edges.push({ source: this.selectedControl, target: nodeId, type: 'fedramp' });
+            }
+        } else if (mapping.fedramp) {
+            // Fallback to old format
+            const baseline = mapping.fedramp.high ? 'HIGH' : 
+                           mapping.fedramp.moderate ? 'MOD' : 
+                           mapping.fedramp.low ? 'LOW' : null;
+            if (baseline) {
+                const nodeId = `fedramp-rev5`;
+                this.nodes.push({
+                    id: nodeId,
+                    label: `Rev5 ${baseline}`,
+                    type: 'fedramp',
+                    baseline: baseline.toLowerCase(),
+                    x: 0, y: 0
+                });
+                this.edges.push({ source: this.selectedControl, target: nodeId, type: 'fedramp' });
+            }
+        }
+        
+        // FedRAMP 20x KSI spoke nodes
+        (mapping.fedramp20x || []).forEach(ksi => {
+            this.nodes.push({
+                id: ksi,
+                label: ksi,
+                type: 'fedramp-20x',
+                x: 0, y: 0
             });
+            this.edges.push({ source: this.selectedControl, target: ksi, type: 'fedramp-20x' });
         });
         
         // CMMC spoke node
@@ -404,6 +537,7 @@ const CrosswalkVisualizer = {
             'nist-171': '#3b82f6',
             'nist-53': '#8b5cf6',
             'fedramp': '#10b981',
+            'fedramp-20x': '#06b6d4',
             'cmmc': '#f59e0b'
         };
         
@@ -507,7 +641,11 @@ const CrosswalkVisualizer = {
             </div>
             <div class="graph-legend-item">
                 <span class="legend-color fedramp"></span>
-                <span>FedRAMP</span>
+                <span>FedRAMP Rev5</span>
+            </div>
+            <div class="graph-legend-item">
+                <span class="legend-color fedramp-20x"></span>
+                <span>FedRAMP 20x KSI</span>
             </div>
             <div class="graph-legend-item">
                 <span class="legend-color cmmc"></span>

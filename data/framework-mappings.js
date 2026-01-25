@@ -1,54 +1,62 @@
 // Cross-Framework Control Mappings
-// Maps NIST 800-171 Rev 2 controls to NIST 800-53 Rev 5 and FedRAMP baselines
-// Reference: NIST SP 800-171 Rev 2 Appendix D, FedRAMP Control Baselines
+// Maps NIST 800-171 Rev 2 controls to NIST 800-53 Rev 5, FedRAMP Rev5, and FedRAMP 20x KSI
+// Reference: NIST SP 800-171 Rev 2 Appendix D, FedRAMP Control Baselines, FedRAMP 20x Phase 2
 
 const FRAMEWORK_MAPPINGS = {
     // === ACCESS CONTROL (AC) ===
     "3.1.1": {
         nist80053: ["AC-2", "AC-3", "AC-17"],
         fedramp: { low: ["AC-2", "AC-3"], moderate: ["AC-2", "AC-3", "AC-17"], high: ["AC-2", "AC-3", "AC-17"] },
+        fedramp20x: ["KSI-IAM-05", "KSI-IAM-07"],
         cmmc: { level: 2, domain: "AC", practice: "AC.L2-3.1.1" },
         description: "Limit system access to authorized users, processes, and devices"
     },
     "3.1.2": {
         nist80053: ["AC-2", "AC-3", "AC-6"],
         fedramp: { low: ["AC-2", "AC-3"], moderate: ["AC-2", "AC-3", "AC-6"], high: ["AC-2", "AC-3", "AC-6"] },
+        fedramp20x: ["KSI-IAM-05"],
         cmmc: { level: 2, domain: "AC", practice: "AC.L2-3.1.2" },
         description: "Limit system access to authorized transaction types and functions"
     },
     "3.1.3": {
         nist80053: ["AC-4"],
         fedramp: { low: null, moderate: ["AC-4"], high: ["AC-4"] },
+        fedramp20x: ["KSI-CNA-01", "KSI-CNA-03"],
         cmmc: { level: 2, domain: "AC", practice: "AC.L2-3.1.3" },
         description: "Control CUI flow in accordance with approved authorizations"
     },
     "3.1.4": {
         nist80053: ["AC-5", "AC-6"],
         fedramp: { low: null, moderate: ["AC-5", "AC-6"], high: ["AC-5", "AC-6"] },
+        fedramp20x: ["KSI-IAM-05"],
         cmmc: { level: 2, domain: "AC", practice: "AC.L2-3.1.4" },
         description: "Separate duties of individuals to reduce risk of malicious activity"
     },
     "3.1.5": {
         nist80053: ["AC-6(1)", "AC-6(2)", "AC-6(5)", "AC-6(9)", "AC-6(10)"],
         fedramp: { low: null, moderate: ["AC-6(1)", "AC-6(2)", "AC-6(5)"], high: ["AC-6(1)", "AC-6(2)", "AC-6(5)", "AC-6(9)", "AC-6(10)"] },
+        fedramp20x: ["KSI-IAM-04", "KSI-IAM-05"],
         cmmc: { level: 2, domain: "AC", practice: "AC.L2-3.1.5" },
         description: "Employ principle of least privilege"
     },
     "3.1.6": {
         nist80053: ["AC-6(3)"],
         fedramp: { low: null, moderate: ["AC-6(3)"], high: ["AC-6(3)"] },
+        fedramp20x: ["KSI-IAM-05"],
         cmmc: { level: 2, domain: "AC", practice: "AC.L2-3.1.6" },
         description: "Use non-privileged accounts when accessing non-security functions"
     },
     "3.1.7": {
         nist80053: ["AC-6(7)", "AC-6(8)"],
         fedramp: { low: null, moderate: ["AC-6(7)"], high: ["AC-6(7)", "AC-6(8)"] },
+        fedramp20x: ["KSI-IAM-05"],
         cmmc: { level: 2, domain: "AC", practice: "AC.L2-3.1.7" },
         description: "Prevent non-privileged users from executing privileged functions"
     },
     "3.1.8": {
         nist80053: ["AC-7"],
         fedramp: { low: ["AC-7"], moderate: ["AC-7"], high: ["AC-7"] },
+        fedramp20x: ["KSI-IAM-06"],
         cmmc: { level: 2, domain: "AC", practice: "AC.L2-3.1.8" },
         description: "Limit unsuccessful logon attempts"
     },
@@ -153,22 +161,25 @@ const FRAMEWORK_MAPPINGS = {
     "3.2.3": {
         nist80053: ["AT-2(3)"],
         fedramp: { low: null, moderate: ["AT-2(3)"], high: ["AT-2(3)"] },
+        fedramp20x: ["KSI-AWM-01"],
         cmmc: { level: 2, domain: "AT", practice: "AT.L2-3.2.3" },
         description: "Provide security awareness training on insider threats"
     },
 
     // === AUDIT AND ACCOUNTABILITY (AU) ===
     "3.3.1": {
-        nist80053: ["AU-2", "AU-3", "AU-3(1)", "AU-6", "AU-12"],
-        fedramp: { low: ["AU-2", "AU-3", "AU-6", "AU-12"], moderate: ["AU-2", "AU-3", "AU-3(1)", "AU-6", "AU-12"], high: ["AU-2", "AU-3", "AU-3(1)", "AU-6", "AU-12"] },
+        nist80053: ["AU-2", "AU-3", "AU-3(1)", "AU-6", "AU-11", "AU-12"],
+        fedramp: { low: ["AU-2", "AU-3", "AU-6", "AU-11", "AU-12"], moderate: ["AU-2", "AU-3", "AU-3(1)", "AU-6", "AU-11", "AU-12"], high: ["AU-2", "AU-3", "AU-3(1)", "AU-6", "AU-11", "AU-12"] },
+        fedramp20x: ["KSI-MLA-02", "KSI-MLA-07"],
         cmmc: { level: 2, domain: "AU", practice: "AU.L2-3.3.1" },
-        description: "Create and retain system audit logs"
+        description: "Create and retain audit records"
     },
     "3.3.2": {
-        nist80053: ["AU-6(3)"],
-        fedramp: { low: null, moderate: ["AU-6(3)"], high: ["AU-6(3)"] },
+        nist80053: ["AU-2(3)", "AU-3(1)"],
+        fedramp: { low: null, moderate: ["AU-2(3)", "AU-3(1)"], high: ["AU-2(3)", "AU-3(1)"] },
+        fedramp20x: ["KSI-MLA-02"],
         cmmc: { level: 2, domain: "AU", practice: "AU.L2-3.3.2" },
-        description: "Ensure actions can be traced to individual users"
+        description: "Ensure actions are uniquely traced to individuals"
     },
     "3.3.3": {
         nist80053: ["AU-6(4)"],
@@ -217,6 +228,7 @@ const FRAMEWORK_MAPPINGS = {
     "3.4.1": {
         nist80053: ["CM-2", "CM-6", "CM-8", "CM-8(1)"],
         fedramp: { low: ["CM-2", "CM-6", "CM-8"], moderate: ["CM-2", "CM-6", "CM-8", "CM-8(1)"], high: ["CM-2", "CM-6", "CM-8", "CM-8(1)"] },
+        fedramp20x: ["KSI-PIY-01", "KSI-SVC-04"],
         cmmc: { level: 2, domain: "CM", practice: "CM.L2-3.4.1" },
         description: "Establish and maintain baseline configurations"
     },
@@ -229,6 +241,7 @@ const FRAMEWORK_MAPPINGS = {
     "3.4.3": {
         nist80053: ["CM-3", "CM-4"],
         fedramp: { low: null, moderate: ["CM-3", "CM-4"], high: ["CM-3", "CM-4"] },
+        fedramp20x: ["KSI-CMT-01", "KSI-CMT-04"],
         cmmc: { level: 2, domain: "CM", practice: "CM.L2-3.4.3" },
         description: "Track, review, approve changes to systems"
     },
@@ -285,6 +298,7 @@ const FRAMEWORK_MAPPINGS = {
     "3.5.3": {
         nist80053: ["IA-2(1)", "IA-2(2)", "IA-2(3)"],
         fedramp: { low: null, moderate: ["IA-2(1)", "IA-2(2)"], high: ["IA-2(1)", "IA-2(2)", "IA-2(3)"] },
+        fedramp20x: ["KSI-IAM-01", "KSI-IAM-02"],
         cmmc: { level: 2, domain: "IA", practice: "IA.L2-3.5.3" },
         description: "Use multifactor authentication"
     },
