@@ -3696,6 +3696,13 @@ body {
     border-bottom: 1px solid var(--border-color);
     color: var(--text-primary);
     vertical-align: top;
+    text-align: left;
+}
+
+.impl-table.compact th,
+.impl-table.compact td {
+    padding: 6px 10px;
+    font-size: 0.65rem;
 }
 
 .impl-table tr:hover td {
@@ -4972,6 +4979,72 @@ body {
 
 .ll-best-practices li {
     margin-bottom: 4px;
+}
+
+/* Global Text Alignment Fixes */
+.impl-section p,
+.impl-section ul,
+.impl-section ol,
+.impl-section li {
+    text-align: left;
+}
+
+.ttx-scenario-text,
+.dark-cubed-benefits ul,
+.dfars-section p {
+    text-align: left;
+}
+
+/* Ensure all list items align left */
+ul, ol {
+    text-align: left;
+}
+
+li {
+    text-align: left;
+}
+
+/* Form inputs should align left */
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="date"],
+input[type="number"],
+textarea,
+select {
+    text-align: left;
+}
+
+/* Table content alignment */
+table th,
+table td {
+    text-align: left;
+}
+
+/* Badge and tag centering */
+.badge,
+.tag,
+.status-badge,
+.ttx-difficulty,
+.ll-priority {
+    text-align: center;
+}
+
+/* Card headers */
+.card-header,
+.modal-header,
+.impl-section-title {
+    text-align: left;
+}
+
+/* Descriptions and body text */
+.description,
+.guidance-value,
+.impl-notes-steps li,
+.ttx-injects li,
+.ttx-questions li,
+.ttx-actions li {
+    text-align: left;
 }
 
 .hamburger-org-url {

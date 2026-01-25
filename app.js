@@ -44,71 +44,76 @@ class AssessmentApp {
         const savedPoam = localStorage.getItem('nist-poam-data');
         const savedDeficiency = localStorage.getItem('nist-deficiency-data');
         
-        if (savedAssessment) {
+        // Use SecurityUtils for safe JSON parsing and sanitization
+        const safeParseAndSanitize = (jsonStr) => {
+            if (!jsonStr) return {};
+            if (typeof SecurityUtils !== 'undefined') {
+                const result = SecurityUtils.validateJson(jsonStr);
+                if (result.valid) {
+                    return SecurityUtils.sanitizeObject(result.data) || {};
+                }
+                return {};
+            }
+            // Fallback if SecurityUtils not loaded
             try {
-                this.assessmentData = JSON.parse(savedAssessment);
+                return JSON.parse(jsonStr);
             } catch (e) {
-                this.assessmentData = {};
+                return {};
+            }
+        };
+        
+        this.assessmentData = safeParseAndSanitize(savedAssessment);
+        this.poamData = safeParseAndSanitize(savedPoam);
+        this.deficiencyData = safeParseAndSanitize(savedDeficiency);
+
+        const savedImplementation = localStorage.getItem('nist-implementation-data');
+        this.implementationData = safeParseAndSanitize(savedImplementation);
+
+        const savedOrg = localStorage.getItem('nist-org-data');
+        this.orgData = safeParseAndSanitize(savedOrg);
+        
+        // Populate org inputs with sanitized values
+        const sanitizeForInput = (val) => {
+            if (typeof SecurityUtils !== 'undefined') {
+                return SecurityUtils.truncate(val || '', SecurityUtils.MAX_LENGTHS.input);
+            }
+            return (val || '').slice(0, 10000);
+        };
+        
+        const assessorNameInput = document.getElementById('org-assessor-name');
+        const assessorUrlInput = document.getElementById('org-assessor-url');
+        const oscNameInput = document.getElementById('org-osc-name');
+        const oscUrlInput = document.getElementById('org-osc-url');
+        
+        if (this.orgData.assessorName && assessorNameInput) {
+            assessorNameInput.value = sanitizeForInput(this.orgData.assessorName);
+        }
+        if (this.orgData.assessorUrl && assessorUrlInput) {
+            assessorUrlInput.value = sanitizeForInput(this.orgData.assessorUrl);
+        }
+        // Validate logo URL before displaying
+        if (this.orgData.assessorLogo && typeof SecurityUtils !== 'undefined') {
+            const safeUrl = SecurityUtils.sanitizeUrl(this.orgData.assessorLogo);
+            if (safeUrl) {
+                this.displayLogo('assessor', safeUrl);
+            } else {
+                this.orgData.assessorLogo = null;
             }
         }
         
-        if (savedPoam) {
-            try {
-                this.poamData = JSON.parse(savedPoam);
-            } catch (e) {
-                this.poamData = {};
-            }
+        if (this.orgData.oscName && oscNameInput) {
+            oscNameInput.value = sanitizeForInput(this.orgData.oscName);
         }
-
-        if (savedDeficiency) {
-            try {
-                this.deficiencyData = JSON.parse(savedDeficiency);
-            } catch (e) {
-                this.deficiencyData = {};
-            }
+        if (this.orgData.oscUrl && oscUrlInput) {
+            oscUrlInput.value = sanitizeForInput(this.orgData.oscUrl);
         }
-
-        const savedImplementation = localStorage.getItem('nist-implementation-data');
-        if (savedImplementation) {
-            try {
-                this.implementationData = JSON.parse(savedImplementation);
-            } catch (e) {
-                this.implementationData = {};
-            }
-        }
-
-        const savedOrg = localStorage.getItem('nist-org-data');
-        if (savedOrg) {
-            try {
-                this.orgData = JSON.parse(savedOrg);
-                // Populate the inputs - Assessor
-                if (this.orgData.assessorName) {
-                    document.getElementById('org-assessor-name').value = this.orgData.assessorName;
-                }
-                if (this.orgData.assessorUrl) {
-                    document.getElementById('org-assessor-url').value = this.orgData.assessorUrl;
-                }
-                // Validate logo URL before displaying (clear bad cached URLs)
-                if (this.orgData.assessorLogo && !this.orgData.assessorLogo.includes('https;')) {
-                    this.displayLogo('assessor', this.orgData.assessorLogo);
-                } else {
-                    this.orgData.assessorLogo = null;
-                }
-                // Populate the inputs - OSC
-                if (this.orgData.oscName) {
-                    document.getElementById('org-osc-name').value = this.orgData.oscName;
-                }
-                if (this.orgData.oscUrl) {
-                    document.getElementById('org-osc-url').value = this.orgData.oscUrl;
-                }
-                // Validate logo URL before displaying (clear bad cached URLs)
-                if (this.orgData.oscLogo && !this.orgData.oscLogo.includes('https;')) {
-                    this.displayLogo('osc', this.orgData.oscLogo);
-                } else {
-                    this.orgData.oscLogo = null;
-                }
-            } catch (e) {
-                this.orgData = {};
+        // Validate logo URL before displaying
+        if (this.orgData.oscLogo && typeof SecurityUtils !== 'undefined') {
+            const safeUrl = SecurityUtils.sanitizeUrl(this.orgData.oscLogo);
+            if (safeUrl) {
+                this.displayLogo('osc', safeUrl);
+            } else {
+                this.orgData.oscLogo = null;
             }
         }
     }
