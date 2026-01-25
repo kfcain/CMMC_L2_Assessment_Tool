@@ -158,6 +158,13 @@
     white-space: nowrap;
 }
 
+.mapping-tag.nist-171 {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.3);
+    font-weight: 600;
+}
+
 .mapping-tag.nist-53 {
     background: rgba(139, 92, 246, 0.15);
     color: #a78bfa;

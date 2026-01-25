@@ -207,11 +207,10 @@ const CrosswalkVisualizer = {
             <table class="crosswalk-table">
                 <thead>
                     <tr>
-                        <th>NIST 800-171</th>
+                        <th>NIST 800-171 / CMMC L2</th>
                         <th>Description</th>
                         <th>NIST 800-53</th>
                         <th>FedRAMP 20x KSI</th>
-                        <th>CMMC L2</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -230,17 +229,18 @@ const CrosswalkVisualizer = {
                 return `<span class="mapping-tag fedramp-20x"${title}>${ksi}</span>`;
             }).join('') || '<span class="mapping-tag empty">—</span>';
             
-            const cmmcTag = item.cmmc ? 
-                `<span class="mapping-tag cmmc">${item.cmmc.practice}</span>` : 
-                '<span class="mapping-tag empty">—</span>';
+            // Combined NIST 800-171 / CMMC column
+            const cmmcPractice = item.cmmc?.practice || '';
+            const controlDisplay = cmmcPractice ? 
+                `<span class="mapping-tag nist-171">${item.controlId}</span><span class="mapping-tag cmmc">${cmmcPractice}</span>` :
+                `<span class="mapping-tag nist-171">${item.controlId}</span>`;
             
             html += `
                 <tr>
-                    <td class="control-id">${item.controlId}</td>
+                    <td class="mapping-tags control-col">${controlDisplay}</td>
                     <td class="control-desc">${item.description || ''}</td>
                     <td class="mapping-tags">${nist53Tags || '<span class="mapping-tag empty">—</span>'}</td>
                     <td class="mapping-tags">${fed20xTags}</td>
-                    <td class="mapping-tags">${cmmcTag}</td>
                 </tr>
             `;
         });
