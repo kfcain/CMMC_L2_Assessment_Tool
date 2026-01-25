@@ -2784,6 +2784,17 @@ body {
     border-color: rgba(59, 130, 246, 0.5);
 }
 
+.framework-link.fedramp20x {
+    background: rgba(6, 182, 212, 0.15);
+    color: #22d3ee;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.framework-link.fedramp20x:hover {
+    background: rgba(6, 182, 212, 0.25);
+    border-color: rgba(6, 182, 212, 0.5);
+}
+
 .framework-na {
     font-size: 0.75rem;
     color: var(--text-muted);
