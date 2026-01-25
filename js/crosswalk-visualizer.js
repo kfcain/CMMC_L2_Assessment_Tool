@@ -147,9 +147,12 @@ const CrosswalkVisualizer = {
     },
     
     getMappingData() {
+        console.log('getMappingData() called, filters:', this.filters);
+        
         if (typeof FRAMEWORK_MAPPINGS === 'undefined') return [];
         
         const data = [];
+        let skippedByBaseline = 0;
         
         Object.entries(FRAMEWORK_MAPPINGS).forEach(([controlId, mapping]) => {
             // Skip internal/helper entries
@@ -169,7 +172,10 @@ const CrosswalkVisualizer = {
             // Apply FedRAMP 20x level filter
             if (this.filters.baseline !== 'all') {
                 // If control has no KSIs, exclude it when filtering
-                if (derivedKSIs.length === 0) return;
+                if (derivedKSIs.length === 0) {
+                    skippedByBaseline++;
+                    return;
+                }
                 
                 // Filter KSIs to only those matching the selected level
                 const filteredKSIs = derivedKSIs.filter(ksi => {
@@ -182,7 +188,10 @@ const CrosswalkVisualizer = {
                 });
                 
                 // Exclude control if no KSIs match the filter
-                if (filteredKSIs.length === 0) return;
+                if (filteredKSIs.length === 0) {
+                    skippedByBaseline++;
+                    return;
+                }
                 derivedKSIs = filteredKSIs;
             }
             
@@ -199,6 +208,7 @@ const CrosswalkVisualizer = {
             });
         });
         
+        console.log('getMappingData() returning', data.length, 'controls, skipped by baseline:', skippedByBaseline);
         return data;
     },
     
