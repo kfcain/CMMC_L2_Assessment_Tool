@@ -52,6 +52,7 @@ const CrosswalkVisualizer = {
         if (baselineFilter) {
             baselineFilter.addEventListener('change', (e) => {
                 this.filters.baseline = e.target.value;
+                console.log('Baseline filter changed to:', this.filters.baseline);
                 this.render();
             });
         }
@@ -159,25 +160,23 @@ const CrosswalkVisualizer = {
             }
             
             // Apply FedRAMP 20x level filter
-            // Only filter if we have KSIs and a filter is selected
-            if (this.filters.baseline !== 'all' && derivedKSIs.length > 0) {
-                // Filter KSIs that match the selected 20x level
+            if (this.filters.baseline !== 'all') {
+                // If control has no KSIs, exclude it when filtering
+                if (derivedKSIs.length === 0) return;
+                
+                // Filter KSIs to only those matching the selected level
                 const filteredKSIs = derivedKSIs.filter(ksi => {
-                    if (typeof FEDRAMP_20X_KSI === 'undefined') return true;
+                    if (typeof FEDRAMP_20X_KSI === 'undefined') return false;
                     const ksiInfo = FEDRAMP_20X_KSI.indicators[ksi];
-                    if (!ksiInfo) return true; // Keep if no info found
-                    // 20x Low: KSIs with low: true
+                    if (!ksiInfo) return false;
                     if (this.filters.baseline === 'low') return ksiInfo.low === true;
-                    // 20x Moderate: KSIs with moderate: true
                     if (this.filters.baseline === 'moderate') return ksiInfo.moderate === true;
-                    return true;
+                    return false;
                 });
-                // Only exclude control if NO KSIs match the filter
+                
+                // Exclude control if no KSIs match the filter
                 if (filteredKSIs.length === 0) return;
                 derivedKSIs = filteredKSIs;
-            } else if (this.filters.baseline !== 'all' && derivedKSIs.length === 0) {
-                // If filtering by 20x level but control has no KSIs, exclude it
-                return;
             }
             
             // Apply search filter

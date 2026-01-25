@@ -158,7 +158,13 @@
 
 /* Control column - no wrap for CMMC badges */
 .crosswalk-table .control-col .tags-wrap {
-    flex-wrap: nowrap;
+    display: inline-flex !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    align-items: center;
+}
+
+.crosswalk-table .control-col {
     white-space: nowrap;
 }
 
