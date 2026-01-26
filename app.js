@@ -5754,29 +5754,48 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         const currentCloud = this.implGuideCloud || 'azure';
         const enclaveGuidance = typeof ENCLAVE_GUIDANCE !== 'undefined' ? ENCLAVE_GUIDANCE : null;
         
+        // SVG icons for subsections (stroke-based, like myctrl.tools)
+        const icons = {
+            'evidence-collection': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+            'power-automate': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+            'system-banner': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>',
+            'raci-matrix': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+            'azure-endpoints': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+            'cui-patterns': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+            'purview-labels': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+            'dfars-7012': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+            'tabletop': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+            'lessons-learned': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+            'scp-examples': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+            'aws-deep-dive': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+            'org-policies': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18v-7"></path><path d="M11.12 2.198a2 2 0 0 1 1.76.006l7.866 3.847c.476.233.31.949-.22.949H3.474c-.53 0-.695-.716-.22-.949z"></path><path d="M14 18v-7"></path><path d="M18 18v-7"></path><path d="M3 22h18"></path><path d="M6 18v-7"></path></svg>',
+            'assured-workloads': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+            'gcp-deep-dive': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'
+        };
+        
         // Build subsection navigation based on available content
         const subsections = [];
         // Machine-readable evidence collection is available for all clouds
         if (enclaveGuidance?.machineReadableEvidence) {
-            subsections.push({ id: 'evidence-collection', name: 'Evidence Collection', icon: '📊' });
+            subsections.push({ id: 'evidence-collection', name: 'Evidence Collection' });
         }
         if (currentCloud === 'azure') {
-            if (enclaveGuidance?.powerAutomateGuidance) subsections.push({ id: 'power-automate', name: 'Power Automate Workflows', icon: '⚡' });
-            if (guide.systemUseBanner) subsections.push({ id: 'system-banner', name: 'System Use Banner', icon: '📋' });
-            if (guide.raciMatrix) subsections.push({ id: 'raci-matrix', name: 'RACI Matrix', icon: '👥' });
-            if (guide.azureGovEndpoints) subsections.push({ id: 'azure-endpoints', name: 'Azure Gov Endpoints', icon: '🔗' });
-            if (guide.cuiRegexPatterns) subsections.push({ id: 'cui-patterns', name: 'CUI Regex Patterns', icon: '🔍' });
-            if (guide.purviewLabelConfigs) subsections.push({ id: 'purview-labels', name: 'Purview Sensitivity Labels', icon: '🏷️' });
-            if (guide.dfars7012Resources) subsections.push({ id: 'dfars-7012', name: 'DFARS 7012 Incident Reporting', icon: '⚠️' });
-            if (guide.tabletopExercises) subsections.push({ id: 'tabletop', name: 'Tabletop Exercises', icon: '🎯' });
-            if (guide.lessonsLearnedTemplate) subsections.push({ id: 'lessons-learned', name: 'Lessons Learned Template', icon: '📖' });
+            if (enclaveGuidance?.powerAutomateGuidance) subsections.push({ id: 'power-automate', name: 'Power Automate' });
+            if (guide.systemUseBanner) subsections.push({ id: 'system-banner', name: 'System Banner' });
+            if (guide.raciMatrix) subsections.push({ id: 'raci-matrix', name: 'RACI Matrix' });
+            if (guide.azureGovEndpoints) subsections.push({ id: 'azure-endpoints', name: 'Azure Endpoints' });
+            if (guide.cuiRegexPatterns) subsections.push({ id: 'cui-patterns', name: 'CUI Patterns' });
+            if (guide.purviewLabelConfigs) subsections.push({ id: 'purview-labels', name: 'Purview Labels' });
+            if (guide.dfars7012Resources) subsections.push({ id: 'dfars-7012', name: 'DFARS 7012' });
+            if (guide.tabletopExercises) subsections.push({ id: 'tabletop', name: 'Tabletop Exercises' });
+            if (guide.lessonsLearnedTemplate) subsections.push({ id: 'lessons-learned', name: 'Lessons Learned' });
         } else if (currentCloud === 'aws') {
-            if (guide.scpExamples) subsections.push({ id: 'scp-examples', name: 'Service Control Policies', icon: '🛡️' });
-            subsections.push({ id: 'aws-deep-dive', name: 'GovCloud Deep Dive', icon: '🔧' });
+            if (guide.scpExamples) subsections.push({ id: 'scp-examples', name: 'SCPs' });
+            subsections.push({ id: 'aws-deep-dive', name: 'GovCloud Deep Dive' });
         } else if (currentCloud === 'gcp') {
-            if (guide.orgPolicyExamples) subsections.push({ id: 'org-policies', name: 'Organization Policies', icon: '📜' });
-            if (guide.assuredWorkloads) subsections.push({ id: 'assured-workloads', name: 'Assured Workloads', icon: '✅' });
-            subsections.push({ id: 'gcp-deep-dive', name: 'GCP Deep Dive', icon: '🔧' });
+            if (guide.orgPolicyExamples) subsections.push({ id: 'org-policies', name: 'Org Policies' });
+            if (guide.assuredWorkloads) subsections.push({ id: 'assured-workloads', name: 'Assured Workloads' });
+            subsections.push({ id: 'gcp-deep-dive', name: 'GCP Deep Dive' });
         }
         
         // Subsection navigation and search
@@ -5784,10 +5803,10 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             <div class="extras-nav-container">
                 <div class="extras-search-box">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="extras-search-input" placeholder="Search in Extras..." class="extras-search-input">
+                    <input type="text" id="extras-search-input" placeholder="Search in Reference Architecture..." class="extras-search-input">
                 </div>
                 <div class="extras-subsection-nav">
-                    ${subsections.map(s => `<button class="extras-nav-btn" data-scroll-to="${s.id}"><span class="extras-nav-icon">${s.icon}</span>${s.name}</button>`).join('')}
+                    ${subsections.map(s => `<button class="extras-nav-btn" data-scroll-to="${s.id}"><span class="extras-nav-icon">${icons[s.id] || ''}</span><span class="extras-nav-label">${s.name}</span></button>`).join('')}
                 </div>
             </div>
         `;

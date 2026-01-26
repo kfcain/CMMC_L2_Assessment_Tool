@@ -4,6 +4,8 @@
     padding: 24px;
     max-width: 1400px;
     margin: 0 auto;
+    overflow-y: auto;
+    height: 100%;
 }
 
 /* Header */
@@ -594,7 +596,21 @@
 }
 
 .extras-nav-icon {
-    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+}
+
+.extras-nav-icon svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+}
+
+.extras-nav-label {
+    white-space: nowrap;
 }
 
 /* Extras Collapsible Sections */
