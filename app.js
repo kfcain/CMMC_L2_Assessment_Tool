@@ -564,8 +564,12 @@ class AssessmentApp {
             if (window.LazyLoader) {
                 try {
                     await window.LazyLoader.loadViewScripts('crosswalk');
+                    // Small delay to ensure scripts are fully parsed
+                    await new Promise(resolve => setTimeout(resolve, 100));
                     if (typeof CrosswalkVisualizer !== 'undefined') {
                         CrosswalkVisualizer.init();
+                    } else {
+                        console.error('CrosswalkVisualizer not defined after loading scripts');
                     }
                 } catch (e) {
                     console.error('Failed to load crosswalk scripts:', e);
