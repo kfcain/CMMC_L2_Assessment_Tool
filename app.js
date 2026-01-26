@@ -1266,11 +1266,9 @@ class AssessmentApp {
     }
     
     renderPlannerKanban(planner, allTasks) {
-        console.log('Kanban: allTasks.length =', allTasks.length);
         const todo = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority === 'critical');
         const inProgress = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority !== 'critical');
         const done = allTasks.filter(t => this.implPlannerProgress[t.id]);
-        console.log('Kanban: todo =', todo.length, 'inProgress =', inProgress.length, 'done =', done.length);
         
         return `
             <div class="impl-kanban-column">
@@ -1317,8 +1315,7 @@ class AssessmentApp {
     }
     
     renderPlannerList(planner, allTasks) {
-        console.log('List: allTasks.length =', allTasks.length);
-        const html = `
+        return `
             <div class="impl-list-container">
                 <table class="impl-list-table">
                     <thead>
@@ -1353,9 +1350,6 @@ class AssessmentApp {
                 </table>
             </div>
         `;
-        console.log('List HTML length:', html.length);
-        console.log('List HTML contains table:', html.includes('<table'));
-        return html;
     }
     
     getPhaseIcon(iconName) {
@@ -1567,7 +1561,6 @@ class AssessmentApp {
         container.querySelectorAll('.impl-view-toggle button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const view = e.currentTarget.dataset.view;
-                console.log('View button clicked:', view);
                 this.implPlannerView = view;
                 localStorage.setItem('impl-planner-view', this.implPlannerView);
                 
@@ -1579,20 +1572,12 @@ class AssessmentApp {
                 
                 // Show selected view
                 if (view === 'phases') {
-                    console.log('Showing phases view');
                     document.getElementById('impl-phases-content').style.display = 'block';
                 } else if (view === 'project-plan') {
-                    console.log('Showing project-plan view');
                     document.getElementById('impl-project-plan-content').style.display = 'block';
                 } else if (view === 'kanban') {
-                    console.log('Showing kanban view');
                     document.getElementById('impl-kanban-content').style.display = 'block';
                 } else if (view === 'list') {
-                    console.log('Showing list view');
-                    const listContainer = document.getElementById('impl-list-content');
-                    console.log('List container exists:', !!listContainer);
-                    console.log('List container HTML length:', listContainer ? listContainer.innerHTML.length : 0);
-                    console.log('List container HTML preview:', listContainer ? listContainer.innerHTML.substring(0, 100) : 'N/A');
                     document.getElementById('impl-list-content').style.display = 'block';
                 }
                 
