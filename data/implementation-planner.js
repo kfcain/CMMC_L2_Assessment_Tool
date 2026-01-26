@@ -77,19 +77,19 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1-1-4",
                             name: "Create comprehensive asset inventory",
                             description: "Inventory all systems, data, and personnel within CMMC scope",
-                            controls: ["3.2.4", "3.3.1", "3.12.4"],
+                            controls: ["3.4.1", "3.12.4"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
                                 steps: [
-                                    "Define asset types and categories (hardware, software, data, cloud, personnel)",
-                                    "Create asset classification scheme (CUI-in-scope, boundary, security-control, out-of-scope)",
-                                    "Establish CMDB (Configuration Management Database)",
-                                    "Define asset lifecycle management procedures",
-                                    "Create asset tagging and labeling procedures",
+                                    "Establish system inventory per 3.4.1[d] - inventory all hardware, software, firmware, and documentation",
+                                    "Create baseline configuration per 3.4.1[a] - document current state of all systems",
+                                    "Define asset classification scheme for SSP per 3.12.4[b] - identify in-scope vs out-of-scope assets",
+                                    "Document system boundaries per 3.12.4[b] - clearly define assessment scope",
+                                    "Establish CMDB for ongoing inventory maintenance per 3.4.1[f]",
+                                    "Create asset lifecycle management procedures",
                                     "Document asset owner responsibilities",
-                                    "Conduct physical asset discovery",
-                                    "Map cloud assets and subscriptions"
+                                    "Conduct physical and cloud asset discovery"
                                 ],
                                 assetTypes: [
                                     { category: "Hardware", examples: ["Servers", "Workstations", "Laptops", "Mobile Devices", "Network Equipment", "Storage Systems"] },
