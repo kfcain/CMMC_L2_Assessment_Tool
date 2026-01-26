@@ -18,8 +18,8 @@ const IMPLEMENTATION_PLANNER = {
             milestones: [
                 {
                     id: "m1-1",
-                    name: "CUI Scoping Complete",
-                    description: "Identify all systems, data flows, and personnel that handle CUI",
+                    name: "CUI Scoping & Asset Inventory Complete",
+                    description: "Identify all systems, data flows, assets, and personnel that handle CUI",
                     tasks: [
                         {
                             id: "t1-1-1",
@@ -71,6 +71,48 @@ const IMPLEMENTATION_PLANNER = {
                                     "Document boundary decisions and justifications"
                                 ],
                                 artifacts: ["System Boundary Diagram", "Asset Inventory", "Cloud Service Inventory"]
+                            }
+                        },
+                        {
+                            id: "t1-1-4",
+                            name: "Create comprehensive asset inventory",
+                            description: "Inventory all systems, data, and personnel within CMMC scope",
+                            controls: ["3.2.4", "3.3.1", "3.12.4"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Define asset types and categories (hardware, software, data, cloud, personnel)",
+                                    "Create asset classification scheme (CUI-in-scope, boundary, security-control, out-of-scope)",
+                                    "Establish CMDB (Configuration Management Database)",
+                                    "Define asset lifecycle management procedures",
+                                    "Create asset tagging and labeling procedures",
+                                    "Document asset owner responsibilities",
+                                    "Conduct physical asset discovery",
+                                    "Map cloud assets and subscriptions"
+                                ],
+                                assetTypes: [
+                                    { category: "Hardware", examples: ["Servers", "Workstations", "Laptops", "Mobile Devices", "Network Equipment", "Storage Systems"] },
+                                    { category: "Software", examples: ["Operating Systems", "Applications", "Databases", "Security Tools", "Custom Code"] },
+                                    { category: "Data", examples: ["CUI Data", "PII", "Intellectual Property", "System Data", "Logs"] },
+                                    { category: "Cloud", examples: ["IaaS Resources", "SaaS Applications", "Storage Accounts", "Network Resources", "Identities"] },
+                                    { category: "Personnel", examples: ["Employees", "Contractors", "System Accounts", "Service Accounts"] }
+                                ],
+                                labelingScheme: [
+                                    { label: "CUI-In-Scope", description: "Assets that process, store, or transmit CUI", color: "Red" },
+                                    { label: "CUI-Boundary", description: "Assets at CMMC assessment boundary", color: "Orange" },
+                                    { label: "Security-Control", description: "Assets implementing security controls", color: "Blue" },
+                                    { label: "Out-of-Scope", description: "Assets not in CMMC assessment scope", color: "Green" }
+                                ],
+                                templates: [
+                                    "Asset Inventory Template.xlsx",
+                                    "Asset Classification Guide.docx",
+                                    "CMDB Schema.xlsx",
+                                    "Asset Lifecycle Procedure.docx",
+                                    "Asset Labeling Guide.docx"
+                                ],
+                                storage: "SharePoint > Operations > Asset Management",
+                                approval: "IT Director + Asset Manager + System Owners"
                             }
                         }
                     ]
