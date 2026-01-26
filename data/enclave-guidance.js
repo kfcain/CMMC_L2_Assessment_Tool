@@ -3386,6 +3386,953 @@ def handle_scc_finding(event, context):
                 "  --restricted-services='storage.googleapis.com,bigquery.googleapis.com'"
             ]
         }
+    },
+
+    // ========================================
+    // MACHINE-READABLE EVIDENCE COLLECTION
+    // ========================================
+    
+    machineReadableEvidence: {
+        description: "Automated evidence collection commands and scripts for CMMC assessment objectives. Each entry provides machine-readable output that can be parsed, stored, and presented to assessors.",
+        
+        // Access Control (AC) Evidence
+        accessControl: {
+            family: "AC",
+            familyName: "Access Control",
+            objectives: [
+                {
+                    objectiveId: "3.1.1[a]",
+                    description: "Authorized users are identified",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az ad user list --query '[].{UPN:userPrincipalName,DisplayName:displayName,AccountEnabled:accountEnabled,CreatedDateTime:createdDateTime}' -o json > authorized_users.json",
+                                output: "JSON list of all Entra ID users with status",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "Microsoft Graph API",
+                                command: "GET https://graph.microsoft.us/v1.0/users?$select=id,userPrincipalName,displayName,accountEnabled,createdDateTime",
+                                output: "JSON user directory",
+                                frequency: "On-demand"
+                            },
+                            {
+                                tool: "PowerShell",
+                                command: "Get-MgUser -All | Select-Object UserPrincipalName, DisplayName, AccountEnabled, CreatedDateTime | ConvertTo-Json | Out-File authorized_users.json",
+                                output: "JSON file with user details",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Compare user list against HR system of record",
+                            "Manager attestation that users are current employees",
+                            "Review for terminated employees still in directory"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws iam list-users --query 'Users[*].{UserName:UserName,CreateDate:CreateDate,PasswordLastUsed:PasswordLastUsed}' --output json > iam_users.json",
+                                output: "JSON list of IAM users",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws identitystore list-users --identity-store-id d-XXXXXXXXXX --output json > sso_users.json",
+                                output: "JSON list of Identity Center users",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Cross-reference with HR database",
+                            "Validate service accounts have documented owners",
+                            "Review users with console access never used"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud identity groups memberships list --group-email=all-users@domain.com --format=json > workspace_users.json",
+                                output: "JSON list of Workspace users",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "Admin SDK",
+                                command: "GET https://admin.googleapis.com/admin/directory/v1/users?domain=domain.com",
+                                output: "JSON user directory",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Validate users against HRIS export",
+                            "Confirm contractors have valid SOWs"
+                        ]
+                    }
+                },
+                {
+                    objectiveId: "3.1.1[b]",
+                    description: "Processes acting on behalf of users are identified",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az ad sp list --all --query '[].{DisplayName:displayName,AppId:appId,ServicePrincipalType:servicePrincipalType}' -o json > service_principals.json",
+                                output: "JSON list of service principals",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "Azure CLI",
+                                command: "az ad app list --all --query '[].{DisplayName:displayName,AppId:appId,SignInAudience:signInAudience}' -o json > app_registrations.json",
+                                output: "JSON list of app registrations",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Document purpose for each service principal",
+                            "Verify owner assigned to each app registration",
+                            "Review apps with delegated permissions"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws iam list-roles --query 'Roles[*].{RoleName:RoleName,Arn:Arn,CreateDate:CreateDate}' --output json > iam_roles.json",
+                                output: "JSON list of IAM roles",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws lambda list-functions --query 'Functions[*].{FunctionName:FunctionName,Role:Role,Runtime:Runtime}' --output json > lambda_functions.json",
+                                output: "JSON list of Lambda execution roles",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Document business justification for each role",
+                            "Review trust policies for cross-account access"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud iam service-accounts list --format=json > service_accounts.json",
+                                output: "JSON list of service accounts",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify each service account has documented owner",
+                            "Review service accounts with key creation enabled"
+                        ]
+                    }
+                },
+                {
+                    objectiveId: "3.1.2[a]",
+                    description: "Account types are defined",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "PowerShell",
+                                command: "Get-MgDirectoryRole | ForEach-Object { $role = $_; Get-MgDirectoryRoleMember -DirectoryRoleId $_.Id | Select-Object @{N='Role';E={$role.DisplayName}}, Id } | ConvertTo-Json > role_assignments.json",
+                                output: "JSON of directory role assignments",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Document account type definitions in policy",
+                            "Map account types to Entra ID groups"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws iam list-groups --query 'Groups[*].{GroupName:GroupName,Arn:Arn}' --output json > iam_groups.json && for g in $(aws iam list-groups --query 'Groups[*].GroupName' --output text); do aws iam get-group --group-name $g >> group_members.json; done",
+                                output: "JSON of IAM groups and memberships",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Document account type taxonomy",
+                            "Map IAM groups to account types"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud projects get-iam-policy PROJECT_ID --format=json > iam_policy.json",
+                                output: "JSON of IAM bindings",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Document account types in access control policy"
+                        ]
+                    }
+                },
+                {
+                    objectiveId: "3.1.5[a]",
+                    description: "Privileged accounts are identified",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az role assignment list --role 'Owner' --all -o json > owners.json && az role assignment list --role 'Contributor' --all -o json > contributors.json && az role assignment list --role 'User Access Administrator' --all -o json > uaa.json",
+                                output: "JSON of privileged role assignments",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "PowerShell",
+                                command: "Get-MgDirectoryRole | Where-Object {$_.DisplayName -like '*Admin*'} | ForEach-Object { Get-MgDirectoryRoleMember -DirectoryRoleId $_.Id } | ConvertTo-Json > privileged_users.json",
+                                output: "JSON of Entra ID admin role members",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Validate each privileged user has business justification",
+                            "Review for excessive Global Admin assignments",
+                            "Confirm PIM is enabled for privileged roles"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws iam list-users | jq -r '.Users[].UserName' | while read user; do policies=$(aws iam list-attached-user-policies --user-name $user --query 'AttachedPolicies[?PolicyArn==`arn:aws:iam::aws:policy/AdministratorAccess`]' --output json); if [ \"$policies\" != \"[]\" ]; then echo $user; fi; done > admin_users.txt",
+                                output: "List of users with AdministratorAccess",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws iam get-account-authorization-details --filter User --query 'UserDetailList[?AttachedManagedPolicies[?PolicyArn==`arn:aws:iam::aws:policy/AdministratorAccess`]]' --output json > admin_details.json",
+                                output: "JSON of admin user details",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Review admin access justifications",
+                            "Validate root account MFA and access keys disabled"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud organizations get-iam-policy ORG_ID --flatten='bindings[].members' --filter='bindings.role:(roles/owner OR roles/editor OR roles/iam.securityAdmin)' --format=json > privileged_users.json",
+                                output: "JSON of privileged role bindings",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Review Owner role assignments",
+                            "Validate service account permissions"
+                        ]
+                    }
+                },
+                {
+                    objectiveId: "3.1.7[a]",
+                    description: "Privileged functions are defined",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az role definition list --custom-role-only false --query '[?contains(permissions[0].actions, `*`) || contains(permissions[0].actions, `*/write`)].{RoleName:roleName,Actions:permissions[0].actions}' -o json > privileged_roles.json",
+                                output: "JSON of roles with broad permissions",
+                                frequency: "Quarterly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Document privileged functions in security policy",
+                            "Map functions to specific Entra ID roles"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws iam list-policies --scope Local --query 'Policies[*].{PolicyName:PolicyName,Arn:Arn}' --output json | while read policy; do aws iam get-policy-version --policy-arn $(echo $policy | jq -r '.Arn') --version-id v1 --query 'PolicyVersion.Document' --output json; done > policy_documents.json",
+                                output: "JSON of all custom policy documents",
+                                frequency: "Quarterly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Identify policies with Resource: * and Action: *",
+                            "Document privileged function definitions"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud iam roles list --format=json > all_roles.json",
+                                output: "JSON of all IAM roles",
+                                frequency: "Quarterly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Identify roles with broad permissions",
+                            "Document in privileged access policy"
+                        ]
+                    }
+                }
+            ]
+        },
+        
+        // Audit & Accountability (AU) Evidence
+        auditAccountability: {
+            family: "AU",
+            familyName: "Audit & Accountability",
+            objectives: [
+                {
+                    objectiveId: "3.3.1[a]",
+                    description: "System audit logs are created",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az monitor diagnostic-settings list --resource $(az resource list --query '[0].id' -o tsv) -o json > diagnostic_settings.json",
+                                output: "JSON of diagnostic settings",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "Azure CLI",
+                                command: "az monitor activity-log list --start-time $(date -v-7d +%Y-%m-%d) --end-time $(date +%Y-%m-%d) -o json > activity_log_sample.json",
+                                output: "JSON sample of activity logs",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify all subscriptions have diagnostic settings",
+                            "Confirm log categories include security events"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws cloudtrail describe-trails --output json > cloudtrail_config.json",
+                                output: "JSON of CloudTrail configuration",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws cloudtrail get-trail-status --name TRAIL_NAME --output json > trail_status.json",
+                                output: "JSON of trail status",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws cloudtrail lookup-events --start-time $(date -v-1d +%Y-%m-%d) --max-results 50 --output json > recent_events.json",
+                                output: "JSON sample of CloudTrail events",
+                                frequency: "Daily"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify multi-region trail enabled",
+                            "Confirm data events enabled for S3/Lambda"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud logging sinks list --format=json > log_sinks.json",
+                                output: "JSON of log sinks configuration",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud logging read 'logName:cloudaudit.googleapis.com' --limit=50 --format=json > audit_log_sample.json",
+                                output: "JSON sample of audit logs",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify Admin Activity logs enabled",
+                            "Confirm Data Access logs enabled for CUI resources"
+                        ]
+                    }
+                },
+                {
+                    objectiveId: "3.3.1[b]",
+                    description: "Audit records contain required information",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az monitor activity-log list --start-time $(date -v-1d +%Y-%m-%d) --max-events 10 --query '[].{Timestamp:eventTimestamp,Caller:caller,Operation:operationName.value,ResourceId:resourceId,Status:status.value}' -o json > audit_record_sample.json",
+                                output: "JSON sample showing required audit fields",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify logs include: who, what, when, where, outcome",
+                            "Spot-check for complete audit trails"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws cloudtrail lookup-events --max-results 10 --query 'Events[*].{EventTime:EventTime,Username:Username,EventName:EventName,Resources:Resources,EventId:EventId}' --output json > audit_fields_sample.json",
+                                output: "JSON sample showing audit record fields",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify required fields present in all event types",
+                            "Review for any truncated or missing data"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud logging read 'logName:cloudaudit.googleapis.com' --limit=10 --format='json(timestamp,protoPayload.authenticationInfo,protoPayload.methodName,protoPayload.resourceName,protoPayload.status)' > audit_fields_sample.json",
+                                output: "JSON sample showing audit record fields",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify authentication info present",
+                            "Confirm resource names are complete"
+                        ]
+                    }
+                },
+                {
+                    objectiveId: "3.3.2[a]",
+                    description: "Audit records are retained",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az storage account list --query '[].{Name:name,ResourceGroup:resourceGroup}' -o json | while read acct; do az storage blob list --account-name $(echo $acct | jq -r '.Name') --container-name insights-logs-auditevent --query '[0].properties.lastModified' 2>/dev/null; done > log_retention_check.json",
+                                output: "Check for oldest logs in storage",
+                                frequency: "Quarterly"
+                            },
+                            {
+                                tool: "Azure CLI",
+                                command: "az monitor log-analytics workspace list --query '[].{Name:name,RetentionDays:retentionInDays}' -o json > workspace_retention.json",
+                                output: "JSON of Log Analytics retention settings",
+                                frequency: "Quarterly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify retention meets 1-year minimum",
+                            "Confirm immutability locks on archive storage"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws s3api get-bucket-lifecycle-configuration --bucket CLOUDTRAIL_BUCKET --output json > lifecycle_policy.json",
+                                output: "JSON of S3 lifecycle (retention) policy",
+                                frequency: "Quarterly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws s3api get-object-lock-configuration --bucket CLOUDTRAIL_BUCKET --output json > object_lock_config.json",
+                                output: "JSON of S3 Object Lock configuration",
+                                frequency: "Quarterly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify retention policy >= 365 days",
+                            "Confirm Object Lock in Governance or Compliance mode"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud logging sinks describe SINK_NAME --format=json > sink_details.json",
+                                output: "JSON of log sink destination details",
+                                frequency: "Quarterly"
+                            },
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud storage buckets describe gs://AUDIT_BUCKET --format='json(retentionPolicy,iamConfiguration.bucketPolicyOnly)' > bucket_retention.json",
+                                output: "JSON of bucket retention policy",
+                                frequency: "Quarterly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify bucket retention >= 365 days",
+                            "Confirm retention policy locked"
+                        ]
+                    }
+                }
+            ]
+        },
+        
+        // Configuration Management (CM) Evidence
+        configManagement: {
+            family: "CM",
+            familyName: "Configuration Management",
+            objectives: [
+                {
+                    objectiveId: "3.4.1[a]",
+                    description: "Baseline configurations are established",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az policy assignment list --query '[].{Name:displayName,PolicyDefinition:policyDefinitionId,Scope:scope}' -o json > policy_assignments.json",
+                                output: "JSON of Azure Policy assignments",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "Azure CLI",
+                                command: "az security secure-score list --query '[].{Name:displayName,Score:score.current,Max:score.max}' -o json > secure_score.json",
+                                output: "JSON of Defender for Cloud secure score",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Document baseline configurations for each workload",
+                            "Map baselines to CIS/STIG benchmarks"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws configservice describe-config-rules --query 'ConfigRules[*].{RuleName:ConfigRuleName,Source:Source.SourceIdentifier,ComplianceType:ComplianceByConfigRule}' --output json > config_rules.json",
+                                output: "JSON of AWS Config rules",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws configservice describe-compliance-by-config-rule --output json > compliance_status.json",
+                                output: "JSON of Config rule compliance status",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Document AMI baseline process",
+                            "Map Config rules to NIST 800-171"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud org-policies list --organization=ORG_ID --format=json > org_policies.json",
+                                output: "JSON of organization policies",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud scc findings list ORGANIZATION_ID --source=SECURITY_HEALTH_ANALYTICS --format=json > security_findings.json",
+                                output: "JSON of Security Health Analytics findings",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Document baseline image process",
+                            "Map org policies to compliance requirements"
+                        ]
+                    }
+                },
+                {
+                    objectiveId: "3.4.2[a]",
+                    description: "Configuration settings are established",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az vm list --query '[].{Name:name,OS:storageProfile.osDisk.osType,Size:hardwareProfile.vmSize}' -o json > vm_inventory.json",
+                                output: "JSON of VM configurations",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "PowerShell",
+                                command: "Get-AzPolicyState -Filter \"ComplianceState eq 'NonCompliant'\" | ConvertTo-Json > noncompliant_resources.json",
+                                output: "JSON of non-compliant resources",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Review non-compliant resources for remediation",
+                            "Document security configuration baselines"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws ssm describe-instance-information --query 'InstanceInformationList[*].{InstanceId:InstanceId,PingStatus:PingStatus,PlatformType:PlatformType,PlatformVersion:PlatformVersion}' --output json > ssm_instances.json",
+                                output: "JSON of managed instances",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws ssm list-compliance-items --resource-type ManagedInstance --output json > compliance_items.json",
+                                output: "JSON of SSM compliance items",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Review patch compliance deviations",
+                            "Document approved configuration exceptions"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud compute instances list --format='json(name,zone,machineType,status,shieldedInstanceConfig)' > vm_inventory.json",
+                                output: "JSON of VM configurations",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify Shielded VM settings",
+                            "Document configuration baselines"
+                        ]
+                    }
+                }
+            ]
+        },
+        
+        // System & Communications Protection (SC) Evidence
+        systemProtection: {
+            family: "SC",
+            familyName: "System & Communications Protection",
+            objectives: [
+                {
+                    objectiveId: "3.13.1[a]",
+                    description: "Communications at external boundaries are monitored",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az network nsg list --query '[].{Name:name,ResourceGroup:resourceGroup,SecurityRules:securityRules[].{Name:name,Direction:direction,Access:access,Priority:priority}}' -o json > nsg_rules.json",
+                                output: "JSON of NSG rules",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "Azure CLI",
+                                command: "az network firewall list --query '[].{Name:name,ThreatIntelMode:threatIntelMode,NatRules:natRuleCollections,NetworkRules:networkRuleCollections}' -o json > azure_firewalls.json",
+                                output: "JSON of Azure Firewall configurations",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Review firewall logs for anomalies",
+                            "Validate external-facing services are authorized"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws ec2 describe-security-groups --query 'SecurityGroups[*].{GroupId:GroupId,GroupName:GroupName,VpcId:VpcId,IngressRules:IpPermissions,EgressRules:IpPermissionsEgress}' --output json > security_groups.json",
+                                output: "JSON of security group rules",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws ec2 describe-flow-logs --query 'FlowLogs[*].{FlowLogId:FlowLogId,ResourceId:ResourceId,TrafficType:TrafficType,LogDestination:LogDestination}' --output json > vpc_flow_logs.json",
+                                output: "JSON of VPC Flow Logs configuration",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Review security groups with 0.0.0.0/0 ingress",
+                            "Analyze VPC Flow Logs for unauthorized traffic"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud compute firewall-rules list --format='json(name,network,direction,allowed,denied,sourceRanges,targetTags)' > firewall_rules.json",
+                                output: "JSON of firewall rules",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Review rules allowing 0.0.0.0/0",
+                            "Validate firewall logging enabled"
+                        ]
+                    }
+                },
+                {
+                    objectiveId: "3.13.8[a]",
+                    description: "Cryptographic mechanisms protect CUI during transmission",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az storage account list --query '[].{Name:name,MinTlsVersion:minimumTlsVersion,HttpsOnly:enableHttpsTrafficOnly}' -o json > storage_tls.json",
+                                output: "JSON of storage account TLS settings",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "Azure CLI",
+                                command: "az webapp list --query '[].{Name:name,HttpsOnly:httpsOnly,MinTlsVersion:siteConfig.minTlsVersion}' -o json > webapp_tls.json",
+                                output: "JSON of App Service TLS settings",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify TLS 1.2+ enforced everywhere",
+                            "Review certificate validity and expiration"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws elbv2 describe-listeners --query 'Listeners[*].{ListenerArn:ListenerArn,Protocol:Protocol,SslPolicy:SslPolicy}' --output json > alb_listeners.json",
+                                output: "JSON of ALB listener TLS policies",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws s3api get-bucket-policy --bucket BUCKET_NAME --output json > bucket_policy.json # Check for aws:SecureTransport condition",
+                                output: "JSON of S3 bucket policy",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify all endpoints use TLS 1.2+",
+                            "Review for any HTTP endpoints"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud compute ssl-policies list --format='json(name,minTlsVersion,profile)' > ssl_policies.json",
+                                output: "JSON of SSL policies",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify TLS 1.2 minimum",
+                            "Review load balancer SSL configurations"
+                        ]
+                    }
+                },
+                {
+                    objectiveId: "3.13.11[a]",
+                    description: "CUI at rest is protected",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az disk list --query '[].{Name:name,Encryption:encryptionSettingsCollection.enabled,DiskEncryptionSetId:encryption.diskEncryptionSetId}' -o json > disk_encryption.json",
+                                output: "JSON of disk encryption status",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "Azure CLI",
+                                command: "az storage account list --query '[].{Name:name,Encryption:encryption.services.blob.enabled,KeySource:encryption.keySource}' -o json > storage_encryption.json",
+                                output: "JSON of storage encryption settings",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify customer-managed keys for CUI data",
+                            "Review key vault access policies"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws ec2 describe-volumes --query 'Volumes[*].{VolumeId:VolumeId,Encrypted:Encrypted,KmsKeyId:KmsKeyId}' --output json > ebs_encryption.json",
+                                output: "JSON of EBS volume encryption",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws s3api get-bucket-encryption --bucket BUCKET_NAME --output json > bucket_encryption.json",
+                                output: "JSON of S3 bucket encryption",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws rds describe-db-instances --query 'DBInstances[*].{DBInstanceId:DBInstanceIdentifier,StorageEncrypted:StorageEncrypted,KmsKeyId:KmsKeyId}' --output json > rds_encryption.json",
+                                output: "JSON of RDS encryption status",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify FIPS 140-2 validated KMS keys",
+                            "Review for any unencrypted resources"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud compute disks list --format='json(name,diskEncryptionKey,sourceSnapshotEncryptionKey)' > disk_encryption.json",
+                                output: "JSON of disk encryption status",
+                                frequency: "Monthly"
+                            },
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud storage buckets describe gs://BUCKET_NAME --format='json(encryption)' > bucket_encryption.json",
+                                output: "JSON of bucket encryption",
+                                frequency: "Monthly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify CMEK for CUI data",
+                            "Review key rotation policies"
+                        ]
+                    }
+                }
+            ]
+        },
+        
+        // Identification & Authentication (IA) Evidence
+        identificationAuth: {
+            family: "IA",
+            familyName: "Identification & Authentication",
+            objectives: [
+                {
+                    objectiveId: "3.5.3[a]",
+                    description: "Multi-factor authentication is used for privileged accounts",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "PowerShell",
+                                command: "Get-MgUser -All | Select-Object UserPrincipalName, @{N='MFAStatus';E={(Get-MgUserAuthenticationMethod -UserId $_.Id).Count}} | ConvertTo-Json > mfa_status.json",
+                                output: "JSON of user MFA enrollment status",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "Azure CLI",
+                                command: "az ad user list --query '[].{UPN:userPrincipalName,MFAMethods:authenticationMethods}' -o json > user_mfa.json",
+                                output: "JSON of authentication methods",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify all admins have MFA registered",
+                            "Confirm hardware tokens for Global Admins"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws iam list-users | jq -r '.Users[].UserName' | while read user; do mfa=$(aws iam list-mfa-devices --user-name $user --query 'MFADevices[*].SerialNumber' --output text); echo \"{\\\"User\\\":\\\"$user\\\",\\\"MFA\\\":\\\"${mfa:-None}\\\"}\"; done | jq -s '.' > mfa_status.json",
+                                output: "JSON of user MFA status",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws iam get-account-summary --query 'SummaryMap.{Users:Users,UsersQuota:UsersQuota,MFADevices:MFADevices,MFADevicesInUse:MFADevicesInUse}' --output json > account_mfa_summary.json",
+                                output: "JSON of account-level MFA summary",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Verify root account MFA enabled",
+                            "Review users without MFA"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "Admin SDK",
+                                command: "GET https://admin.googleapis.com/admin/directory/v1/users?domain=DOMAIN&projection=full&query='isEnrolledIn2Sv=false'",
+                                output: "JSON of users without 2SV",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Review users without 2-Step Verification",
+                            "Confirm super admins use hardware keys"
+                        ]
+                    }
+                }
+            ]
+        },
+        
+        // Risk Assessment (RA) Evidence
+        riskAssessment: {
+            family: "RA",
+            familyName: "Risk Assessment",
+            objectives: [
+                {
+                    objectiveId: "3.11.2[a]",
+                    description: "Vulnerability scans are performed",
+                    azure: {
+                        automated: [
+                            {
+                                tool: "Azure CLI",
+                                command: "az security assessment list --query '[?status.code==`Unhealthy`].{Name:displayName,ResourceId:resourceDetails.id,Status:status.code}' -o json > security_assessments.json",
+                                output: "JSON of security assessment findings",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "Azure CLI",
+                                command: "az security sub-assessment list --assessment-name servers-vulnerability-assessment --query '[].{Id:id,Severity:status.severity,Description:description}' -o json > vulnerability_findings.json",
+                                output: "JSON of vulnerability scan results",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Review critical/high vulnerabilities for remediation",
+                            "Track vulnerability remediation timeline"
+                        ]
+                    },
+                    aws: {
+                        automated: [
+                            {
+                                tool: "AWS CLI",
+                                command: "aws inspector2 list-findings --filter-criteria '{\"severity\":[{\"comparison\":\"EQUALS\",\"value\":\"CRITICAL\"},{\"comparison\":\"EQUALS\",\"value\":\"HIGH\"}]}' --output json > inspector_findings.json",
+                                output: "JSON of Inspector findings",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "AWS CLI",
+                                command: "aws securityhub get-findings --filters '{\"SeverityLabel\":[{\"Value\":\"CRITICAL\",\"Comparison\":\"EQUALS\"},{\"Value\":\"HIGH\",\"Comparison\":\"EQUALS\"}]}' --output json > securityhub_findings.json",
+                                output: "JSON of Security Hub findings",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Prioritize critical CVEs for patching",
+                            "Document risk acceptance for unpatched systems"
+                        ]
+                    },
+                    gcp: {
+                        automated: [
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud scc findings list ORGANIZATION_ID --source=SECURITY_HEALTH_ANALYTICS --filter='severity=\"CRITICAL\" OR severity=\"HIGH\"' --format=json > scc_findings.json",
+                                output: "JSON of SCC findings",
+                                frequency: "Weekly"
+                            },
+                            {
+                                tool: "gcloud CLI",
+                                command: "gcloud compute os-config vulnerability-reports list --format=json > os_vulnerabilities.json",
+                                output: "JSON of OS vulnerability reports",
+                                frequency: "Weekly"
+                            }
+                        ],
+                        humanInLoop: [
+                            "Review critical vulnerabilities",
+                            "Track patch compliance"
+                        ]
+                    }
+                }
+            ]
+        }
     }
 };
 

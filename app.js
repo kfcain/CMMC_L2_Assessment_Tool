@@ -5110,6 +5110,10 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         
         // Build subsection navigation based on available content
         const subsections = [];
+        // Machine-readable evidence collection is available for all clouds
+        if (enclaveGuidance?.machineReadableEvidence) {
+            subsections.push({ id: 'evidence-collection', name: 'Evidence Collection', icon: '📊' });
+        }
         if (currentCloud === 'azure') {
             if (enclaveGuidance?.powerAutomateGuidance) subsections.push({ id: 'power-automate', name: 'Power Automate Workflows', icon: '⚡' });
             if (guide.systemUseBanner) subsections.push({ id: 'system-banner', name: 'System Use Banner', icon: '📋' });
@@ -5141,6 +5145,116 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 </div>
             </div>
         `;
+        
+        // Machine-Readable Evidence Collection (All clouds)
+        if (enclaveGuidance?.machineReadableEvidence) {
+            const mre = enclaveGuidance.machineReadableEvidence;
+            const cloudKey = currentCloud === 'azure' ? 'azure' : currentCloud === 'aws' ? 'aws' : 'gcp';
+            const cloudName = currentCloud === 'azure' ? 'Azure/GCC High' : currentCloud === 'aws' ? 'AWS GovCloud' : 'GCP Assured Workloads';
+            
+            // Build family tabs
+            const families = [
+                { key: 'accessControl', name: 'Access Control', abbrev: 'AC' },
+                { key: 'auditAccountability', name: 'Audit & Accountability', abbrev: 'AU' },
+                { key: 'configManagement', name: 'Configuration Mgmt', abbrev: 'CM' },
+                { key: 'systemProtection', name: 'System Protection', abbrev: 'SC' },
+                { key: 'identificationAuth', name: 'Identification & Auth', abbrev: 'IA' },
+                { key: 'riskAssessment', name: 'Risk Assessment', abbrev: 'RA' }
+            ];
+            
+            const familyContent = families.map(fam => {
+                const familyData = mre[fam.key];
+                if (!familyData || !familyData.objectives) return '';
+                
+                const objectiveCards = familyData.objectives.map(obj => {
+                    const cloudData = obj[cloudKey];
+                    if (!cloudData) return '';
+                    
+                    const automatedCmds = cloudData.automated?.map(cmd => `
+                        <div class="evidence-cmd-card">
+                            <div class="evidence-cmd-header">
+                                <span class="evidence-tool-badge">${cmd.tool}</span>
+                                <span class="evidence-freq-badge">${cmd.frequency}</span>
+                            </div>
+                            <pre class="evidence-cmd-code">${cmd.command}</pre>
+                            <div class="evidence-cmd-output">
+                                <strong>Output:</strong> ${cmd.output}
+                            </div>
+                            <button class="impl-copy-btn evidence-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.evidence-cmd-card').querySelector('.evidence-cmd-code').textContent);this.textContent='Copied!'">Copy Command</button>
+                        </div>
+                    `).join('') || '<p class="evidence-no-data">No automated commands available for this cloud.</p>';
+                    
+                    const humanTasks = cloudData.humanInLoop?.map(task => `<li>${task}</li>`).join('') || '';
+                    
+                    return `
+                        <details class="evidence-objective-card">
+                            <summary class="evidence-objective-header">
+                                <span class="evidence-obj-id">${obj.objectiveId}</span>
+                                <span class="evidence-obj-desc">${obj.description}</span>
+                            </summary>
+                            <div class="evidence-objective-body">
+                                <div class="evidence-section">
+                                    <h5 class="evidence-section-title">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                        Machine-Readable Evidence Commands
+                                    </h5>
+                                    <div class="evidence-cmd-grid">${automatedCmds}</div>
+                                </div>
+                                ${humanTasks ? `
+                                    <div class="evidence-section evidence-human-section">
+                                        <h5 class="evidence-section-title">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                            Human-in-the-Loop Validation
+                                        </h5>
+                                        <ul class="evidence-human-tasks">${humanTasks}</ul>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </details>
+                    `;
+                }).join('');
+                
+                return `
+                    <div class="evidence-family-section" data-family="${fam.key}">
+                        <div class="evidence-family-header">
+                            <span class="evidence-family-abbrev">${fam.abbrev}</span>
+                            <span class="evidence-family-name">${fam.name}</span>
+                            <span class="evidence-obj-count">${familyData.objectives.length} objectives</span>
+                        </div>
+                        <div class="evidence-objectives-container">${objectiveCards}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            html += `
+                <div class="impl-section extras-collapsible" id="evidence-collection">
+                    <details class="extras-details" open>
+                        <summary class="impl-section-title extras-summary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            Machine-Readable Evidence Collection (${cloudName})
+                        </summary>
+                        <div class="extras-content">
+                            <p class="extras-desc">${mre.description}</p>
+                            
+                            <div class="evidence-legend">
+                                <div class="evidence-legend-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                    <span>Automated - CLI/API commands that produce JSON output</span>
+                                </div>
+                                <div class="evidence-legend-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    <span>Human-in-Loop - Manual validation steps to complement automation</span>
+                                </div>
+                            </div>
+                            
+                            <div class="evidence-families-container">
+                                ${familyContent}
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            `;
+        }
         
         // Power Automate Guidance (Azure)
         if (currentCloud === 'azure' && enclaveGuidance?.powerAutomateGuidance) {
