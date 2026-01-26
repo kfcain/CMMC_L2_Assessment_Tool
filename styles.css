@@ -4941,6 +4941,14 @@ body {
 
 #impl-guide-view .impl-guide-content {
     display: block;
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    border: none;
+    border-radius: 0;
 }
 
 .impl-guide-view-header {
