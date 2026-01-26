@@ -5130,9 +5130,13 @@ table td {
     color: var(--text-primary);
 }
 
-/* Show title bar when not on dashboard */
+/* Show title bar when not on dashboard, but hide for Architecture Guide */
 .main-content:has(#dashboard-view:not(.active)) .site-title-bar {
     display: flex;
+}
+
+.main-content:has(#impl-guide-view.active) .site-title-bar {
+    display: none;
 }
 
 /* VDI Tech Details Expandable Section */
