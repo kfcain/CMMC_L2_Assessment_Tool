@@ -109,15 +109,7 @@ const CrosswalkVisualizer = {
     },
     
     populateFamilyFilter() {
-        const select = document.getElementById('crosswalk-family-filter');
-        if (!select || typeof CONTROL_FAMILIES === 'undefined') return;
-        
-        CONTROL_FAMILIES.forEach(family => {
-            const option = document.createElement('option');
-            option.value = family.id;
-            option.textContent = `${family.id} - ${family.name}`;
-            select.appendChild(option);
-        });
+        // FedRAMP 20x families are already defined in HTML - no dynamic population needed
     },
     
     setMode(mode) {
