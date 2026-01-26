@@ -555,10 +555,11 @@ class AssessmentApp {
             <div class="impl-guide-view-header">
                 <div class="impl-guide-tabs" id="impl-guide-view-tabs">
                     <button class="impl-tab active" data-tab="project-plan">Project Plan</button>
-                    <button class="impl-tab" data-tab="evidence">Evidence Strategy</button>
-                    <button class="impl-tab" data-tab="policies">Policy Templates</button>
-                    <button class="impl-tab" data-tab="ssp">SSP Statements</button>
+                    <button class="impl-tab" data-tab="evidence">Evidence</button>
+                    <button class="impl-tab" data-tab="policies">Policies</button>
+                    <button class="impl-tab" data-tab="ssp">SSP</button>
                     <button class="impl-tab" data-tab="services">Services</button>
+                    <button class="impl-tab" data-tab="architecture">Architecture</button>
                     <button class="impl-tab" data-tab="extras">Extras</button>
                 </div>
                 <div class="cloud-selector">
@@ -598,6 +599,7 @@ class AssessmentApp {
                 else if (tabName === 'policies') body.innerHTML = this.renderImplPolicies(guide);
                 else if (tabName === 'ssp') body.innerHTML = this.renderImplSSP(guide);
                 else if (tabName === 'services') body.innerHTML = this.renderImplServices(guide);
+                else if (tabName === 'architecture') body.innerHTML = this.renderImplArchitecture();
                 else if (tabName === 'extras') body.innerHTML = this.renderImplExtras(guide);
             });
         });
@@ -3060,6 +3062,232 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         }
         
         return servicesByFamilyHtml + servicesHtml + fedrampHtml || '<p style="color:var(--text-muted)">No services data available.</p>';
+    }
+
+    renderImplArchitecture() {
+        const guidance = typeof ENCLAVE_GUIDANCE !== 'undefined' ? ENCLAVE_GUIDANCE : null;
+        if (!guidance) return '<p style="padding:20px;color:var(--text-muted)">Architecture guidance not available.</p>';
+
+        let html = '';
+
+        // Architecture Options
+        html += `<div class="impl-section">
+            <div class="impl-section-title">Architecture Decision Framework</div>
+            <div class="impl-table-container">
+                <table class="impl-table">
+                    <thead><tr><th>Pattern</th><th>Description</th><th>Best For</th><th>Cost</th><th>Timeline</th></tr></thead>
+                    <tbody>
+                        ${guidance.architectureOptions.map(opt => `
+                            <tr>
+                                <td><strong>${opt.pattern}</strong></td>
+                                <td>${opt.description}</td>
+                                <td>${opt.bestFor}</td>
+                                <td>${opt.costProfile}</td>
+                                <td>${opt.timeToImplement}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>`;
+
+        // Pros/Cons Detail
+        html += `<div class="impl-section">
+            <div class="impl-section-title">Architecture Pattern Details</div>
+            <div class="impl-cards-grid">
+                ${guidance.architectureOptions.map(opt => `
+                    <div class="impl-policy-card">
+                        <div class="impl-policy-header"><h4>${opt.pattern}</h4></div>
+                        <div class="impl-policy-body">
+                            <div style="margin-bottom:12px">
+                                <strong style="color:var(--accent-green)">Pros:</strong>
+                                <ul style="margin:4px 0 0 16px;font-size:0.75rem">${opt.pros.map(p => `<li>${p}</li>`).join('')}</ul>
+                            </div>
+                            <div>
+                                <strong style="color:var(--accent-orange)">Cons:</strong>
+                                <ul style="margin:4px 0 0 16px;font-size:0.75rem">${opt.cons.map(c => `<li>${c}</li>`).join('')}</ul>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+
+        // VDI Platform Comparison
+        html += `<div class="impl-section">
+            <div class="impl-section-title">VDI Platform Comparison</div>
+            <div class="impl-cards-grid">
+                ${Object.values(guidance.vdiPlatforms).map(platform => `
+                    <div class="impl-policy-card">
+                        <div class="impl-policy-header">
+                            <h4>${platform.name}</h4>
+                            <span class="impl-phase-badge governance">${platform.fedrampStatus}</span>
+                        </div>
+                        <div class="impl-policy-body">
+                            <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:8px">${platform.environment}</p>
+                            <div style="margin-bottom:8px">
+                                <strong style="font-size:0.7rem">Strengths:</strong>
+                                <ul style="margin:4px 0 0 16px;font-size:0.7rem">${platform.strengths.slice(0, 4).map(s => `<li>${s}</li>`).join('')}</ul>
+                            </div>
+                            <div style="margin-bottom:8px">
+                                <strong style="font-size:0.7rem">Typical Cost:</strong>
+                                <span style="font-size:0.7rem;color:var(--accent-blue)">${platform.typicalCosts.perUser}</span>
+                            </div>
+                            <div style="font-size:0.65rem;color:var(--text-muted)">Best for: ${platform.bestFor}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+
+        // Cost Optimization
+        html += `<div class="impl-section">
+            <div class="impl-section-title">Cost Optimization Strategies</div>
+            <div class="impl-table-container">
+                <table class="impl-table">
+                    <thead><tr><th>Category</th><th>Strategy</th><th>Description</th></tr></thead>
+                    <tbody>
+                        ${guidance.costOptimization.flatMap(cat => 
+                            cat.strategies.map((s, i) => `
+                                <tr>
+                                    ${i === 0 ? `<td rowspan="${cat.strategies.length}"><strong>${cat.category}</strong></td>` : ''}
+                                    <td>${s.name}</td>
+                                    <td>${s.description}</td>
+                                </tr>
+                            `)
+                        ).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>`;
+
+        // Network Architecture Components
+        html += `<div class="impl-section">
+            <div class="impl-section-title">Enclave Network Architecture</div>
+            <div class="impl-table-container">
+                <table class="impl-table">
+                    <thead><tr><th>Component</th><th>Purpose</th><th>Options</th><th>CMMC Relevance</th></tr></thead>
+                    <tbody>
+                        ${guidance.networkArchitecture.components.map(comp => `
+                            <tr>
+                                <td><strong>${comp.name}</strong></td>
+                                <td>${comp.purpose}</td>
+                                <td style="font-size:0.7rem">${comp.options.join(', ')}</td>
+                                <td style="font-size:0.65rem;color:var(--text-muted)">${comp.cmmcRelevance}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>`;
+
+        // Integration Patterns
+        html += `<div class="impl-section">
+            <div class="impl-section-title">Integration Patterns</div>
+            <div class="impl-cards-grid">
+                ${guidance.integrationPatterns.map(pattern => `
+                    <div class="impl-policy-card">
+                        <div class="impl-policy-header"><h4>${pattern.pattern}</h4></div>
+                        <div class="impl-policy-body">
+                            <p style="font-size:0.75rem;margin-bottom:8px">${pattern.description}</p>
+                            <div style="margin-bottom:8px">
+                                <strong style="font-size:0.7rem">Implementation:</strong>
+                                <ul style="margin:4px 0 0 16px;font-size:0.7rem">${pattern.implementation.map(i => `<li>${i}</li>`).join('')}</ul>
+                            </div>
+                            <div style="font-size:0.65rem;color:var(--accent-orange)">
+                                <strong>Security:</strong> ${pattern.securityConsiderations}
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+
+        // User Personas
+        html += `<div class="impl-section">
+            <div class="impl-section-title">User Personas & Sizing</div>
+            <div class="impl-table-container">
+                <table class="impl-table">
+                    <thead><tr><th>Persona</th><th>Description</th><th>Typical Apps</th><th>Recommended Specs</th><th>Users/Host</th></tr></thead>
+                    <tbody>
+                        ${guidance.userPersonas.map(p => `
+                            <tr>
+                                <td><strong>${p.persona}</strong></td>
+                                <td>${p.description}</td>
+                                <td style="font-size:0.7rem">${p.typicalApps.join(', ')}</td>
+                                <td style="font-size:0.7rem">${p.recommendedSpecs.general}</td>
+                                <td>${p.usersPerHost}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>`;
+
+        // Endpoint Strategy
+        html += `<div class="impl-section">
+            <div class="impl-section-title">Endpoint Strategy</div>
+            <div class="impl-cards-grid">
+                ${guidance.endpointStrategy.options.map(opt => `
+                    <div class="impl-policy-card">
+                        <div class="impl-policy-header"><h4>${opt.type}</h4></div>
+                        <div class="impl-policy-body">
+                            <p style="font-size:0.75rem;margin-bottom:8px">${opt.description}</p>
+                            <p style="font-size:0.65rem;color:var(--text-muted);margin-bottom:8px">Examples: ${opt.examples.join(', ')}</p>
+                            <div style="display:flex;gap:16px;margin-bottom:8px">
+                                <div>
+                                    <strong style="font-size:0.65rem;color:var(--accent-green)">Pros:</strong>
+                                    <ul style="margin:2px 0 0 12px;font-size:0.65rem">${opt.pros.map(p => `<li>${p}</li>`).join('')}</ul>
+                                </div>
+                                <div>
+                                    <strong style="font-size:0.65rem;color:var(--accent-orange)">Cons:</strong>
+                                    <ul style="margin:2px 0 0 12px;font-size:0.65rem">${opt.cons.map(c => `<li>${c}</li>`).join('')}</ul>
+                                </div>
+                            </div>
+                            <div style="font-size:0.65rem;color:var(--accent-blue)">
+                                <strong>CMMC:</strong> ${opt.cmmcConsiderations}
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+
+        // Implementation Checklist
+        html += `<div class="impl-section">
+            <div class="impl-section-title">Implementation Checklist</div>
+            ${Object.values(guidance.implementationChecklist).map(phase => `
+                <div class="impl-policy-card" style="margin-bottom:12px">
+                    <div class="impl-policy-header"><h4>${phase.name}</h4></div>
+                    <div class="impl-policy-body">
+                        <table class="impl-table" style="margin:0">
+                            <thead><tr><th>Task</th><th>Deliverable</th></tr></thead>
+                            <tbody>
+                                ${phase.tasks.map(t => `<tr><td>${t.task}</td><td style="color:var(--text-muted)">${t.deliverable}</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `).join('')}
+        </div>`;
+
+        // Reference Architectures
+        html += `<div class="impl-section">
+            <div class="impl-section-title">Reference Architectures</div>
+            <div class="impl-cards-grid">
+                ${guidance.networkArchitecture.referenceArchitectures.map(ref => `
+                    <div class="impl-policy-card">
+                        <div class="impl-policy-header"><h4>${ref.name}</h4></div>
+                        <div class="impl-policy-body">
+                            <p style="font-size:0.75rem;margin-bottom:8px">${ref.description}</p>
+                            <a href="${ref.url}" target="_blank" style="font-size:0.7rem;color:var(--accent-blue)">View Documentation →</a>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+
+        return html;
     }
 
     renderImplExtras(guide) {
