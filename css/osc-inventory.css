@@ -593,6 +593,67 @@
     color: var(--text-primary);
 }
 
+/* Diagram Grid */
+.osc-diagram-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.osc-diagram-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.osc-diagram-card:hover {
+    border-color: var(--accent-blue);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.osc-diagram-preview {
+    background: var(--bg-tertiary);
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.osc-diagram-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+}
+
+.osc-diagram-info {
+    padding: 16px;
+}
+
+.osc-diagram-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.osc-diagram-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.osc-diagram-version {
+    font-size: 0.7rem;
+    color: var(--accent-blue);
+    margin-top: 8px;
+}
+
+.osc-diagram-card .osc-item-actions {
+    padding: 0 16px 16px;
+    justify-content: flex-end;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .osc-inventory-container {
