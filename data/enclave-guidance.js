@@ -2424,7 +2424,357 @@ const ENCLAVE_GUIDANCE = {
             description: "Connect discovery findings to prevention policies",
             examples: ["Block sharing of detected CUI", "Require encryption", "Notify data owners"]
         }
-    ]
+    ],
+
+    // ========================================
+    // POWER AUTOMATE / FLOW AUTOMATION
+    // ========================================
+    
+    powerAutomateGuidance: {
+        overview: {
+            description: "Power Automate (formerly Microsoft Flow) enables workflow automation for CMMC compliance tasks in GCC High environments",
+            gccHighSupport: "Power Automate is available in GCC High with full functionality",
+            consoleUrl: "https://flow.microsoft.us",
+            benefits: [
+                "Automate repetitive compliance tasks",
+                "Enforce approval workflows for sensitive operations",
+                "Create audit trails automatically",
+                "Integrate with SharePoint, Teams, Outlook, and Entra ID",
+                "Reduce human error in compliance processes"
+            ]
+        },
+        
+        automationTemplates: [
+            {
+                name: "User Account Creation Approval",
+                category: "Access Control",
+                cmmcControls: ["AC.L2-3.1.1", "AC.L2-3.1.2", "PS.L2-3.9.2"],
+                description: "Require manager and security team approval before provisioning new user accounts",
+                trigger: "When a new item is created in SharePoint list (Account Requests)",
+                steps: [
+                    "1. New request submitted to SharePoint list with user details",
+                    "2. Flow triggers and sends approval request to manager",
+                    "3. If manager approves, send to Security team for review",
+                    "4. If Security approves, create user in Entra ID via Graph API",
+                    "5. Add user to appropriate groups based on role",
+                    "6. Send welcome email with onboarding instructions",
+                    "7. Log all actions to audit SharePoint list"
+                ],
+                connectors: ["SharePoint", "Approvals", "Office 365 Outlook", "HTTP (Graph API)", "Office 365 Users"],
+                sharePointColumns: [
+                    { name: "RequestorEmail", type: "Person" },
+                    { name: "NewUserName", type: "Single line of text" },
+                    { name: "NewUserEmail", type: "Single line of text" },
+                    { name: "Department", type: "Choice" },
+                    { name: "Role", type: "Choice" },
+                    { name: "Justification", type: "Multiple lines of text" },
+                    { name: "ManagerApproval", type: "Choice" },
+                    { name: "SecurityApproval", type: "Choice" },
+                    { name: "Status", type: "Choice" },
+                    { name: "CompletedDate", type: "Date" }
+                ],
+                sampleJson: `{
+  "trigger": "SharePoint - When an item is created",
+  "listName": "User Account Requests",
+  "actions": [
+    {
+      "action": "Start and wait for an approval",
+      "approvalType": "Approve/Reject - First to respond",
+      "title": "New User Account Request: @{triggerBody()?['NewUserName']}",
+      "assignedTo": "@{triggerBody()?['Manager']?['Email']}",
+      "details": "Role: @{triggerBody()?['Role']}\\nJustification: @{triggerBody()?['Justification']}"
+    }
+  ]
+}`
+            },
+            {
+                name: "Service Account Request & Approval",
+                category: "Access Control",
+                cmmcControls: ["AC.L2-3.1.1", "AC.L2-3.1.5", "IA.L2-3.5.2"],
+                description: "Govern creation of service accounts with IT and Security approval",
+                trigger: "When a new item is created in SharePoint list (Service Account Requests)",
+                steps: [
+                    "1. Requestor submits service account request with purpose and scope",
+                    "2. IT team reviews technical requirements",
+                    "3. Security team reviews risk and access scope",
+                    "4. If approved, create service account with naming convention (svc-appname-env)",
+                    "5. Set password to never expire only if documented exception",
+                    "6. Document in service account inventory",
+                    "7. Schedule quarterly review reminder"
+                ],
+                connectors: ["SharePoint", "Approvals", "HTTP (Graph API)", "Outlook", "Planner"],
+                sharePointColumns: [
+                    { name: "AccountName", type: "Single line of text" },
+                    { name: "ApplicationName", type: "Single line of text" },
+                    { name: "Purpose", type: "Multiple lines of text" },
+                    { name: "AccessScope", type: "Multiple lines of text" },
+                    { name: "Owner", type: "Person" },
+                    { name: "ITApproval", type: "Choice" },
+                    { name: "SecurityApproval", type: "Choice" },
+                    { name: "ExpirationDate", type: "Date" },
+                    { name: "LastReviewDate", type: "Date" }
+                ]
+            },
+            {
+                name: "Security Awareness Training Automation",
+                category: "Awareness & Training",
+                cmmcControls: ["AT.L2-3.2.1", "AT.L2-3.2.2", "AT.L2-3.2.3"],
+                description: "Automate security training assignments, reminders, and compliance tracking",
+                trigger: "Scheduled (Daily) + When user is created in Entra ID",
+                steps: [
+                    "1. Daily: Query users who haven't completed training",
+                    "2. Send reminder emails at 7, 14, and 21 days overdue",
+                    "3. At 30 days overdue, notify manager and disable account",
+                    "4. When new user created, auto-assign initial training",
+                    "5. Track completion in SharePoint training tracker",
+                    "6. Generate monthly compliance report for leadership"
+                ],
+                connectors: ["SharePoint", "Office 365 Outlook", "Office 365 Users", "Schedule", "HTTP"],
+                sharePointColumns: [
+                    { name: "UserEmail", type: "Person" },
+                    { name: "TrainingModule", type: "Choice" },
+                    { name: "AssignedDate", type: "Date" },
+                    { name: "DueDate", type: "Date" },
+                    { name: "CompletedDate", type: "Date" },
+                    { name: "Status", type: "Choice" },
+                    { name: "RemindersSent", type: "Number" },
+                    { name: "Manager", type: "Person" }
+                ],
+                sampleJson: `{
+  "trigger": "Recurrence - Daily at 8:00 AM",
+  "actions": [
+    {
+      "action": "Get items",
+      "site": "https://tenant.sharepoint.us/sites/Compliance",
+      "list": "Training Tracker",
+      "filter": "Status ne 'Completed' and DueDate lt '@{utcNow()}'"
+    },
+    {
+      "action": "Apply to each",
+      "forEach": "@{body('Get_items')?['value']}",
+      "actions": [
+        {
+          "action": "Send an email",
+          "to": "@{items('Apply_to_each')?['UserEmail']?['Email']}",
+          "subject": "Action Required: Security Training Overdue",
+          "body": "Your security awareness training is overdue. Please complete by..."
+        }
+      ]
+    }
+  ]
+}`
+            },
+            {
+                name: "Access Review & Recertification",
+                category: "Access Control",
+                cmmcControls: ["AC.L2-3.1.1", "AC.L2-3.1.7", "PS.L2-3.9.2"],
+                description: "Quarterly access review workflow for managers to recertify user access",
+                trigger: "Scheduled (Quarterly) - First Monday of Jan, Apr, Jul, Oct",
+                steps: [
+                    "1. Query all users and their group memberships from Entra ID",
+                    "2. Create review tasks for each manager",
+                    "3. Manager reviews each direct report's access",
+                    "4. If access confirmed, log certification",
+                    "5. If access revoked, remove from groups automatically",
+                    "6. Generate compliance report with certification status",
+                    "7. Escalate incomplete reviews after 14 days"
+                ],
+                connectors: ["HTTP (Graph API)", "SharePoint", "Approvals", "Outlook", "Teams"],
+                sharePointColumns: [
+                    { name: "ReviewPeriod", type: "Single line of text" },
+                    { name: "Manager", type: "Person" },
+                    { name: "UserReviewed", type: "Person" },
+                    { name: "AccessGroups", type: "Multiple lines of text" },
+                    { name: "Decision", type: "Choice" },
+                    { name: "ReviewDate", type: "Date" },
+                    { name: "Comments", type: "Multiple lines of text" }
+                ]
+            },
+            {
+                name: "Privileged Access Request",
+                category: "Access Control",
+                cmmcControls: ["AC.L2-3.1.5", "AC.L2-3.1.6", "AU.L2-3.3.1"],
+                description: "Just-in-time privileged access with time-limited elevation",
+                trigger: "When a new item is created in SharePoint list (Privileged Access Requests)",
+                steps: [
+                    "1. User requests privileged access with business justification",
+                    "2. Security team receives approval request",
+                    "3. If approved, add user to privileged group via Graph API",
+                    "4. Start timer for access duration (default: 4 hours)",
+                    "5. When timer expires, remove user from privileged group",
+                    "6. Log all privileged sessions for audit",
+                    "7. Send summary to security team"
+                ],
+                connectors: ["SharePoint", "Approvals", "HTTP (Graph API)", "Delay", "Outlook"],
+                sharePointColumns: [
+                    { name: "Requestor", type: "Person" },
+                    { name: "PrivilegedRole", type: "Choice" },
+                    { name: "Justification", type: "Multiple lines of text" },
+                    { name: "Duration", type: "Choice" },
+                    { name: "ApprovedBy", type: "Person" },
+                    { name: "StartTime", type: "Date and time" },
+                    { name: "EndTime", type: "Date and time" },
+                    { name: "Status", type: "Choice" }
+                ]
+            },
+            {
+                name: "Incident Response Workflow",
+                category: "Incident Response",
+                cmmcControls: ["IR.L2-3.6.1", "IR.L2-3.6.2", "AU.L2-3.3.1"],
+                description: "Automate incident triage, notification, and tracking",
+                trigger: "When item created in Incidents list OR Email to security mailbox",
+                steps: [
+                    "1. Incident reported via SharePoint form or email",
+                    "2. Auto-assign severity based on keywords",
+                    "3. Create incident ticket and assign to on-call",
+                    "4. Send Teams notification to Security channel",
+                    "5. For High/Critical: Page incident commander",
+                    "6. Track timeline and actions in SharePoint",
+                    "7. Generate incident report at closure"
+                ],
+                connectors: ["SharePoint", "Teams", "Outlook", "HTTP", "Planner"],
+                sharePointColumns: [
+                    { name: "IncidentID", type: "Calculated" },
+                    { name: "Reporter", type: "Person" },
+                    { name: "Description", type: "Multiple lines of text" },
+                    { name: "Severity", type: "Choice" },
+                    { name: "Category", type: "Choice" },
+                    { name: "AssignedTo", type: "Person" },
+                    { name: "Status", type: "Choice" },
+                    { name: "DetectedDate", type: "Date and time" },
+                    { name: "ResolvedDate", type: "Date and time" },
+                    { name: "RootCause", type: "Multiple lines of text" },
+                    { name: "LessonsLearned", type: "Multiple lines of text" }
+                ]
+            },
+            {
+                name: "Document Review & Approval",
+                category: "Configuration Management",
+                cmmcControls: ["CM.L2-3.4.3", "CM.L2-3.4.4", "CM.L2-3.4.5"],
+                description: "Automate policy/procedure document review and approval workflow",
+                trigger: "When file created or modified in Documents library",
+                steps: [
+                    "1. New/updated document triggers review workflow",
+                    "2. Route to document owner for initial review",
+                    "3. Route to subject matter experts for technical review",
+                    "4. Final approval from compliance officer",
+                    "5. Apply document properties (version, effective date)",
+                    "6. Publish to official document library",
+                    "7. Archive previous version"
+                ],
+                connectors: ["SharePoint", "Approvals", "Outlook", "Office 365 Groups"],
+                sharePointColumns: [
+                    { name: "DocumentType", type: "Choice" },
+                    { name: "Version", type: "Number" },
+                    { name: "Owner", type: "Person" },
+                    { name: "EffectiveDate", type: "Date" },
+                    { name: "NextReviewDate", type: "Date" },
+                    { name: "ApprovalStatus", type: "Choice" }
+                ]
+            },
+            {
+                name: "Visitor Access Request",
+                category: "Physical Protection",
+                cmmcControls: ["PE.L2-3.10.3", "PE.L2-3.10.4", "PE.L2-3.10.5"],
+                description: "Manage visitor registration and escort requirements",
+                trigger: "When a new item is created in SharePoint list (Visitor Requests)",
+                steps: [
+                    "1. Employee submits visitor request with date, purpose",
+                    "2. Facility manager approves/denies",
+                    "3. If approved, generate visitor badge number",
+                    "4. Send confirmation to host employee",
+                    "5. On visit day, send reminder to escort",
+                    "6. Log visitor entry/exit times",
+                    "7. Maintain visitor log for audits"
+                ],
+                connectors: ["SharePoint", "Approvals", "Outlook", "QR Code Generator"],
+                sharePointColumns: [
+                    { name: "VisitorName", type: "Single line of text" },
+                    { name: "VisitorCompany", type: "Single line of text" },
+                    { name: "HostEmployee", type: "Person" },
+                    { name: "VisitDate", type: "Date" },
+                    { name: "Purpose", type: "Choice" },
+                    { name: "AreasAccessed", type: "Multiple lines of text" },
+                    { name: "BadgeNumber", type: "Single line of text" },
+                    { name: "CheckInTime", type: "Date and time" },
+                    { name: "CheckOutTime", type: "Date and time" }
+                ]
+            }
+        ],
+        
+        implementationGuide: {
+            prerequisites: [
+                "Power Automate license (included in M365 E3/E5)",
+                "SharePoint site for compliance tracking",
+                "Appropriate Graph API permissions for user management",
+                "Entra ID app registration for custom connectors"
+            ],
+            bestPractices: [
+                "Use solution-aware flows for easier deployment across environments",
+                "Implement error handling with Try-Catch patterns",
+                "Use environment variables for URLs and IDs",
+                "Test in dev environment before production deployment",
+                "Document all flows in your CMMC system documentation",
+                "Use service accounts for flows, not personal accounts",
+                "Enable flow analytics for monitoring",
+                "Set up alerts for flow failures"
+            ],
+            securityConsiderations: [
+                "Flows run with permissions of the connection owner - use service principals",
+                "Audit flow run history regularly",
+                "Implement DLP policies in Power Platform Admin Center",
+                "Restrict connector usage to approved connectors only",
+                "Use secure inputs/outputs for sensitive data"
+            ]
+        },
+        
+        quickStartSteps: [
+            "1. Navigate to https://flow.microsoft.us (GCC High)",
+            "2. Create a new SharePoint site for compliance tracking",
+            "3. Create SharePoint lists using columns defined in templates above",
+            "4. Create a new Automated Flow with SharePoint trigger",
+            "5. Add Approval action with appropriate approvers",
+            "6. Add Graph API HTTP actions for user provisioning (requires setup)",
+            "7. Test flow end-to-end with a pilot user",
+            "8. Document flow in SSP and operational procedures"
+        ],
+        
+        graphApiSetup: {
+            description: "For user provisioning flows, you need an Entra ID app registration",
+            steps: [
+                "1. Go to Entra ID > App registrations > New registration",
+                "2. Name: 'Power Automate User Provisioning'",
+                "3. Add API permissions: User.ReadWrite.All, Group.ReadWrite.All",
+                "4. Grant admin consent",
+                "5. Create client secret and store securely",
+                "6. In Power Automate, use HTTP connector with Azure AD OAuth"
+            ],
+            sampleHttpAction: `{
+  "method": "POST",
+  "uri": "https://graph.microsoft.us/v1.0/users",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "authentication": {
+    "type": "ActiveDirectoryOAuth",
+    "tenant": "@{parameters('TenantId')}",
+    "audience": "https://graph.microsoft.us",
+    "clientId": "@{parameters('ClientId')}",
+    "secret": "@{parameters('ClientSecret')}"
+  },
+  "body": {
+    "accountEnabled": true,
+    "displayName": "@{triggerBody()?['NewUserName']}",
+    "mailNickname": "@{triggerBody()?['NewUserAlias']}",
+    "userPrincipalName": "@{triggerBody()?['NewUserEmail']}",
+    "passwordProfile": {
+      "forceChangePasswordNextSignIn": true,
+      "password": "@{guid()}"
+    }
+  }
+}`
+        }
+    }
 };
 
 // Helper function
