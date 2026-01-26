@@ -90,6 +90,16 @@ const IMPLEMENTATION_PLANNER = {
                             priority: "critical",
                             effort: "medium",
                             // Project Plan Integration
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "CUI Scoping & Asset Inventory",
+                                week: 1,
+                                taskId: "T-1.1",
+                                owner: "CMMC Lead",
+                                accountable: "FSO",
+                                raciCategory: "Governance",
+                                deliverable: "CUI Inventory Spreadsheet"
+                            },
                             guidance: {
                                 steps: [
                                     "Review all DoD contracts for CUI requirements per 3.1.3[c] - identify designated sources and destinations",
