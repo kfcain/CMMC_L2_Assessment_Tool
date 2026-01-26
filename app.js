@@ -1415,7 +1415,7 @@ class AssessmentApp {
                                         <strong>${tasks.length}</strong> tasks
                                     </span>
                                     <span class="stat-item">
-                                        <strong>${tasks.filter(t => this.implPlannerProgress[t.taskId]).length}</strong> complete
+                                        <strong>${tasks.filter(task => this.implPlannerProgress[task.taskId]).length}</strong> complete
                                     </span>
                                 </div>
                             </div>
@@ -1436,7 +1436,7 @@ class AssessmentApp {
                                     </thead>
                                     <tbody>
                                         ${tasks.map(task => `
-                                            <tr class="${this.implPlannerProgress[t.taskId] ? 'completed' : ''}">
+                                            <tr class="${this.implPlannerProgress[task.taskId] ? 'completed' : ''}">
                                                 <td><span class="week-badge">Week ${task.week}</span></td>
                                                 <td><code>${task.taskId}</code></td>
                                                 <td>
@@ -1464,10 +1464,10 @@ class AssessmentApp {
                                                     <span class="priority-badge ${task.priority}">${task.priority}</span>
                                                 </td>
                                                 <td>
-                                                    <button class="task-status-btn ${this.implPlannerProgress[t.taskId] ? 'complete' : ''}" 
+                                                    <button class="task-status-btn ${this.implPlannerProgress[task.taskId] ? 'complete' : ''}" 
                                                             data-task-id="${task.taskId}"
                                                             onclick="app.toggleProjectPlanTask('${task.taskId}')">
-                                                        ${this.implPlannerProgress[t.taskId] ? '✓ Complete' : '○ Pending'}
+                                                        ${this.implPlannerProgress[task.taskId] ? '✓ Complete' : '○ Pending'}
                                                     </button>
                                                 </td>
                                             </tr>
