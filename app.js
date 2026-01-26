@@ -806,7 +806,7 @@ class AssessmentApp {
         // Lazy load scripts for view if needed (skip spinner for views with static HTML like crosswalk)
         if (window.LazyLoader && window.LazyLoader.viewScripts[view]) {
             const container = document.getElementById(`${view}-content`) || document.getElementById(`${view.replace('-', '')}-content`);
-            const skipSpinner = ['crosswalk'].includes(view); // Views with static HTML
+            const skipSpinner = ['crosswalk', 'impl-planner'].includes(view); // Views with static HTML or direct loading
             if (container && !container.dataset.loaded) {
                 if (!skipSpinner) {
                     container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:60px;color:var(--text-muted)"><svg class="spinner" width="24" height="24" viewBox="0 0 24 24" style="animation:spin 1s linear infinite;margin-right:12px"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" opacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>Loading...</div>';
@@ -854,6 +854,11 @@ class AssessmentApp {
         } else if (view === 'impl-guide') {
             this.renderImplGuideView();
         } else if (view === 'impl-planner') {
+            // Mark container as loaded to prevent spinner
+            const container = document.getElementById('impl-planner-content');
+            if (container) {
+                container.dataset.loaded = 'true';
+            }
             this.renderImplPlanner();
         } else if (view === 'osc-inventory') {
             this.renderOSCInventory();
