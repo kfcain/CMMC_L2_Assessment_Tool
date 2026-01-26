@@ -5116,12 +5116,13 @@ table td {
     padding: 6px 16px;
     font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
-    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: white;
-    border-radius: 20px;
+    border-radius: 6px;
     margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 .hero-title {
