@@ -143,15 +143,85 @@ const OSCInventory = {
     },
     
     renderSSP() {
-        return this.renderItemList('ssp', 'ssp', 'System Security Plan (SSP)', this.data.ssp);
+        // SSP uses document upload, not CSV import
+        const items = this.data.ssp;
+        return `
+            <div class="osc-section">
+                <div class="osc-section-header">
+                    <h2>${this.getTabIcon('ssp')} System Security Plan (SSP)</h2>
+                    <div class="osc-header-actions">
+                        <label class="osc-import-btn" title="Upload SSP Document (.docx, .pdf)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            Upload Document
+                            <input type="file" accept=".docx,.pdf,.doc" data-upload-ssp="true" style="display:none">
+                        </label>
+                        <button class="osc-add-btn" data-add="ssp">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add SSP Entry
+                        </button>
+                    </div>
+                </div>
+                <div class="osc-section-body">
+                    ${items.length > 0 ? `
+                        <div class="osc-item-list">
+                            ${items.map((item, idx) => `
+                                <div class="osc-item" data-type="ssp" data-index="${idx}">
+                                    <div class="osc-item-icon ssp">${this.getTabIcon('ssp')}</div>
+                                    <div class="osc-item-content">
+                                        <div class="osc-item-name">${item.name}</div>
+                                        <div class="osc-item-meta">${item.description || item.version || 'No details'}</div>
+                                        ${item.attachmentName ? `<div class="osc-item-attachment"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> ${item.attachmentName}</div>` : ''}
+                                    </div>
+                                    <div class="osc-item-actions">
+                                        <label class="osc-item-action" title="Attach/Replace Document">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                            <input type="file" accept=".docx,.pdf,.doc" data-attach="ssp" data-index="${idx}" style="display:none">
+                                        </label>
+                                        ${item.attachmentData ? `<button class="osc-item-action" data-view-attachment="ssp" data-index="${idx}" title="View Document"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>` : ''}
+                                        <button class="osc-item-action" data-edit="ssp" data-index="${idx}" title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                                        <button class="osc-item-action delete" data-delete="ssp" data-index="${idx}" title="Delete"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : `
+                        <div class="osc-empty-state">
+                            <p>No SSP documents uploaded yet.</p>
+                            <label class="osc-import-btn" style="margin-right:12px">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                Upload Document
+                                <input type="file" accept=".docx,.pdf,.doc" data-upload-ssp="true" style="display:none">
+                            </label>
+                            <button class="osc-add-btn" data-add="ssp">Add SSP Entry</button>
+                        </div>
+                    `}
+                </div>
+            </div>
+        `;
+    },
+    
+    // CSV column templates for each type
+    csvTemplates: {
+        policy: { columns: ['name', 'description', 'version'], example: 'Access Control Policy,Defines access control requirements for CUI systems,1.0' },
+        procedure: { columns: ['name', 'description', 'version', 'relatedPolicy'], example: 'Account Creation Procedure,Steps for creating new user accounts,1.0,Access Control Policy' },
+        asset: { columns: ['name', 'category', 'assetType', 'hostname', 'ipAddress', 'owner', 'location'], example: 'Web Server 01,cui,server,web01.company.com,10.0.1.10,IT Ops,Azure East US' },
+        fips: { columns: ['certNumber', 'moduleName', 'vendor', 'standard', 'level', 'status'], example: '4234,Windows CNG,Microsoft,FIPS 140-2,1,active' }
     },
     
     renderItemList(type, key, title, items) {
+        const csvInfo = this.csvTemplates[type];
+        const csvHelpHtml = csvInfo ? `
+            <button class="osc-csv-help-btn" data-csv-help="${type}" title="View CSV format">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </button>
+        ` : '';
+        
         return `
             <div class="osc-section">
                 <div class="osc-section-header">
                     <h2>${this.getTabIcon(key === 'ssp' ? 'ssp' : key)} ${title}</h2>
                     <div class="osc-header-actions">
+                        ${csvHelpHtml}
                         <label class="osc-import-btn" title="Import from CSV">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             Import CSV
@@ -195,6 +265,7 @@ const OSCInventory = {
                     ` : `
                         <div class="osc-empty-state">
                             <p>No ${title.toLowerCase()} documented yet.</p>
+                            ${csvHelpHtml ? `<button class="osc-csv-help-btn" data-csv-help="${type}" style="margin-right:8px" title="View CSV format"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> CSV Format</button>` : ''}
                             <label class="osc-import-btn" style="margin-right:12px">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                 Import CSV
@@ -448,6 +519,14 @@ const OSCInventory = {
         // View attachment handlers
         container.querySelectorAll('[data-view-attachment]').forEach(btn => {
             btn.addEventListener('click', (e) => { e.stopPropagation(); this.viewAttachment(btn.dataset.viewAttachment, parseInt(btn.dataset.index)); });
+        });
+        // CSV help button handlers
+        container.querySelectorAll('[data-csv-help]').forEach(btn => {
+            btn.addEventListener('click', (e) => { e.stopPropagation(); this.showCSVHelp(btn.dataset.csvHelp); });
+        });
+        // SSP document upload handlers
+        container.querySelectorAll('[data-upload-ssp]').forEach(input => {
+            input.addEventListener('change', (e) => this.handleSSPUpload(e.target.files[0], app));
         });
         document.getElementById('osc-modal-close')?.addEventListener('click', () => this.closeModal());
         document.getElementById('osc-modal-cancel')?.addEventListener('click', () => this.closeModal());
@@ -784,6 +863,97 @@ const OSCInventory = {
             link.href = item.attachmentData;
             link.download = item.attachmentName || 'attachment';
             link.click();
+        }
+    },
+    
+    // Show CSV format help modal
+    showCSVHelp(type) {
+        const template = this.csvTemplates[type];
+        if (!template) return;
+        
+        const typeLabel = { policy: 'Policies', procedure: 'Procedures', asset: 'Assets', fips: 'FIPS Certificates' }[type] || type;
+        const categoryNote = type === 'asset' ? `<p style="font-size:0.75rem;color:var(--text-muted);margin-top:8px"><strong>Category values:</strong> cui, spa, crma, specialized, oos</p>` : '';
+        
+        const modal = document.createElement('div');
+        modal.className = 'osc-csv-help-modal';
+        modal.innerHTML = `
+            <div class="osc-csv-help-content">
+                <div class="osc-csv-help-header">
+                    <h3>CSV Format for ${typeLabel}</h3>
+                    <button class="osc-csv-help-close">&times;</button>
+                </div>
+                <div class="osc-csv-help-body">
+                    <p style="margin-bottom:12px">Your CSV file should have a header row with the following columns:</p>
+                    <div class="osc-csv-columns">
+                        ${template.columns.map(col => `<span class="osc-csv-column">${col}</span>`).join('')}
+                    </div>
+                    ${categoryNote}
+                    <div class="osc-csv-example">
+                        <strong>Example row:</strong>
+                        <code>${template.columns.join(',')}</code>
+                        <code>${template.example}</code>
+                    </div>
+                    <div class="osc-csv-actions">
+                        <button class="osc-btn osc-btn-secondary" onclick="OSCInventory.downloadCSVTemplate('${type}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Download Template
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        modal.querySelector('.osc-csv-help-close').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    },
+    
+    // Download CSV template
+    downloadCSVTemplate(type) {
+        const template = this.csvTemplates[type];
+        if (!template) return;
+        
+        const csv = template.columns.join(',') + '\n' + template.example;
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${type}-template.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+    },
+    
+    // Handle SSP document upload
+    async handleSSPUpload(file, app) {
+        if (!file) return;
+        
+        try {
+            const reader = new FileReader();
+            const fileData = await new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+            
+            // Create a new SSP entry with the uploaded document
+            const sspEntry = {
+                name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension for name
+                description: `Uploaded ${new Date().toLocaleDateString()}`,
+                version: '1.0',
+                attachmentData: fileData,
+                attachmentName: file.name,
+                attachmentType: file.type,
+                dateAdded: Date.now()
+            };
+            
+            this.data.ssp.push(sspEntry);
+            this.save();
+            this.render(app);
+            
+            alert(`SSP document "${file.name}" uploaded successfully.`);
+        } catch (e) {
+            console.error('SSP upload error:', e);
+            alert('Error uploading SSP document.');
         }
     }
 };
