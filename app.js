@@ -1179,10 +1179,35 @@ class AssessmentApp {
         const currentCloud = this.implGuideCloud || 'azure';
         this.archGuideSection = this.archGuideSection || null;
         
-        // Calculate assessment progress for mini indicator
+        // Calculate assessment progress stats
         const totalObjectives = 320;
         const metCount = Object.values(this.assessmentData).filter(s => s === 'met').length;
+        const notMetCount = Object.values(this.assessmentData).filter(s => s === 'not-met').length;
+        const partialCount = Object.values(this.assessmentData).filter(s => s === 'partial').length;
+        const naCount = Object.values(this.assessmentData).filter(s => s === 'na').length;
+        const assessedCount = metCount + notMetCount + partialCount + naCount;
+        const remainingCount = totalObjectives - assessedCount;
         const progressPct = Math.round((metCount / totalObjectives) * 100);
+        const assessedPct = Math.round((assessedCount / totalObjectives) * 100);
+        
+        // Determine readiness status
+        let readinessStatus, readinessClass;
+        if (progressPct >= 100) {
+            readinessStatus = 'Assessment Ready';
+            readinessClass = 'ready';
+        } else if (progressPct >= 75) {
+            readinessStatus = 'Nearly Ready';
+            readinessClass = 'near';
+        } else if (progressPct >= 50) {
+            readinessStatus = 'In Progress';
+            readinessClass = 'progress';
+        } else if (assessedCount > 0) {
+            readinessStatus = 'Getting Started';
+            readinessClass = 'started';
+        } else {
+            readinessStatus = 'Not Started';
+            readinessClass = 'not-started';
+        }
         
         // Render the redesigned Architecture Guide
         container.innerHTML = `
@@ -1190,12 +1215,23 @@ class AssessmentApp {
                 <div class="arch-guide-header">
                     <div class="arch-guide-header-top">
                         <div class="arch-guide-title">
-                            <div class="arch-guide-progress-mini" title="Assessment Progress: ${metCount}/${totalObjectives} objectives met">
-                                <svg viewBox="0 0 36 36" class="arch-progress-ring">
-                                    <path class="arch-progress-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                    <path class="arch-progress-fill" stroke-dasharray="${progressPct}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                                    <text x="18" y="20.5" class="arch-progress-text">${progressPct}%</text>
-                                </svg>
+                            <div class="arch-status-panel">
+                                <div class="arch-status-ring">
+                                    <svg viewBox="0 0 36 36" class="arch-progress-ring">
+                                        <path class="arch-progress-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                        <path class="arch-progress-fill" stroke-dasharray="${progressPct}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                        <text x="18" y="20.5" class="arch-progress-text">${progressPct}%</text>
+                                    </svg>
+                                </div>
+                                <div class="arch-status-info">
+                                    <div class="arch-status-badge ${readinessClass}">${readinessStatus}</div>
+                                    <div class="arch-status-counts">
+                                        <span class="arch-count met" title="Met"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> ${metCount}</span>
+                                        <span class="arch-count not-met" title="Not Met"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ${notMetCount}</span>
+                                        <span class="arch-count partial" title="Partial"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/></svg> ${partialCount}</span>
+                                        <span class="arch-count remaining" title="Remaining">${remainingCount} left</span>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <h1>Architecture Guide</h1>
