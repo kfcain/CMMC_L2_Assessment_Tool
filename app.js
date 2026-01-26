@@ -564,28 +564,18 @@ class AssessmentApp {
             }
         } else if (view === 'crosswalk') {
             // Load crosswalk scripts if needed, then initialize
-            console.log('[App] Crosswalk view - starting initialization');
             if (window.LazyLoader) {
                 try {
-                    console.log('[App] LazyLoader available, loading scripts...');
                     await window.LazyLoader.loadViewScripts('crosswalk');
-                    // Small delay to ensure scripts are fully parsed
                     await new Promise(resolve => setTimeout(resolve, 100));
-                    console.log('[App] Scripts loaded, CrosswalkVisualizer defined:', typeof CrosswalkVisualizer !== 'undefined');
                     if (typeof CrosswalkVisualizer !== 'undefined') {
-                        console.log('[App] Calling CrosswalkVisualizer.init()');
                         CrosswalkVisualizer.init();
-                    } else {
-                        console.error('[App] CrosswalkVisualizer not defined after loading scripts');
                     }
                 } catch (e) {
-                    console.error('[App] Failed to load crosswalk scripts:', e);
+                    console.error('Failed to load crosswalk scripts:', e);
                 }
             } else if (typeof CrosswalkVisualizer !== 'undefined') {
-                console.log('[App] No LazyLoader, calling CrosswalkVisualizer.init() directly');
                 CrosswalkVisualizer.init();
-            } else {
-                console.error('[App] No LazyLoader and CrosswalkVisualizer not defined');
             }
         } else if (view === 'impl-guide') {
             this.renderImplGuideView();
