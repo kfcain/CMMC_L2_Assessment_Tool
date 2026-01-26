@@ -1554,6 +1554,11 @@ class AssessmentApp {
                 this.implPlannerCurrentPhase = phaseId;
                 localStorage.setItem('impl-planner-phase', phaseId);
                 this.renderImplPlanner();
+                
+                // Ensure phase timeline stays visible after re-render
+                if (this.implPlannerView === 'phases') {
+                    document.querySelector('.impl-phase-timeline').style.display = 'flex';
+                }
             });
         });
         
@@ -1569,10 +1574,12 @@ class AssessmentApp {
                 document.getElementById('impl-project-plan-content').style.display = 'none';
                 document.getElementById('impl-kanban-content').style.display = 'none';
                 document.getElementById('impl-list-content').style.display = 'none';
+                document.querySelector('.impl-phase-timeline').style.display = 'none';
                 
                 // Show selected view
                 if (view === 'phases') {
                     document.getElementById('impl-phases-content').style.display = 'block';
+                    document.querySelector('.impl-phase-timeline').style.display = 'flex';
                 } else if (view === 'project-plan') {
                     document.getElementById('impl-project-plan-content').style.display = 'block';
                 } else if (view === 'kanban') {
