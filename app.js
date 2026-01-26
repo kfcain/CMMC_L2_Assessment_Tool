@@ -4408,29 +4408,52 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         const currentCloud = this.implGuideCloud || 'azure';
         
+        // SVG icons for subsections (stroke-based)
+        const icons = {
+            'arch-decision': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+            'arch-patterns': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18v-7"></path><path d="M11.12 2.198a2 2 0 0 1 1.76.006l7.866 3.847c.476.233.31.949-.22.949H3.474c-.53 0-.695-.716-.22-.949z"></path><path d="M14 18v-7"></path><path d="M18 18v-7"></path><path d="M3 22h18"></path><path d="M6 18v-7"></path></svg>',
+            'vdi-comparison': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+            'cost-optimization': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+            'network-arch': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+            'integration-patterns': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+            'user-personas': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+            'endpoint-strategy': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+            'impl-checklist': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+            'cloud-security': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+            'avd-deep-dive': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>',
+            'citrix-deep-dive': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+            'vmware-deep-dive': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+            'fslogix-deep-dive': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+            'persistent-analysis': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>',
+            'cmmc-vdi-docs': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+            'cost-deep-dive': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+            'endpoints-deep-dive': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+            'ref-architectures': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>'
+        };
+        
         // Build subsection navigation
         const subsections = [
-            { id: 'arch-decision', name: 'Decision Framework', icon: '🎯' },
-            { id: 'arch-patterns', name: 'Architecture Patterns', icon: '📐' },
-            { id: 'vdi-comparison', name: 'VDI Platforms', icon: '🖥️' },
-            { id: 'cost-optimization', name: 'Cost Optimization', icon: '💰' },
-            { id: 'network-arch', name: 'Network Architecture', icon: '🌐' },
-            { id: 'integration-patterns', name: 'Integration Patterns', icon: '🔗' },
-            { id: 'user-personas', name: 'User Personas', icon: '👥' },
-            { id: 'endpoint-strategy', name: 'Endpoint Strategy', icon: '📱' },
-            { id: 'impl-checklist', name: 'Implementation Checklist', icon: '✅' },
-            { id: 'cloud-security', name: 'Cloud Security (SPA)', icon: '🛡️' }
+            { id: 'arch-decision', name: 'Decision Framework' },
+            { id: 'arch-patterns', name: 'Architecture Patterns' },
+            { id: 'vdi-comparison', name: 'VDI Platforms' },
+            { id: 'cost-optimization', name: 'Cost Optimization' },
+            { id: 'network-arch', name: 'Network Architecture' },
+            { id: 'integration-patterns', name: 'Integration Patterns' },
+            { id: 'user-personas', name: 'User Personas' },
+            { id: 'endpoint-strategy', name: 'Endpoint Strategy' },
+            { id: 'impl-checklist', name: 'Implementation Checklist' },
+            { id: 'cloud-security', name: 'Cloud Security (SPA)' }
         ];
         
         // Add VDI deep dive sections if available
-        if (guidance.vdiDeepDive?.avd) subsections.push({ id: 'avd-deep-dive', name: 'AVD Deep Dive', icon: '☁️' });
-        if (guidance.vdiDeepDive?.citrix) subsections.push({ id: 'citrix-deep-dive', name: 'Citrix Deep Dive', icon: '🍊' });
-        if (guidance.vdiDeepDive?.vmwareHorizon) subsections.push({ id: 'vmware-deep-dive', name: 'VMware Horizon', icon: '🔷' });
-        if (guidance.fslogixDeepDive) subsections.push({ id: 'fslogix-deep-dive', name: 'FSLogix Profiles', icon: '📁' });
-        if (guidance.persistentVsNonPersistent) subsections.push({ id: 'persistent-analysis', name: 'Persistent vs Non-Persistent', icon: '🔄' });
-        if (guidance.cmmcVdiDocumentation) subsections.push({ id: 'cmmc-vdi-docs', name: 'CMMC VDI Documentation', icon: '📋' });
-        if (guidance.costManagementDeepDive) subsections.push({ id: 'cost-deep-dive', name: 'Cost Management', icon: '📊' });
-        if (guidance.vdiEndpointsDeepDive) subsections.push({ id: 'endpoints-deep-dive', name: 'VDI Endpoints', icon: '💻' });
+        if (guidance.vdiDeepDive?.avd) subsections.push({ id: 'avd-deep-dive', name: 'AVD Deep Dive' });
+        if (guidance.vdiDeepDive?.citrix) subsections.push({ id: 'citrix-deep-dive', name: 'Citrix Deep Dive' });
+        if (guidance.vdiDeepDive?.vmwareHorizon) subsections.push({ id: 'vmware-deep-dive', name: 'VMware Horizon' });
+        if (guidance.fslogixDeepDive) subsections.push({ id: 'fslogix-deep-dive', name: 'FSLogix Profiles' });
+        if (guidance.persistentVsNonPersistent) subsections.push({ id: 'persistent-analysis', name: 'Persistent vs Non-Persistent' });
+        if (guidance.cmmcVdiDocumentation) subsections.push({ id: 'cmmc-vdi-docs', name: 'CMMC VDI Documentation' });
+        if (guidance.costManagementDeepDive) subsections.push({ id: 'cost-deep-dive', name: 'Cost Management' });
+        if (guidance.vdiEndpointsDeepDive) subsections.push({ id: 'endpoints-deep-dive', name: 'VDI Endpoints' });
         
         // Navigation and search
         let html = `
@@ -4439,15 +4462,15 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="arch-search-input" placeholder="Search in Reference Architecture..." class="extras-search-input">
                 </div>
-                <div class="extras-subsection-nav">
-                    ${subsections.map(s => `<button class="extras-nav-btn" data-scroll-to="${s.id}"><span class="extras-nav-icon">${s.icon}</span>${s.name}</button>`).join('')}
+                <div class="extras-subsection-nav arch-grid">
+                    ${subsections.map(s => `<button class="extras-nav-btn" data-scroll-to="${s.id}"><span class="extras-nav-icon">${icons[s.id] || ''}</span><span class="extras-nav-label">${s.name}</span></button>`).join('')}
                 </div>
             </div>
         `;
 
         // Architecture Options
         html += `<div class="impl-section extras-collapsible" id="arch-decision">
-            <div class="impl-section-title">🎯 Architecture Decision Framework</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['arch-decision']}</span> Architecture Decision Framework</div>
             <div class="section-content">
                 <div class="impl-table-container">
                     <table class="impl-table">
@@ -4470,7 +4493,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Pros/Cons Detail
         html += `<div class="impl-section extras-collapsible" id="arch-patterns">
-            <div class="impl-section-title">📐 Architecture Pattern Details</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['arch-patterns']}</span> Architecture Pattern Details</div>
             <div class="section-content">
                 <div class="impl-cards-grid">
                     ${guidance.architectureOptions.map(opt => `
@@ -4494,7 +4517,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // VDI Platform Comparison
         html += `<div class="impl-section extras-collapsible" id="vdi-comparison">
-            <div class="impl-section-title">🖥️ VDI Platform Comparison</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['vdi-comparison']}</span> VDI Platform Comparison</div>
             <div class="section-content">
                 <div class="impl-cards-grid">
                     ${Object.values(guidance.vdiPlatforms).map(platform => `
@@ -4523,7 +4546,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Cost Optimization
         html += `<div class="impl-section extras-collapsible" id="cost-optimization">
-            <div class="impl-section-title">💰 Cost Optimization Strategies</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['cost-optimization']}</span> Cost Optimization Strategies</div>
             <div class="section-content">
                 <div class="impl-table-container">
                     <table class="impl-table">
@@ -4546,7 +4569,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Network Architecture Components
         html += `<div class="impl-section extras-collapsible" id="network-arch">
-            <div class="impl-section-title">🌐 Enclave Network Architecture</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['network-arch']}</span> Enclave Network Architecture</div>
             <div class="section-content">
                 <div class="impl-table-container">
                     <table class="impl-table">
@@ -4568,7 +4591,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Integration Patterns
         html += `<div class="impl-section extras-collapsible" id="integration-patterns">
-            <div class="impl-section-title">🔗 Integration Patterns</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['integration-patterns']}</span> Integration Patterns</div>
             <div class="section-content">
                 <div class="impl-cards-grid">
                     ${guidance.integrationPatterns.map(pattern => `
@@ -4592,7 +4615,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // User Personas
         html += `<div class="impl-section extras-collapsible" id="user-personas">
-            <div class="impl-section-title">👥 User Personas & Sizing</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['user-personas']}</span> User Personas & Sizing</div>
             <div class="section-content">
                 <div class="impl-table-container">
                     <table class="impl-table">
@@ -4615,7 +4638,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Endpoint Strategy
         html += `<div class="impl-section extras-collapsible" id="endpoint-strategy">
-            <div class="impl-section-title">📱 Endpoint Strategy</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['endpoint-strategy']}</span> Endpoint Strategy</div>
             <div class="section-content">
                 <div class="impl-cards-grid">
                 ${guidance.endpointStrategy.options.map(opt => `
@@ -4646,7 +4669,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Implementation Checklist
         html += `<div class="impl-section extras-collapsible" id="impl-checklist">
-            <div class="impl-section-title">✅ Implementation Checklist</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['impl-checklist']}</span> Implementation Checklist</div>
             <div class="section-content">
                 ${Object.values(guidance.implementationChecklist).map(phase => `
                     <div class="impl-policy-card" style="margin-bottom:12px">
@@ -4666,7 +4689,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Reference Architectures
         html += `<div class="impl-section extras-collapsible" id="ref-architectures">
-            <div class="impl-section-title">📚 Reference Architectures</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['ref-architectures']}</span> Reference Architectures</div>
             <div class="section-content">
                 <div class="impl-cards-grid">
                     ${guidance.networkArchitecture.referenceArchitectures.map(ref => `
@@ -4691,7 +4714,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             if (guidance.vdiDeepDive.avd) {
                 const avd = guidance.vdiDeepDive.avd;
                 html += `<div class="impl-section extras-collapsible" id="avd-deep-dive">
-                    <div class="impl-section-title">☁️ ${avd.name} - Deep Configuration</div>
+                    <div class="impl-section-title"><span class="section-icon">${icons['avd-deep-dive']}</span> ${avd.name} - Deep Configuration</div>
                     <div class="section-content">
                     <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${avd.overview}</p>
                     
@@ -4809,7 +4832,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             if (guidance.vdiDeepDive.citrix) {
                 const citrix = guidance.vdiDeepDive.citrix;
                 html += `<div class="impl-section extras-collapsible" id="citrix-deep-dive">
-                    <div class="impl-section-title">🍊 ${citrix.name} - Deep Configuration</div>
+                    <div class="impl-section-title"><span class="section-icon">${icons['citrix-deep-dive']}</span> ${citrix.name} - Deep Configuration</div>
                     <div class="section-content">
                     <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${citrix.overview}</p>
 
@@ -4872,7 +4895,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             if (guidance.vdiDeepDive.vmwareHorizon) {
                 const vmware = guidance.vdiDeepDive.vmwareHorizon;
                 html += `<div class="impl-section extras-collapsible" id="vmware-deep-dive">
-                    <div class="impl-section-title">🔷 ${vmware.name} - Deep Configuration</div>
+                    <div class="impl-section-title"><span class="section-icon">${icons['vmware-deep-dive']}</span> ${vmware.name} - Deep Configuration</div>
                     <div class="section-content">
                     <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${vmware.overview}</p>
 
@@ -4921,7 +4944,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.fslogixDeepDive) {
             const fsl = guidance.fslogixDeepDive;
             html += `<div class="impl-section extras-collapsible" id="fslogix-deep-dive">
-                <div class="impl-section-title">📁 FSLogix Profile Management - Deep Dive</div>
+                <div class="impl-section-title"><span class="section-icon">${icons['fslogix-deep-dive']}</span> FSLogix Profile Management - Deep Dive</div>
                 <div class="section-content">
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">${fsl.overview.description}</p>
                 <p style="font-size:0.75rem;margin-bottom:16px"><strong>Licensing:</strong> ${fsl.overview.licensing}</p>
@@ -4996,7 +5019,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.persistentVsNonPersistent) {
             const pvnp = guidance.persistentVsNonPersistent;
             html += `<div class="impl-section extras-collapsible" id="persistent-analysis">
-                <div class="impl-section-title">🔄 Persistent vs Non-Persistent VDI Analysis</div>
+                <div class="impl-section-title"><span class="section-icon">${icons['persistent-analysis']}</span> Persistent vs Non-Persistent VDI Analysis</div>
                 <div class="section-content">
 
                 <!-- Comparison Cards -->
@@ -5102,7 +5125,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.cmmcVdiDocumentation) {
             const cmmc = guidance.cmmcVdiDocumentation;
             html += `<div class="impl-section extras-collapsible" id="cmmc-vdi-docs">
-                <div class="impl-section-title">📋 CMMC Documentation for VDI Environments</div>
+                <div class="impl-section-title"><span class="section-icon">${icons['cmmc-vdi-docs']}</span> CMMC Documentation for VDI Environments</div>
                 <div class="section-content">
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${cmmc.overview}</p>
 
@@ -5274,7 +5297,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.costManagementDeepDive) {
             const cost = guidance.costManagementDeepDive;
             html += `<div class="impl-section extras-collapsible" id="cost-deep-dive">
-                <div class="impl-section-title">📊 VDI Cost Management Strategies</div>
+                <div class="impl-section-title"><span class="section-icon">${icons['cost-deep-dive']}</span> VDI Cost Management Strategies</div>
                 <div class="section-content">
 
                 <!-- Azure Cost Management -->
@@ -5350,7 +5373,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.vdiEndpointsDeepDive) {
             const endpoints = guidance.vdiEndpointsDeepDive;
             html += `<div class="impl-section extras-collapsible" id="endpoints-deep-dive">
-                <div class="impl-section-title">💻 VDI Endpoints - Hardware & Software</div>
+                <div class="impl-section-title"><span class="section-icon">${icons['endpoints-deep-dive']}</span> VDI Endpoints - Hardware & Software</div>
                 <div class="section-content">
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${endpoints.overview}</p>
 
@@ -5559,7 +5582,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // =============================================
         const cloudName = this.implGuideCloud === 'aws' ? 'AWS GovCloud' : this.implGuideCloud === 'gcp' ? 'GCP Assured Workloads' : 'Azure GCC High';
         html += `<div class="impl-section extras-collapsible" id="cloud-security">
-            <div class="impl-section-title">🛡️ Cloud Security as Security Protection Assets (${cloudName})</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['cloud-security']}</span> Cloud Security as Security Protection Assets (${cloudName})</div>
             <div class="section-content">
             <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">Cloud-native security services function as Security Protection Assets (SPAs) that support CMMC L2 assessment objectives. These services provide the technical controls necessary to protect, detect, and respond to threats against CUI.</p>
             

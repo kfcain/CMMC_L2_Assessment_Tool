@@ -575,6 +575,12 @@
     gap: 8px;
 }
 
+.extras-subsection-nav.arch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+}
+
 .extras-nav-btn {
     display: flex;
     align-items: center;
@@ -620,6 +626,22 @@
     border-radius: 8px;
     margin-bottom: 16px;
     overflow: hidden;
+}
+
+.section-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.section-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--accent-blue);
 }
 
 .extras-collapsible .impl-section-title {
