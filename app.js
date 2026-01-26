@@ -910,6 +910,7 @@ class AssessmentApp {
         this.implPlannerCurrentPhase = localStorage.getItem('impl-planner-phase') || planner.phases[0].id;
         this.implPlannerView = localStorage.getItem('impl-planner-view') || 'phases';
         console.log('Current implementation planner view:', this.implPlannerView);
+        console.log('About to render view containers for:', this.implPlannerView);
         
         // Calculate overall progress
         const allTasks = this.getAllPlannerTasks(planner);
@@ -1008,24 +1009,32 @@ class AssessmentApp {
             </div>
             
             <!-- Phases View Content -->
-            <div id="impl-phases-content" style="${this.implPlannerView !== 'phases' ? 'display:none' : ''}">
+            ${this.implPlannerView === 'phases' ? `
+            <div id="impl-phases-content">
                 ${this.renderPlannerPhaseContent(currentPhase, phaseProgress)}
             </div>
+            ` : ''}
             
             <!-- Project Plan View -->
-            <div class="impl-project-plan-container" id="impl-project-plan-content" style="${this.implPlannerView !== 'project-plan' ? 'display:none' : ''}">
+            ${this.implPlannerView === 'project-plan' ? `
+            <div class="impl-project-plan-container" id="impl-project-plan-content">
                 ${this.renderProjectPlanView(planner, allTasks)}
             </div>
+            ` : ''}
             
             <!-- Kanban View -->
-            <div class="impl-kanban-container" id="impl-kanban-content" style="${this.implPlannerView !== 'kanban' ? 'display:none' : ''}" data-debug-view="kanban">
+            ${this.implPlannerView === 'kanban' ? `
+            <div class="impl-kanban-container" id="impl-kanban-content" data-debug-view="kanban">
                 ${this.renderPlannerKanban(planner, allTasks)}
             </div>
+            ` : ''}
             
             <!-- List View -->
-            <div class="impl-list-container" id="impl-list-content" style="${this.implPlannerView !== 'list' ? 'display:none' : ''}">
+            ${this.implPlannerView === 'list' ? `
+            <div class="impl-list-container" id="impl-list-content">
                 ${this.renderPlannerList(planner, allTasks)}
             </div>
+            ` : ''}
         `;
         
         this.bindImplPlannerEvents(container, planner, phaseProgress);
