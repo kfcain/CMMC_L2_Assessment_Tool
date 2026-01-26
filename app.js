@@ -1012,17 +1012,17 @@ class AssessmentApp {
             </div>
             
             <!-- Project Plan View -->
-            <div class="impl-project-plan-container ${this.implPlannerView === 'project-plan' ? 'active' : ''}" id="impl-project-plan-content">
+            <div class="impl-project-plan-container" id="impl-project-plan-content" style="${this.implPlannerView !== 'project-plan' ? 'display:none' : ''}">
                 ${this.renderProjectPlanView(planner, allTasks)}
             </div>
             
             <!-- Kanban View -->
-            <div class="impl-kanban-container ${this.implPlannerView === 'kanban' ? 'active' : ''}" id="impl-kanban-content">
+            <div class="impl-kanban-container" id="impl-kanban-content" style="${this.implPlannerView !== 'kanban' ? 'display:none' : ''}">
                 ${this.renderPlannerKanban(planner, allTasks)}
             </div>
             
             <!-- List View -->
-            <div class="impl-list-container ${this.implPlannerView === 'list' ? 'active' : ''}" id="impl-list-content">
+            <div class="impl-list-container" id="impl-list-content" style="${this.implPlannerView !== 'list' ? 'display:none' : ''}">
                 ${this.renderPlannerList(planner, allTasks)}
             </div>
         `;
