@@ -188,6 +188,7 @@ const ThemePicker = {
         solarized: {
             name: 'Solarized Dark',
             icon: 'sun',
+            category: 'classic',
             colors: {
                 '--bg-primary': '#002b36',
                 '--bg-secondary': '#073642',
@@ -203,7 +204,231 @@ const ThemePicker = {
                 '--modal-bg': '#073642',
                 '--shadow-color': 'rgba(0, 0, 0, 0.3)'
             }
+        },
+        // === CYBERPUNK & NEON ===
+        // Cyberpunk 2077 - Neon-soaked dystopian future
+        cyberpunk: {
+            name: 'Cyberpunk',
+            icon: 'zap',
+            category: 'neon',
+            colors: {
+                '--bg-primary': '#0a0a0f',
+                '--bg-secondary': '#12121a',
+                '--bg-tertiary': '#1a1a25',
+                '--text-primary': '#00f0ff',
+                '--text-secondary': '#ff00aa',
+                '--text-muted': '#666680',
+                '--border-color': '#2a2a40',
+                '--accent-blue': '#00f0ff',
+                '--accent-blue-hover': '#ff00aa',
+                '--input-bg': '#0f0f18',
+                '--card-bg': '#12121a',
+                '--modal-bg': '#0a0a0f',
+                '--shadow-color': 'rgba(0, 240, 255, 0.15)'
+            }
+        },
+        // Synthwave - 80s retro-futurism
+        synthwave: {
+            name: 'Synthwave',
+            icon: 'music',
+            category: 'neon',
+            colors: {
+                '--bg-primary': '#1a1025',
+                '--bg-secondary': '#241734',
+                '--bg-tertiary': '#2e1f42',
+                '--text-primary': '#ff7edb',
+                '--text-secondary': '#36f9f6',
+                '--text-muted': '#848bbd',
+                '--border-color': '#3d2a54',
+                '--accent-blue': '#ff7edb',
+                '--accent-blue-hover': '#36f9f6',
+                '--input-bg': '#1a1025',
+                '--card-bg': '#241734',
+                '--modal-bg': '#1a1025',
+                '--shadow-color': 'rgba(255, 126, 219, 0.2)'
+            }
+        },
+        // Neon Noir - Dark with electric accents
+        neonNoir: {
+            name: 'Neon Noir',
+            icon: 'zap',
+            category: 'neon',
+            colors: {
+                '--bg-primary': '#0d0d0d',
+                '--bg-secondary': '#151515',
+                '--bg-tertiary': '#1f1f1f',
+                '--text-primary': '#e0e0e0',
+                '--text-secondary': '#39ff14',
+                '--text-muted': '#555555',
+                '--border-color': '#2a2a2a',
+                '--accent-blue': '#39ff14',
+                '--accent-blue-hover': '#00ff88',
+                '--input-bg': '#0d0d0d',
+                '--card-bg': '#151515',
+                '--modal-bg': '#0d0d0d',
+                '--shadow-color': 'rgba(57, 255, 20, 0.15)'
+            }
+        },
+        // === RETRO & VINTAGE ===
+        // Roaring Twenties - Art Deco gold and black
+        roaring20s: {
+            name: 'Roaring 20s',
+            icon: 'diamond',
+            category: 'vintage',
+            colors: {
+                '--bg-primary': '#1a1a1a',
+                '--bg-secondary': '#0d0d0d',
+                '--bg-tertiary': '#252525',
+                '--text-primary': '#d4af37',
+                '--text-secondary': '#c9b037',
+                '--text-muted': '#8b7355',
+                '--border-color': '#3d3424',
+                '--accent-blue': '#d4af37',
+                '--accent-blue-hover': '#ffd700',
+                '--input-bg': '#0d0d0d',
+                '--card-bg': '#0d0d0d',
+                '--modal-bg': '#1a1a1a',
+                '--shadow-color': 'rgba(212, 175, 55, 0.2)'
+            }
+        },
+        // Vintage Terminal - Green phosphor CRT
+        terminal: {
+            name: 'Terminal',
+            icon: 'terminal',
+            category: 'vintage',
+            colors: {
+                '--bg-primary': '#0c0c0c',
+                '--bg-secondary': '#0a0a0a',
+                '--bg-tertiary': '#141414',
+                '--text-primary': '#33ff33',
+                '--text-secondary': '#00cc00',
+                '--text-muted': '#226622',
+                '--border-color': '#1a3d1a',
+                '--accent-blue': '#33ff33',
+                '--accent-blue-hover': '#66ff66',
+                '--input-bg': '#080808',
+                '--card-bg': '#0a0a0a',
+                '--modal-bg': '#0c0c0c',
+                '--shadow-color': 'rgba(51, 255, 51, 0.1)'
+            }
+        },
+        // Amber CRT - Classic amber monitor
+        amberCRT: {
+            name: 'Amber CRT',
+            icon: 'terminal',
+            category: 'vintage',
+            colors: {
+                '--bg-primary': '#1a1408',
+                '--bg-secondary': '#120e05',
+                '--bg-tertiary': '#221a0c',
+                '--text-primary': '#ffb000',
+                '--text-secondary': '#cc8800',
+                '--text-muted': '#665500',
+                '--border-color': '#3d2e11',
+                '--accent-blue': '#ffb000',
+                '--accent-blue-hover': '#ffcc44',
+                '--input-bg': '#0f0b04',
+                '--card-bg': '#120e05',
+                '--modal-bg': '#1a1408',
+                '--shadow-color': 'rgba(255, 176, 0, 0.15)'
+            }
+        },
+        // === NATURE & EARTH ===
+        // Forest - Deep greens and earth tones
+        forest: {
+            name: 'Forest',
+            icon: 'tree',
+            category: 'nature',
+            colors: {
+                '--bg-primary': '#1a2416',
+                '--bg-secondary': '#141d11',
+                '--bg-tertiary': '#243320',
+                '--text-primary': '#c4d7b2',
+                '--text-secondary': '#8fb573',
+                '--text-muted': '#5c7a4a',
+                '--border-color': '#2d4425',
+                '--accent-blue': '#8fb573',
+                '--accent-blue-hover': '#a8cf8a',
+                '--input-bg': '#141d11',
+                '--card-bg': '#141d11',
+                '--modal-bg': '#1a2416',
+                '--shadow-color': 'rgba(143, 181, 115, 0.15)'
+            }
+        },
+        // Ocean - Deep sea blues
+        ocean: {
+            name: 'Ocean',
+            icon: 'waves',
+            category: 'nature',
+            colors: {
+                '--bg-primary': '#0a1628',
+                '--bg-secondary': '#071020',
+                '--bg-tertiary': '#0f2038',
+                '--text-primary': '#a0c4e8',
+                '--text-secondary': '#5da9e9',
+                '--text-muted': '#3a6d96',
+                '--border-color': '#1a3a5c',
+                '--accent-blue': '#5da9e9',
+                '--accent-blue-hover': '#7ec4ff',
+                '--input-bg': '#071020',
+                '--card-bg': '#071020',
+                '--modal-bg': '#0a1628',
+                '--shadow-color': 'rgba(93, 169, 233, 0.15)'
+            }
+        },
+        // === WARM TONES ===
+        // Sunset - Warm oranges and purples
+        sunset: {
+            name: 'Sunset',
+            icon: 'sun',
+            category: 'warm',
+            colors: {
+                '--bg-primary': '#1f1520',
+                '--bg-secondary': '#18101a',
+                '--bg-tertiary': '#2a1d2c',
+                '--text-primary': '#f5d0c5',
+                '--text-secondary': '#f28c70',
+                '--text-muted': '#8b6d7a',
+                '--border-color': '#3d2d40',
+                '--accent-blue': '#f28c70',
+                '--accent-blue-hover': '#ffa588',
+                '--input-bg': '#18101a',
+                '--card-bg': '#18101a',
+                '--modal-bg': '#1f1520',
+                '--shadow-color': 'rgba(242, 140, 112, 0.15)'
+            }
+        },
+        // Lava - Deep reds and oranges
+        lava: {
+            name: 'Lava',
+            icon: 'flame',
+            category: 'warm',
+            colors: {
+                '--bg-primary': '#1a0f0f',
+                '--bg-secondary': '#120a0a',
+                '--bg-tertiary': '#241515',
+                '--text-primary': '#ff6b6b',
+                '--text-secondary': '#ff4757',
+                '--text-muted': '#8b4545',
+                '--border-color': '#3d2020',
+                '--accent-blue': '#ff4757',
+                '--accent-blue-hover': '#ff6b6b',
+                '--input-bg': '#120a0a',
+                '--card-bg': '#120a0a',
+                '--modal-bg': '#1a0f0f',
+                '--shadow-color': 'rgba(255, 71, 87, 0.2)'
+            }
         }
+    },
+    
+    // Theme categories for organized display
+    themeCategories: {
+        popular: { name: 'Popular', themes: ['oneDarkPro', 'dracula', 'githubDark', 'githubLight', 'tokyoNight'] },
+        classic: { name: 'Classic', themes: ['nightOwl', 'nord', 'catppuccin', 'gruvbox', 'solarized'] },
+        neon: { name: 'Neon & Cyber', themes: ['cyberpunk', 'synthwave', 'neonNoir'] },
+        vintage: { name: 'Retro', themes: ['roaring20s', 'terminal', 'amberCRT'] },
+        nature: { name: 'Nature', themes: ['forest', 'ocean'] },
+        warm: { name: 'Warm', themes: ['sunset', 'lava'] }
     },
 
     currentTheme: 'oneDarkPro',
@@ -259,7 +484,14 @@ const ThemePicker = {
             snow: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line><line x1="20" y1="16" x2="4" y2="8"></line><line x1="20" y1="8" x2="4" y2="16"></line></svg>',
             coffee: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>',
             palette: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"></path></svg>',
-            chevronDown: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>'
+            chevronDown: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>',
+            zap: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>',
+            music: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>',
+            diamond: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0Z"></path></svg>',
+            terminal: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>',
+            tree: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7"></path><path d="M9 22h6"></path><path d="M12 15l-5-5 3.5-.5-1.5-3 4-3 4 3-1.5 3L19 10z"></path></svg>',
+            waves: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>',
+            flame: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>'
         };
         return icons[iconName] || icons.palette;
     },
@@ -277,6 +509,24 @@ const ThemePicker = {
         
         const currentTheme = this.themes[this.currentTheme];
         
+        // Build categorized theme menu
+        let menuContent = '';
+        Object.entries(this.themeCategories).forEach(([catKey, category]) => {
+            menuContent += `<div class="header-theme-category">${category.name}</div>`;
+            category.themes.forEach(themeKey => {
+                const theme = this.themes[themeKey];
+                if (theme) {
+                    menuContent += `
+                        <button class="header-theme-option ${themeKey === this.currentTheme ? 'active' : ''}" data-theme="${themeKey}">
+                            <span class="header-theme-swatch" style="background: ${theme.colors['--bg-primary']}; border-color: ${theme.colors['--accent-blue']};"></span>
+                            <span class="header-theme-name">${theme.name}</span>
+                            ${themeKey === this.currentTheme ? '<span class="header-theme-check">✓</span>' : ''}
+                        </button>
+                    `;
+                }
+            });
+        });
+        
         container.innerHTML = `
             <div class="header-theme-dropdown">
                 <button class="header-theme-btn" id="header-theme-btn" aria-label="Choose theme" title="Choose theme: ${currentTheme.name}">
@@ -284,13 +534,7 @@ const ThemePicker = {
                     ${this.getIcon('chevronDown')}
                 </button>
                 <div class="header-theme-menu" id="header-theme-menu">
-                    ${Object.entries(this.themes).map(([key, theme]) => `
-                        <button class="header-theme-option ${key === this.currentTheme ? 'active' : ''}" data-theme="${key}">
-                            <span class="header-theme-swatch" style="background: ${theme.colors['--bg-primary']}; border-color: ${theme.colors['--border-color']};"></span>
-                            <span class="header-theme-name">${theme.name}</span>
-                            ${key === this.currentTheme ? '<span class="header-theme-check">✓</span>' : ''}
-                        </button>
-                    `).join('')}
+                    ${menuContent}
                 </div>
             </div>
         `;
