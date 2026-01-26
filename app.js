@@ -1009,32 +1009,24 @@ class AssessmentApp {
             </div>
             
             <!-- Phases View Content -->
-            ${this.implPlannerView === 'phases' ? `
-            <div id="impl-phases-content">
+            <div id="impl-phases-content" style="${this.implPlannerView !== 'phases' ? 'display:none' : ''}">
                 ${this.renderPlannerPhaseContent(currentPhase, phaseProgress)}
             </div>
-            ` : ''}
             
             <!-- Project Plan View -->
-            ${this.implPlannerView === 'project-plan' ? `
-            <div class="impl-project-plan-container" id="impl-project-plan-content">
+            <div class="impl-project-plan-container" id="impl-project-plan-content" style="${this.implPlannerView !== 'project-plan' ? 'display:none' : ''}">
                 ${this.renderProjectPlanView(planner, allTasks)}
             </div>
-            ` : ''}
             
             <!-- Kanban View -->
-            ${this.implPlannerView === 'kanban' ? `
-            <div class="impl-kanban-container" id="impl-kanban-content" data-debug-view="kanban">
+            <div class="impl-kanban-container" id="impl-kanban-content" style="${this.implPlannerView !== 'kanban' ? 'display:none' : ''}">
                 ${this.renderPlannerKanban(planner, allTasks)}
             </div>
-            ` : ''}
             
             <!-- List View -->
-            ${this.implPlannerView === 'list' ? `
-            <div class="impl-list-container" id="impl-list-content">
+            <div class="impl-list-container" id="impl-list-content" style="${this.implPlannerView !== 'list' ? 'display:none' : ''}">
                 ${this.renderPlannerList(planner, allTasks)}
             </div>
-            ` : ''}
         `;
         
         console.log('Generated HTML length:', html.length);
