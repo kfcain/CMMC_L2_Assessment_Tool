@@ -1446,6 +1446,22 @@ class AssessmentApp {
                 });
             });
         }
+        
+        // Architecture search functionality
+        const archSearch = container.querySelector('#arch-search-input');
+        if (archSearch) {
+            archSearch.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                container.querySelectorAll('.extras-collapsible').forEach(section => {
+                    const text = section.textContent.toLowerCase();
+                    if (query && !text.includes(query)) {
+                        section.style.display = 'none';
+                    } else {
+                        section.style.display = '';
+                    }
+                });
+            });
+        }
     }
 
     renderControls() {
@@ -4002,10 +4018,47 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         const guidance = typeof ENCLAVE_GUIDANCE !== 'undefined' ? ENCLAVE_GUIDANCE : null;
         if (!guidance) return '<p style="padding:20px;color:var(--text-muted)">Architecture guidance not available.</p>';
 
-        let html = '';
+        const currentCloud = this.implGuideCloud || 'azure';
+        
+        // Build subsection navigation
+        const subsections = [
+            { id: 'arch-decision', name: 'Decision Framework', icon: '🎯' },
+            { id: 'arch-patterns', name: 'Architecture Patterns', icon: '📐' },
+            { id: 'vdi-comparison', name: 'VDI Platforms', icon: '🖥️' },
+            { id: 'cost-optimization', name: 'Cost Optimization', icon: '💰' },
+            { id: 'network-arch', name: 'Network Architecture', icon: '🌐' },
+            { id: 'integration-patterns', name: 'Integration Patterns', icon: '🔗' },
+            { id: 'user-personas', name: 'User Personas', icon: '👥' },
+            { id: 'endpoint-strategy', name: 'Endpoint Strategy', icon: '📱' },
+            { id: 'impl-checklist', name: 'Implementation Checklist', icon: '✅' },
+            { id: 'cloud-security', name: 'Cloud Security (SPA)', icon: '🛡️' }
+        ];
+        
+        // Add VDI deep dive sections if available
+        if (guidance.vdiDeepDive?.avd) subsections.push({ id: 'avd-deep-dive', name: 'AVD Deep Dive', icon: '☁️' });
+        if (guidance.vdiDeepDive?.citrix) subsections.push({ id: 'citrix-deep-dive', name: 'Citrix Deep Dive', icon: '🍊' });
+        if (guidance.vdiDeepDive?.vmwareHorizon) subsections.push({ id: 'vmware-deep-dive', name: 'VMware Horizon', icon: '🔷' });
+        if (guidance.fslogixDeepDive) subsections.push({ id: 'fslogix-deep-dive', name: 'FSLogix Profiles', icon: '📁' });
+        if (guidance.persistentVsNonPersistent) subsections.push({ id: 'persistent-analysis', name: 'Persistent vs Non-Persistent', icon: '🔄' });
+        if (guidance.cmmcVdiDocumentation) subsections.push({ id: 'cmmc-vdi-docs', name: 'CMMC VDI Documentation', icon: '📋' });
+        if (guidance.costManagementDeepDive) subsections.push({ id: 'cost-deep-dive', name: 'Cost Management', icon: '📊' });
+        if (guidance.vdiEndpointsDeepDive) subsections.push({ id: 'endpoints-deep-dive', name: 'VDI Endpoints', icon: '💻' });
+        
+        // Navigation and search
+        let html = `
+            <div class="extras-nav-container">
+                <div class="extras-search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="arch-search-input" placeholder="Search in Reference Architecture..." class="extras-search-input">
+                </div>
+                <div class="extras-subsection-nav">
+                    ${subsections.map(s => `<button class="extras-nav-btn" data-scroll-to="${s.id}"><span class="extras-nav-icon">${s.icon}</span>${s.name}</button>`).join('')}
+                </div>
+            </div>
+        `;
 
         // Architecture Options
-        html += `<div class="impl-section">
+        html += `<div class="impl-section extras-collapsible" id="arch-decision">
             <div class="impl-section-title">Architecture Decision Framework</div>
             <div class="impl-table-container">
                 <table class="impl-table">
@@ -4026,7 +4079,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         </div>`;
 
         // Pros/Cons Detail
-        html += `<div class="impl-section">
+        html += `<div class="impl-section extras-collapsible" id="arch-patterns">
             <div class="impl-section-title">Architecture Pattern Details</div>
             <div class="impl-cards-grid">
                 ${guidance.architectureOptions.map(opt => `
@@ -4048,7 +4101,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         </div>`;
 
         // VDI Platform Comparison
-        html += `<div class="impl-section">
+        html += `<div class="impl-section extras-collapsible" id="vdi-comparison">
             <div class="impl-section-title">VDI Platform Comparison</div>
             <div class="impl-cards-grid">
                 ${Object.values(guidance.vdiPlatforms).map(platform => `
@@ -4075,7 +4128,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         </div>`;
 
         // Cost Optimization
-        html += `<div class="impl-section">
+        html += `<div class="impl-section extras-collapsible" id="cost-optimization">
             <div class="impl-section-title">Cost Optimization Strategies</div>
             <div class="impl-table-container">
                 <table class="impl-table">
@@ -4096,7 +4149,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         </div>`;
 
         // Network Architecture Components
-        html += `<div class="impl-section">
+        html += `<div class="impl-section extras-collapsible" id="network-arch">
             <div class="impl-section-title">Enclave Network Architecture</div>
             <div class="impl-table-container">
                 <table class="impl-table">
@@ -4116,7 +4169,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         </div>`;
 
         // Integration Patterns
-        html += `<div class="impl-section">
+        html += `<div class="impl-section extras-collapsible" id="integration-patterns">
             <div class="impl-section-title">Integration Patterns</div>
             <div class="impl-cards-grid">
                 ${guidance.integrationPatterns.map(pattern => `
@@ -4138,7 +4191,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         </div>`;
 
         // User Personas
-        html += `<div class="impl-section">
+        html += `<div class="impl-section extras-collapsible" id="user-personas">
             <div class="impl-section-title">User Personas & Sizing</div>
             <div class="impl-table-container">
                 <table class="impl-table">
@@ -4159,7 +4212,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         </div>`;
 
         // Endpoint Strategy
-        html += `<div class="impl-section">
+        html += `<div class="impl-section extras-collapsible" id="endpoint-strategy">
             <div class="impl-section-title">Endpoint Strategy</div>
             <div class="impl-cards-grid">
                 ${guidance.endpointStrategy.options.map(opt => `
@@ -4188,7 +4241,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         </div>`;
 
         // Implementation Checklist
-        html += `<div class="impl-section">
+        html += `<div class="impl-section extras-collapsible" id="impl-checklist">
             <div class="impl-section-title">Implementation Checklist</div>
             ${Object.values(guidance.implementationChecklist).map(phase => `
                 <div class="impl-policy-card" style="margin-bottom:12px">
@@ -4206,7 +4259,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         </div>`;
 
         // Reference Architectures
-        html += `<div class="impl-section">
+        html += `<div class="impl-section extras-collapsible" id="ref-architectures">
             <div class="impl-section-title">Reference Architectures</div>
             <div class="impl-cards-grid">
                 ${guidance.networkArchitecture.referenceArchitectures.map(ref => `
@@ -4229,7 +4282,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             // AVD Deep Dive
             if (guidance.vdiDeepDive.avd) {
                 const avd = guidance.vdiDeepDive.avd;
-                html += `<div class="impl-section">
+                html += `<div class="impl-section extras-collapsible" id="avd-deep-dive">
                     <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-blue);padding-bottom:8px">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                         ${avd.name} - Deep Configuration
@@ -4348,7 +4401,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             // Citrix Deep Dive
             if (guidance.vdiDeepDive.citrix) {
                 const citrix = guidance.vdiDeepDive.citrix;
-                html += `<div class="impl-section">
+                html += `<div class="impl-section extras-collapsible" id="citrix-deep-dive">
                     <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-orange);padding-bottom:8px">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                         ${citrix.name} - Deep Configuration
@@ -4412,7 +4465,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             // VMware Horizon Deep Dive
             if (guidance.vdiDeepDive.vmwareHorizon) {
                 const vmware = guidance.vdiDeepDive.vmwareHorizon;
-                html += `<div class="impl-section">
+                html += `<div class="impl-section extras-collapsible" id="vmware-deep-dive">
                     <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-green);padding-bottom:8px">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                         ${vmware.name} - Deep Configuration
@@ -4462,7 +4515,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // =============================================
         if (guidance.fslogixDeepDive) {
             const fsl = guidance.fslogixDeepDive;
-            html += `<div class="impl-section">
+            html += `<div class="impl-section extras-collapsible" id="fslogix-deep-dive">
                 <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-purple);padding-bottom:8px">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                     FSLogix Profile Management - Deep Dive
@@ -4538,7 +4591,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // =============================================
         if (guidance.persistentVsNonPersistent) {
             const pvnp = guidance.persistentVsNonPersistent;
-            html += `<div class="impl-section">
+            html += `<div class="impl-section extras-collapsible" id="persistent-analysis">
                 <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-green);padding-bottom:8px">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
                     Persistent vs Non-Persistent VDI Analysis
@@ -4645,7 +4698,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // =============================================
         if (guidance.cmmcVdiDocumentation) {
             const cmmc = guidance.cmmcVdiDocumentation;
-            html += `<div class="impl-section">
+            html += `<div class="impl-section extras-collapsible" id="cmmc-vdi-docs">
                 <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-orange);padding-bottom:8px">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     CMMC Documentation for VDI Environments
@@ -4818,7 +4871,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // =============================================
         if (guidance.costManagementDeepDive) {
             const cost = guidance.costManagementDeepDive;
-            html += `<div class="impl-section">
+            html += `<div class="impl-section extras-collapsible" id="cost-deep-dive">
                 <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-blue);padding-bottom:8px">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                     VDI Cost Management Strategies
@@ -4895,7 +4948,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // =============================================
         if (guidance.vdiEndpointsDeepDive) {
             const endpoints = guidance.vdiEndpointsDeepDive;
-            html += `<div class="impl-section">
+            html += `<div class="impl-section extras-collapsible" id="endpoints-deep-dive">
                 <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-purple);padding-bottom:8px">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                     VDI Endpoints - Hardware & Software
@@ -5100,6 +5153,200 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 </div>
             </div>`;
         }
+
+        // =============================================
+        // CLOUD SECURITY (SPA) - Security Protection Assets
+        // =============================================
+        const cloudName = this.implGuideCloud === 'aws' ? 'AWS GovCloud' : this.implGuideCloud === 'gcp' ? 'GCP Assured Workloads' : 'Azure GCC High';
+        html += `<div class="impl-section extras-collapsible" id="cloud-security">
+            <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid #22c55e;padding-bottom:8px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Cloud Security as Security Protection Assets (${cloudName})
+            </div>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">Cloud-native security services function as Security Protection Assets (SPAs) that support CMMC L2 assessment objectives. These services provide the technical controls necessary to protect, detect, and respond to threats against CUI.</p>
+            
+            <!-- SPA Categories -->
+            <div class="impl-cards-grid" style="margin-bottom:20px">
+                <div class="impl-policy-card">
+                    <div class="impl-policy-header" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)"><h4>Identity & Access Management</h4></div>
+                    <div class="impl-policy-body">
+                        <p style="font-size:0.75rem;margin-bottom:8px"><strong>CMMC Controls:</strong> AC.L2-3.1.1, AC.L2-3.1.2, AC.L2-3.1.5, IA.L2-3.5.3</p>
+                        ${this.implGuideCloud === 'azure' ? `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>Entra ID (Azure AD)</strong> - Centralized identity provider with Conditional Access</li>
+                                <li><strong>Privileged Identity Management (PIM)</strong> - Just-in-time privileged access</li>
+                                <li><strong>Azure AD MFA</strong> - FIDO2, Authenticator app, hardware tokens</li>
+                                <li><strong>Access Reviews</strong> - Periodic attestation of user access</li>
+                            </ul>
+                        ` : this.implGuideCloud === 'aws' ? `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>IAM Identity Center</strong> - SSO and centralized identity management</li>
+                                <li><strong>IAM Roles</strong> - Least privilege access with assume role</li>
+                                <li><strong>MFA</strong> - Virtual/hardware MFA for IAM users</li>
+                                <li><strong>Organizations SCPs</strong> - Preventive guardrails</li>
+                            </ul>
+                        ` : `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>Cloud Identity</strong> - SSO and identity management</li>
+                                <li><strong>IAM Conditions</strong> - Context-aware access control</li>
+                                <li><strong>BeyondCorp Enterprise</strong> - Zero trust access</li>
+                                <li><strong>2-Step Verification</strong> - Hardware security keys</li>
+                            </ul>
+                        `}
+                    </div>
+                </div>
+                
+                <div class="impl-policy-card">
+                    <div class="impl-policy-header" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><h4>Network Security</h4></div>
+                    <div class="impl-policy-body">
+                        <p style="font-size:0.75rem;margin-bottom:8px"><strong>CMMC Controls:</strong> SC.L2-3.13.1, SC.L2-3.13.5, SC.L2-3.13.6</p>
+                        ${this.implGuideCloud === 'azure' ? `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>Azure Firewall Premium</strong> - TLS inspection, IDPS, threat intel</li>
+                                <li><strong>Network Security Groups</strong> - Stateful packet filtering</li>
+                                <li><strong>Private Endpoints</strong> - Private connectivity to PaaS</li>
+                                <li><strong>DDoS Protection</strong> - Volumetric attack mitigation</li>
+                            </ul>
+                        ` : this.implGuideCloud === 'aws' ? `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>Network Firewall</strong> - Stateful inspection with IPS</li>
+                                <li><strong>Security Groups/NACLs</strong> - Layer 3/4 filtering</li>
+                                <li><strong>PrivateLink</strong> - Private connectivity to services</li>
+                                <li><strong>WAF</strong> - Web application firewall rules</li>
+                            </ul>
+                        ` : `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>Cloud Armor</strong> - WAF and DDoS protection</li>
+                                <li><strong>VPC Firewall Rules</strong> - Network segmentation</li>
+                                <li><strong>Private Google Access</strong> - Private API access</li>
+                                <li><strong>Cloud NAT</strong> - Controlled egress</li>
+                            </ul>
+                        `}
+                    </div>
+                </div>
+                
+                <div class="impl-policy-card">
+                    <div class="impl-policy-header" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"><h4>Data Protection</h4></div>
+                    <div class="impl-policy-body">
+                        <p style="font-size:0.75rem;margin-bottom:8px"><strong>CMMC Controls:</strong> SC.L2-3.13.8, SC.L2-3.13.11, SC.L2-3.13.16</p>
+                        ${this.implGuideCloud === 'azure' ? `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>Azure Key Vault (HSM)</strong> - FIPS 140-2 L3 key management</li>
+                                <li><strong>Storage Service Encryption</strong> - CMK encryption at rest</li>
+                                <li><strong>Microsoft Purview</strong> - Data classification & DLP</li>
+                                <li><strong>Azure Information Protection</strong> - Document encryption</li>
+                            </ul>
+                        ` : this.implGuideCloud === 'aws' ? `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>KMS (CloudHSM)</strong> - FIPS 140-2 L3 key management</li>
+                                <li><strong>S3 Encryption</strong> - SSE-KMS with CMK</li>
+                                <li><strong>Macie</strong> - Data classification for S3</li>
+                                <li><strong>Secrets Manager</strong> - Credential rotation</li>
+                            </ul>
+                        ` : `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>Cloud KMS/HSM</strong> - Customer-managed encryption keys</li>
+                                <li><strong>CMEK</strong> - Encryption with customer keys</li>
+                                <li><strong>DLP API</strong> - Sensitive data detection</li>
+                                <li><strong>Secret Manager</strong> - Secret storage & rotation</li>
+                            </ul>
+                        `}
+                    </div>
+                </div>
+                
+                <div class="impl-policy-card">
+                    <div class="impl-policy-header" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><h4>Threat Detection & Response</h4></div>
+                    <div class="impl-policy-body">
+                        <p style="font-size:0.75rem;margin-bottom:8px"><strong>CMMC Controls:</strong> SI.L2-3.14.1, SI.L2-3.14.2, SI.L2-3.14.6, SI.L2-3.14.7</p>
+                        ${this.implGuideCloud === 'azure' ? `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>Microsoft Defender for Cloud</strong> - CSPM & workload protection</li>
+                                <li><strong>Microsoft Sentinel</strong> - Cloud-native SIEM/SOAR</li>
+                                <li><strong>Defender for Endpoint</strong> - EDR for VMs</li>
+                                <li><strong>Azure Monitor</strong> - Centralized logging & alerting</li>
+                            </ul>
+                        ` : this.implGuideCloud === 'aws' ? `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>Security Hub</strong> - Centralized security findings</li>
+                                <li><strong>GuardDuty</strong> - Threat detection service</li>
+                                <li><strong>Inspector</strong> - Vulnerability scanning</li>
+                                <li><strong>CloudWatch/CloudTrail</strong> - Logging & monitoring</li>
+                            </ul>
+                        ` : `
+                            <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                                <li><strong>Security Command Center</strong> - Centralized security</li>
+                                <li><strong>Event Threat Detection</strong> - Runtime threat detection</li>
+                                <li><strong>Web Security Scanner</strong> - Vulnerability scanning</li>
+                                <li><strong>Cloud Logging</strong> - Audit & access logs</li>
+                            </ul>
+                        `}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SPA Best Practices Table -->
+            <h4 style="margin:16px 0 8px;color:#22c55e">Security Protection Asset Configuration Best Practices</h4>
+            <div class="impl-table-container">
+                <table class="impl-table">
+                    <thead><tr><th>Category</th><th>Best Practice</th><th>CMMC Relevance</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Encryption</strong></td>
+                            <td>Use customer-managed keys (CMK) for all CUI data at rest; enforce TLS 1.2+ for data in transit</td>
+                            <td>SC.L2-3.13.8, SC.L2-3.13.11</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Network Segmentation</strong></td>
+                            <td>Isolate CUI workloads in dedicated VNets/VPCs with explicit deny-all default policies</td>
+                            <td>SC.L2-3.13.1, SC.L2-3.13.5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Identity</strong></td>
+                            <td>Enforce MFA for all users; use PIM/JIT for privileged access; regular access reviews</td>
+                            <td>AC.L2-3.1.5, IA.L2-3.5.3</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Logging</strong></td>
+                            <td>Enable audit logging for all services; retain logs 1+ year; immutable storage</td>
+                            <td>AU.L2-3.3.1, AU.L2-3.3.2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vulnerability Mgmt</strong></td>
+                            <td>Enable continuous vulnerability scanning; remediate critical within 15 days</td>
+                            <td>RA.L2-3.11.2, RA.L2-3.11.3</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Malware Protection</strong></td>
+                            <td>Deploy EDR on all compute; enable real-time scanning; automated response</td>
+                            <td>SI.L2-3.14.1, SI.L2-3.14.2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Backup</strong></td>
+                            <td>Automated backups with CMK encryption; test restoration quarterly; offsite copy</td>
+                            <td>CP.L2-3.8.9, MP.L2-3.8.9</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- SPA Inventory Checklist -->
+            <h4 style="margin:20px 0 8px;color:#22c55e">Security Protection Asset Inventory Checklist</h4>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">Document these SPAs in your System Security Plan (SSP) and include them in your asset inventory.</p>
+            <div class="impl-table-container">
+                <table class="impl-table">
+                    <thead><tr><th>Asset Type</th><th>Service Name</th><th>Boundary</th><th>Owner</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr><td>Identity Provider</td><td>${this.implGuideCloud === 'azure' ? 'Entra ID' : this.implGuideCloud === 'aws' ? 'IAM Identity Center' : 'Cloud Identity'}</td><td>System-wide</td><td>IT Security</td><td><input type="checkbox"> Documented</td></tr>
+                        <tr><td>SIEM/Log Aggregator</td><td>${this.implGuideCloud === 'azure' ? 'Microsoft Sentinel' : this.implGuideCloud === 'aws' ? 'Security Hub + CloudWatch' : 'Chronicle/Cloud Logging'}</td><td>System-wide</td><td>SOC</td><td><input type="checkbox"> Documented</td></tr>
+                        <tr><td>Key Management</td><td>${this.implGuideCloud === 'azure' ? 'Azure Key Vault HSM' : this.implGuideCloud === 'aws' ? 'KMS/CloudHSM' : 'Cloud KMS/HSM'}</td><td>CUI Enclave</td><td>IT Security</td><td><input type="checkbox"> Documented</td></tr>
+                        <tr><td>Firewall</td><td>${this.implGuideCloud === 'azure' ? 'Azure Firewall Premium' : this.implGuideCloud === 'aws' ? 'Network Firewall' : 'Cloud Armor + VPC Firewall'}</td><td>Enclave Perimeter</td><td>Network Team</td><td><input type="checkbox"> Documented</td></tr>
+                        <tr><td>EDR/Antimalware</td><td>${this.implGuideCloud === 'azure' ? 'Defender for Endpoint' : this.implGuideCloud === 'aws' ? 'Inspector + GuardDuty' : 'SCC + Event Threat Detection'}</td><td>All Compute</td><td>IT Security</td><td><input type="checkbox"> Documented</td></tr>
+                        <tr><td>Vulnerability Scanner</td><td>${this.implGuideCloud === 'azure' ? 'Defender for Cloud' : this.implGuideCloud === 'aws' ? 'Inspector' : 'Security Health Analytics'}</td><td>All Resources</td><td>IT Security</td><td><input type="checkbox"> Documented</td></tr>
+                        <tr><td>Backup Service</td><td>${this.implGuideCloud === 'azure' ? 'Azure Backup' : this.implGuideCloud === 'aws' ? 'AWS Backup' : 'Cloud Storage + Snapshots'}</td><td>CUI Data</td><td>IT Ops</td><td><input type="checkbox"> Documented</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>`;
 
         return html;
     }
