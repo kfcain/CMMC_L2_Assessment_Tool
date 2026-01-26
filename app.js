@@ -1567,6 +1567,7 @@ class AssessmentApp {
         container.querySelectorAll('.impl-view-toggle button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const view = e.currentTarget.dataset.view;
+                console.log('View button clicked:', view);
                 this.implPlannerView = view;
                 localStorage.setItem('impl-planner-view', this.implPlannerView);
                 
@@ -1578,12 +1579,16 @@ class AssessmentApp {
                 
                 // Show selected view
                 if (view === 'phases') {
+                    console.log('Showing phases view');
                     document.getElementById('impl-phases-content').style.display = 'block';
                 } else if (view === 'project-plan') {
+                    console.log('Showing project-plan view');
                     document.getElementById('impl-project-plan-content').style.display = 'block';
                 } else if (view === 'kanban') {
+                    console.log('Showing kanban view');
                     document.getElementById('impl-kanban-content').style.display = 'block';
                 } else if (view === 'list') {
+                    console.log('Showing list view');
                     document.getElementById('impl-list-content').style.display = 'block';
                 }
                 
