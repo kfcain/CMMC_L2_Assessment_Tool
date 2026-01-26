@@ -2,9 +2,9 @@
 // POA&M Eligibility per 32 CFR 170.21
 
 const SPRS_SCORING = {
-    // Point values per requirement (1, 3, or 5 based on criticality)
+    // Point values per DoD Assessment Methodology v1.2.1 (Total: 313, Range: 110 to -203)
     pointValues: {
-        // Access Control (AC)
+        // Access Control (AC) - Total: 71
         "3.1.1": 5,   // Limit system access
         "3.1.2": 5,   // Limit access to functions
         "3.1.3": 5,   // Control CUI flow
@@ -12,12 +12,12 @@ const SPRS_SCORING = {
         "3.1.5": 5,   // Least privilege
         "3.1.6": 1,   // Non-privileged accounts for nonsecurity functions
         "3.1.7": 5,   // Prevent non-privileged users from executing privileged functions
-        "3.1.8": 1,   // Limit unsuccessful logon attempts
-        "3.1.9": 1,   // Privacy and security notices
-        "3.1.10": 1,  // Session lock
-        "3.1.11": 1,  // Session termination
-        "3.1.12": 3,  // Monitor and control remote access
-        "3.1.13": 3,  // Cryptographic protection for remote access
+        "3.1.8": 3,   // Limit unsuccessful logon attempts
+        "3.1.9": 3,   // Privacy and security notices
+        "3.1.10": 3,  // Session lock
+        "3.1.11": 3,  // Session termination
+        "3.1.12": 5,  // Monitor and control remote access
+        "3.1.13": 5,  // Cryptographic protection for remote access
         "3.1.14": 3,  // Route remote access via managed access points
         "3.1.15": 1,  // Authorize remote execution of privileged commands
         "3.1.16": 1,  // Authorize wireless access
@@ -28,36 +28,36 @@ const SPRS_SCORING = {
         "3.1.21": 1,  // Limit portable storage on external systems
         "3.1.22": 5,  // Control public information (CANNOT be on POA&M)
 
-        // Awareness and Training (AT)
-        "3.2.1": 1,   // Security awareness
-        "3.2.2": 1,   // Role-based training
-        "3.2.3": 1,   // Insider threat awareness
+        // Awareness and Training (AT) - Total: 9
+        "3.2.1": 3,   // Security awareness
+        "3.2.2": 3,   // Role-based training
+        "3.2.3": 3,   // Insider threat awareness
 
-        // Audit and Accountability (AU)
-        "3.3.1": 3,   // Create and retain audit logs
-        "3.3.2": 3,   // User accountability
-        "3.3.3": 1,   // Review and update logged events
-        "3.3.4": 1,   // Audit failure alerting
+        // Audit and Accountability (AU) - Total: 27
+        "3.3.1": 5,   // Create and retain audit logs
+        "3.3.2": 5,   // User accountability
+        "3.3.3": 3,   // Review and update logged events
+        "3.3.4": 3,   // Audit failure alerting
         "3.3.5": 1,   // Audit record correlation
         "3.3.6": 1,   // Audit reduction and reporting
-        "3.3.7": 1,   // Authoritative time source
+        "3.3.7": 3,   // Authoritative time source
         "3.3.8": 3,   // Protect audit information
-        "3.3.9": 1,   // Limit audit management
+        "3.3.9": 3,   // Limit audit management
 
-        // Configuration Management (CM)
-        "3.4.1": 3,   // Baseline configurations
-        "3.4.2": 3,   // Security configuration settings
+        // Configuration Management (CM) - Total: 27
+        "3.4.1": 5,   // Baseline configurations
+        "3.4.2": 5,   // Security configuration settings
         "3.4.3": 1,   // Track system changes
         "3.4.4": 1,   // Security impact analysis
         "3.4.5": 3,   // Access restrictions for change
         "3.4.6": 3,   // Least functionality
         "3.4.7": 3,   // Nonessential functionality
-        "3.4.8": 3,   // Application execution policy
+        "3.4.8": 5,   // Application execution policy
         "3.4.9": 1,   // User-installed software
 
-        // Identification and Authentication (IA)
-        "3.5.1": 3,   // Identify users, processes, devices
-        "3.5.2": 3,   // Authenticate identities
+        // Identification and Authentication (IA) - Total: 29
+        "3.5.1": 5,   // Identify users, processes, devices
+        "3.5.2": 5,   // Authenticate identities
         "3.5.3": 5,   // Multifactor authentication
         "3.5.4": 3,   // Replay-resistant authentication
         "3.5.5": 1,   // Identifier reuse
@@ -66,81 +66,81 @@ const SPRS_SCORING = {
         "3.5.8": 1,   // Password reuse
         "3.5.9": 1,   // Temporary passwords
         "3.5.10": 3,  // Cryptographic password protection
-        "3.5.11": 1,  // Obscure authentication feedback
+        "3.5.11": 3,  // Obscure authentication feedback
 
-        // Incident Response (IR)
+        // Incident Response (IR) - Total: 9
         "3.6.1": 3,   // Incident handling capability
         "3.6.2": 3,   // Track, document, report incidents
-        "3.6.3": 1,   // Test incident response
+        "3.6.3": 3,   // Test incident response
 
-        // Maintenance (MA)
+        // Maintenance (MA) - Total: 12
         "3.7.1": 1,   // Perform maintenance
-        "3.7.2": 1,   // Maintenance controls
+        "3.7.2": 3,   // Maintenance controls
         "3.7.3": 1,   // Sanitize equipment for off-site maintenance
-        "3.7.4": 1,   // Check maintenance media
+        "3.7.4": 3,   // Check maintenance media
         "3.7.5": 3,   // MFA for nonlocal maintenance
         "3.7.6": 1,   // Supervise maintenance personnel
 
-        // Media Protection (MP)
-        "3.8.1": 1,   // Protect system media
-        "3.8.2": 1,   // Limit media access
+        // Media Protection (MP) - Total: 21
+        "3.8.1": 3,   // Protect system media
+        "3.8.2": 3,   // Limit media access
         "3.8.3": 3,   // Sanitize media
         "3.8.4": 1,   // Mark media
         "3.8.5": 1,   // Control media transport
         "3.8.6": 3,   // Encrypt CUI on media during transport
         "3.8.7": 1,   // Control removable media
         "3.8.8": 1,   // Prohibit unowned portable storage
-        "3.8.9": 3,   // Protect backup CUI
+        "3.8.9": 5,   // Protect backup CUI
 
-        // Personnel Security (PS)
+        // Personnel Security (PS) - Total: 2
         "3.9.1": 1,   // Screen individuals
         "3.9.2": 1,   // Protect during personnel actions
 
-        // Physical Protection (PE)
-        "3.10.1": 1,  // Limit physical access
-        "3.10.2": 1,  // Protect and monitor facility
+        // Physical Protection (PE) - Total: 12
+        "3.10.1": 3,  // Limit physical access
+        "3.10.2": 3,  // Protect and monitor facility
         "3.10.3": 1,  // Escort visitors (CANNOT be on POA&M)
         "3.10.4": 1,  // Physical access logs (CANNOT be on POA&M)
         "3.10.5": 1,  // Manage physical access (CANNOT be on POA&M)
-        "3.10.6": 1,  // Alternate work site safeguards
+        "3.10.6": 3,  // Alternate work site safeguards
 
-        // Risk Assessment (RA)
-        "3.11.1": 1,  // Periodic risk assessment
+        // Risk Assessment (RA) - Total: 9
+        "3.11.1": 3,  // Periodic risk assessment
         "3.11.2": 3,  // Vulnerability scanning
         "3.11.3": 3,  // Vulnerability remediation
 
-        // Security Assessment (CA)
-        "3.12.1": 1,  // Assess security controls
-        "3.12.2": 1,  // Plan of action
-        "3.12.3": 1,  // Continuous monitoring
+        // Security Assessment (CA) - Total: 14
+        "3.12.1": 3,  // Assess security controls
+        "3.12.2": 3,  // Plan of action
+        "3.12.3": 3,  // Continuous monitoring
         "3.12.4": 5,  // System Security Plan (CANNOT be on POA&M)
 
-        // System and Communications Protection (SC)
+        // System and Communications Protection (SC) - Total: 56
         "3.13.1": 5,  // Boundary protection
         "3.13.2": 3,  // Security engineering principles
         "3.13.3": 3,  // Separate user/system functionality
         "3.13.4": 3,  // Prevent unauthorized info transfer
         "3.13.5": 5,  // Public access subnetworks
         "3.13.6": 5,  // Deny by default
-        "3.13.7": 3,  // Split tunneling
+        "3.13.7": 5,  // Split tunneling
         "3.13.8": 5,  // CUI transmission encryption
         "3.13.9": 1,  // Network connection termination
         "3.13.10": 3, // Cryptographic key management
         "3.13.11": 3, // FIPS-validated cryptography (special POA&M exception)
         "3.13.12": 1, // Collaborative device control
-        "3.13.13": 1, // Mobile code control
-        "3.13.14": 1, // VoIP control
+        "3.13.13": 3, // Mobile code control
+        "3.13.14": 3, // VoIP control
         "3.13.15": 3, // Session authenticity
         "3.13.16": 5, // CUI at rest encryption
 
-        // System and Information Integrity (SI)
+        // System and Information Integrity (SI) - Total: 31
         "3.14.1": 5,  // Flaw remediation
         "3.14.2": 5,  // Malicious code protection
-        "3.14.3": 3,  // Security alerts
+        "3.14.3": 5,  // Security alerts
         "3.14.4": 3,  // Update malicious code protection
         "3.14.5": 3,  // System scanning
         "3.14.6": 5,  // Monitor system traffic
-        "3.14.7": 3   // Identify unauthorized use
+        "3.14.7": 5   // Identify unauthorized use
     },
 
     // Requirements that CANNOT be on POA&M per 32 CFR 170.21(a)(2)(iii)
