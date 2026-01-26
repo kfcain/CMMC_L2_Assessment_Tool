@@ -180,7 +180,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1b-1-1",
                             name: "Develop Access Control Policy",
                             description: "Create comprehensive access control policies and procedures",
-                            controls: ["3.1.1", "3.1.2", "3.5.1", "3.5.2"],
+                            controls: ["3.1.1[a-f]", "3.1.2[a-b]", "3.5.1[a-c]", "3.5.2[a-c]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
@@ -235,7 +235,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1b-1-3",
                             name: "Develop Mobile Device Management Policy",
                             description: "Create MDM policies for mobile devices and telework",
-                            controls: ["3.1.18", "3.1.19", "3.5.1", "3.5.2"],
+                            controls: ["3.1.18[a-c]", "3.1.19[a-b]", "3.5.1[a-c]", "3.5.2[a-c]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -262,7 +262,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1b-1-4",
                             name: "Develop Acceptable Use Policy",
                             description: "Create acceptable use policies for systems and data",
-                            controls: ["3.4.7", "3.4.8", "3.4.9", "3.14.7"],
+                            controls: ["3.4.7[a-o]", "3.4.8[a-c]", "3.4.9[a-c]", "3.14.7[a-b]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -825,7 +825,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1b-7-1",
                             name: "Create Communications Policy",
                             description: "Ensure CUI is not posted publicly",
-                            controls: ["3.1.22"],
+                            controls: ["3.1.22[a-e]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -899,7 +899,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t2-1-1",
                             name: "Deploy identity provider",
                             description: "Implement centralized IdP (Entra ID, Okta, etc.)",
-                            controls: ["3.5.1", "3.5.2"],
+                            controls: ["3.5.1[a-c]", "3.5.2[a-c]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
@@ -933,7 +933,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t2-1-2",
                             name: "Enable MFA for all users",
                             description: "Require multi-factor authentication for all access",
-                            controls: ["3.5.3"],
+                            controls: ["3.5.3[a-d]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
