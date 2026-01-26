@@ -1589,6 +1589,10 @@ class AssessmentApp {
                     document.getElementById('impl-kanban-content').style.display = 'block';
                 } else if (view === 'list') {
                     console.log('Showing list view');
+                    const listContainer = document.getElementById('impl-list-content');
+                    console.log('List container exists:', !!listContainer);
+                    console.log('List container HTML length:', listContainer ? listContainer.innerHTML.length : 0);
+                    console.log('List container HTML preview:', listContainer ? listContainer.innerHTML.substring(0, 100) : 'N/A');
                     document.getElementById('impl-list-content').style.display = 'block';
                 }
                 
