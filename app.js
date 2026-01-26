@@ -854,24 +854,7 @@ class AssessmentApp {
         } else if (view === 'impl-guide') {
             this.renderImplGuideView();
         } else if (view === 'impl-planner') {
-            // Load implementation planner scripts if needed, then render
-            if (window.LazyLoader && !this.implPlannerScriptsLoaded) {
-                try {
-                    await window.LazyLoader.loadViewScripts('impl-planner');
-                    this.implPlannerScriptsLoaded = true;
-                    // Wait a bit for scripts to initialize
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    this.renderImplPlanner();
-                } catch (e) {
-                    console.error('Failed to load implementation planner scripts:', e);
-                    const container = document.getElementById('impl-planner-content');
-                    if (container) {
-                        container.innerHTML = '<p style="padding:40px;text-align:center;color:var(--text-muted)">Failed to load Implementation Planner. Please refresh the page.</p>';
-                    }
-                }
-            } else {
-                this.renderImplPlanner();
-            }
+            this.renderImplPlanner();
         } else if (view === 'osc-inventory') {
             this.renderOSCInventory();
         }
