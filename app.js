@@ -1266,9 +1266,11 @@ class AssessmentApp {
     }
     
     renderPlannerKanban(planner, allTasks) {
+        console.log('Kanban: allTasks.length =', allTasks.length);
         const todo = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority === 'critical');
         const inProgress = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority !== 'critical');
         const done = allTasks.filter(t => this.implPlannerProgress[t.id]);
+        console.log('Kanban: todo =', todo.length, 'inProgress =', inProgress.length, 'done =', done.length);
         
         return `
             <div class="impl-kanban-column">
@@ -1315,6 +1317,7 @@ class AssessmentApp {
     }
     
     renderPlannerList(planner, allTasks) {
+        console.log('List: allTasks.length =', allTasks.length);
         return `
             <div class="impl-list-container">
                 <table class="impl-list-table">
