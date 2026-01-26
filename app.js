@@ -357,6 +357,15 @@ class AssessmentApp {
             });
         });
 
+        // Header Branding - Click to go to Dashboard
+        const headerBranding = document.getElementById('header-branding');
+        headerBranding?.addEventListener('click', () => {
+            this.switchView('dashboard');
+            // Update active state in hamburger menu
+            document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.hamburger-nav-btn[data-view="dashboard"]')?.classList.add('active');
+        });
+
         // Legacy Sidebar Navigation
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
