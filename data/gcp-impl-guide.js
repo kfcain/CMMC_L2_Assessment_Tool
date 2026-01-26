@@ -150,7 +150,192 @@ const GCP_IMPL_GUIDE = {
             "Automatic Organization Policy application"
         ],
         note: "Assured Workloads is required for ITAR compliance on GCP."
-    }
+    },
+
+    // Native Services by Control Family
+    servicesByFamily: {
+        "Access Control (AC)": {
+            native: [
+                { service: "Cloud Identity", type: "Identity Provider", purpose: "User/group management, SSO, directory sync" },
+                { service: "Cloud IAM", type: "Authorization", purpose: "Roles, policies, least-privilege access" },
+                { service: "Organization Policies", type: "Guardrails", purpose: "Organization-wide constraints and restrictions" },
+                { service: "Identity-Aware Proxy (IAP)", type: "Zero Trust", purpose: "Context-aware access to applications" },
+                { service: "BeyondCorp Enterprise", type: "ZTNA", purpose: "Zero-trust network access, device trust" }
+            ],
+            thirdParty: [
+                { service: "Cisco Duo", type: "MFA", fedramp: "High", assetType: "Security Protection Asset", purpose: "Hardware tokens, push notifications, adaptive MFA" },
+                { service: "Okta (Fed)", type: "Identity Provider", fedramp: "High", assetType: "Security Protection Asset", purpose: "SSO, lifecycle management, SAML federation" },
+                { service: "CyberArk", type: "PAM", fedramp: "High", assetType: "Security Protection Asset", purpose: "Privileged credential vaulting, session recording" },
+                { service: "BeyondTrust", type: "PAM", fedramp: "High", assetType: "Security Protection Asset", purpose: "Privileged remote access, password management" }
+            ]
+        },
+        "Awareness & Training (AT)": {
+            native: [
+                { service: "Google Cloud Skills Boost", type: "Training", purpose: "GCP security training and certifications" }
+            ],
+            thirdParty: [
+                { service: "KnowBe4", type: "Security Awareness", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Phishing simulation, security training modules" },
+                { service: "Proofpoint", type: "Security Awareness", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Security awareness training, threat simulation" },
+                { service: "SANS Security Awareness", type: "Training", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Role-based security training content" }
+            ]
+        },
+        "Audit & Accountability (AU)": {
+            native: [
+                { service: "Cloud Audit Logs", type: "Audit Logging", purpose: "Admin Activity, Data Access, System Event logs" },
+                { service: "Cloud Logging", type: "Log Management", purpose: "Log aggregation, queries, alerting" },
+                { service: "Chronicle SIEM", type: "SIEM", purpose: "Security analytics, threat detection, YARA-L rules" },
+                { service: "Cloud Storage (logs)", type: "Log Retention", purpose: "Immutable log storage with retention lock" }
+            ],
+            thirdParty: [
+                { service: "Splunk (GovCloud)", type: "SIEM", fedramp: "High", assetType: "Security Protection Asset", purpose: "Log management, security analytics, dashboards" },
+                { service: "Elastic (GovCloud)", type: "SIEM", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Log aggregation, search, visualization" },
+                { service: "Sumo Logic (Fed)", type: "SIEM", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Cloud-native log analytics" }
+            ]
+        },
+        "Configuration Management (CM)": {
+            native: [
+                { service: "Organization Policy Service", type: "Compliance", purpose: "Resource constraints, guardrails" },
+                { service: "Security Health Analytics", type: "CSPM", purpose: "Misconfiguration detection, recommendations" },
+                { service: "Config Connector", type: "IaC", purpose: "Kubernetes-style resource management" },
+                { service: "Cloud Asset Inventory", type: "Asset Management", purpose: "Resource inventory, change history" }
+            ],
+            thirdParty: [
+                { service: "Tenable.io (Fed)", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Vulnerability scanning, configuration assessment" },
+                { service: "Qualys (Fed)", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Asset inventory, vulnerability scanning" },
+                { service: "Wiz", type: "CNAPP", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Cloud security posture, vulnerability management" }
+            ]
+        },
+        "Identification & Authentication (IA)": {
+            native: [
+                { service: "2-Step Verification", type: "MFA", purpose: "TOTP, push, security keys" },
+                { service: "Titan Security Keys", type: "Hardware Token", purpose: "FIDO2 phishing-resistant authentication" },
+                { service: "Cloud KMS", type: "Key Management", purpose: "FIPS 140-2 Level 3 HSM-backed keys" },
+                { service: "Secret Manager", type: "Secrets Management", purpose: "API keys, passwords, certificates" }
+            ],
+            thirdParty: [
+                { service: "Yubico YubiKey", type: "Hardware Token", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "FIDO2 security keys, PIV smart cards" },
+                { service: "RSA SecurID", type: "MFA", fedramp: "High", assetType: "Security Protection Asset", purpose: "Hardware/software tokens, risk-based auth" },
+                { service: "Thales SafeNet", type: "PKI/HSM", fedramp: "High", assetType: "Security Protection Asset", purpose: "HSM, certificate management" }
+            ]
+        },
+        "Incident Response (IR)": {
+            native: [
+                { service: "Security Command Center", type: "Security Posture", purpose: "Centralized findings, threat detection" },
+                { service: "Chronicle SIEM", type: "SIEM/SOAR", purpose: "Detection rules, playbooks, investigation" },
+                { service: "Cloud Pub/Sub", type: "Event Routing", purpose: "Real-time alerting, automation triggers" },
+                { service: "Event Threat Detection", type: "Threat Detection", purpose: "Malware, cryptomining, exfiltration detection" }
+            ],
+            thirdParty: [
+                { service: "CrowdStrike Falcon", type: "EDR", fedramp: "High", assetType: "Security Protection Asset", purpose: "Endpoint detection, threat hunting, IR" },
+                { service: "Palo Alto Cortex XSOAR", type: "SOAR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Playbook automation, case management" },
+                { service: "ServiceNow SecOps", type: "ITSM/SOAR", fedramp: "High", assetType: "Security Protection Asset", purpose: "Security incident management, workflows" }
+            ]
+        },
+        "Maintenance (MA)": {
+            native: [
+                { service: "OS Patch Management", type: "Patch Management", purpose: "Automated VM patching via OS Config" },
+                { service: "Identity-Aware Proxy", type: "Remote Access", purpose: "Secure access without VPN" },
+                { service: "Cloud Shell", type: "Admin Access", purpose: "Browser-based CLI with audit logging" }
+            ],
+            thirdParty: [
+                { service: "Ivanti", type: "Patch Management", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Patch management, endpoint security" },
+                { service: "ManageEngine", type: "IT Management", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Patch management, remote support" }
+            ]
+        },
+        "Media Protection (MP)": {
+            native: [
+                { service: "Cloud KMS", type: "Encryption", purpose: "CMEK encryption, key rotation" },
+                { service: "Cloud DLP", type: "Data Classification", purpose: "CUI discovery, redaction, de-identification" },
+                { service: "Persistent Disk Encryption", type: "Disk Encryption", purpose: "CMEK for VM disks" },
+                { service: "Cloud Storage Encryption", type: "Object Encryption", purpose: "Server-side encryption with CMEK" }
+            ],
+            thirdParty: [
+                { service: "Virtru", type: "Email Encryption", fedramp: "Moderate", assetType: "CUI Asset", purpose: "End-to-end email encryption, key management" },
+                { service: "Digital Guardian", type: "DLP", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Data loss prevention, endpoint DLP" },
+                { service: "IronKey", type: "Encrypted Storage", fedramp: "N/A", assetType: "CUI Asset", purpose: "FIPS 140-2 encrypted USB drives" }
+            ]
+        },
+        "Physical Protection (PE)": {
+            native: [
+                { service: "Google Datacenter (Inherited)", type: "Physical Security", purpose: "Google manages physical datacenter security (FedRAMP High)" }
+            ],
+            thirdParty: [
+                { service: "Envoy", type: "Visitor Management", fedramp: "N/A", assetType: "Contractor Risk Managed Asset", purpose: "Digital visitor logs, badge printing" },
+                { service: "Verkada", type: "Physical Security", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Cloud-managed cameras, access control" },
+                { service: "Brivo", type: "Access Control", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Cloud-based door access control" }
+            ]
+        },
+        "Personnel Security (PS)": {
+            native: [
+                { service: "Cloud Identity Lifecycle", type: "Identity Lifecycle", purpose: "User provisioning/deprovisioning via SCIM" }
+            ],
+            thirdParty: [
+                { service: "Sterling", type: "Background Check", fedramp: "N/A", assetType: "Contractor Risk Managed Asset", purpose: "Employment verification, background screening" },
+                { service: "Workday", type: "HCM", fedramp: "Moderate", assetType: "Contractor Risk Managed Asset", purpose: "HR system of record, personnel tracking" }
+            ]
+        },
+        "Risk Assessment (RA)": {
+            native: [
+                { service: "Security Health Analytics", type: "Vulnerability Scanner", purpose: "GCP misconfiguration and vulnerability detection" },
+                { service: "Web Security Scanner", type: "DAST", purpose: "OWASP Top 10 scanning for web apps" },
+                { service: "Container Analysis", type: "Container Security", purpose: "CVE scanning for container images" },
+                { service: "Security Command Center", type: "Security Posture", purpose: "Aggregated risk view and scoring" }
+            ],
+            thirdParty: [
+                { service: "Tenable.sc", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "On-prem vulnerability management" },
+                { service: "Qualys VMDR", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Vulnerability detection and response" },
+                { service: "Archer", type: "GRC", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Risk management, compliance tracking" }
+            ]
+        },
+        "Security Assessment (CA)": {
+            native: [
+                { service: "Security Command Center Premium", type: "Compliance", purpose: "Compliance reports, benchmarks" },
+                { service: "Assured Workloads", type: "Compliance Framework", purpose: "FedRAMP/IL4/IL5 compliance controls" },
+                { service: "Cloud Asset Inventory", type: "Continuous Monitoring", purpose: "Real-time resource visibility" }
+            ],
+            thirdParty: [
+                { service: "ServiceNow GRC", type: "GRC", fedramp: "High", assetType: "Security Protection Asset", purpose: "Risk register, policy management" },
+                { service: "Archer", type: "GRC", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Security assessment automation" }
+            ]
+        },
+        "System & Communications Protection (SC)": {
+            native: [
+                { service: "VPC", type: "Network Isolation", purpose: "Private networks, subnets, firewall rules" },
+                { service: "VPC Service Controls", type: "Data Exfil Prevention", purpose: "Service perimeters for API access" },
+                { service: "Cloud Armor", type: "WAF/DDoS", purpose: "Web application firewall, DDoS protection" },
+                { service: "Private Google Access", type: "Private Connectivity", purpose: "Access Google APIs without public IP" },
+                { service: "Cloud VPN", type: "VPN", purpose: "IPsec VPN with IKEv2" },
+                { service: "Cloud KMS", type: "Encryption", purpose: "FIPS 140-2 Level 3 key management" }
+            ],
+            thirdParty: [
+                { service: "Palo Alto VM-Series", type: "NGFW", fedramp: "High", assetType: "Security Protection Asset", purpose: "Next-gen firewall, threat prevention" },
+                { service: "Fortinet FortiGate", type: "NGFW", fedramp: "High", assetType: "Security Protection Asset", purpose: "Firewall, VPN, IPS" },
+                { service: "Zscaler (Gov)", type: "SASE", fedramp: "High", assetType: "Security Protection Asset", purpose: "Zero-trust network access, web security" }
+            ]
+        },
+        "System & Information Integrity (SI)": {
+            native: [
+                { service: "Event Threat Detection", type: "Threat Detection", purpose: "Malware, anomaly, exfiltration detection" },
+                { service: "Container Analysis", type: "Vulnerability Management", purpose: "CVE scanning for containers" },
+                { service: "Web Security Scanner", type: "Application Security", purpose: "OWASP vulnerability scanning" },
+                { service: "Cloud Monitoring", type: "Monitoring", purpose: "Metrics, alerting, uptime checks" }
+            ],
+            thirdParty: [
+                { service: "CrowdStrike Falcon", type: "EDR/AV", fedramp: "High", assetType: "Security Protection Asset", purpose: "Endpoint protection, malware prevention" },
+                { service: "SentinelOne", type: "EDR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "AI-powered endpoint protection" },
+                { service: "Carbon Black", type: "EDR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Endpoint detection and response" }
+            ]
+        }
+    },
+
+    // CUI Asset Categories
+    cuiAssetCategories: [
+        { category: "Endpoint", example: "Compute Engine VMs", protection: "Security Health Analytics + OS Config + Shielded VMs" },
+        { category: "Storage", example: "Cloud Storage buckets with CUI", protection: "CMEK + VPC SC + DLP" },
+        { category: "Database", example: "Cloud SQL with CUI data", protection: "CMEK + Private IP + Audit Logs" },
+        { category: "Application", example: "Cloud Run services processing CUI", protection: "VPC SC + Binary Auth + Cloud Armor" },
+        { category: "Network", example: "VPC with CUI workloads", protection: "VPC Firewall + Flow Logs + Cloud Armor" }
+    ]
 };
 
 // Helper functions

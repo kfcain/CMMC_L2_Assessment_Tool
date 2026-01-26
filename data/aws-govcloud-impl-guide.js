@@ -124,6 +124,191 @@ const AWS_GOVCLOUD_IMPL_GUIDE = {
         { name: "Deny Non-GovCloud Regions", description: "Prevent resources in commercial regions", policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Deny","Action":"*","Resource":"*","Condition":{"StringNotEquals":{"aws:RequestedRegion":["us-gov-west-1","us-gov-east-1"]}}}]}' },
         { name: "Require S3 Encryption", description: "Deny unencrypted S3 uploads", policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Deny","Action":"s3:PutObject","Resource":"*","Condition":{"Null":{"s3:x-amz-server-side-encryption":"true"}}}]}' },
         { name: "Require MFA for Sensitive Actions", description: "Require MFA for IAM changes", policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Deny","Action":["iam:*"],"Resource":"*","Condition":{"BoolIfExists":{"aws:MultiFactorAuthPresent":"false"}}}]}' }
+    ],
+
+    // Native Services by Control Family
+    servicesByFamily: {
+        "Access Control (AC)": {
+            native: [
+                { service: "IAM Identity Center", type: "Identity Provider", purpose: "SSO, user/group management, permission sets" },
+                { service: "AWS IAM", type: "Authorization", purpose: "Policies, roles, least-privilege access" },
+                { service: "AWS Organizations SCPs", type: "Guardrails", purpose: "Organization-wide access restrictions" },
+                { service: "AWS Systems Manager Session Manager", type: "Secure Access", purpose: "Secure shell access without SSH keys" },
+                { service: "AWS Client VPN", type: "Remote Access", purpose: "Certificate-based VPN with MFA" }
+            ],
+            thirdParty: [
+                { service: "Cisco Duo", type: "MFA", fedramp: "High", assetType: "Security Protection Asset", purpose: "Hardware tokens, push notifications, adaptive MFA" },
+                { service: "Okta (Fed)", type: "Identity Provider", fedramp: "High", assetType: "Security Protection Asset", purpose: "SSO, lifecycle management, SAML federation" },
+                { service: "CyberArk", type: "PAM", fedramp: "High", assetType: "Security Protection Asset", purpose: "Privileged credential vaulting, session recording" },
+                { service: "BeyondTrust", type: "PAM", fedramp: "High", assetType: "Security Protection Asset", purpose: "Privileged remote access, password management" }
+            ]
+        },
+        "Awareness & Training (AT)": {
+            native: [
+                { service: "AWS Skill Builder", type: "Training", purpose: "AWS security training courses" }
+            ],
+            thirdParty: [
+                { service: "KnowBe4", type: "Security Awareness", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Phishing simulation, security training modules" },
+                { service: "Proofpoint", type: "Security Awareness", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Security awareness training, threat simulation" },
+                { service: "SANS Security Awareness", type: "Training", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Role-based security training content" }
+            ]
+        },
+        "Audit & Accountability (AU)": {
+            native: [
+                { service: "AWS CloudTrail", type: "Audit Logging", purpose: "API call logging, management and data events" },
+                { service: "AWS Config", type: "Configuration Tracking", purpose: "Resource configuration history, compliance" },
+                { service: "Amazon CloudWatch Logs", type: "Log Management", purpose: "Log aggregation, metrics, alarms" },
+                { service: "AWS Security Lake", type: "Security Data Lake", purpose: "Centralized security log storage in OCSF format" }
+            ],
+            thirdParty: [
+                { service: "Splunk (GovCloud)", type: "SIEM", fedramp: "High", assetType: "Security Protection Asset", purpose: "Log management, security analytics, dashboards" },
+                { service: "Elastic (GovCloud)", type: "SIEM", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Log aggregation, search, visualization" },
+                { service: "Sumo Logic (Fed)", type: "SIEM", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Cloud-native log analytics" },
+                { service: "CrowdStrike Falcon LogScale", type: "SIEM", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "High-speed log management" }
+            ]
+        },
+        "Configuration Management (CM)": {
+            native: [
+                { service: "AWS Systems Manager", type: "Endpoint Management", purpose: "Patch management, inventory, compliance" },
+                { service: "AWS Config Rules", type: "Compliance", purpose: "Configuration compliance, auto-remediation" },
+                { service: "AWS Firewall Manager", type: "Security Management", purpose: "Centralized firewall rule management" },
+                { service: "AWS Service Catalog", type: "Governance", purpose: "Approved product portfolios" }
+            ],
+            thirdParty: [
+                { service: "Tenable.io (Fed)", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Vulnerability scanning, configuration assessment" },
+                { service: "Qualys (Fed)", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Asset inventory, vulnerability scanning" },
+                { service: "Tanium", type: "Endpoint Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Endpoint visibility, configuration compliance" }
+            ]
+        },
+        "Identification & Authentication (IA)": {
+            native: [
+                { service: "IAM Identity Center MFA", type: "MFA", purpose: "Virtual MFA, FIDO2 security keys" },
+                { service: "AWS Secrets Manager", type: "Secrets Management", purpose: "API keys, database credentials rotation" },
+                { service: "AWS Certificate Manager", type: "PKI", purpose: "SSL/TLS certificate provisioning" },
+                { service: "AWS KMS", type: "Key Management", purpose: "FIPS 140-2 Level 3 HSM-backed keys" }
+            ],
+            thirdParty: [
+                { service: "Yubico YubiKey", type: "Hardware Token", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "FIDO2 security keys, PIV smart cards" },
+                { service: "RSA SecurID", type: "MFA", fedramp: "High", assetType: "Security Protection Asset", purpose: "Hardware/software tokens, risk-based auth" },
+                { service: "Thales SafeNet", type: "PKI/HSM", fedramp: "High", assetType: "Security Protection Asset", purpose: "HSM, certificate management" }
+            ]
+        },
+        "Incident Response (IR)": {
+            native: [
+                { service: "Amazon GuardDuty", type: "Threat Detection", purpose: "Continuous threat monitoring, ML-based detection" },
+                { service: "AWS Security Hub", type: "Security Posture", purpose: "Aggregated findings, automated response" },
+                { service: "Amazon Detective", type: "Investigation", purpose: "Security investigation, root cause analysis" },
+                { service: "Amazon EventBridge", type: "Automation", purpose: "Event-driven incident response" }
+            ],
+            thirdParty: [
+                { service: "CrowdStrike Falcon (GovCloud)", type: "EDR", fedramp: "High", assetType: "Security Protection Asset", purpose: "Endpoint detection, threat hunting, IR" },
+                { service: "Palo Alto Cortex XSOAR", type: "SOAR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Playbook automation, case management" },
+                { service: "ServiceNow SecOps", type: "ITSM/SOAR", fedramp: "High", assetType: "Security Protection Asset", purpose: "Security incident management, workflows" }
+            ]
+        },
+        "Maintenance (MA)": {
+            native: [
+                { service: "AWS Systems Manager Patch Manager", type: "Patch Management", purpose: "Automated patching, maintenance windows" },
+                { service: "AWS Systems Manager Session Manager", type: "Remote Access", purpose: "Secure maintenance access without SSH" },
+                { service: "AWS Systems Manager Automation", type: "Automation", purpose: "Runbook automation, remediation" }
+            ],
+            thirdParty: [
+                { service: "Ivanti", type: "Patch Management", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Patch management, endpoint security" },
+                { service: "ManageEngine", type: "IT Management", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Patch management, remote support" }
+            ]
+        },
+        "Media Protection (MP)": {
+            native: [
+                { service: "AWS KMS", type: "Encryption", purpose: "Envelope encryption, key management" },
+                { service: "Amazon S3 SSE", type: "Storage Encryption", purpose: "Server-side encryption for objects" },
+                { service: "Amazon Macie", type: "Data Classification", purpose: "CUI discovery, sensitive data detection" },
+                { service: "EBS Encryption", type: "Disk Encryption", purpose: "Volume encryption at rest" }
+            ],
+            thirdParty: [
+                { service: "Virtru", type: "Email Encryption", fedramp: "Moderate", assetType: "CUI Asset", purpose: "End-to-end email encryption, key management" },
+                { service: "Digital Guardian", type: "DLP", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Data loss prevention, endpoint DLP" },
+                { service: "IronKey", type: "Encrypted Storage", fedramp: "N/A", assetType: "CUI Asset", purpose: "FIPS 140-2 encrypted USB drives" }
+            ]
+        },
+        "Physical Protection (PE)": {
+            native: [
+                { service: "AWS Datacenter (Inherited)", type: "Physical Security", purpose: "AWS manages physical datacenter security (FedRAMP High)" }
+            ],
+            thirdParty: [
+                { service: "Envoy", type: "Visitor Management", fedramp: "N/A", assetType: "Contractor Risk Managed Asset", purpose: "Digital visitor logs, badge printing" },
+                { service: "Verkada", type: "Physical Security", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Cloud-managed cameras, access control" },
+                { service: "Brivo", type: "Access Control", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Cloud-based door access control" }
+            ]
+        },
+        "Personnel Security (PS)": {
+            native: [
+                { service: "IAM Identity Center Lifecycle", type: "Identity Lifecycle", purpose: "User provisioning/deprovisioning via SCIM" }
+            ],
+            thirdParty: [
+                { service: "Sterling", type: "Background Check", fedramp: "N/A", assetType: "Contractor Risk Managed Asset", purpose: "Employment verification, background screening" },
+                { service: "Workday", type: "HCM", fedramp: "Moderate", assetType: "Contractor Risk Managed Asset", purpose: "HR system of record, personnel tracking" }
+            ]
+        },
+        "Risk Assessment (RA)": {
+            native: [
+                { service: "Amazon Inspector", type: "Vulnerability Scanner", purpose: "EC2, Lambda, container vulnerability scanning" },
+                { service: "AWS Security Hub", type: "Security Posture", purpose: "NIST 800-171 compliance scoring" },
+                { service: "AWS Audit Manager", type: "Audit Management", purpose: "Continuous evidence collection, assessments" }
+            ],
+            thirdParty: [
+                { service: "Tenable.sc", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "On-prem vulnerability management" },
+                { service: "Qualys VMDR", type: "Vulnerability Management", fedramp: "High", assetType: "Security Protection Asset", purpose: "Vulnerability detection and response" },
+                { service: "Archer", type: "GRC", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Risk management, compliance tracking" }
+            ]
+        },
+        "Security Assessment (CA)": {
+            native: [
+                { service: "AWS Audit Manager", type: "Compliance", purpose: "NIST 800-171 assessment frameworks" },
+                { service: "AWS Security Hub", type: "Continuous Monitoring", purpose: "Aggregated security findings" },
+                { service: "AWS Config Conformance Packs", type: "Compliance", purpose: "Pre-built compliance rule packs" }
+            ],
+            thirdParty: [
+                { service: "ServiceNow GRC", type: "GRC", fedramp: "High", assetType: "Security Protection Asset", purpose: "Risk register, policy management" },
+                { service: "Archer", type: "GRC", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Security assessment automation" }
+            ]
+        },
+        "System & Communications Protection (SC)": {
+            native: [
+                { service: "AWS VPC", type: "Network Isolation", purpose: "Private subnets, security groups, NACLs" },
+                { service: "AWS WAF", type: "Web Application Firewall", purpose: "OWASP protection, rate limiting" },
+                { service: "AWS Shield", type: "DDoS Protection", purpose: "Layer 3/4 DDoS mitigation" },
+                { service: "AWS PrivateLink", type: "Private Connectivity", purpose: "Private API endpoints without internet" },
+                { service: "AWS Network Firewall", type: "Network Security", purpose: "Stateful firewall, IDS/IPS" },
+                { service: "AWS KMS", type: "Encryption", purpose: "FIPS 140-2 Level 3 key management" }
+            ],
+            thirdParty: [
+                { service: "Palo Alto VM-Series", type: "NGFW", fedramp: "High", assetType: "Security Protection Asset", purpose: "Next-gen firewall, threat prevention" },
+                { service: "Fortinet FortiGate", type: "NGFW", fedramp: "High", assetType: "Security Protection Asset", purpose: "Firewall, VPN, IPS" },
+                { service: "Zscaler (Gov)", type: "SASE", fedramp: "High", assetType: "Security Protection Asset", purpose: "Zero-trust network access, web security" }
+            ]
+        },
+        "System & Information Integrity (SI)": {
+            native: [
+                { service: "Amazon GuardDuty", type: "Threat Detection", purpose: "Malware, anomaly, crypto-mining detection" },
+                { service: "Amazon Inspector", type: "Vulnerability Management", purpose: "CVE scanning, package vulnerabilities" },
+                { service: "AWS Security Hub", type: "Security Aggregation", purpose: "Consolidated findings and alerts" },
+                { service: "Amazon CloudWatch", type: "Monitoring", purpose: "Metrics, alarms, anomaly detection" }
+            ],
+            thirdParty: [
+                { service: "CrowdStrike Falcon", type: "EDR/AV", fedramp: "High", assetType: "Security Protection Asset", purpose: "Endpoint protection, malware prevention" },
+                { service: "SentinelOne", type: "EDR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "AI-powered endpoint protection" },
+                { service: "Carbon Black", type: "EDR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Endpoint detection and response" }
+            ]
+        }
+    },
+
+    // CUI Asset Categories
+    cuiAssetCategories: [
+        { category: "Endpoint", example: "EC2 instances with SSM Agent", protection: "Inspector + GuardDuty + CloudWatch" },
+        { category: "Storage", example: "S3 buckets with CUI", protection: "SSE-KMS + Macie + Bucket Policies" },
+        { category: "Database", example: "RDS with CUI data", protection: "Encryption + IAM Auth + CloudTrail" },
+        { category: "Application", example: "Lambda functions processing CUI", protection: "VPC + KMS + X-Ray" },
+        { category: "Network", example: "VPC with CUI workloads", protection: "Network Firewall + Flow Logs + WAF" }
     ]
 };
 
