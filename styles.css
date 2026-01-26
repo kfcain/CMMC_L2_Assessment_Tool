@@ -4903,6 +4903,13 @@ body {
     overflow: hidden;
 }
 
+/* When showing category grid, allow content to expand naturally */
+#impl-guide-view .impl-guide-content:has(.arch-category-grid) {
+    overflow: visible;
+    height: auto;
+    flex: none;
+}
+
 .impl-guide-view-header {
     display: flex;
     justify-content: space-between;
@@ -4926,8 +4933,9 @@ body {
 
 /* Allow category grid to display without constrained scrolling */
 #impl-guide-view .impl-guide-body:has(.arch-category-grid) {
-    overflow-y: visible;
     overflow: visible;
+    flex: none;
+    height: auto;
 }
 
 /* Disclaimer Banner */
