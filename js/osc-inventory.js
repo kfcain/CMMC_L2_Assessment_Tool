@@ -47,6 +47,10 @@ const OSCInventory = {
             diagrams: (this.data.dataFlowDiagrams?.length || 0) + (this.data.networkDiagrams?.length || 0)
         };
         
+        // Hide site title bar when OSC Inventory is shown
+        const siteTitleBar = document.getElementById('site-title-bar');
+        if (siteTitleBar) siteTitleBar.style.display = 'none';
+        
         container.innerHTML = `
             <div class="osc-inventory-header">
                 <h1>
