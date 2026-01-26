@@ -2777,18 +2777,23 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     }
 
     calculateL1ControlsMet() {
-        // Count how many L1 controls have ALL objectives met
+        // L1 controls per CMMC 2.0 / FAR 52.204-21 (17 total)
+        const L1_CONTROL_IDS = [
+            '3.1.1', '3.1.2', '3.1.20', '3.1.22',  // AC (4)
+            '3.3.1', '3.3.2',                       // AU (2)
+            '3.4.1', '3.4.2',                       // CM (2)
+            '3.5.1', '3.5.2',                       // IA (2)
+            '3.8.3',                                // MP (1)
+            '3.10.1',                               // PE (1)
+            '3.12.1', '3.12.4',                     // SC (2)
+            '3.14.1', '3.14.2', '3.14.4'            // SI (3)
+        ];
+        
         let l1ControlsMet = 0;
-        let totalL1Controls = 0;
         
         CONTROL_FAMILIES.forEach(family => {
             family.controls.forEach(control => {
-                const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
-                const cmmcLevel = mapping?.cmmc?.level || 2;
-                
-                // Only count L1 controls
-                if (cmmcLevel === 1) {
-                    totalL1Controls++;
+                if (L1_CONTROL_IDS.includes(control.id)) {
                     const allObjectivesMet = control.objectives.every(objective => {
                         return this.assessmentData[objective.id]?.status === 'met';
                     });
@@ -2799,7 +2804,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             });
         });
         
-        return { met: l1ControlsMet, total: totalL1Controls };
+        return { met: l1ControlsMet, total: L1_CONTROL_IDS.length };
     }
 
     updateProgress() {
