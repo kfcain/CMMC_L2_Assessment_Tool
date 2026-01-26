@@ -1025,7 +1025,7 @@ class AssessmentApp {
             <!-- Kanban View -->
             ${this.implPlannerView === 'kanban' ? `
             <div class="impl-kanban-container" id="impl-kanban-content" data-debug-view="kanban">
-                ${console.log('About to render Kanban HTML'), this.renderPlannerKanban(planner, allTasks)}
+                ${this.renderPlannerKanban(planner, allTasks)}
             </div>
             ` : ''}
             
