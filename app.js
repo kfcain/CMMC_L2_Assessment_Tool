@@ -2293,6 +2293,11 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 <span class="guidance-label">Human Intervention:</span>
                 <span class="guidance-value">${guidance.humanIntervention}</span>
             </div>
+            ${guidance.smallOrgGuidance ? `
+            <div class="guidance-item small-org-guidance">
+                <span class="guidance-label">Small Remote Org Guidance:</span>
+                <span class="guidance-value">${guidance.smallOrgGuidance}</span>
+            </div>` : ''}
             ${cliHtml}
             ${scriptsHtml}
             ${implNotesHtml}

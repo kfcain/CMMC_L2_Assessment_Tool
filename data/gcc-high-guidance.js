@@ -885,6 +885,226 @@ Write-Host "Change DB Created in GCC High (\$SiteUrl)." -ForegroundColor Green`
     },
 
     // === SYSTEM AND COMMUNICATIONS PROTECTION (SC) ===
+    "3.13.1[a]": {
+        automation: "Define network boundaries in Azure via Virtual Networks (VNets) and Network Security Groups (NSGs). Use Azure Firewall for centralized logging.",
+        azureService: "Azure VNet, NSG, Azure Firewall",
+        humanIntervention: "Required - Document external boundaries (internet, partner connections) and internal boundaries (CUI zones, admin networks).",
+        docLink: "https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview",
+        smallOrgGuidance: "For small remote orgs without physical firewalls: Use Azure's built-in network controls as your boundary. Define VNets with NSGs as 'virtual firewalls'. Document internet access points (VPN, ExpressRoute) as external boundaries. Internal boundaries can separate CUI workloads from general workloads using subnet NSGs.",
+        automationScripts: [{
+            name: "SC_Create_Network_Boundaries.ps1",
+            description: "Creates VNet with NSG rules for CMMC boundary protection",
+            script: `# Create Network Boundaries
+Connect-AzAccount -Environment AzureUSGovernment
+
+\$RG = "RG-CUI-Boundary"
+\$Location = "USGovVirginia"
+
+# Create VNet for CUI
+\$VNet = New-AzVirtualNetwork -ResourceGroupName \$RG -Name "VNet-CUI" -Location \$Location -AddressPrefix "10.100.0.0/16"
+\$CuiSubnet = New-AzVirtualNetworkSubnetConfig -Name "CUI-Workloads" -AddressPrefix "10.100.1.0/24"
+\$AdminSubnet = New-AzVirtualNetworkSubnetConfig -Name "Admin-Access" -AddressPrefix "10.100.2.0/24"
+
+\$VNet.Subnets.Add(\$CuiSubnet)
+\$VNet.Subnets.Add(\$AdminSubnet)
+
+# Create NSG with logging
+\$Nsg = New-AzNetworkSecurityGroup -ResourceGroupName \$RG -Name "NSG-CUI-Boundary" -Location \$Location
+Set-AzDiagnosticSetting -ResourceId \$Nsg.Id -Enabled \$true -Category "NetworkSecurityGroupEvent" -StorageAccountId (Get-AzStorageAccount)[0].Id
+
+# Apply NSG to subnets
+Set-AzVirtualNetworkSubnetConfig -VirtualNetwork \$VNet -Name "CUI-Workloads" -AddressPrefix "10.100.1.0/24" -NetworkSecurityGroupId \$Nsg.Id
+Set-AzVirtualNetworkSubnetConfig -VirtualNetwork \$VNet -Name "Admin-Access" -AddressPrefix "10.100.2.0/24" -NetworkSecurityGroupId \$Nsg.Id
+
+\$VNet | Set-AzVirtualNetwork`
+        }]
+    },
+    "3.13.1[b]": {
+        automation: "Document internal boundaries via Azure Resource Manager tags and naming conventions. Use Azure Monitor to track cross-boundary traffic.",
+        azureService: "Azure Resource Manager, Azure Monitor, NSG Flow Logs",
+        humanIntervention: "Required - Identify and document all internal network segmentation points (CUI zones, admin networks, DMZ equivalents).",
+        docLink: "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/network-watcher-monitoring-overview",
+        smallOrgGuidance: "Small remote orgs: Internal boundaries can be logical separations within Azure. Use separate subnets for: 1) CUI processing, 2) administrative access, 3) general workloads. Tag resources with 'BoundaryType' to document classification. Enable NSG flow logs to monitor traffic between zones.",
+        automationScripts: [{
+            name: "SC_Internal_Boundary_Tags.ps1",
+            description: "Applies boundary classification tags to Azure resources",
+            script: `# Tag Internal Boundaries
+\$Resources = Get-AzResource -ResourceGroupNameContains "CUI"
+
+foreach (\$Resource in \$Resources) {
+    \$Tags = @{
+        "BoundaryType" = "Internal"
+        "CUIZone" = "Processing"
+        "Compliance" = "CMMC-L2"
+    }
+    
+    if (\$Resource.ResourceType -eq "Microsoft.Network/virtualNetworks") {
+        \$Tags["BoundaryType"] = "External"
+    }
+    
+    Update-AzResource -ResourceId \$Resource.Id -Tag \$Tags -Force
+}`
+        }]
+    },
+    "3.13.1[c]": {
+        automation: "Enable NSG flow logs and Azure Network Watcher. Create Azure Monitor alerts for boundary traffic anomalies.",
+        azureService: "NSG Flow Logs, Azure Monitor, Network Watcher",
+        humanIntervention: "Review traffic patterns weekly. Document approved traffic flows.",
+        docLink: "https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-monitoring-overview",
+        smallOrgGuidance: "Small remote orgs: Enable NSG flow logs (free tier) to monitor external boundary traffic. Set up basic alerts for unusual traffic patterns. Use Azure Monitor workbooks to visualize traffic. No physical firewall needed - Azure NSGs provide the monitoring.",
+        automationScripts: [{
+            name: "SC_Enable_Boundary_Monitoring.ps1",
+            description: "Enables NSG flow logs and basic monitoring",
+            script: `# Enable Boundary Monitoring
+\$Nsg = Get-AzNetworkSecurityGroup -Name "NSG-CUI-Boundary"
+\$StorageAccount = Get-AzStorageAccount | Select-Object -First 1
+
+# Enable Flow Logs
+\$FlowLogConfig = @{
+    TargetResourceId = \$Nsg.Id
+    StorageAccountId = \$StorageAccount.Id
+    Enabled = \$true
+    Format = @{
+        Type = "JSON"
+        Version = 2
+    }
+}
+Set-AzNetworkWatcherConfigFlowLog -NetworkWatcherLocation "USGovVirginia" -ResourceGroupName \$Nsg.ResourceGroupName -Name \$Nsg.Name @\$FlowLogConfig
+
+# Create Alert for High Traffic
+\$ActionGroup = New-AzActionGroup -ResourceGroupName \$Nsg.ResourceGroupName -Name "Boundary-Alerts" -ShortName "Boundary"
+\$MetricAlert = New-AzMetricAlertRuleV2 -ResourceGroupName \$Nsg.ResourceGroupName -Name "High-Boundary-Traffic" -Scope \$Nsg.Id -Condition "Average NetworkIn > 1000" -WindowSize 00:05:00 -Severity 2 -ActionGroup \$ActionGroup`
+        }]
+    },
+    "3.13.1[d]": {
+        automation: "Monitor internal boundaries with NSG flow logs between subnets. Use Azure Sentinel for advanced correlation.",
+        azureService: "NSG Flow Logs, Azure Sentinel, Azure Monitor",
+        humanIntervention: "Review cross-boundary traffic monthly. Document exceptions.",
+        docLink: "https://learn.microsoft.com/en-us/azure/sentinel/overview",
+        smallOrgGuidance: "Small remote orgs: Monitor traffic between CUI and non-CUI subnets using NSG flow logs. Create simple alerts for traffic crossing internal boundaries. Document expected flows (e.g., admin access to CUI zone). Use Azure Monitor workbooks for visualization.",
+        automationScripts: [{
+            name: "SC_Internal_Boundary_Monitoring.ps1",
+            description: "Monitors traffic between internal boundaries",
+            script: `# Monitor Internal Boundaries
+\$VNet = Get-AzVirtualNetwork -Name "VNet-CUI"
+\$Subnets = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork \$VNet
+
+foreach (\$Subnet in \$Subnets) {
+    \$Nsg = (Get-AzNetworkSecurityGroup -ResourceId \$Subnet.NetworkSecurityGroup.Id)
+    Write-Host "Enabling flow logs for subnet: \$(\$Subnet.Name)"
+    
+    Set-AzNetworkWatcherConfigFlowLog -NetworkWatcherLocation "USGovVirginia" -ResourceGroupName \$Nsg.ResourceGroupName -Name \$Nsg.Name -TargetResourceId \$Nsg.Id -StorageAccountId (Get-AzStorageAccount)[0].Id -Enabled \$true
+}`
+        }]
+    },
+    "3.13.1[e]": {
+        automation: "Implement NSG rules to control external boundary traffic. Use Azure Firewall for advanced filtering.",
+        azureService: "NSG Rules, Azure Firewall, Application Gateway WAF",
+        humanIntervention: "Define and approve traffic control policies. Review rule effectiveness.",
+        docLink: "https://learn.microsoft.com/en-us/azure/virtual-network/security-overview",
+        smallOrgGuidance: "Small remote orgs: Use NSG rules as your 'virtual firewall' at the external boundary. Default deny all inbound, allow only required ports (HTTPS 443, VPN). Use Azure Firewall Basic if available for more advanced filtering. Document all allowed traffic flows.",
+        automationScripts: [{
+            name: "SC_External_Boundary_Control.ps1",
+            description: "Implements NSG rules for external boundary control",
+            script: `# External Boundary Control Rules
+\$Nsg = Get-AzNetworkSecurityGroup -Name "NSG-CUI-Boundary"
+
+# Deny all inbound by default
+\$DenyInbound = New-AzNetworkSecurityRuleConfig -Name "DenyAllInbound" -Priority 4096 -Direction Inbound -Access Deny -Protocol * -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange *
+
+# Allow HTTPS from internet
+\$AllowHTTPS = New-AzNetworkSecurityRuleConfig -Name "AllowHTTPS" -Priority 100 -Direction Inbound -Access Allow -Protocol Tcp -SourceAddressPrefix Internet -SourcePortRange * -DestinationAddressPrefix 10.100.1.0/24 -DestinationPortRange 443
+
+# Allow VPN access
+\$AllowVPN = New-AzNetworkSecurityRuleConfig -Name "AllowVPN" -Priority 110 -Direction Inbound -Access Allow -Protocol Udp -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix 10.100.1.0/24 -DestinationPortRange 500
+
+\$Nsg.SecurityRules = \$DenyInbound, \$AllowHTTPS, \$AllowVPN
+\$Nsg | Set-AzNetworkSecurityGroup`
+        }]
+    },
+    "3.13.1[f]": {
+        automation: "Control internal boundaries with subnet NSGs. Use Service Endpoints and Private Endpoints for data protection.",
+        azureService: "Subnet NSGs, Service Endpoints, Private Endpoints",
+        humanIntervention: "Define internal traffic control policies. Document business requirements.",
+        docLink: "https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview",
+        smallOrgGuidance: "Small remote orgs: Use subnet NSGs to control traffic between internal boundaries. Block direct internet access from CUI subnets. Use Private Endpoints for Azure services. Allow only necessary admin traffic from designated management subnet.",
+        automationScripts: [{
+            name: "SC_Internal_Boundary_Control.ps1",
+            description: "Implements internal boundary controls between subnets",
+            script: `# Internal Boundary Controls
+\$CuiSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork (Get-AzVirtualNetwork -Name "VNet-CUI") -Name "CUI-Workloads"
+\$AdminSubnet = Get-AzVirtualNetworkSubnetConfig -VirtualNetwork (Get-AzVirtualNetwork -Name "VNet-CUI") -Name "Admin-Access"
+
+# Create NSGs for each subnet
+\$CuiNsg = New-AzNetworkSecurityGroup -ResourceGroupName "RG-CUI-Boundary" -Name "NSG-CUI-Workloads" -Location "USGovVirginia"
+\$AdminNsg = New-AzNetworkSecurityGroup -ResourceGroupName "RG-CUI-Boundary" -Name "NSG-Admin-Access" -Location "USGovVirginia"
+
+# Block internet from CUI
+\$BlockInternet = New-AzNetworkSecurityRuleConfig -Name "BlockInternet" -Priority 100 -Direction Outbound -Access Deny -Protocol * -SourceAddressPrefix 10.100.1.0/24 -SourcePortRange * -DestinationAddressPrefix Internet -DestinationPortRange *
+
+# Allow admin access
+\$AllowAdmin = New-AzNetworkSecurityRuleConfig -Name "AllowAdminAccess" -Priority 100 -Direction Inbound -Access Allow -Protocol Tcp -SourceAddressPrefix 10.100.2.0/24 -SourcePortRange * -DestinationAddressPrefix 10.100.1.0/24 -DestinationPortRange 22,3389
+
+\$CuiNsg.SecurityRules = \$BlockInternet
+\$AdminNsg.SecurityRules = \$AllowAdmin
+
+# Apply to subnets
+Set-AzVirtualNetworkSubnetConfig -VirtualNetwork (Get-AzVirtualNetwork -Name "VNet-CUI") -Name "CUI-Workloads" -NetworkSecurityGroupId \$CuiNsg.Id
+Set-AzVirtualNetworkSubnetConfig -VirtualNetwork (Get-AzVirtualNetwork -Name "VNet-CUI") -Name "Admin-Access" -NetworkSecurityGroupId \$AdminNsg.Id`
+        }]
+    },
+    "3.13.1[g]": {
+        automation: "Protect external boundaries with Azure Firewall WAF and DDoS protection. Use TLS inspection.",
+        azureService: "Azure Firewall, WAF, DDoS Protection, Front Door",
+        humanIntervention: "Configure WAF rules. Test protection effectiveness.",
+        docLink: "https://learn.microsoft.com/en-us/azure/web-application-firewall/overview",
+        smallOrgGuidance: "Small remote orgs: Use Azure Firewall Basic (if available) or Network Security Groups with additional logging. Enable DDoS protection at the VNet level. For web applications, use Application Gateway with WAF. Document all protection mechanisms.",
+        automationScripts: [{
+            name: "SC_External_Boundary_Protection.ps1",
+            description: "Deploys protection services at external boundaries",
+            script: `# External Boundary Protection
+\$VNet = Get-AzVirtualNetwork -Name "VNet-CUI"
+
+# Enable DDoS protection
+Enable-AzVNetDDoSProtection -VirtualNetwork \$VNet -ResourceGroupName \$VNet.ResourceGroupName -Name "DDoS-CUI-Protection"
+
+# Create Public IP for Firewall
+\$Pip = New-AzPublicIpAddress -ResourceGroupName \$VNet.ResourceGroupName -Name "Firewall-Pip" -Location "USGovVirginia" -Sku Standard -AllocationMethod Static
+
+# Create Firewall (if available in your tier)
+# Note: Azure Firewall may not be available in all GovCloud regions
+try {
+    \$Firewall = New-AzFirewall -ResourceGroupName \$VNet.ResourceGroupName -Name "FW-CUI-Boundary" -Location "USGovVirginia" -VirtualNetwork \$VNet -PublicIpAddress \$Pip
+    Write-Host "Azure Firewall deployed successfully"
+} catch {
+    Write-Host "Azure Firewall not available - using NSG rules instead"
+}`
+        }]
+    },
+    "3.13.1[h]": {
+        automation: "Protect internal boundaries with encryption and access controls. Use Private Link for service access.",
+        azureService: "Private Link, Service Endpoints, Azure Key Vault",
+        humanIntervention: "Define internal protection requirements. Document encryption standards.",
+        docLink: "https://learn.microsoft.com/en-us/azure/private-link/private-link-overview",
+        smallOrgGuidance: "Small remote orgs: Use Private Endpoints for Azure services instead of public endpoints. Enable encryption for all internal traffic (TLS 1.2+). Use Azure Key Vault for secret management. Document all internal protection mechanisms.",
+        automationScripts: [{
+            name: "SC_Internal_Boundary_Protection.ps1",
+            description: "Implements protection for internal boundaries",
+            script: `# Internal Boundary Protection
+\$VNet = Get-AzVirtualNetwork -Name "VNet-CUI"
+\$StorageAccount = Get-AzStorageAccount | Where-Object { \$_.ResourceGroupName -like "*CUI*" }
+
+# Create Private Endpoint for Storage
+\$PrivateLinkConnection = New-AzPrivateLinkServiceConnection -Name "Storage-Private-Link" -PrivateLinkServiceId \$StorageAccount.Id -GroupId "blob"
+\$PrivateEndpoint = New-AzPrivateEndpoint -ResourceGroupName \$VNet.ResourceGroupName -Name "Storage-Private-Endpoint" -Location "USGovVirginia" -Subnet (Get-AzVirtualNetworkSubnetConfig -VirtualNetwork \$VNet -Name "CUI-Workloads") -PrivateLinkServiceConnection \$PrivateLinkConnection
+
+# Configure DNS for Private Endpoint
+\$PrivateDnsZone = New-AzPrivateDnsZone -ResourceGroupName \$VNet.ResourceGroupName -Name "privatelink.blob.core.usgovcloudapi.net"
+\$VirtualNetworkLink = New-AzPrivateDnsVirtualNetworkLink -ResourceGroupName \$VNet.ResourceGroupName -ZoneName "privatelink.blob.core.usgovcloudapi.net" -Name "Storage-DNS-Link" -VirtualNetworkId \$VNet.Id -EnableRegistration
+
+Write-Host "Private Endpoint created for secure internal access"`
+        }]
+    },
     "3.13.8[a]": {
         automation: "Deploy Azure VPN Gateway with FIPS-compliant IPsec policies. Use AES256/SHA384 encryption.",
         azureService: "Azure VPN Gateway, Azure Firewall",
