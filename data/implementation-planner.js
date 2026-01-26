@@ -2666,6 +2666,7 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof window !== 'undefined') {
     window.IMPLEMENTATION_PLANNER = IMPLEMENTATION_PLANNER;
     window.ProjectPlanIntegration = ProjectPlanIntegration;
+    console.log('Implementation Planner loaded successfully');
 }
 
 // Integration Summary
