@@ -1377,13 +1377,13 @@ class AssessmentApp {
         const raciMatrix = ProjectPlanIntegration.generateRACIMatrix(planner);
         const timeline = ProjectPlanIntegration.generateTimeline(planner);
         
-        // Group tasks by category
-        const tasksByCategory = {};
+        // Group tasks by phase
+        const tasksByPhase = {};
         projectPlan.forEach(task => {
-            if (!tasksByCategory[task.category]) {
-                tasksByCategory[task.category] = [];
+            if (!tasksByPhase[task.phaseId]) {
+                tasksByPhase[task.phaseId] = [];
             }
-            tasksByCategory[task.category].push(task);
+            tasksByPhase[task.phaseId].push(task);
         });
         
         return `
@@ -1397,28 +1397,28 @@ class AssessmentApp {
                     <p>Implementation tasks organized by project plan categories with RACI assignments and timeline</p>
                 </div>
                 
-                <!-- Category Tabs -->
+                <!-- Phase Tabs -->
                 <div class="project-plan-tabs">
-                    ${Object.keys(tasksByCategory).map(category => `
-                        <button class="project-plan-tab ${category === 'Foundation' ? 'active' : ''}" data-category="${category}">
-                            ${category}
-                            <span class="task-count">${tasksByCategory[category].length}</span>
+                    ${planner.phases.map(phase => `
+                        <button class="project-plan-tab ${phase.id === 'phase-1' ? 'active' : ''}" data-phase="${phase.id}">
+                            ${phase.name}
+                            <span class="task-count">${tasksByPhase[phase.id] ? tasksByPhase[phase.id].length : 0}</span>
                         </button>
                     `).join('')}
                 </div>
                 
-                <!-- Category Content -->
+                <!-- Phase Content -->
                 <div class="project-plan-content">
-                    ${Object.entries(tasksByCategory).map(([category, tasks]) => `
-                        <div class="project-plan-category ${category === 'Foundation' ? 'active' : ''}" data-category="${category}">
-                            <div class="category-header">
-                                <h3>${category}</h3>
+                    ${planner.phases.map(phase => `
+                        <div class="project-plan-phase ${phase.id === 'phase-1' ? 'active' : ''}" data-phase="${phase.id}">
+                            <div class="phase-header">
+                                <h3>${phase.name}</h3>
                                 <div class="category-stats">
                                     <span class="stat-item">
-                                        <strong>${tasks.length}</strong> tasks
+                                        <strong>${tasksByPhase[phase.id] ? tasksByPhase[phase.id].length : 0}</strong> tasks
                                     </span>
                                     <span class="stat-item">
-                                        <strong>${tasks.filter(task => this.implPlannerProgress[task.taskId]).length}</strong> complete
+                                        <strong>${tasksByPhase[phase.id] ? tasksByPhase[phase.id].filter(task => this.implPlannerProgress[task.implTaskId]).length : 0}</strong> complete
                                     </span>
                                 </div>
                             </div>
@@ -1438,8 +1438,8 @@ class AssessmentApp {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${tasks.map(task => `
-                                            <tr class="${this.implPlannerProgress[task.taskId] ? 'completed' : ''}">
+                                        ${(tasksByPhase[phase.id] || []).map(task => `
+                                            <tr class="${this.implPlannerProgress[task.implTaskId] ? 'completed' : ''}">
                                                 <td><span class="week-badge">Week ${task.week}</span></td>
                                                 <td><code>${task.taskId}</code></td>
                                                 <td>
@@ -1615,20 +1615,20 @@ class AssessmentApp {
             });
         });
         
-        // Project Plan category tabs
+        // Project Plan phase tabs
         container.querySelectorAll('.project-plan-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
-                const category = e.currentTarget.dataset.category;
+                const phase = e.currentTarget.dataset.phase;
                 
                 // Update active tab
                 container.querySelectorAll('.project-plan-tab').forEach(t => t.classList.remove('active'));
                 e.currentTarget.classList.add('active');
                 
                 // Update active content
-                container.querySelectorAll('.project-plan-category').forEach(cat => {
-                    cat.classList.remove('active');
-                    if (cat.dataset.category === category) {
-                        cat.classList.add('active');
+                container.querySelectorAll('.project-plan-phase').forEach(phaseDiv => {
+                    phaseDiv.classList.remove('active');
+                    if (phaseDiv.dataset.phase === phase) {
+                        phaseDiv.classList.add('active');
                     }
                 });
             });
