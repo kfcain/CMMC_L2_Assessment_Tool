@@ -1824,6 +1824,318 @@ const IMPL_NOTES = {
             quickWin: "Enable Binary Authorization with require_attestations_by",
             evidenceArtifact: "BinaryAuth_DenyPolicy.json"
         }
+    },
+
+    // === IDENTIFICATION AND AUTHENTICATION (3.5) - Expanded ===
+    "3.5.4[a]": {
+        azure: {
+            steps: ["1. Enable FIDO2 security keys in Entra ID", "2. Configure Authenticator app with number matching", "3. Disable SMS/voice for privileged users", "4. Require phishing-resistant MFA via Conditional Access", "5. Document replay-resistant methods"],
+            quickWin: "Enable number matching for Microsoft Authenticator",
+            evidenceArtifact: "MFA_ReplayResistant_Config.json",
+            humanInTheLoop: ["Security defines approved MFA methods", "IT provisions FIDO2 keys", "Help desk assists with registration"],
+            policyEvidence: ["Multi-Factor Authentication Policy", "Phishing-Resistant MFA Standard", "Authentication Method Hierarchy"]
+        },
+        aws: {
+            steps: ["1. Enable MFA for IAM users (virtual or hardware)", "2. Require MFA in IAM policies for sensitive ops", "3. Use IAM Identity Center with WebAuthn", "4. Configure TOTP or hardware tokens", "5. Document replay-resistant requirements"],
+            quickWin: "Require MFA for all console access via IAM policy",
+            evidenceArtifact: "IAM_MFA_Config.json"
+        },
+        gcp: {
+            steps: ["1. Enable 2-Step Verification in Cloud Identity", "2. Require security keys for privileged users", "3. Configure context-aware access with 2SV", "4. Disable less secure verification methods", "5. Document replay-resistant methods"],
+            quickWin: "Require security keys for super admins",
+            evidenceArtifact: "2SV_Config.json"
+        }
+    },
+    "3.5.6[a]": {
+        azure: {
+            steps: ["1. Configure Entra ID sign-in risk policy for inactive accounts", "2. Create Logic App to disable accounts after 90 days inactivity", "3. Use Access Reviews to identify inactive accounts", "4. Configure guest user access reviews", "5. Document inactivity thresholds"],
+            quickWin: "Run Graph API query for accounts with lastSignInDateTime > 90 days",
+            evidenceArtifact: "InactiveAccounts_Report.csv",
+            humanInTheLoop: ["IT runs monthly inactive account report", "Managers confirm inactive users should be disabled", "HR confirms employment status"],
+            policyEvidence: ["Account Inactivity Policy (90-day threshold)", "Inactive Account Review Procedure", "Account Disable/Delete Workflow"]
+        },
+        aws: {
+            steps: ["1. Generate IAM credential report for last activity", "2. Create Lambda to disable inactive users (>90 days)", "3. Use Config rule for inactive IAM detection", "4. Send notifications before disabling", "5. Document inactivity policy"],
+            quickWin: "Enable Config rule: iam-user-unused-credentials-check",
+            evidenceArtifact: "IAM_InactiveUsers.csv"
+        },
+        gcp: {
+            steps: ["1. Use Cloud Identity Reports for last sign-in", "2. Create automation to suspend inactive users", "3. Configure alerts for accounts approaching threshold", "4. Document inactivity policy", "5. Process exceptions through management"],
+            quickWin: "Enable Cloud Identity inactive user report",
+            evidenceArtifact: "CloudIdentity_InactiveUsers.csv"
+        }
+    },
+    "3.5.7[a]": {
+        azure: {
+            steps: ["1. Configure Entra ID password policy: min 14 chars, complexity", "2. Enable Password Protection with custom banned list", "3. For hybrid: Configure AD password policy via GPO", "4. Integrate with Azure AD Password Protection", "5. Document password requirements"],
+            quickWin: "Enable Entra ID Password Protection with custom banned words",
+            evidenceArtifact: "PasswordPolicy_Config.json",
+            humanInTheLoop: ["Security defines password complexity requirements", "IT implements technical controls", "Help desk assists with password changes"],
+            policyEvidence: ["Password Policy (14+ chars, complexity)", "Banned Password List", "Password Change Procedure"]
+        },
+        aws: {
+            steps: ["1. Configure IAM password policy: min length, complexity", "2. Require at least one of each character type", "3. Set max password age if required by policy", "4. Document password requirements", "5. Test enforcement"],
+            quickWin: "`aws iam update-account-password-policy --minimum-password-length 14 --require-symbols --require-numbers --require-uppercase-characters --require-lowercase-characters`",
+            evidenceArtifact: "IAM_PasswordPolicy.json"
+        },
+        gcp: {
+            steps: ["1. Configure Cloud Identity password policy", "2. Set minimum length and complexity", "3. Enable password strength meter", "4. Document password requirements", "5. Test enforcement"],
+            quickWin: "Configure password policy in Admin Console > Security > Password management",
+            evidenceArtifact: "CloudIdentity_PasswordPolicy.json"
+        }
+    },
+    "3.5.8[a]": {
+        azure: {
+            steps: ["1. Configure Entra ID password history: remember 24 passwords", "2. For hybrid: Configure AD password history via GPO", "3. Enable password change on next sign-in for compromised passwords", "4. Document password reuse prevention", "5. Test enforcement"],
+            quickWin: "Entra ID enforces password history by default - verify setting",
+            evidenceArtifact: "PasswordHistory_Config.json",
+            humanInTheLoop: ["Security defines password history depth", "IT implements technical controls", "Users informed of password policy"],
+            policyEvidence: ["Password Policy (24 password history)", "Password Change Procedure"]
+        },
+        aws: {
+            steps: ["1. Configure IAM password policy: password reuse prevention = 24", "2. Apply to all IAM users", "3. Document password history requirements", "4. Test enforcement"],
+            quickWin: "`aws iam update-account-password-policy --password-reuse-prevention 24`",
+            evidenceArtifact: "IAM_PasswordHistory.json"
+        },
+        gcp: {
+            steps: ["1. Configure Cloud Identity password policy", "2. Set password history to prevent reuse", "3. Document password requirements", "4. Test enforcement"],
+            quickWin: "Configure password reuse in Admin Console > Security",
+            evidenceArtifact: "CloudIdentity_PasswordHistory.json"
+        }
+    },
+
+    // === INCIDENT RESPONSE (3.6) - Expanded ===
+    "3.6.1[d]": {
+        azure: {
+            steps: ["1. Configure Sentinel analytics rules for incident detection", "2. Create investigation workbooks", "3. Define triage procedures and severity classification", "4. Set up Entity Behavior Analytics", "5. Document analysis procedures in IR runbooks"],
+            quickWin: "Import Sentinel Investigation Insights workbook",
+            evidenceArtifact: "IncidentAnalysis_Runbook.docx",
+            humanInTheLoop: ["SOC analyst performs initial triage within 15 minutes", "Security engineer conducts deep investigation", "IR lead escalates high severity to management"],
+            policyEvidence: ["Incident Analysis Procedure", "Severity Classification Matrix", "Escalation Criteria"]
+        },
+        aws: {
+            steps: ["1. Use Security Hub for finding aggregation", "2. Enable Detective for investigation", "3. Create investigation playbooks", "4. Define severity classification", "5. Document analysis procedures"],
+            quickWin: "Enable Amazon Detective for automated investigation",
+            evidenceArtifact: "Detective_Investigation.json"
+        },
+        gcp: {
+            steps: ["1. Use SCC for finding aggregation", "2. Enable Chronicle for investigation", "3. Create investigation procedures", "4. Define severity classification", "5. Document analysis workflows"],
+            quickWin: "Enable Chronicle SIEM for investigation capabilities",
+            evidenceArtifact: "SCC_Investigation.json"
+        }
+    },
+    "3.6.1[e]": {
+        azure: {
+            steps: ["1. Create containment playbooks in Sentinel", "2. Configure automated response (isolate VM, disable user)", "3. Define manual containment procedures", "4. Set up network isolation capabilities", "5. Document containment strategies per incident type"],
+            quickWin: "Create Sentinel playbook to isolate compromised VM",
+            evidenceArtifact: "Containment_Playbooks.json",
+            humanInTheLoop: ["IR lead authorizes containment actions", "SOC executes containment", "Legal consulted before user suspension"],
+            policyEvidence: ["Incident Containment Procedure", "Containment Authorization Matrix", "Business Impact Considerations"]
+        },
+        aws: {
+            steps: ["1. Create containment Lambda functions", "2. Configure Security Hub automated response", "3. Document manual containment procedures", "4. Set up VPC network isolation", "5. Test containment procedures"],
+            quickWin: "Create Lambda to isolate EC2 instance (remove from security group)",
+            evidenceArtifact: "Containment_Automation.json"
+        },
+        gcp: {
+            steps: ["1. Create containment Cloud Functions", "2. Configure SCC notifications for automated response", "3. Document manual containment procedures", "4. Set up VPC network isolation", "5. Test containment"],
+            quickWin: "Create Cloud Function to apply deny-all firewall rule",
+            evidenceArtifact: "Containment_CloudFunction.json"
+        }
+    },
+    "3.6.2[c]": {
+        azure: {
+            steps: ["1. Document DIBNet/DC3 reporting requirements", "2. Create incident report template for cyber incidents", "3. Define 72-hour reporting timeline", "4. Identify reporting contacts and procedures", "5. Train IR team on reporting obligations"],
+            quickWin: "Create DIBCAC incident report template in SharePoint",
+            evidenceArtifact: "IncidentReporting_Procedure.docx",
+            humanInTheLoop: ["IR lead determines if incident is reportable", "FSO validates reporting decision", "Legal reviews before external reporting", "CISO approves final report"],
+            policyEvidence: ["Cyber Incident Reporting Policy", "DFARS 252.204-7012 Compliance Procedure", "DC3 Reporting Template"]
+        },
+        aws: {
+            steps: ["1. Document DFARS reporting requirements", "2. Create incident report template", "3. Define reporting timeline (72 hours)", "4. Document DC3 submission process", "5. Train team on reporting"],
+            quickWin: "Create DFARS incident report template",
+            evidenceArtifact: "DFARS_ReportTemplate.docx"
+        },
+        gcp: {
+            steps: ["1. Document DFARS reporting requirements", "2. Create incident report template", "3. Define reporting timeline", "4. Document DC3 submission process", "5. Train team on reporting"],
+            quickWin: "Create incident reporting procedure document",
+            evidenceArtifact: "IncidentReporting_GCP.docx"
+        }
+    },
+
+    // === SYSTEM AND COMMUNICATIONS PROTECTION (3.13) - Expanded ===
+    "3.13.2[a]": {
+        azure: {
+            steps: ["1. Document defense-in-depth architecture", "2. Implement network segmentation (VNets, NSGs, Azure Firewall)", "3. Deploy layered security controls", "4. Use Azure Landing Zones for secure architecture", "5. Document security architecture decisions"],
+            quickWin: "Deploy Hub-Spoke network topology with Azure Firewall",
+            evidenceArtifact: "SecurityArchitecture_Diagram.pdf",
+            humanInTheLoop: ["Security architect designs defense-in-depth", "Network team implements segmentation", "Security validates architecture controls"],
+            policyEvidence: ["Security Architecture Policy", "Defense-in-Depth Standard", "Network Segmentation Requirements"]
+        },
+        aws: {
+            steps: ["1. Document layered security architecture", "2. Implement VPC segmentation (public/private subnets)", "3. Deploy Network Firewall/WAF", "4. Use AWS Control Tower for landing zone", "5. Document architecture decisions"],
+            quickWin: "Deploy AWS Control Tower with security baseline",
+            evidenceArtifact: "AWS_SecurityArchitecture.pdf"
+        },
+        gcp: {
+            steps: ["1. Document security architecture", "2. Implement VPC Service Controls", "3. Use Shared VPC for segmentation", "4. Deploy Cloud Armor/Firewall", "5. Document architecture decisions"],
+            quickWin: "Enable VPC Service Controls for CUI data perimeter",
+            evidenceArtifact: "GCP_SecurityArchitecture.pdf"
+        }
+    },
+    "3.13.5[b]": {
+        azure: {
+            steps: ["1. Deploy Azure Firewall or NVA in hub VNet", "2. Configure DMZ subnet for public-facing systems", "3. Implement subnet isolation with NSGs", "4. Route all traffic through firewall", "5. Document DMZ architecture"],
+            quickWin: "Create separate subnet for internet-facing workloads with restricted NSG",
+            evidenceArtifact: "DMZ_NetworkDiagram.pdf",
+            humanInTheLoop: ["Network team designs DMZ architecture", "Security approves firewall rules", "Operations manages DMZ systems separately"],
+            policyEvidence: ["DMZ Architecture Standard", "Public-Facing System Requirements", "Network Segmentation Policy"]
+        },
+        aws: {
+            steps: ["1. Create separate VPC or public subnet for DMZ", "2. Deploy ALB/NLB for public access", "3. Implement strict security groups", "4. Route through NAT Gateway/Firewall", "5. Document DMZ design"],
+            quickWin: "Use separate public subnet with WAF for internet-facing workloads",
+            evidenceArtifact: "AWS_DMZ_Design.pdf"
+        },
+        gcp: {
+            steps: ["1. Create separate VPC or subnet for DMZ", "2. Deploy Cloud Load Balancing with Cloud Armor", "3. Implement strict firewall rules", "4. Use Cloud NAT for egress", "5. Document DMZ design"],
+            quickWin: "Deploy Cloud Armor WAF for public-facing applications",
+            evidenceArtifact: "GCP_DMZ_Design.pdf"
+        }
+    },
+    "3.13.6[a]": {
+        azure: {
+            steps: ["1. Configure NSG with deny-all inbound/outbound by default", "2. Add only required allow rules with justification", "3. Use Azure Firewall for centralized default-deny", "4. Enable NSG flow logs for monitoring", "5. Document default-deny implementation"],
+            quickWin: "Create NSG baseline with deny-all, add specific allow rules",
+            evidenceArtifact: "NSG_DefaultDeny_Config.json",
+            humanInTheLoop: ["Network team implements default-deny", "Application owners request firewall exceptions", "Security approves firewall rules"],
+            policyEvidence: ["Default-Deny Network Policy", "Firewall Rule Request Procedure", "Network Access Justification Requirements"]
+        },
+        aws: {
+            steps: ["1. Configure Security Groups with minimal rules", "2. Use Network ACLs for subnet-level deny", "3. Implement AWS Network Firewall default-deny", "4. Enable VPC Flow Logs", "5. Document default-deny posture"],
+            quickWin: "Configure Network ACL with explicit deny rules",
+            evidenceArtifact: "VPC_DefaultDeny_Config.json"
+        },
+        gcp: {
+            steps: ["1. Configure VPC firewall with implied deny", "2. Add only required allow rules", "3. Use hierarchical firewall policies", "4. Enable firewall logging", "5. Document default-deny implementation"],
+            quickWin: "Verify implied deny-all ingress is not overridden",
+            evidenceArtifact: "GCP_Firewall_DefaultDeny.json"
+        }
+    },
+    "3.13.10[a]": {
+        azure: {
+            steps: ["1. Use Azure Key Vault for key management", "2. Enable HSM-backed keys for FIPS compliance", "3. Configure key rotation policies", "4. Implement RBAC for key access", "5. Document key management procedures"],
+            quickWin: "Create Key Vault with HSM-backed keys and 90-day rotation",
+            evidenceArtifact: "KeyVault_Config.json",
+            humanInTheLoop: ["Security defines key management policy", "IT implements Key Vault configuration", "Key custodians manage key lifecycle"],
+            policyEvidence: ["Cryptographic Key Management Policy", "Key Rotation Schedule", "Key Access Authorization Procedure"]
+        },
+        aws: {
+            steps: ["1. Use AWS KMS for key management", "2. Enable CloudHSM for FIPS 140-2 Level 3", "3. Configure automatic key rotation", "4. Implement key policies for access control", "5. Document key management"],
+            quickWin: "Enable automatic annual key rotation for KMS CMKs",
+            evidenceArtifact: "KMS_KeyManagement.json"
+        },
+        gcp: {
+            steps: ["1. Use Cloud KMS for key management", "2. Enable Cloud HSM for FIPS compliance", "3. Configure key rotation schedules", "4. Implement IAM for key access", "5. Document key management"],
+            quickWin: "Configure automatic key rotation in Cloud KMS",
+            evidenceArtifact: "CloudKMS_Config.json"
+        }
+    },
+    "3.13.15[a]": {
+        azure: {
+            steps: ["1. Configure TLS 1.2+ for all communications", "2. Enable session tokens with secure attributes", "3. Implement token refresh and expiration", "4. Use Entra ID for session management", "5. Document session protection mechanisms"],
+            quickWin: "Configure Conditional Access session controls with sign-in frequency",
+            evidenceArtifact: "SessionProtection_Config.json",
+            humanInTheLoop: ["Security defines session security requirements", "IT configures session controls", "Users informed of session timeouts"],
+            policyEvidence: ["Session Management Policy", "Token Security Requirements", "Session Timeout Standards"]
+        },
+        aws: {
+            steps: ["1. Configure TLS 1.2+ for ALB/CloudFront", "2. Implement session management in applications", "3. Use Cognito for session handling", "4. Configure session token expiration", "5. Document session protection"],
+            quickWin: "Configure ALB to require TLS 1.2 minimum",
+            evidenceArtifact: "ALB_TLSConfig.json"
+        },
+        gcp: {
+            steps: ["1. Configure TLS 1.2+ for Load Balancers", "2. Use Identity-Aware Proxy for session control", "3. Implement session management in apps", "4. Configure session token expiration", "5. Document session protection"],
+            quickWin: "Configure SSL policy requiring TLS 1.2+ on load balancers",
+            evidenceArtifact: "GCP_TLSConfig.json"
+        }
+    },
+
+    // === SYSTEM AND INFORMATION INTEGRITY (3.14) - Expanded ===
+    "3.14.3[a]": {
+        azure: {
+            steps: ["1. Configure Defender for Cloud security alerts", "2. Set up Sentinel analytics rules for threat detection", "3. Enable email/SMS notifications for high-severity alerts", "4. Create alert response procedures", "5. Document alert monitoring process"],
+            quickWin: "Enable Defender for Cloud continuous export to Sentinel",
+            evidenceArtifact: "SecurityAlerts_Config.json",
+            humanInTheLoop: ["SOC monitors security alerts 24x7 or during business hours", "Security engineer investigates alerts", "IR team escalates confirmed incidents"],
+            policyEvidence: ["Security Alert Monitoring Procedure", "Alert Response SLAs", "Escalation Matrix"]
+        },
+        aws: {
+            steps: ["1. Enable Security Hub for alert aggregation", "2. Configure GuardDuty notifications", "3. Set up SNS for alert delivery", "4. Create alert response procedures", "5. Document monitoring process"],
+            quickWin: "Enable Security Hub with CIS AWS Foundations Benchmark",
+            evidenceArtifact: "SecurityHub_Alerts.json"
+        },
+        gcp: {
+            steps: ["1. Enable SCC for security findings", "2. Configure alert policies in Cloud Monitoring", "3. Set up notification channels", "4. Create alert response procedures", "5. Document monitoring process"],
+            quickWin: "Enable SCC notifications via Pub/Sub",
+            evidenceArtifact: "SCC_AlertConfig.json"
+        }
+    },
+    "3.14.4[a]": {
+        azure: {
+            steps: ["1. Configure Defender Antivirus automatic updates via Intune", "2. Set update frequency to every 4 hours", "3. Enable cloud-delivered protection", "4. Monitor update status in Defender portal", "5. Document update configuration"],
+            quickWin: "Configure Intune policy: Defender signature update interval = 4 hours",
+            evidenceArtifact: "DefenderUpdate_Config.json",
+            humanInTheLoop: ["IT monitors update compliance", "Security validates protection status", "Help desk assists with update failures"],
+            policyEvidence: ["Malware Protection Update Policy", "Definition Update Frequency Requirements", "Update Failure Response Procedure"]
+        },
+        aws: {
+            steps: ["1. Configure automatic updates for endpoint protection", "2. Use Systems Manager for update management", "3. Monitor update compliance via Config", "4. Alert on outdated definitions", "5. Document update process"],
+            quickWin: "Configure SSM Patch Manager for endpoint protection updates",
+            evidenceArtifact: "EndpointUpdate_Config.json"
+        },
+        gcp: {
+            steps: ["1. Configure automatic updates for endpoint protection", "2. Use OS Config for patch management", "3. Monitor update compliance", "4. Alert on outdated definitions", "5. Document update process"],
+            quickWin: "Enable OS Patch Management for automatic updates",
+            evidenceArtifact: "EndpointUpdate_GCP.json"
+        }
+    },
+    "3.14.5[b]": {
+        azure: {
+            steps: ["1. Enable Defender Antivirus real-time protection", "2. Configure on-access scanning in Intune policy", "3. Enable behavior monitoring", "4. Enable script scanning", "5. Document real-time scan configuration"],
+            quickWin: "Verify Intune Defender policy: Real-time protection = Enabled",
+            evidenceArtifact: "RealTimeScan_Config.json",
+            humanInTheLoop: ["IT deploys real-time scanning policy", "Security monitors scan effectiveness", "Users report performance issues"],
+            policyEvidence: ["Malware Scanning Policy", "Real-Time Protection Requirements", "Scan Exception Procedure"]
+        },
+        aws: {
+            steps: ["1. Enable real-time scanning on endpoint protection", "2. Configure on-access scanning", "3. Enable behavior-based detection", "4. Monitor scan activity", "5. Document configuration"],
+            quickWin: "Verify endpoint agent real-time protection is enabled",
+            evidenceArtifact: "RealTimeScan_AWS.json"
+        },
+        gcp: {
+            steps: ["1. Enable real-time scanning on endpoints", "2. Configure on-access scanning", "3. Enable Container Threat Detection for GKE", "4. Monitor scan activity", "5. Document configuration"],
+            quickWin: "Enable Container Threat Detection in SCC",
+            evidenceArtifact: "RealTimeScan_GCP.json"
+        }
+    },
+    "3.14.7[a]": {
+        azure: {
+            steps: ["1. Define unauthorized use in policy (personal use, prohibited activities)", "2. Configure Sentinel analytics for unauthorized use detection", "3. Enable Insider Risk Management for user behavior", "4. Create alerts for policy violations", "5. Document detection mechanisms"],
+            quickWin: "Enable Insider Risk Management policy templates",
+            evidenceArtifact: "UnauthorizedUse_Detection.json",
+            humanInTheLoop: ["Security defines unauthorized use criteria", "SOC monitors for violations", "HR/Legal involved in confirmed violations"],
+            policyEvidence: ["Acceptable Use Policy", "Unauthorized Use Detection Procedure", "Violation Response Process"]
+        },
+        aws: {
+            steps: ["1. Define unauthorized use criteria", "2. Configure GuardDuty for anomaly detection", "3. Use CloudTrail Insights for unusual activity", "4. Create alerts for policy violations", "5. Document detection mechanisms"],
+            quickWin: "Enable GuardDuty with all detection categories",
+            evidenceArtifact: "UnauthorizedUse_AWS.json"
+        },
+        gcp: {
+            steps: ["1. Define unauthorized use criteria", "2. Configure SCC Event Threat Detection", "3. Enable anomaly detection in Chronicle", "4. Create alerts for violations", "5. Document detection mechanisms"],
+            quickWin: "Enable Event Threat Detection in SCC Premium",
+            evidenceArtifact: "UnauthorizedUse_GCP.json"
+        }
     }
 };
 
