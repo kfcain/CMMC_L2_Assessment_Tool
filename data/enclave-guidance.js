@@ -1111,6 +1111,314 @@ const ENCLAVE_GUIDANCE = {
             ]
         },
         
+        // Enhanced Assessment Questions with Controls and Technical Implementation
+        assessmentQuestionsEnhanced: [
+            {
+                question: "How do you prevent CUI from being extracted from VDI sessions?",
+                answer: "Clipboard, drive, and printer redirection are disabled. Screen watermarking is enabled. DLP policies scan for CUI content. USB device filtering blocks removable media.",
+                controls: ["3.1.3", "3.1.21", "3.8.7"],
+                controlDescriptions: {
+                    "3.1.3": "Control CUI flow in accordance with approved authorizations",
+                    "3.1.21": "Limit use of portable storage devices on external systems",
+                    "3.8.7": "Control the use of removable media on system components"
+                },
+                technicalImplementation: {
+                    windowsGPO: [
+                        { setting: "Disable Clipboard Redirection", path: "Computer Configuration > Administrative Templates > Windows Components > Remote Desktop Services > Remote Desktop Session Host > Device and Resource Redirection > Do not allow Clipboard redirection", value: "Enabled" },
+                        { setting: "Disable Drive Redirection", path: "Computer Configuration > Administrative Templates > Windows Components > Remote Desktop Services > Remote Desktop Session Host > Device and Resource Redirection > Do not allow drive redirection", value: "Enabled" },
+                        { setting: "Disable Printer Redirection", path: "Computer Configuration > Administrative Templates > Windows Components > Remote Desktop Services > Remote Desktop Session Host > Printer Redirection > Do not allow client printer redirection", value: "Enabled" },
+                        { setting: "Block USB Storage", path: "Computer Configuration > Administrative Templates > System > Removable Storage Access > All Removable Storage classes: Deny all access", value: "Enabled" }
+                    ],
+                    windowsRegistry: [
+                        { key: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services", value: "fDisableClip", data: "1 (DWORD)", description: "Disable clipboard redirection" },
+                        { key: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services", value: "fDisableCdm", data: "1 (DWORD)", description: "Disable drive mapping" },
+                        { key: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services", value: "fDisableCpm", data: "1 (DWORD)", description: "Disable printer mapping" },
+                        { key: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\USBSTOR", value: "Start", data: "4 (DWORD)", description: "Disable USB storage driver" }
+                    ],
+                    avd: [
+                        { setting: "RDP Properties", config: "redirectclipboard:i:0;drivestoredirect:s:;redirectprinters:i:0", location: "Host Pool > RDP Properties" },
+                        { setting: "Screen Capture Protection", config: "Enable via Intune or GPO on session hosts", location: "Session Host Policy" },
+                        { setting: "Watermarking", config: "Enable via third-party or custom solution", location: "Application" }
+                    ],
+                    citrix: [
+                        { setting: "Client Clipboard Redirection", config: "Prohibited", location: "Citrix Policy > ICA > Client Clipboard Redirection" },
+                        { setting: "Client Drive Redirection", config: "Prohibited", location: "Citrix Policy > ICA > File Redirection > Client Drive Redirection" },
+                        { setting: "Auto Connect Client Drives", config: "Prohibited", location: "Citrix Policy > ICA > File Redirection" },
+                        { setting: "Session Watermark", config: "Enabled with username", location: "Citrix Policy > ICA > Graphics > Session Watermark" },
+                        { setting: "App Protection", config: "Anti-screen capture enabled", location: "Delivery Group > App Protection" }
+                    ],
+                    vmware: [
+                        { setting: "Clipboard Redirection", config: "Disabled or Server to Client only", location: "Horizon Admin > Settings > Global Policies" },
+                        { setting: "Client Drive Redirection", config: "Disabled", location: "Horizon Admin > Settings > Global Policies" },
+                        { setting: "USB Redirection", config: "Disabled or filtered", location: "Horizon Admin > Settings > Global Policies > USB Settings" },
+                        { setting: "Digital Watermark", config: "Enabled", location: "Horizon Admin > Settings > Global Settings > Security Settings" }
+                    ],
+                    igel: [
+                        { setting: "USB Device Control", config: "Block storage class devices", location: "UMS > Profiles > Devices > USB Access Control" },
+                        { setting: "Clipboard", config: "Disable local clipboard", location: "UMS > Profiles > Sessions > [Protocol] > Clipboard" },
+                        { setting: "Drive Mapping", config: "Disable local drive mapping", location: "UMS > Profiles > Sessions > [Protocol] > Drives" }
+                    ]
+                }
+            },
+            {
+                question: "How are VDI session hosts patched?",
+                answer: "For non-persistent: Gold image updated monthly via automated pipeline, session hosts redeployed from new image. For persistent: Intune/WSUS patch management with compliance reporting.",
+                controls: ["3.14.1", "3.4.1", "3.4.5"],
+                controlDescriptions: {
+                    "3.14.1": "Identify, report, and correct system flaws in a timely manner",
+                    "3.4.1": "Establish and maintain baseline configurations and inventories",
+                    "3.4.5": "Define, document, approve, and enforce physical and logical access restrictions"
+                },
+                technicalImplementation: {
+                    windowsGPO: [
+                        { setting: "Configure Automatic Updates", path: "Computer Configuration > Administrative Templates > Windows Components > Windows Update > Configure Automatic Updates", value: "Enabled - Auto download and schedule install" },
+                        { setting: "WSUS Server", path: "Computer Configuration > Administrative Templates > Windows Components > Windows Update > Specify intranet Microsoft update service location", value: "https://wsus.domain.com:8531" }
+                    ],
+                    windowsRegistry: [
+                        { key: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate", value: "WUServer", data: "https://wsus.domain.com:8531", description: "WSUS server URL" },
+                        { key: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU", value: "UseWUServer", data: "1 (DWORD)", description: "Use WSUS server" }
+                    ],
+                    avd: [
+                        { setting: "Image Update", config: "Azure Image Builder pipeline with monthly schedule", location: "Azure DevOps / Image Builder" },
+                        { setting: "Session Host Replacement", config: "Drain mode > Delete > Redeploy from new image", location: "Host Pool > Session Hosts" },
+                        { setting: "Intune Patching", config: "Windows Update for Business ring deployment", location: "Intune > Devices > Windows 10 update rings" }
+                    ],
+                    citrix: [
+                        { setting: "MCS Image Update", config: "Update master image > Update machines", location: "Machine Catalog > Update Machines" },
+                        { setting: "PVS vDisk Update", config: "Create new vDisk version > Promote to production", location: "PVS Console > vDisk Versioning" },
+                        { setting: "CVAD Patching", config: "Schedule maintenance window in Director", location: "Citrix Director > Scheduling" }
+                    ],
+                    vmware: [
+                        { setting: "Instant Clone Update", config: "Update parent VM > Push to pool", location: "Horizon Console > Desktop Pool > Instant Clone Maintenance" },
+                        { setting: "Linked Clone Recompose", config: "New snapshot > Recompose pool", location: "Horizon Console > Desktop Pool > Recompose" },
+                        { setting: "App Volumes Update", config: "Update AppStack > Assign new version", location: "App Volumes Manager" }
+                    ],
+                    igel: [
+                        { setting: "Firmware Update", config: "Schedule firmware deployment", location: "UMS > Scheduled Jobs > Firmware Update" },
+                        { setting: "Profile Update", config: "Assign updated profile > Reboot", location: "UMS > Profiles > Assign" }
+                    ]
+                }
+            },
+            {
+                question: "How is user activity in VDI sessions logged?",
+                answer: "VDI diagnostic logs sent to Log Analytics/SIEM. Session recording enabled for privileged users. Windows Event logs forwarded from session hosts.",
+                controls: ["3.3.1", "3.3.2", "3.3.4"],
+                controlDescriptions: {
+                    "3.3.1": "Create and retain system audit logs and records",
+                    "3.3.2": "Ensure actions of individual system users can be uniquely traced",
+                    "3.3.4": "Alert in the event of an audit logging process failure"
+                },
+                technicalImplementation: {
+                    windowsGPO: [
+                        { setting: "Audit Logon Events", path: "Computer Configuration > Windows Settings > Security Settings > Advanced Audit Policy Configuration > Logon/Logoff > Audit Logon", value: "Success, Failure" },
+                        { setting: "Audit Process Creation", path: "Computer Configuration > Windows Settings > Security Settings > Advanced Audit Policy Configuration > Detailed Tracking > Audit Process Creation", value: "Success" },
+                        { setting: "Command Line in Process Events", path: "Computer Configuration > Administrative Templates > System > Audit Process Creation > Include command line in process creation events", value: "Enabled" },
+                        { setting: "Event Log Size", path: "Computer Configuration > Windows Settings > Security Settings > Event Log > Security Log > Maximum Log Size", value: "4194240 KB" }
+                    ],
+                    windowsRegistry: [
+                        { key: "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit", value: "ProcessCreationIncludeCmdLine_Enabled", data: "1 (DWORD)", description: "Include command line in audit" },
+                        { key: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Security", value: "MaxSize", data: "4194240 (DWORD)", description: "Security log max size" }
+                    ],
+                    avd: [
+                        { setting: "Diagnostic Settings", config: "Send to Log Analytics workspace", location: "Host Pool > Diagnostic Settings" },
+                        { setting: "Categories", config: "Checkpoint, Connection, Error, HostRegistration, Management", location: "Diagnostic Settings > Categories" },
+                        { setting: "Azure Monitor Agent", config: "Deploy AMA to session hosts", location: "Azure Monitor > Data Collection Rules" },
+                        { setting: "Microsoft Sentinel", config: "Enable AVD connector", location: "Sentinel > Data Connectors" }
+                    ],
+                    citrix: [
+                        { setting: "Session Recording", config: "Enable for target users/groups", location: "Session Recording Policy > Recording" },
+                        { setting: "CVAD Logging", config: "Enable Configuration Logging", location: "Citrix Studio > Logging" },
+                        { setting: "OData Export", config: "Export to SIEM via OData API", location: "Citrix Director > OData" },
+                        { setting: "Citrix Analytics", config: "Enable Security Analytics", location: "Citrix Cloud > Analytics" }
+                    ],
+                    vmware: [
+                        { setting: "Event Database", config: "Configure event database connection", location: "Horizon Console > View Configuration > Event Configuration" },
+                        { setting: "Syslog Integration", config: "Forward events to SIEM", location: "vCenter > Configure > Syslog" },
+                        { setting: "Session Recording", config: "Third-party integration (Teramind, ObserveIT)", location: "VDA Agent" }
+                    ],
+                    igel: [
+                        { setting: "System Logging", config: "Enable remote syslog", location: "UMS > Profiles > System > Logging > Remote Syslog" },
+                        { setting: "UMS Logging", config: "Enable database logging", location: "UMS > Global Configuration > Logging" }
+                    ]
+                }
+            },
+            {
+                question: "How do you ensure only authorized users access CUI in VDI?",
+                answer: "Conditional Access requires MFA, compliant/managed device, and approved location. Host pool assignment via Entra ID groups with access reviews.",
+                controls: ["3.1.1", "3.1.2", "3.5.3"],
+                controlDescriptions: {
+                    "3.1.1": "Limit system access to authorized users, processes, and devices",
+                    "3.1.2": "Limit system access to the types of transactions and functions that authorized users are permitted to execute",
+                    "3.5.3": "Use multifactor authentication for local and network access to privileged accounts and for network access to non-privileged accounts"
+                },
+                technicalImplementation: {
+                    windowsGPO: [
+                        { setting: "Deny Log On Locally", path: "Computer Configuration > Windows Settings > Security Settings > Local Policies > User Rights Assignment > Deny log on locally", value: "Add unauthorized groups" },
+                        { setting: "Deny Access from Network", path: "Computer Configuration > Windows Settings > Security Settings > Local Policies > User Rights Assignment > Deny access to this computer from the network", value: "Add unauthorized groups" }
+                    ],
+                    windowsRegistry: [
+                        { key: "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", value: "DontDisplayLastUserName", data: "1 (DWORD)", description: "Don't display last user" },
+                        { key: "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", value: "LegalNoticeCaption", data: "CUI System Warning", description: "Logon banner title" }
+                    ],
+                    avd: [
+                        { setting: "Conditional Access", config: "Require MFA + Compliant Device + Approved Location", location: "Entra ID > Conditional Access > New Policy" },
+                        { setting: "Target Apps", config: "Windows Virtual Desktop + Azure Virtual Desktop", location: "Conditional Access > Cloud Apps" },
+                        { setting: "Application Group Assignment", config: "Entra ID Security Group", location: "AVD > Application Group > Assignments" },
+                        { setting: "Access Reviews", config: "Quarterly review of group membership", location: "Entra ID > Identity Governance > Access Reviews" }
+                    ],
+                    citrix: [
+                        { setting: "SmartAccess", config: "Require compliant endpoint", location: "Citrix Gateway > Session Policies > SmartAccess" },
+                        { setting: "Delivery Group Access", config: "AD Security Group assignment", location: "Citrix Studio > Delivery Group > Users" },
+                        { setting: "SAML/OIDC", config: "Federate with Entra ID for SSO + MFA", location: "Citrix Cloud > Identity and Access Management" },
+                        { setting: "Contextual Access", config: "Location/device-based policies", location: "Citrix Workspace > Access Policies" }
+                    ],
+                    vmware: [
+                        { setting: "Entitlements", config: "AD Group-based desktop entitlements", location: "Horizon Console > Users and Groups > Entitlements" },
+                        { setting: "SAML Authentication", config: "Integrate with Entra ID", location: "Horizon Console > Settings > SAML 2.0 Authentication" },
+                        { setting: "UAG MFA", config: "RADIUS integration for MFA", location: "UAG Admin > Authentication Settings" },
+                        { setting: "Compliance Check", config: "Endpoint compliance via Workspace ONE", location: "Workspace ONE UEM" }
+                    ],
+                    igel: [
+                        { setting: "Certificate Authentication", config: "Require device certificate", location: "UMS > Profiles > Security > Certificates" },
+                        { setting: "Allowed Users", config: "Restrict local login", location: "UMS > Profiles > Security > Local Security > Users" }
+                    ]
+                }
+            },
+            {
+                question: "Where is user data stored in VDI?",
+                answer: "User profiles in FSLogix containers on encrypted Azure Files (or specified storage). No CUI stored locally on session hosts. OneDrive KFM for user files with DLP.",
+                controls: ["3.13.16", "3.8.9", "3.1.3"],
+                controlDescriptions: {
+                    "3.13.16": "Protect the confidentiality of CUI at rest",
+                    "3.8.9": "Protect the confidentiality of backup CUI at storage locations",
+                    "3.1.3": "Control CUI flow in accordance with approved authorizations"
+                },
+                technicalImplementation: {
+                    windowsGPO: [
+                        { setting: "Folder Redirection", path: "User Configuration > Windows Settings > Folder Redirection > Documents", value: "Redirect to network share" },
+                        { setting: "Offline Files Disabled", path: "Computer Configuration > Administrative Templates > Network > Offline Files > Allow or Disallow use of Offline Files feature", value: "Disabled" }
+                    ],
+                    windowsRegistry: [
+                        { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "Enabled", data: "1 (DWORD)", description: "Enable FSLogix" },
+                        { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "VHDLocations", data: "\\\\storage\\profiles$", description: "Profile storage path" },
+                        { key: "HKLM\\SOFTWARE\\Policies\\Microsoft\\OneDrive", value: "KFMSilentOptIn", data: "{TenantID}", description: "OneDrive KFM silent opt-in" }
+                    ],
+                    avd: [
+                        { setting: "Azure Files", config: "Premium tier with Private Endpoint", location: "Storage Account > File Shares" },
+                        { setting: "AD Authentication", config: "Enable AD DS or Entra DS auth", location: "Storage Account > File Shares > Active Directory" },
+                        { setting: "Encryption", config: "Customer-managed keys (optional)", location: "Storage Account > Encryption" },
+                        { setting: "FSLogix VHDLocations", config: "\\\\storageacct.file.core.windows.net\\profiles", location: "Session Host GPO/Intune" },
+                        { setting: "OneDrive KFM", config: "Redirect Desktop, Documents, Pictures", location: "Intune > OneDrive Configuration" }
+                    ],
+                    citrix: [
+                        { setting: "Profile Management Path", config: "UNC to encrypted share", location: "Citrix Policy > Profile Management > Path to user store" },
+                        { setting: "Profile Streaming", config: "Enabled for fast logon", location: "Citrix Policy > Profile Management > Streamed user profiles" },
+                        { setting: "Azure Files for Citrix", config: "NetApp Files or Azure Files", location: "Storage infrastructure" },
+                        { setting: "Folder Redirection", config: "Redirect to secured share", location: "Citrix Policy > Profile Management > Folder Redirection" }
+                    ],
+                    vmware: [
+                        { setting: "DEM Profile Path", config: "UNC path to encrypted share", location: "DEM Management Console > Configuration" },
+                        { setting: "Profile Archive Path", config: "Separate archive location", location: "DEM > Profile Archive" },
+                        { setting: "vSAN Encryption", config: "Enable data-at-rest encryption", location: "vCenter > vSAN > Services > Encryption" }
+                    ],
+                    igel: [
+                        { setting: "No Local Storage", config: "Disable local user data", location: "UMS > Profiles > Sessions > Local Storage = Disabled" },
+                        { setting: "Hotplug Disabled", config: "Block local device attachment", location: "UMS > Profiles > Devices > Hotplug" }
+                    ]
+                }
+            },
+            {
+                question: "How do you secure remote access to the VDI environment?",
+                answer: "VDI gateway with TLS 1.2+, split tunneling disabled, session timeout enforced. Only approved protocols allowed through firewall.",
+                controls: ["3.1.12", "3.1.13", "3.13.7", "3.13.8"],
+                controlDescriptions: {
+                    "3.1.12": "Monitor and control remote access sessions",
+                    "3.1.13": "Employ cryptographic mechanisms to protect the confidentiality of remote access sessions",
+                    "3.13.7": "Prevent remote devices from simultaneously establishing non-remote connections with organizational systems and communicating via some other connection to resources in external networks (split tunneling)",
+                    "3.13.8": "Implement cryptographic mechanisms to prevent unauthorized disclosure of CUI during transmission"
+                },
+                technicalImplementation: {
+                    windowsGPO: [
+                        { setting: "RDP Encryption Level", path: "Computer Configuration > Administrative Templates > Windows Components > Remote Desktop Services > Remote Desktop Session Host > Security > Set client connection encryption level", value: "High Level" },
+                        { setting: "Require NLA", path: "Computer Configuration > Administrative Templates > Windows Components > Remote Desktop Services > Remote Desktop Session Host > Security > Require user authentication for remote connections by using NLA", value: "Enabled" },
+                        { setting: "TLS 1.2 Only", path: "Computer Configuration > Administrative Templates > Windows Components > Remote Desktop Services > Remote Desktop Session Host > Security > Require use of specific security layer for remote (RDP) connections", value: "SSL (TLS 1.2)" }
+                    ],
+                    windowsRegistry: [
+                        { key: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.0\\Server", value: "Enabled", data: "0 (DWORD)", description: "Disable TLS 1.0" },
+                        { key: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.1\\Server", value: "Enabled", data: "0 (DWORD)", description: "Disable TLS 1.1" },
+                        { key: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.2\\Server", value: "Enabled", data: "1 (DWORD)", description: "Enable TLS 1.2" },
+                        { key: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services", value: "MinEncryptionLevel", data: "3 (DWORD)", description: "High encryption level" }
+                    ],
+                    avd: [
+                        { setting: "RDP Shortpath", config: "Enable for managed networks only", location: "Host Pool > RDP Properties" },
+                        { setting: "Private Endpoints", config: "Private Link for workspace and hostpool", location: "AVD > Private Endpoints" },
+                        { setting: "Conditional Access", config: "Block from untrusted networks", location: "Entra ID > Conditional Access" },
+                        { setting: "Session Timeout", config: "Disconnect after inactivity", location: "RDP Properties: autoreconnection enabled:i:0" }
+                    ],
+                    citrix: [
+                        { setting: "Gateway SSL", config: "TLS 1.2 only, strong ciphers", location: "NetScaler > SSL > SSL Profile" },
+                        { setting: "ICA Encryption", config: "SecureICA RC5-128 minimum", location: "Citrix Policy > ICA > Security > SecureICA encryption" },
+                        { setting: "Gateway SmartAccess", config: "EPA scans before connection", location: "NetScaler > Gateway > Policies" },
+                        { setting: "Session Timeout", config: "Configure idle and session limits", location: "Citrix Policy > ICA > Session Limits" }
+                    ],
+                    vmware: [
+                        { setting: "UAG TLS", config: "TLS 1.2 only", location: "UAG Admin > TLS Configuration" },
+                        { setting: "Blast Secure Gateway", config: "Enable BSG", location: "Horizon Console > Settings > Servers" },
+                        { setting: "PCoIP Security", config: "AES-256-GCM encryption", location: "Horizon Admin > Global Settings > Security" },
+                        { setting: "Session Timeout", config: "Configure via GPO or Horizon policy", location: "Horizon Console > Global Policies" }
+                    ],
+                    igel: [
+                        { setting: "VPN Split Tunnel", config: "Disabled - all traffic through VPN", location: "UMS > Profiles > Network > VPN" },
+                        { setting: "TLS Version", config: "Minimum TLS 1.2", location: "UMS > Profiles > Security > TLS" },
+                        { setting: "Session Lock", config: "Auto-lock after inactivity", location: "UMS > Profiles > Security > Screen Lock" }
+                    ]
+                }
+            },
+            {
+                question: "How do you protect the VDI environment from malware?",
+                answer: "EDR/AV on all session hosts (Defender for Endpoint or equivalent). Application control via AppLocker/WDAC. Network-level scanning at firewall.",
+                controls: ["3.14.2", "3.14.4", "3.14.5", "3.4.8"],
+                controlDescriptions: {
+                    "3.14.2": "Provide protection from malicious code at designated locations",
+                    "3.14.4": "Update malicious code protection mechanisms when new releases are available",
+                    "3.14.5": "Perform periodic scans of organizational systems and real-time scans of files from external sources",
+                    "3.4.8": "Apply deny-by-exception (blacklisting) policy to prevent the use of unauthorized software"
+                },
+                technicalImplementation: {
+                    windowsGPO: [
+                        { setting: "Windows Defender AV", path: "Computer Configuration > Administrative Templates > Windows Components > Microsoft Defender Antivirus > Real-time Protection > Turn on real-time protection", value: "Enabled" },
+                        { setting: "Cloud Protection", path: "Computer Configuration > Administrative Templates > Windows Components > Microsoft Defender Antivirus > MAPS > Join Microsoft MAPS", value: "Enabled - Advanced MAPS" },
+                        { setting: "AppLocker", path: "Computer Configuration > Windows Settings > Security Settings > Application Control Policies > AppLocker", value: "Configure rules" },
+                        { setting: "WDAC", path: "Computer Configuration > Administrative Templates > System > Device Guard > Deploy Code Integrity Policies", value: "Enable with policy file" }
+                    ],
+                    windowsRegistry: [
+                        { key: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender", value: "DisableAntiSpyware", data: "0 (DWORD)", description: "Ensure Defender enabled" },
+                        { key: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection", value: "DisableRealtimeMonitoring", data: "0 (DWORD)", description: "Real-time protection on" }
+                    ],
+                    avd: [
+                        { setting: "Defender for Endpoint", config: "Onboard via Intune or GPO", location: "Intune > Endpoint Security > Endpoint Detection and Response" },
+                        { setting: "Attack Surface Reduction", config: "Enable ASR rules", location: "Intune > Endpoint Security > Attack Surface Reduction" },
+                        { setting: "Application Control", config: "WDAC or AppLocker policy", location: "Intune > Configuration Profiles > Templates > Device Control" }
+                    ],
+                    citrix: [
+                        { setting: "VDA AV Optimization", config: "Configure exclusions for Citrix", location: "AV product > Exclusions" },
+                        { setting: "App Protection", config: "Anti-keylogging, anti-screen capture", location: "Delivery Group > App Protection" },
+                        { setting: "Workspace App Security", config: "App Protection enabled on client", location: "Citrix Workspace App > Advanced Preferences" }
+                    ],
+                    vmware: [
+                        { setting: "Carbon Black Integration", config: "Deploy CB sensor to VDI", location: "Carbon Black Console" },
+                        { setting: "vShield/NSX Malware", config: "Agentless AV scanning", location: "NSX > Security > Endpoint Protection" },
+                        { setting: "App Volumes Exclusions", config: "Exclude writable volumes from AV", location: "AV product > Exclusions" }
+                    ],
+                    igel: [
+                        { setting: "Read-Only OS", config: "Default - OS cannot be modified", location: "Built-in protection" },
+                        { setting: "Secure Boot", config: "Enable secure boot", location: "UMS > Profiles > Security > Secure Boot" },
+                        { setting: "Application Whitelist", config: "Only approved apps run", location: "UMS > Profiles > Sessions > Applications" }
+                    ]
+                }
+            }
+        ],
+        
         assessmentPrep: {
             commonQuestions: [
                 {

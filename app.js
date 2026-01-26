@@ -2206,6 +2206,97 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         }, 300);
     }
 
+    navigateToControl(controlId) {
+        // Navigate to a specific control (e.g., "3.1.3")
+        // First, determine the family from the control ID
+        const parts = controlId.split('.');
+        if (parts.length < 2) return;
+        
+        const familyNumber = parts[1]; // e.g., "1" from "3.1.3"
+        
+        // Map family numbers to family IDs
+        const familyMap = {
+            '1': 'AC',   // Access Control
+            '2': 'AT',   // Awareness and Training
+            '3': 'AU',   // Audit and Accountability
+            '4': 'CM',   // Configuration Management
+            '5': 'IA',   // Identification and Authentication
+            '6': 'IR',   // Incident Response
+            '7': 'MA',   // Maintenance
+            '8': 'MP',   // Media Protection
+            '9': 'PS',   // Personnel Security
+            '10': 'PE',  // Physical Protection
+            '11': 'RA',  // Risk Assessment
+            '12': 'CA',  // Security Assessment
+            '13': 'SC',  // System and Communications Protection
+            '14': 'SI'   // System and Information Integrity
+        };
+        
+        const familyId = familyMap[familyNumber];
+        if (!familyId) return;
+        
+        // Switch to assessment view
+        this.switchView('assessment');
+        
+        // Ensure controls are rendered
+        const controlsList = document.getElementById('controls-list');
+        if (controlsList && controlsList.children.length === 0) {
+            this.renderControls();
+        }
+        
+        // Find and expand the control after view has rendered
+        setTimeout(() => {
+            const controlsList = document.getElementById('controls-list');
+            if (!controlsList) return;
+            
+            // Find and expand the family container
+            const familyEl = controlsList.querySelector(`.control-family[data-family-id="${familyId}"]`);
+            
+            if (familyEl) {
+                const familyHeader = familyEl.querySelector('.family-header');
+                const familyControlsContainer = familyEl.querySelector('.family-controls');
+                
+                // Expand the family accordion
+                if (familyHeader && familyControlsContainer) {
+                    familyHeader.classList.add('expanded');
+                    familyControlsContainer.classList.add('expanded');
+                }
+                
+                // Find the specific control (e.g., "3.1.3")
+                const controlEl = familyEl.querySelector(`.control-card[data-control-id="${controlId}"]`);
+                
+                if (controlEl) {
+                    // Expand this control's objectives
+                    const controlHeader = controlEl.querySelector('.control-header');
+                    const objectivesDiv = controlHeader?.nextElementSibling;
+                    if (controlHeader && objectivesDiv) {
+                        controlHeader.classList.add('expanded');
+                        objectivesDiv.classList.add('expanded');
+                    }
+                    
+                    // Highlight the control briefly
+                    controlEl.style.boxShadow = '0 0 0 3px var(--accent-blue)';
+                    controlEl.style.transition = 'box-shadow 0.3s ease';
+                    
+                    // Scroll to control
+                    setTimeout(() => {
+                        controlEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // Remove highlight after 2 seconds
+                        setTimeout(() => {
+                            controlEl.style.boxShadow = '';
+                        }, 2000);
+                    }, 50);
+                } else {
+                    // Control card not found, just scroll to family
+                    setTimeout(() => {
+                        familyEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 50);
+                }
+            }
+        }, 300);
+    }
+
     markAllNotMet() {
         if (!confirm('This will mark ALL objectives as "Not Met" and add them to the POA&M. Are you sure?')) {
             return;
@@ -3718,16 +3809,147 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 </div>
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${cmmc.overview}</p>
 
-                <!-- Assessment Q&A -->
-                <h4 style="margin:16px 0 8px;color:var(--accent-orange)">Common Assessment Questions</h4>
-                ${cmmc.assessmentPrep.commonQuestions.map(q => `
-                    <div class="impl-policy-card" style="margin-bottom:12px">
-                        <div class="impl-policy-header"><h4 style="font-size:0.8rem">${q.question}</h4></div>
+                <!-- Enhanced Assessment Q&A with Controls and Implementation -->
+                <h4 style="margin:16px 0 8px;color:var(--accent-orange)">Assessment Questions with Technical Implementation</h4>
+                <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:12px">Click on control IDs to navigate to the assessment objective. Expand each question for platform-specific implementation guidance.</p>
+                
+                ${cmmc.assessmentQuestionsEnhanced ? cmmc.assessmentQuestionsEnhanced.map((q, idx) => `
+                    <div class="impl-policy-card" style="margin-bottom:16px">
+                        <div class="impl-policy-header" style="cursor:pointer" onclick="this.parentElement.querySelector('.impl-tech-details').classList.toggle('expanded')">
+                            <h4 style="font-size:0.85rem;flex:1">${q.question}</h4>
+                            <span style="font-size:0.7rem;opacity:0.7">▼ Click to expand</span>
+                        </div>
                         <div class="impl-policy-body">
-                            <p style="font-size:0.75rem">${q.answer}</p>
+                            <p style="font-size:0.75rem;margin-bottom:12px">${q.answer}</p>
+                            
+                            <!-- Linked Controls -->
+                            <div style="margin-bottom:12px">
+                                <strong style="font-size:0.7rem;color:var(--accent-blue)">Applicable Controls:</strong>
+                                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+                                    ${q.controls.map(c => `
+                                        <button class="control-link-btn" onclick="event.stopPropagation(); window.app && window.app.navigateToControl && window.app.navigateToControl('${c}')" 
+                                            style="background:var(--accent-blue);color:white;border:none;padding:4px 10px;border-radius:4px;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;gap:4px">
+                                            <span style="font-weight:600">${c}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                                <div style="margin-top:8px;font-size:0.65rem;color:var(--text-muted)">
+                                    ${q.controls.map(c => `<div style="margin-bottom:2px"><strong>${c}:</strong> ${q.controlDescriptions[c] || ''}</div>`).join('')}
+                                </div>
+                            </div>
+                            
+                            <!-- Technical Implementation Details (Collapsible) -->
+                            <div class="impl-tech-details" style="display:none;border-top:1px solid var(--border-color);padding-top:12px;margin-top:12px">
+                                
+                                <!-- Windows GPO -->
+                                ${q.technicalImplementation.windowsGPO ? `
+                                <div style="margin-bottom:16px">
+                                    <h5 style="font-size:0.75rem;color:var(--accent-purple);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                        Windows Group Policy (GPO)
+                                    </h5>
+                                    <div class="impl-table-container">
+                                        <table class="impl-table">
+                                            <thead><tr><th>Setting</th><th>Path</th><th>Value</th></tr></thead>
+                                            <tbody>
+                                                ${q.technicalImplementation.windowsGPO.map(g => `
+                                                    <tr>
+                                                        <td><strong style="font-size:0.65rem">${g.setting}</strong></td>
+                                                        <td style="font-size:0.6rem;font-family:monospace;word-break:break-all">${g.path}</td>
+                                                        <td style="font-size:0.65rem;color:var(--accent-green)">${g.value}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                
+                                <!-- Windows Registry -->
+                                ${q.technicalImplementation.windowsRegistry ? `
+                                <div style="margin-bottom:16px">
+                                    <h5 style="font-size:0.75rem;color:var(--accent-orange);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                                        Windows Registry
+                                    </h5>
+                                    <div class="impl-table-container">
+                                        <table class="impl-table">
+                                            <thead><tr><th>Key</th><th>Value</th><th>Data</th><th>Description</th></tr></thead>
+                                            <tbody>
+                                                ${q.technicalImplementation.windowsRegistry.map(r => `
+                                                    <tr>
+                                                        <td style="font-size:0.55rem;font-family:monospace;word-break:break-all">${r.key}</td>
+                                                        <td><code style="font-size:0.6rem">${r.value}</code></td>
+                                                        <td><code style="font-size:0.6rem;color:var(--accent-green)">${r.data}</code></td>
+                                                        <td style="font-size:0.6rem">${r.description}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                
+                                <!-- Platform-Specific Implementations -->
+                                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:12px">
+                                    
+                                    <!-- AVD -->
+                                    ${q.technicalImplementation.avd ? `
+                                    <div style="background:var(--bg-secondary);padding:10px;border-radius:6px;border-left:3px solid var(--accent-blue)">
+                                        <h6 style="font-size:0.7rem;color:var(--accent-blue);margin-bottom:6px">Azure Virtual Desktop</h6>
+                                        ${q.technicalImplementation.avd.map(a => `
+                                            <div style="margin-bottom:6px;font-size:0.65rem">
+                                                <strong>${a.setting}:</strong> <span style="color:var(--text-muted)">${a.config}</span>
+                                                <div style="font-size:0.55rem;color:var(--accent-blue)">${a.location}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    ` : ''}
+                                    
+                                    <!-- Citrix -->
+                                    ${q.technicalImplementation.citrix ? `
+                                    <div style="background:var(--bg-secondary);padding:10px;border-radius:6px;border-left:3px solid var(--accent-orange)">
+                                        <h6 style="font-size:0.7rem;color:var(--accent-orange);margin-bottom:6px">Citrix CVAD</h6>
+                                        ${q.technicalImplementation.citrix.map(c => `
+                                            <div style="margin-bottom:6px;font-size:0.65rem">
+                                                <strong>${c.setting}:</strong> <span style="color:var(--text-muted)">${c.config}</span>
+                                                <div style="font-size:0.55rem;color:var(--accent-orange)">${c.location}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    ` : ''}
+                                    
+                                    <!-- VMware -->
+                                    ${q.technicalImplementation.vmware ? `
+                                    <div style="background:var(--bg-secondary);padding:10px;border-radius:6px;border-left:3px solid var(--accent-green)">
+                                        <h6 style="font-size:0.7rem;color:var(--accent-green);margin-bottom:6px">VMware Horizon</h6>
+                                        ${q.technicalImplementation.vmware.map(v => `
+                                            <div style="margin-bottom:6px;font-size:0.65rem">
+                                                <strong>${v.setting}:</strong> <span style="color:var(--text-muted)">${v.config}</span>
+                                                <div style="font-size:0.55rem;color:var(--accent-green)">${v.location}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    ` : ''}
+                                    
+                                    <!-- IGEL -->
+                                    ${q.technicalImplementation.igel ? `
+                                    <div style="background:var(--bg-secondary);padding:10px;border-radius:6px;border-left:3px solid var(--accent-purple)">
+                                        <h6 style="font-size:0.7rem;color:var(--accent-purple);margin-bottom:6px">IGEL OS</h6>
+                                        ${q.technicalImplementation.igel.map(i => `
+                                            <div style="margin-bottom:6px;font-size:0.65rem">
+                                                <strong>${i.setting}:</strong> <span style="color:var(--text-muted)">${i.config}</span>
+                                                <div style="font-size:0.55rem;color:var(--accent-purple)">${i.location}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                `).join('')}
+                `).join('') : ''}
 
                 <!-- Document Checklist -->
                 <h4 style="margin:20px 0 8px;color:var(--accent-green)">Assessment Document Checklist</h4>

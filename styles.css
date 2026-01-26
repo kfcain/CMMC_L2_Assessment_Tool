@@ -5128,3 +5128,21 @@ table td {
 .main-content:has(#dashboard-view:not(.active)) .site-title-bar {
     display: flex;
 }
+
+/* VDI Tech Details Expandable Section */
+.impl-tech-details {
+    display: none;
+}
+
+.impl-tech-details.expanded {
+    display: block;
+}
+
+.control-link-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.control-link-btn:active {
+    transform: translateY(0);
+}
