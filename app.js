@@ -1162,60 +1162,196 @@ class AssessmentApp {
         if (!container) return;
         
         const guide = this.getImplGuide();
-        const cloudNames = { azure: 'GCC-High', aws: 'AWS GovCloud', gcp: 'GCP' };
+        const cloudNames = { azure: 'GCC-High / Azure Government', aws: 'AWS GovCloud', gcp: 'Google Cloud Platform' };
+        const cloudShort = { azure: 'Azure', aws: 'AWS', gcp: 'GCP' };
         const currentCloud = this.implGuideCloud || 'azure';
+        this.archGuideSection = this.archGuideSection || null;
         
-        // Render the implementation guide header, tabs and content
+        // Render the redesigned Architecture Guide
         container.innerHTML = `
-            <div class="impl-guide-view-header">
-                <div class="impl-guide-tabs" id="impl-guide-view-tabs">
-                    <button class="impl-tab active" data-tab="project-plan">Project Plan</button>
-                    <button class="impl-tab" data-tab="evidence">Evidence</button>
-                    <button class="impl-tab" data-tab="policies">Policies</button>
-                    <button class="impl-tab" data-tab="ssp">SSP</button>
-                    <button class="impl-tab" data-tab="services">Services</button>
-                    <button class="impl-tab" data-tab="architecture">Architecture</button>
-                    <button class="impl-tab" data-tab="extras">Extras</button>
+            <div class="arch-guide-container">
+                <div class="arch-guide-header">
+                    <div class="arch-guide-header-top">
+                        <div class="arch-guide-title">
+                            <div class="arch-guide-title-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            </div>
+                            <div>
+                                <h1>Architecture Guide</h1>
+                                <p>Implementation guidance for ${cloudNames[currentCloud]}</p>
+                            </div>
+                        </div>
+                        <div class="arch-cloud-selector">
+                            <button class="arch-cloud-btn ${currentCloud === 'azure' ? 'active' : ''}" data-cloud="azure">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M5.483 21.3H24L14.025 4.013l-3.038 8.347 5.836 6.938L5.483 21.3zM13.049 2.7L0 17.623h4.494L13.049 2.7z"></path></svg>
+                                Azure
+                            </button>
+                            <button class="arch-cloud-btn ${currentCloud === 'aws' ? 'active' : ''}" data-cloud="aws">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.75 11.35a4.32 4.32 0 0 1-.79-.08 3.9 3.9 0 0 1-.73-.23l-.17-.04h-.12q-.15 0-.15.21v.33a.43.43 0 0 0 0 .19.5.5 0 0 0 .21.19 3 3 0 0 0 .76.26 4.38 4.38 0 0 0 1 .12 3 3 0 0 0 1-.15 2 2 0 0 0 .72-.4 1.62 1.62 0 0 0 .42-.59 1.83 1.83 0 0 0 .14-.72 1.46 1.46 0 0 0-.36-1 2.55 2.55 0 0 0-1.11-.63l-.74-.24a2.13 2.13 0 0 1-.58-.27.47.47 0 0 1-.17-.37.53.53 0 0 1 .24-.47 1.21 1.21 0 0 1 .66-.15 2.75 2.75 0 0 1 .92.17.75.75 0 0 0 .24.05q.15 0 .15-.21v-.36a.38.38 0 0 0-.06-.21.64.64 0 0 0-.24-.14 2.15 2.15 0 0 0-.55-.14 4.07 4.07 0 0 0-.76-.07 2.85 2.85 0 0 0-.94.14 2 2 0 0 0-.68.38 1.54 1.54 0 0 0-.41.57 1.7 1.7 0 0 0-.14.69 1.54 1.54 0 0 0 .39 1.08 2.67 2.67 0 0 0 1.18.68l.74.24a1.8 1.8 0 0 1 .53.27.45.45 0 0 1 .14.36.59.59 0 0 1-.27.52 1.44 1.44 0 0 1-.76.17zm-7.86-2.14a3.6 3.6 0 0 0-.53 1 3.4 3.4 0 0 0-.17 1.06 3.2 3.2 0 0 0 .19 1.1 2.64 2.64 0 0 0 .55.9 2.54 2.54 0 0 0 .88.6 3.06 3.06 0 0 0 1.17.22 3.8 3.8 0 0 0 .82-.09 2.42 2.42 0 0 0 .63-.22v-1.32h-1.14a.22.22 0 0 0-.16.05.19.19 0 0 0-.05.14v.43a.21.21 0 0 0 .05.14.22.22 0 0 0 .16.06h.53v.6a2.29 2.29 0 0 1-.36.08 2.62 2.62 0 0 1-.44 0 1.74 1.74 0 0 1-.72-.14 1.45 1.45 0 0 1-.53-.41 1.87 1.87 0 0 1-.33-.63 2.68 2.68 0 0 1-.11-.8 2.66 2.66 0 0 1 .11-.79 1.79 1.79 0 0 1 .33-.63 1.5 1.5 0 0 1 .54-.41 1.78 1.78 0 0 1 .74-.15 2.53 2.53 0 0 1 .54.05 2.49 2.49 0 0 1 .43.15l.16.08a.27.27 0 0 0 .12 0 .18.18 0 0 0 .16-.08.31.31 0 0 0 0-.13v-.4a.38.38 0 0 0 0-.15.34.34 0 0 0-.14-.12 2.35 2.35 0 0 0-.58-.19 3.43 3.43 0 0 0-.71-.08 3 3 0 0 0-1.14.21 2.54 2.54 0 0 0-.86.58zM6.94 8.63l-2 5.02a.17.17 0 0 0 0 .1.13.13 0 0 0 .14.1h.67a.28.28 0 0 0 .2-.06.45.45 0 0 0 .09-.16l.4-1.05h2l.42 1.07a.28.28 0 0 0 .09.14.29.29 0 0 0 .2.06h.71a.13.13 0 0 0 .14-.1.17.17 0 0 0 0-.1l-2-5.02a.36.36 0 0 0-.1-.16.32.32 0 0 0-.21-.06h-.56a.3.3 0 0 0-.2.06.36.36 0 0 0-.09.16zm.68 1.24.72 1.87h-1.4z"></path><path d="M21.1 16.64a13.13 13.13 0 0 1-4.28 2.23 18.67 18.67 0 0 1-5.9.89 18.54 18.54 0 0 1-5-1 13.88 13.88 0 0 1-3.93-2.18c-.16-.12-.29 0-.18.16a14 14 0 0 0 4.65 3.54 16.34 16.34 0 0 0 9 1.53 15.47 15.47 0 0 0 5.68-2.94c.28-.22.05-.55-.04-.23z"></path><path d="M22.33 15.17c-.2-.26-.55-.39-1.2-.33a6.72 6.72 0 0 0-1.81.33c-.17.06-.14.15 0 .14s.74-.08 1.11-.08a2.59 2.59 0 0 1 1.23.18c.25.15 0 .72-.23 1.16a4.06 4.06 0 0 1-1.42 1.44c-.17.11-.13.27.05.2a3.24 3.24 0 0 0 1.54-1.32 2.25 2.25 0 0 0 .73-1.72z"></path></svg>
+                                AWS
+                            </button>
+                            <button class="arch-cloud-btn ${currentCloud === 'gcp' ? 'active' : ''}" data-cloud="gcp">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.19 2.38a9.34 9.34 0 0 0-9.23 6.89c.05-.02-.06.01 0 0-3.88 2.55-3.92 8.11-.25 10.94l.01-.01-.01.03a6.72 6.72 0 0 0 4.08 1.36h5.17l.03.03h5.19c6.69.05 9.38-8.61 3.84-12.35a9.37 9.37 0 0 0-8.83-6.89z"></path></svg>
+                                GCP
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="cloud-selector">
-                    <button class="cloud-btn ${currentCloud === 'azure' ? 'active' : ''}" data-cloud="azure" title="Microsoft Azure / M365 GCC High">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M5.483 21.3H24L14.025 4.013l-3.038 8.347 5.836 6.938L5.483 21.3zM13.049 2.7L0 17.623h4.494L13.049 2.7z"></path></svg>
-                    </button>
-                    <button class="cloud-btn ${currentCloud === 'aws' ? 'active' : ''}" data-cloud="aws" title="AWS GovCloud">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6.763 10.036c0 .296.032.535.088.71.064.176.144.368.256.576.04.063.056.127.056.183 0 .08-.048.16-.152.24l-.503.335a.383.383 0 0 1-.208.072c-.08 0-.16-.04-.239-.112a2.47 2.47 0 0 1-.287-.375 6.18 6.18 0 0 1-.248-.471c-.622.734-1.405 1.101-2.347 1.101-.67 0-1.205-.191-1.596-.574-.391-.384-.59-.894-.59-1.533 0-.678.239-1.23.726-1.644.487-.415 1.133-.623 1.955-.623.272 0 .551.024.846.064.296.04.6.104.918.176v-.583c0-.607-.127-1.03-.375-1.277-.255-.248-.686-.367-1.3-.367-.28 0-.568.031-.863.103-.295.072-.583.16-.862.272a2.287 2.287 0 0 1-.28.104.488.488 0 0 1-.127.023c-.112 0-.168-.08-.168-.247v-.391c0-.128.016-.224.056-.28a.597.597 0 0 1 .224-.167c.279-.144.614-.264 1.005-.36a4.84 4.84 0 0 1 1.246-.151c.95 0 1.644.216 2.091.647.439.43.662 1.085.662 1.963v2.586zm-3.24 1.214c.263 0 .534-.048.822-.144.287-.096.543-.271.758-.51.128-.152.224-.32.272-.512.047-.191.08-.423.08-.694v-.335a6.66 6.66 0 0 0-.735-.136 6.02 6.02 0 0 0-.75-.048c-.535 0-.926.104-1.19.32-.263.215-.39.518-.39.917 0 .375.095.655.295.846.191.2.47.296.838.296zm6.41.862c-.144 0-.24-.024-.304-.08-.064-.048-.12-.16-.168-.311L7.586 5.55a1.398 1.398 0 0 1-.072-.32c0-.128.064-.2.191-.2h.783c.151 0 .255.025.31.08.065.048.113.16.16.312l1.342 5.284 1.245-5.284c.04-.16.088-.264.151-.312a.549.549 0 0 1 .32-.08h.638c.152 0 .256.025.32.08.063.048.12.16.151.312l1.261 5.348 1.381-5.348c.048-.16.104-.264.16-.312a.52.52 0 0 1 .311-.08h.743c.127 0 .2.065.2.2 0 .04-.009.08-.017.128a1.137 1.137 0 0 1-.056.2l-1.923 6.17c-.048.16-.104.263-.168.311a.51.51 0 0 1-.303.08h-.687c-.151 0-.255-.024-.32-.08-.063-.056-.119-.16-.15-.32l-1.238-5.148-1.23 5.14c-.04.16-.087.264-.15.32-.065.056-.177.08-.32.08zm10.256.215c-.415 0-.83-.048-1.229-.143-.399-.096-.71-.2-.918-.32-.128-.071-.215-.151-.247-.223a.563.563 0 0 1-.048-.224v-.407c0-.167.064-.247.183-.247.048 0 .096.008.144.024.048.016.12.048.2.08.271.12.566.215.878.279.319.064.63.096.95.096.502 0 .894-.088 1.165-.264a.86.86 0 0 0 .415-.758.777.777 0 0 0-.215-.559c-.144-.151-.416-.287-.807-.414l-1.157-.36c-.583-.183-1.014-.454-1.277-.813a1.902 1.902 0 0 1-.4-1.158c0-.335.073-.63.216-.886.144-.255.335-.479.575-.654.24-.184.51-.32.83-.415.32-.096.655-.136 1.006-.136.175 0 .359.008.535.032.183.024.35.056.518.088.16.04.312.08.455.127.144.048.256.096.336.144a.69.69 0 0 1 .24.2.43.43 0 0 1 .071.263v.375c0 .168-.064.256-.184.256a.83.83 0 0 1-.303-.096 3.652 3.652 0 0 0-1.532-.311c-.455 0-.815.071-1.062.223-.248.152-.375.383-.375.71 0 .224.08.416.24.567.159.152.454.304.877.44l1.134.358c.574.184.99.44 1.237.767.247.327.367.702.367 1.117 0 .343-.072.655-.207.926-.144.272-.336.511-.583.703-.248.2-.543.343-.886.447-.36.111-.734.167-1.142.167z"></path></svg>
-                    </button>
-                    <button class="cloud-btn ${currentCloud === 'gcp' ? 'active' : ''}" data-cloud="gcp" title="Google Cloud Platform">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.19 2.38a9.344 9.344 0 0 0-9.234 6.893c.053-.02-.055.013 0 0-3.875 2.551-3.922 8.11-.247 10.941l.006-.007-.007.03a6.717 6.717 0 0 0 4.077 1.356h5.173l.03.03h5.192c6.687.053 9.376-8.605 3.835-12.35a9.365 9.365 0 0 0-8.825-6.893zM8.073 19.28a4.405 4.405 0 0 1-2.14-.562l-.035-.02 3.834-3.835-.007.007a2.083 2.083 0 0 0 .496-1.317 2.126 2.126 0 0 0-2.122-2.122c-.49 0-.963.18-1.32.496l.007-.006-3.835 3.834a4.473 4.473 0 0 1 .517-5.857 4.476 4.476 0 0 1 6.37.041l4.388-4.388a9.049 9.049 0 0 0-5.19-1.896A9.344 9.344 0 0 0 3.14 9.115l-.007-.007a6.64 6.64 0 0 0-.096 6.63l.006-.006a6.655 6.655 0 0 0 5.03 3.548zm11.108-7.073l.007-.007a4.478 4.478 0 0 1-1.593 6.09 4.418 4.418 0 0 1-2.168.562h-3.304l4.078-4.078a2.126 2.126 0 0 0 2.083-3.402l3.834-3.834a6.72 6.72 0 0 1-.096 6.627l-2.841-1.958z"></path></svg>
-                    </button>
-                </div>
-            </div>
-            <div class="impl-guide-body" id="impl-guide-view-body">
-                ${guide ? this.renderImplProjectPlan(guide) : '<p style="padding:20px;color:var(--text-muted)">No implementation guide available for this cloud platform.</p>'}
+                
+                ${this.archGuideSection ? this.renderArchGuideSection(guide, this.archGuideSection) : this.renderArchGuideCategories(guide)}
             </div>
         `;
         
-        // Bind cloud selector
-        container.querySelectorAll('.cloud-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.implGuideCloud = e.currentTarget.dataset.cloud;
+        this.bindArchGuideEvents(container, guide);
+    }
+    
+    renderArchGuideCategories(guide) {
+        const categories = [
+            { id: 'project-plan', name: 'Project Plan', desc: 'Implementation timeline, milestones, and task tracking for your CMMC journey', icon: 'clipboard-list', items: guide?.phases?.length || 8 },
+            { id: 'evidence', name: 'Evidence Collection', desc: 'Artifact requirements and evidence gathering guidance for each control', icon: 'folder-check', items: 110 },
+            { id: 'policies', name: 'Policies & Procedures', desc: 'Required policy documents and procedure templates mapped to controls', icon: 'file-text', items: 24 },
+            { id: 'ssp', name: 'System Security Plan', desc: 'SSP structure, control responsibility matrix, and documentation guidance', icon: 'shield', items: 14 },
+            { id: 'services', name: 'Cloud Services', desc: 'FedRAMP-authorized services and configuration guidance for your platform', icon: 'cloud', items: 45 },
+            { id: 'architecture', name: 'Reference Architecture', desc: 'Network diagrams, enclave patterns, and VDI deployment options', icon: 'layout', items: 12 },
+            { id: 'cui-discovery', name: 'CUI Discovery', desc: 'Native tools for identifying and classifying CUI in your environment', icon: 'search', items: 6 },
+            { id: 'extras', name: 'Extras & Deep Dives', desc: 'Advanced topics, ITAR guidance, and platform-specific configurations', icon: 'layers', items: 8 }
+        ];
+        
+        const icons = {
+            'clipboard-list': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>',
+            'folder-check': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="m9 13 2 2 4-4"/></svg>',
+            'file-text': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+            'shield': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+            'cloud': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>',
+            'layout': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>',
+            'search': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+            'layers': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>'
+        };
+        
+        return `
+            <div class="arch-quick-stats">
+                <div class="arch-quick-stat"><div class="value">110</div><div class="label">Controls</div></div>
+                <div class="arch-quick-stat"><div class="value">320</div><div class="label">Objectives</div></div>
+                <div class="arch-quick-stat"><div class="value">8</div><div class="label">Categories</div></div>
+                <div class="arch-quick-stat"><div class="value">45+</div><div class="label">Services</div></div>
+            </div>
+            <div class="arch-category-grid">
+                ${categories.map(cat => `
+                    <div class="arch-category-card" data-category="${cat.id}">
+                        <div class="arch-category-icon">${icons[cat.icon]}</div>
+                        <h3>${cat.name}</h3>
+                        <p>${cat.desc}</p>
+                        <div class="arch-category-meta">
+                            <span class="arch-category-stat">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                ${cat.items} items
+                            </span>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    renderArchGuideSection(guide, section) {
+        const backBtn = `
+            <button class="arch-back-btn" data-back="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Back to Categories
+            </button>
+        `;
+        
+        switch(section) {
+            case 'project-plan': return backBtn + this.renderImplProjectPlan(guide);
+            case 'evidence': return backBtn + this.renderImplEvidence(guide);
+            case 'policies': return backBtn + this.renderImplPolicies(guide);
+            case 'ssp': return backBtn + this.renderImplSSP(guide);
+            case 'services': return backBtn + this.renderImplServices(guide);
+            case 'architecture': return backBtn + this.renderImplArchitecture();
+            case 'cui-discovery': return backBtn + this.renderCUIDiscovery();
+            case 'extras': return backBtn + this.renderImplExtras(guide);
+            default: return this.renderArchGuideCategories(guide);
+        }
+    }
+    
+    renderCUIDiscovery() {
+        const guidance = typeof ENCLAVE_GUIDANCE !== 'undefined' ? ENCLAVE_GUIDANCE : null;
+        const cuiData = guidance?.cuiIdentification || {};
+        const currentCloud = this.implGuideCloud || 'azure';
+        const platform = cuiData[currentCloud] || {};
+        
+        return `
+            <div class="arch-section">
+                <div class="arch-section-header">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        CUI Discovery - ${platform.name || 'Native Tools'}
+                    </h2>
+                </div>
+                <div class="arch-section-body">
+                    <p style="color:var(--text-secondary);margin-bottom:20px">${platform.description || 'Identify and classify CUI using native cloud tools - no third-party solutions required.'}</p>
+                    
+                    ${platform.nativeTools ? platform.nativeTools.map(tool => `
+                        <div style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:8px;padding:20px;margin-bottom:16px">
+                            <h3 style="font-size:1rem;color:var(--text-primary);margin:0 0 8px 0">${tool.tool}</h3>
+                            <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 16px 0">${tool.purpose}</p>
+                            
+                            ${tool.setup ? `
+                                <h4 style="font-size:0.8rem;color:var(--text-secondary);margin:0 0 8px 0">Setup Steps</h4>
+                                <ol style="font-size:0.8rem;color:var(--text-secondary);margin:0 0 16px 0;padding-left:20px">
+                                    ${tool.setup.map(s => `<li style="margin-bottom:4px">${s}</li>`).join('')}
+                                </ol>
+                            ` : ''}
+                            
+                            ${tool.cliCommands ? `
+                                <h4 style="font-size:0.8rem;color:var(--text-secondary);margin:0 0 8px 0">CLI Commands</h4>
+                                <pre style="background:var(--bg-tertiary);padding:12px;border-radius:6px;font-size:0.75rem;overflow-x:auto;margin:0 0 16px 0"><code>${tool.cliCommands.join('\n')}</code></pre>
+                            ` : ''}
+                            
+                            ${tool.customIdentifiers ? `
+                                <h4 style="font-size:0.8rem;color:var(--text-secondary);margin:0 0 8px 0">Custom CUI Patterns</h4>
+                                <div style="display:grid;gap:8px">
+                                    ${tool.customIdentifiers.map(id => `
+                                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-tertiary);border-radius:4px">
+                                            <span style="font-weight:600;font-size:0.8rem;color:var(--text-primary)">${id.name}</span>
+                                            <code style="font-size:0.7rem;color:var(--accent-blue)">${id.regex || id.pattern}</code>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            
+                            ${tool.docLink ? `<a href="${tool.docLink}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--accent-blue);margin-top:12px">Documentation →</a>` : ''}
+                        </div>
+                    `).join('') : '<p style="color:var(--text-muted)">No CUI discovery guidance available for this platform.</p>'}
+                    
+                    ${platform.costConsiderations ? `<p style="font-size:0.8rem;color:var(--text-muted);margin-top:16px;padding:12px;background:var(--bg-tertiary);border-radius:6px"><strong>Cost:</strong> ${platform.costConsiderations}</p>` : ''}
+                </div>
+            </div>
+        `;
+    }
+    
+    bindArchGuideEvents(container, guide) {
+        // Cloud selector
+        container.querySelectorAll('.arch-cloud-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.implGuideCloud = btn.dataset.cloud;
                 this.renderImplGuideView();
             });
         });
         
-        // Bind tab switching
-        container.querySelectorAll('.impl-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                container.querySelectorAll('.impl-tab').forEach(t => t.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                const tabName = e.currentTarget.dataset.tab;
-                const body = document.getElementById('impl-guide-view-body');
-                if (tabName === 'project-plan') body.innerHTML = this.renderImplProjectPlan(guide);
-                else if (tabName === 'evidence') body.innerHTML = this.renderImplEvidence(guide);
-                else if (tabName === 'policies') body.innerHTML = this.renderImplPolicies(guide);
-                else if (tabName === 'ssp') body.innerHTML = this.renderImplSSP(guide);
-                else if (tabName === 'services') body.innerHTML = this.renderImplServices(guide);
-                else if (tabName === 'architecture') body.innerHTML = this.renderImplArchitecture();
-                else if (tabName === 'extras') body.innerHTML = this.renderImplExtras(guide);
+        // Category cards
+        container.querySelectorAll('.arch-category-card').forEach(card => {
+            card.addEventListener('click', () => {
+                this.archGuideSection = card.dataset.category;
+                this.renderImplGuideView();
+            });
+        });
+        
+        // Back button
+        container.querySelectorAll('.arch-back-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.archGuideSection = null;
+                this.renderImplGuideView();
             });
         });
     }
