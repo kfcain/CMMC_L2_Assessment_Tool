@@ -3319,9 +3319,54 @@ body {
 .header-branding {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
+.header-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(239, 68, 68, 0.15) 100%);
+    border-radius: 10px;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.header-logo svg {
+    filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.4));
+}
+
+.header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.header-title-main {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+}
+
+.header-title-accent {
+    background: linear-gradient(135deg, #f97316 0%, #ef4444 50%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+}
+
+.header-subtitle {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* Legacy support */
 .header-badge {
     display: inline-block;
     padding: 4px 10px;
@@ -3329,7 +3374,7 @@ body {
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
     color: white;
     border-radius: 4px;
 }
@@ -5152,15 +5197,18 @@ table td {
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
     color: white;
     border-radius: 4px;
 }
 
 .site-title-text {
     font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
+    font-weight: 800;
+    background: linear-gradient(135deg, #f97316 0%, #ef4444 50%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 /* Show title bar when not on dashboard, but hide for Architecture Guide */
