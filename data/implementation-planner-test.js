@@ -1,4 +1,6 @@
 // Minimal Implementation Planner for testing
+console.log('=== IMPLEMENTATION PLANNER TEST SCRIPT LOADING ===');
+
 const IMPLEMENTATION_PLANNER = {
     version: "2.0.0",
     title: "CMMC Implementation Planner - Test Version",
