@@ -968,7 +968,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t2-1-3",
                             name: "Implement Conditional Access",
                             description: "Context-aware access policies based on risk",
-                            controls: ["3.1.1", "3.1.2", "3.1.12"],
+                            controls: ["3.1.1[a-f]", "3.1.2[a-b]", "3.1.12[a-d]"],
                             priority: "high",
                             effort: "medium",
                             guidance: {
@@ -1003,7 +1003,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t2-1b-1",
                             name: "Select MFA Provider",
                             description: "Evaluate and select MFA solution for all platforms",
-                            controls: ["3.5.3"],
+                            controls: ["3.5.3[a-d]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -1060,7 +1060,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t2-1b-2",
                             name: "Integrate MFA with Platforms",
                             description: "Configure MFA across all systems and applications",
-                            controls: ["3.5.3"],
+                            controls: ["3.5.3[a-d]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
@@ -1219,7 +1219,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t3-1-1",
                             name: "Deploy security baselines",
                             description: "Apply STIG or CIS benchmarks to all systems",
-                            controls: ["3.4.1", "3.4.2"],
+                            controls: ["3.4.1[a-f]", "3.4.2[a-b]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
@@ -1284,7 +1284,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t3-1-3",
                             name: "Implement application control",
                             description: "Restrict execution to approved applications",
-                            controls: ["3.4.8", "3.14.2"],
+                            controls: ["3.4.8[a-c]", "3.14.2[a-b]"],
                             priority: "high",
                             effort: "high",
                             guidance: {
@@ -1320,7 +1320,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t3-2-1",
                             name: "Deploy EDR solution",
                             description: "Install and configure endpoint detection and response",
-                            controls: ["3.14.2", "3.14.6", "3.14.7"],
+                            controls: ["3.14.2[a-b]", "3.14.6[a-c]", "3.14.7[a-b]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -1365,7 +1365,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t4-1-1",
                             name: "Implement CUI network segment",
                             description: "Create dedicated VLAN or subnet for CUI processing",
-                            controls: ["3.13.1", "3.13.5", "3.13.6"],
+                            controls: ["3.13.1[a-h]", "3.13.5[a-b]", "3.13.6[a-b]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
@@ -1426,7 +1426,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t4-2-1",
                             name: "Enforce TLS 1.2+ everywhere",
                             description: "Disable legacy protocols and require strong encryption",
-                            controls: ["3.13.8", "3.13.11"],
+                            controls: ["3.13.8[a-c]", "3.13.11[a]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -1480,7 +1480,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t4-3-2",
                             name: "Implement Remote Access Policies",
                             description: "Create and enforce remote access security policies",
-                            controls: ["3.1.12", "3.1.22"],
+                            controls: ["3.1.12[a-d]", "3.1.22[a-e]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -1519,7 +1519,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t5-1-1",
                             name: "Deploy sensitivity labels",
                             description: "Implement data classification with labels",
-                            controls: ["3.1.3", "3.8.4"],
+                            controls: ["3.1.3[c]", "3.8.4[a-b]"],
                             priority: "high",
                             effort: "medium",
                             guidance: {
@@ -1547,7 +1547,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t5-1-2",
                             name: "Implement DLP policies",
                             description: "Prevent unauthorized disclosure of CUI",
-                            controls: ["3.1.3", "3.13.4"],
+                            controls: ["3.1.3[c]", "3.13.4[a]"],
                             priority: "high",
                             effort: "high",
                             guidance: {
@@ -1582,7 +1582,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t5-2-1",
                             name: "Implement encrypted backups",
                             description: "Backup all CUI systems with encryption",
-                            controls: ["3.8.9"],
+                            controls: ["3.8.9[a]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -1617,7 +1617,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t6-1-1",
                             name: "Deploy SIEM/log aggregation",
                             description: "Centralize logs for analysis and retention",
-                            controls: ["3.3.1", "3.3.2", "3.3.8"],
+                            controls: ["3.3.1[a-f]", "3.3.2[a-b]", "3.3.8[a-f]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
@@ -1646,7 +1646,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t6-1-2",
                             name: "Configure audit policies",
                             description: "Enable comprehensive Windows audit logging",
-                            controls: ["3.3.1", "3.3.2"],
+                            controls: ["3.3.1[a-f]", "3.3.2[a-b]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -1693,7 +1693,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t7-1-1",
                             name: "Select remote access deployment model",
                             description: "Choose deployment approach based on security requirements and resources",
-                            controls: ["3.1.12", "3.13.1"],
+                            controls: ["3.1.12[a-d]", "3.13.1[a-h]"],
                             priority: "critical",
                             effort: "low",
                             guidance: {
@@ -1769,7 +1769,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t7-1-3",
                             name: "Configure remote session controls",
                             description: "Implement session timeout, idle disconnect, and monitoring",
-                            controls: ["3.1.10", "3.1.11", "3.1.21"],
+                            controls: ["3.1.10[a-c]", "3.1.11[a-b]", "3.1.21[a-c]"],
                             priority: "high",
                             effort: "medium",
                             guidance: {
@@ -1947,7 +1947,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t8-1-1",
                             name: "Draft System Security Plan",
                             description: "Document control implementations in SSP format",
-                            controls: ["3.12.4"],
+                            controls: ["3.12.4[a-h]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
@@ -1972,7 +1972,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t8-2-1",
                             name: "Create security policies",
                             description: "Document organizational security policies",
-                            controls: ["3.1.1", "3.2.1", "3.12.4"],
+                            controls: ["3.1.1[a-f]", "3.2.1[a-d]", "3.12.4[a-h]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
@@ -2027,7 +2027,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t9-1-1",
                             name: "Create POA&M from gap assessment",
                             description: "Document each NOT MET finding with remediation details",
-                            controls: ["3.12.2"],
+                            controls: ["3.12.2[a-c]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -2045,7 +2045,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t9-1-2",
                             name: "Prioritize remediation items",
                             description: "Risk-rank POA&M items and establish remediation order",
-                            controls: ["3.11.1", "3.12.2"],
+                            controls: ["3.11.1[a-b]", "3.12.2[a-c]"],
                             priority: "high",
                             effort: "medium",
                             guidance: {
@@ -2159,7 +2159,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t10-1-1",
                             name: "Organize evidence repository",
                             description: "Structure evidence by control family and objective",
-                            controls: ["3.12.1", "3.12.4"],
+                            controls: ["3.12.1[a-b]", "3.12.4[a-h]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
@@ -2177,7 +2177,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t10-1-2",
                             name: "Validate evidence quality",
                             description: "Ensure evidence clearly demonstrates control implementation",
-                            controls: ["3.12.1"],
+                            controls: ["3.12.1[a-b]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
