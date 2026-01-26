@@ -1018,7 +1018,7 @@ class AssessmentApp {
             </div>
             
             <!-- Kanban View -->
-            <div class="impl-kanban-container" id="impl-kanban-content" style="${this.implPlannerView !== 'kanban' ? 'display:none' : ''}">
+            <div class="impl-kanban-container" id="impl-kanban-content" style="${this.implPlannerView !== 'kanban' ? 'display:none' : ''}" data-debug-view="kanban">
                 ${this.renderPlannerKanban(planner, allTasks)}
             </div>
             
@@ -1571,6 +1571,14 @@ class AssessmentApp {
                 localStorage.setItem('impl-planner-view', this.implPlannerView);
                 console.log('About to renderImplPlanner with view:', this.implPlannerView);
                 this.renderImplPlanner();
+                // Debug: Check if Kanban container is visible
+                setTimeout(() => {
+                    const kanbanContainer = document.getElementById('impl-kanban-content');
+                    if (kanbanContainer) {
+                        console.log('Kanban container style:', kanbanContainer.style.display);
+                        console.log('Kanban container visible:', kanbanContainer.style.display !== 'none');
+                    }
+                }, 100);
             });
         });
         
