@@ -190,7 +190,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1b-1-3",
                             name: "Develop Mobile Device Management Policy",
                             description: "Create MDM policies for mobile devices and telework",
-                            controls: ["3.1.6", "3.1.7", "3.1.8", "3.2.1"],
+                            controls: ["3.1.18", "3.1.19", "3.5.1", "3.5.2"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -217,7 +217,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1b-1-4",
                             name: "Develop Acceptable Use Policy",
                             description: "Create acceptable use policies for systems and data",
-                            controls: ["3.1.4", "3.1.5"],
+                            controls: ["3.4.7", "3.4.8", "3.4.9"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
@@ -780,7 +780,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1b-7-1",
                             name: "Create Communications Policy",
                             description: "Ensure CUI is not posted publicly",
-                            controls: ["3.1.4", "3.1.5"],
+                            controls: ["3.1.22"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
