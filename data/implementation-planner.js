@@ -1632,16 +1632,17 @@ const IMPLEMENTATION_PLANNER = {
         },
         {
             id: "phase-7",
-            name: "Remote Access & VDI",
-            description: "Implement secure remote access (required) with optional VDI for enhanced CUI protection",
-            duration: "2-3 weeks",
+            name: "VDI Implementation (Optional)",
+            description: "Deploy VDI for enhanced CUI protection (optional but recommended for high CUI volume)",
+            duration: "2-4 weeks",
             icon: "vdi",
             color: "#d19a66",
+            optional: true,
             milestones: [
                 {
                     id: "m7-1",
-                    name: "Secure Remote Access (Required)",
-                    description: "Establish secure remote access foundation - required for all remote CUI access",
+                    name: "VDI Infrastructure Deployed",
+                    description: "Deploy virtual desktop infrastructure for enhanced CUI protection",
                     tasks: [
                         {
                             id: "t7-1-1",
