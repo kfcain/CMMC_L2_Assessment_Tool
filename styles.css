@@ -5187,3 +5187,35 @@ table td {
 .main-content {
     padding-bottom: 50px;
 }
+
+/* Mobile Footer Disclaimer */
+@media (max-width: 768px) {
+    .site-footer-disclaimer {
+        padding: 8px 12px;
+    }
+    
+    .footer-disclaimer-content {
+        font-size: 0.6rem;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .footer-disclaimer-content svg {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .main-content {
+        padding-bottom: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-disclaimer-content {
+        font-size: 0.55rem;
+    }
+    
+    .main-content {
+        padding-bottom: 70px;
+    }
+}

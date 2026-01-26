@@ -1100,10 +1100,12 @@ details.extras-details[open] > .extras-summary::before {
 @media (max-width: 768px) {
     .arch-guide-container {
         padding: 16px;
+        max-height: calc(100vh - 140px);
     }
     
     .arch-guide-header-top {
         flex-direction: column;
+        gap: 12px;
     }
     
     .arch-cloud-selector {
@@ -1122,5 +1124,55 @@ details.extras-details[open] > .extras-summary::before {
     
     .arch-guide-title h1 {
         font-size: 1.5rem;
+    }
+    
+    .arch-section-header {
+        padding: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .arch-section-body {
+        padding: 12px;
+    }
+    
+    .impl-section {
+        padding: 12px;
+    }
+    
+    .extras-nav-container {
+        padding: 12px;
+    }
+    
+    .extras-subsection-nav {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .extras-nav-btn {
+        font-size: 0.7rem;
+        padding: 6px 10px;
+    }
+    
+    .cloud-btn {
+        padding: 8px 12px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .arch-guide-container {
+        padding: 12px;
+    }
+    
+    .arch-guide-title h1 {
+        font-size: 1.25rem;
+    }
+    
+    .arch-category-card h3 {
+        font-size: 0.9rem;
+    }
+    
+    .arch-category-card p {
+        font-size: 0.75rem;
     }
 }

@@ -896,6 +896,8 @@ a.mapping-tag:hover {
 @media (max-width: 768px) {
     .crosswalk-filters {
         flex-direction: column;
+        padding: 12px;
+        gap: 12px;
     }
     
     .crosswalk-filters .filter-group {
@@ -905,5 +907,66 @@ a.mapping-tag:hover {
     .crosswalk-filters select,
     .crosswalk-filters input {
         width: 100%;
+    }
+    
+    .crosswalk-view-toggle {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .ksi-card {
+        padding: 12px;
+    }
+    
+    .ksi-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    
+    .ksi-levels {
+        margin-left: 0;
+    }
+    
+    .ksi-mappings {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .mapping-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .related-171 {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .family-header {
+        padding: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .export-buttons {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .ksi-id {
+        font-size: 0.75rem;
+    }
+    
+    .ksi-title {
+        font-size: 0.8rem;
+    }
+    
+    .ksi-desc {
+        font-size: 0.7rem;
+    }
+    
+    .related-ctrl {
+        font-size: 0.6rem;
     }
 }
