@@ -1007,6 +1007,16 @@ const IMPLEMENTATION_PLANNER = {
                             controls: ["3.5.1[a-c]", "3.5.2[a-c]"],
                             priority: "critical",
                             effort: "high",
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "Identity & Access Management",
+                                week: 3,
+                                taskId: "T-2.1",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                raciCategory: "Operations",
+                                deliverable: "Identity Provider Configuration"
+                            },
                             guidance: {
                                 steps: [
                                     "Select identity provider (Entra ID recommended for M365)",
@@ -1725,6 +1735,16 @@ const IMPLEMENTATION_PLANNER = {
                             controls: ["3.3.1[a-f]", "3.3.2[a-b]", "3.3.8[a-f]"],
                             priority: "critical",
                             effort: "high",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Program Management",
+                                week: 8,
+                                taskId: "T-6.1",
+                                owner: "SecOps",
+                                accountable: "CMMC Lead",
+                                raciCategory: "Governance",
+                                deliverable: "SIEM Deployment Report"
+                            },
                             guidance: {
                                 steps: [
                                     "Select SIEM solution (Sentinel, Splunk, etc.)",
@@ -2504,7 +2524,7 @@ const ProjectPlanIntegration = {
                 milestone.tasks.forEach(task => {
                     if (task.projectPlan) {
                         projectPlan.push({
-                            phase: task.projectPlan.category,
+                            category: task.projectPlan.category,
                             week: task.projectPlan.week || weekCounter,
                             taskId: task.projectPlan.taskId || `${phase.id}-${task.id}`,
                             task: task.name,
@@ -2513,7 +2533,7 @@ const ProjectPlanIntegration = {
                             deliverable: task.projectPlan.deliverable,
                             // Link back to implementation planner
                             phaseId: phase.id,
-                            taskId: task.id,
+                            implTaskId: task.id,
                             controls: task.controls,
                             priority: task.priority,
                             effort: task.effort,

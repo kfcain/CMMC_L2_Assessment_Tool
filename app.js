@@ -1380,10 +1380,10 @@ class AssessmentApp {
         // Group tasks by category
         const tasksByCategory = {};
         projectPlan.forEach(task => {
-            if (!tasksByCategory[task.phase]) {
-                tasksByCategory[task.phase] = [];
+            if (!tasksByCategory[task.category]) {
+                tasksByCategory[task.category] = [];
             }
-            tasksByCategory[task.phase].push(task);
+            tasksByCategory[task.category].push(task);
         });
         
         return `
