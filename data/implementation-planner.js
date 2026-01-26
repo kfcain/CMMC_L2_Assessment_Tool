@@ -217,7 +217,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1b-1-4",
                             name: "Develop Acceptable Use Policy",
                             description: "Create acceptable use policies for systems and data",
-                            controls: ["3.4.7", "3.4.8", "3.4.9"],
+                            controls: ["3.4.7", "3.4.8", "3.4.9", "3.14.7"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
