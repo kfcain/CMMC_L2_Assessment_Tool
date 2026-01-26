@@ -2776,6 +2776,32 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         return controlsMet;
     }
 
+    calculateL1ControlsMet() {
+        // Count how many L1 controls have ALL objectives met
+        let l1ControlsMet = 0;
+        let totalL1Controls = 0;
+        
+        CONTROL_FAMILIES.forEach(family => {
+            family.controls.forEach(control => {
+                const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
+                const cmmcLevel = mapping?.cmmc?.level || 2;
+                
+                // Only count L1 controls
+                if (cmmcLevel === 1) {
+                    totalL1Controls++;
+                    const allObjectivesMet = control.objectives.every(objective => {
+                        return this.assessmentData[objective.id]?.status === 'met';
+                    });
+                    if (allObjectivesMet && control.objectives.length > 0) {
+                        l1ControlsMet++;
+                    }
+                }
+            });
+        });
+        
+        return { met: l1ControlsMet, total: totalL1Controls };
+    }
+
     updateProgress() {
         let total = 0, assessed = 0, met = 0, partial = 0, notMet = 0;
 
@@ -3256,7 +3282,12 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             });
         });
 
-        // Calculate CMMC Conditional Status eligibility (88/110 = 80%)
+        // Calculate L1 status
+        const l1Status = this.calculateL1ControlsMet();
+        const l1Complete = l1Status.met === l1Status.total && l1Status.total > 0;
+        const l1StatusClass = l1Complete ? 'eligible' : 'not-eligible';
+
+        // Calculate CMMC L2 Conditional Status eligibility (88/110 = 80%)
         const controlsMet = this.calculateControlsMet();
         const conditionalThreshold = 88;
         const meetsConditionalThreshold = controlsMet >= conditionalThreshold;
@@ -3273,8 +3304,13 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     <span class="score-badge-label">SPRS:</span>
                     <span class="score-badge-value">${sprsScore}</span>
                 </div>
+                <div class="dashboard-score-badge cmmc ${l1StatusClass}">
+                    <span class="score-badge-label">L1:</span>
+                    <span class="score-badge-value">${l1Status.met}/${l1Status.total}</span>
+                    <span>${l1Complete ? '✓' : '⚠'}</span>
+                </div>
                 <div class="dashboard-score-badge cmmc ${conditionalStatusClass}">
-                    <span class="score-badge-label">L2 Status:</span>
+                    <span class="score-badge-label">L2:</span>
                     <span class="score-badge-value">${controlsMet}/110</span>
                     <span>${meetsConditionalThreshold ? '✓' : '⚠'}</span>
                 </div>
