@@ -807,9 +807,13 @@ class AssessmentApp {
         if (window.LazyLoader && window.LazyLoader.viewScripts[view]) {
             const container = document.getElementById(`${view}-content`) || document.getElementById(`${view.replace('-', '')}-content`);
             const skipSpinner = ['crosswalk', 'impl-planner'].includes(view); // Views with static HTML or direct loading
+            console.log(`View: ${view}, skipSpinner: ${skipSpinner}, container loaded: ${container?.dataset.loaded}`);
             if (container && !container.dataset.loaded) {
                 if (!skipSpinner) {
+                    console.log('Showing spinner for view:', view);
                     container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:60px;color:var(--text-muted)"><svg class="spinner" width="24" height="24" viewBox="0 0 24 24" style="animation:spin 1s linear infinite;margin-right:12px"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" opacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>Loading...</div>';
+                } else {
+                    console.log('Skipping spinner for view:', view);
                 }
                 try {
                     await window.LazyLoader.loadViewScripts(view);
@@ -854,10 +858,14 @@ class AssessmentApp {
         } else if (view === 'impl-guide') {
             this.renderImplGuideView();
         } else if (view === 'impl-planner') {
+            console.log('Switching to implementation planner view');
             // Mark container as loaded to prevent spinner
             const container = document.getElementById('impl-planner-content');
             if (container) {
+                console.log('Found implementation planner container, marking as loaded');
                 container.dataset.loaded = 'true';
+            } else {
+                console.log('Could not find implementation planner container');
             }
             this.renderImplPlanner();
         } else if (view === 'osc-inventory') {

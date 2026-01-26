@@ -1,6 +1,8 @@
 // Implementation Planner - CMMC Compliance Project Guide
 // A comprehensive, phased approach to implementing CMMC controls
 
+console.log('Implementation planner script starting to load...');
+
 const IMPLEMENTATION_PLANNER = {
     version: "2.0.0",
     title: "CMMC Implementation Planner - Greenfield Edition",
