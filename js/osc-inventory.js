@@ -51,6 +51,9 @@ const OSCInventory = {
         const siteTitleBar = document.getElementById('site-title-bar');
         if (siteTitleBar) siteTitleBar.style.display = 'none';
         
+        // Check if data storage notice has been acknowledged
+        const storageNoticeAcknowledged = localStorage.getItem('osc_storage_notice_ack') === 'true';
+        
         container.innerHTML = `
             <div class="osc-inventory-header">
                 <h1>
@@ -59,6 +62,20 @@ const OSCInventory = {
                 </h1>
                 <p>Track your organization's policies, procedures, SSP documents, assets, and FIPS certifications</p>
             </div>
+            
+            ${!storageNoticeAcknowledged ? `
+            <div class="osc-storage-notice" id="osc-storage-notice">
+                <div class="osc-storage-notice-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 12h10M7 17h10"/></svg>
+                </div>
+                <div class="osc-storage-notice-content">
+                    <h4>Local Data Storage Notice</h4>
+                    <p>All inventory data, including policies, procedures, assets, and uploaded documents, is stored exclusively in your browser's local storage. <strong>No data is transmitted to external servers.</strong></p>
+                    <p class="osc-storage-notice-warning">Please be advised that browser-stored data may be subject to access by other browser extensions or scripts, and can be cleared through browser settings or cache operations. This tool is not intended for storing classified or highly sensitive information.</p>
+                </div>
+                <button class="osc-storage-notice-btn" id="osc-storage-ack-btn">I Understand</button>
+            </div>
+            ` : ''}
             
             <div class="osc-summary-stats">
                 <div class="osc-stat-card"><h4>Policies</h4><div class="value">${stats.policies}</div></div>
@@ -537,6 +554,11 @@ const OSCInventory = {
         // SSP document upload handlers
         container.querySelectorAll('[data-upload-ssp]').forEach(input => {
             input.addEventListener('change', (e) => this.handleSSPUpload(e.target.files[0], app));
+        });
+        // Storage notice acknowledgement
+        document.getElementById('osc-storage-ack-btn')?.addEventListener('click', () => {
+            localStorage.setItem('osc_storage_notice_ack', 'true');
+            document.getElementById('osc-storage-notice')?.remove();
         });
         document.getElementById('osc-modal-close')?.addEventListener('click', () => this.closeModal());
         document.getElementById('osc-modal-cancel')?.addEventListener('click', () => this.closeModal());

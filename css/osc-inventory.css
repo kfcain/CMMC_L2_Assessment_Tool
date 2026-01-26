@@ -827,10 +827,99 @@
     justify-content: flex-end;
 }
 
+/* Storage Notice */
+.osc-storage-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(99, 102, 241, 0.05));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.osc-storage-notice-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.osc-storage-notice-icon svg {
+    stroke: white;
+}
+
+.osc-storage-notice-content {
+    flex: 1;
+}
+
+.osc-storage-notice-content h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+}
+
+.osc-storage-notice-content p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 8px 0;
+}
+
+.osc-storage-notice-content p:last-child {
+    margin-bottom: 0;
+}
+
+.osc-storage-notice-warning {
+    font-size: 0.75rem !important;
+    color: var(--text-muted) !important;
+    background: rgba(245, 158, 11, 0.08);
+    border-left: 3px solid #f59e0b;
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    margin-top: 12px !important;
+}
+
+.osc-storage-notice-btn {
+    flex-shrink: 0;
+    align-self: center;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.osc-storage-notice-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .osc-inventory-container {
         padding: 16px;
+    }
+    
+    .osc-storage-notice {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .osc-storage-notice-icon {
+        align-self: center;
     }
     
     .osc-asset-grid {
