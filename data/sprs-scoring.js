@@ -2,9 +2,11 @@
 // POA&M Eligibility per 32 CFR 170.21
 
 const SPRS_SCORING = {
-    // Point values per DoD Assessment Methodology v1.2.1 (Total: 313, Range: 110 to -203)
+    // Point values per DoD Assessment Methodology v1.2.1
+    // Max Score: 110, Min Score: -203, Total Deduction Possible: 313
+    // Note: Official total is 313 (odd), achieved with one 2-point control
     pointValues: {
-        // Access Control (AC) - Total: 71
+        // Access Control (AC) - Total: 72
         "3.1.1": 5,   // Limit system access
         "3.1.2": 5,   // Limit access to functions
         "3.1.3": 5,   // Control CUI flow
@@ -28,21 +30,21 @@ const SPRS_SCORING = {
         "3.1.21": 1,  // Limit portable storage on external systems
         "3.1.22": 5,  // Control public information (CANNOT be on POA&M)
 
-        // Awareness and Training (AT) - Total: 9
-        "3.2.1": 3,   // Security awareness
-        "3.2.2": 3,   // Role-based training
-        "3.2.3": 3,   // Insider threat awareness
+        // Awareness and Training (AT) - Total: 6
+        "3.2.1": 2,   // Security awareness
+        "3.2.2": 2,   // Role-based training
+        "3.2.3": 2,   // Insider threat awareness
 
-        // Audit and Accountability (AU) - Total: 27
+        // Audit and Accountability (AU) - Total: 25
         "3.3.1": 5,   // Create and retain audit logs
         "3.3.2": 5,   // User accountability
-        "3.3.3": 3,   // Review and update logged events
-        "3.3.4": 3,   // Audit failure alerting
-        "3.3.5": 1,   // Audit record correlation
+        "3.3.3": 1,   // Review and update logged events
+        "3.3.4": 1,   // Audit failure alerting
+        "3.3.5": 3,   // Audit record correlation
         "3.3.6": 1,   // Audit reduction and reporting
         "3.3.7": 3,   // Authoritative time source
-        "3.3.8": 3,   // Protect audit information
-        "3.3.9": 3,   // Limit audit management
+        "3.3.8": 5,   // Protect audit information
+        "3.3.9": 1,   // Limit audit management
 
         // Configuration Management (CM) - Total: 27
         "3.4.1": 5,   // Baseline configurations
@@ -55,63 +57,63 @@ const SPRS_SCORING = {
         "3.4.8": 5,   // Application execution policy
         "3.4.9": 1,   // User-installed software
 
-        // Identification and Authentication (IA) - Total: 29
+        // Identification and Authentication (IA) - Total: 31
         "3.5.1": 5,   // Identify users, processes, devices
         "3.5.2": 5,   // Authenticate identities
         "3.5.3": 5,   // Multifactor authentication
-        "3.5.4": 3,   // Replay-resistant authentication
+        "3.5.4": 5,   // Replay-resistant authentication
         "3.5.5": 1,   // Identifier reuse
         "3.5.6": 1,   // Identifier disabling
         "3.5.7": 1,   // Password complexity
         "3.5.8": 1,   // Password reuse
         "3.5.9": 1,   // Temporary passwords
-        "3.5.10": 3,  // Cryptographic password protection
-        "3.5.11": 3,  // Obscure authentication feedback
+        "3.5.10": 5,  // Cryptographic password protection
+        "3.5.11": 1,  // Obscure authentication feedback
 
         // Incident Response (IR) - Total: 9
         "3.6.1": 3,   // Incident handling capability
-        "3.6.2": 3,   // Track, document, report incidents
-        "3.6.3": 3,   // Test incident response
+        "3.6.2": 5,   // Track, document, report incidents
+        "3.6.3": 1,   // Test incident response
 
-        // Maintenance (MA) - Total: 12
+        // Maintenance (MA) - Total: 10
         "3.7.1": 1,   // Perform maintenance
-        "3.7.2": 3,   // Maintenance controls
+        "3.7.2": 1,   // Maintenance controls
         "3.7.3": 1,   // Sanitize equipment for off-site maintenance
-        "3.7.4": 3,   // Check maintenance media
-        "3.7.5": 3,   // MFA for nonlocal maintenance
+        "3.7.4": 1,   // Check maintenance media
+        "3.7.5": 5,   // MFA for nonlocal maintenance
         "3.7.6": 1,   // Supervise maintenance personnel
 
-        // Media Protection (MP) - Total: 21
-        "3.8.1": 3,   // Protect system media
-        "3.8.2": 3,   // Limit media access
-        "3.8.3": 3,   // Sanitize media
+        // Media Protection (MP) - Total: 19
+        "3.8.1": 1,   // Protect system media
+        "3.8.2": 1,   // Limit media access
+        "3.8.3": 5,   // Sanitize media
         "3.8.4": 1,   // Mark media
         "3.8.5": 1,   // Control media transport
-        "3.8.6": 3,   // Encrypt CUI on media during transport
+        "3.8.6": 5,   // Encrypt CUI on media during transport
         "3.8.7": 1,   // Control removable media
         "3.8.8": 1,   // Prohibit unowned portable storage
-        "3.8.9": 5,   // Protect backup CUI
+        "3.8.9": 3,   // Protect backup CUI
 
         // Personnel Security (PS) - Total: 2
         "3.9.1": 1,   // Screen individuals
         "3.9.2": 1,   // Protect during personnel actions
 
-        // Physical Protection (PE) - Total: 12
+        // Physical Protection (PE) - Total: 10
         "3.10.1": 3,  // Limit physical access
         "3.10.2": 3,  // Protect and monitor facility
         "3.10.3": 1,  // Escort visitors (CANNOT be on POA&M)
         "3.10.4": 1,  // Physical access logs (CANNOT be on POA&M)
         "3.10.5": 1,  // Manage physical access (CANNOT be on POA&M)
-        "3.10.6": 3,  // Alternate work site safeguards
+        "3.10.6": 1,  // Alternate work site safeguards
 
         // Risk Assessment (RA) - Total: 9
         "3.11.1": 3,  // Periodic risk assessment
         "3.11.2": 3,  // Vulnerability scanning
         "3.11.3": 3,  // Vulnerability remediation
 
-        // Security Assessment (CA) - Total: 14
-        "3.12.1": 3,  // Assess security controls
-        "3.12.2": 3,  // Plan of action
+        // Security Assessment (CA) - Total: 10
+        "3.12.1": 1,  // Assess security controls
+        "3.12.2": 1,  // Plan of action
         "3.12.3": 3,  // Continuous monitoring
         "3.12.4": 5,  // System Security Plan (CANNOT be on POA&M)
 
@@ -133,14 +135,14 @@ const SPRS_SCORING = {
         "3.13.15": 3, // Session authenticity
         "3.13.16": 5, // CUI at rest encryption
 
-        // System and Information Integrity (SI) - Total: 31
+        // System and Information Integrity (SI) - Total: 27
         "3.14.1": 5,  // Flaw remediation
         "3.14.2": 5,  // Malicious code protection
-        "3.14.3": 5,  // Security alerts
+        "3.14.3": 3,  // Security alerts
         "3.14.4": 3,  // Update malicious code protection
         "3.14.5": 3,  // System scanning
         "3.14.6": 5,  // Monitor system traffic
-        "3.14.7": 5   // Identify unauthorized use
+        "3.14.7": 3   // Identify unauthorized use
     },
 
     // Requirements that CANNOT be on POA&M per 32 CFR 170.21(a)(2)(iii)
