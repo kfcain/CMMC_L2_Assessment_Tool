@@ -4468,9 +4468,12 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             </div>
         `;
 
+        // Start grid container for sections
+        html += `<div class="extras-sections-grid">`;
+
         // Architecture Options
         html += `<div class="impl-section extras-collapsible" id="arch-decision">
-            <div class="impl-section-title"><span class="section-icon">${icons['arch-decision']}</span> Architecture Decision Framework</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['arch-decision']}</span><span class="section-title-text">Architecture Decision Framework</span></div>
             <div class="section-content">
                 <div class="impl-table-container">
                     <table class="impl-table">
@@ -4493,7 +4496,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Pros/Cons Detail
         html += `<div class="impl-section extras-collapsible" id="arch-patterns">
-            <div class="impl-section-title"><span class="section-icon">${icons['arch-patterns']}</span> Architecture Pattern Details</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['arch-patterns']}</span><span class="section-title-text">Architecture Pattern Details</span></div>
             <div class="section-content">
                 <div class="impl-cards-grid">
                     ${guidance.architectureOptions.map(opt => `
@@ -4517,7 +4520,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // VDI Platform Comparison
         html += `<div class="impl-section extras-collapsible" id="vdi-comparison">
-            <div class="impl-section-title"><span class="section-icon">${icons['vdi-comparison']}</span> VDI Platform Comparison</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['vdi-comparison']}</span><span class="section-title-text">VDI Platform Comparison</span></div>
             <div class="section-content">
                 <div class="impl-cards-grid">
                     ${Object.values(guidance.vdiPlatforms).map(platform => `
@@ -4546,7 +4549,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Cost Optimization
         html += `<div class="impl-section extras-collapsible" id="cost-optimization">
-            <div class="impl-section-title"><span class="section-icon">${icons['cost-optimization']}</span> Cost Optimization Strategies</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['cost-optimization']}</span><span class="section-title-text">Cost Optimization Strategies</span></div>
             <div class="section-content">
                 <div class="impl-table-container">
                     <table class="impl-table">
@@ -4569,7 +4572,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Network Architecture Components
         html += `<div class="impl-section extras-collapsible" id="network-arch">
-            <div class="impl-section-title"><span class="section-icon">${icons['network-arch']}</span> Enclave Network Architecture</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['network-arch']}</span><span class="section-title-text">Enclave Network Architecture</span></div>
             <div class="section-content">
                 <div class="impl-table-container">
                     <table class="impl-table">
@@ -4591,7 +4594,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Integration Patterns
         html += `<div class="impl-section extras-collapsible" id="integration-patterns">
-            <div class="impl-section-title"><span class="section-icon">${icons['integration-patterns']}</span> Integration Patterns</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['integration-patterns']}</span><span class="section-title-text">Integration Patterns</span></div>
             <div class="section-content">
                 <div class="impl-cards-grid">
                     ${guidance.integrationPatterns.map(pattern => `
@@ -4615,7 +4618,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // User Personas
         html += `<div class="impl-section extras-collapsible" id="user-personas">
-            <div class="impl-section-title"><span class="section-icon">${icons['user-personas']}</span> User Personas & Sizing</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['user-personas']}</span><span class="section-title-text">User Personas & Sizing</span></div>
             <div class="section-content">
                 <div class="impl-table-container">
                     <table class="impl-table">
@@ -4638,7 +4641,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Endpoint Strategy
         html += `<div class="impl-section extras-collapsible" id="endpoint-strategy">
-            <div class="impl-section-title"><span class="section-icon">${icons['endpoint-strategy']}</span> Endpoint Strategy</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['endpoint-strategy']}</span><span class="section-title-text">Endpoint Strategy</span></div>
             <div class="section-content">
                 <div class="impl-cards-grid">
                 ${guidance.endpointStrategy.options.map(opt => `
@@ -4669,7 +4672,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Implementation Checklist
         html += `<div class="impl-section extras-collapsible" id="impl-checklist">
-            <div class="impl-section-title"><span class="section-icon">${icons['impl-checklist']}</span> Implementation Checklist</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['impl-checklist']}</span><span class="section-title-text">Implementation Checklist</span></div>
             <div class="section-content">
                 ${Object.values(guidance.implementationChecklist).map(phase => `
                     <div class="impl-policy-card" style="margin-bottom:12px">
@@ -4689,7 +4692,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Reference Architectures
         html += `<div class="impl-section extras-collapsible" id="ref-architectures">
-            <div class="impl-section-title"><span class="section-icon">${icons['ref-architectures']}</span> Reference Architectures</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['ref-architectures']}</span><span class="section-title-text">Reference Architectures</span></div>
             <div class="section-content">
                 <div class="impl-cards-grid">
                     ${guidance.networkArchitecture.referenceArchitectures.map(ref => `
@@ -4714,7 +4717,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             if (guidance.vdiDeepDive.avd) {
                 const avd = guidance.vdiDeepDive.avd;
                 html += `<div class="impl-section extras-collapsible" id="avd-deep-dive">
-                    <div class="impl-section-title"><span class="section-icon">${icons['avd-deep-dive']}</span> ${avd.name} - Deep Configuration</div>
+                    <div class="impl-section-title"><span class="section-icon">${icons['avd-deep-dive']}</span><span class="section-title-text">${avd.name} - Deep Configuration</span></div>
                     <div class="section-content">
                     <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${avd.overview}</p>
                     
@@ -4832,7 +4835,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             if (guidance.vdiDeepDive.citrix) {
                 const citrix = guidance.vdiDeepDive.citrix;
                 html += `<div class="impl-section extras-collapsible" id="citrix-deep-dive">
-                    <div class="impl-section-title"><span class="section-icon">${icons['citrix-deep-dive']}</span> ${citrix.name} - Deep Configuration</div>
+                    <div class="impl-section-title"><span class="section-icon">${icons['citrix-deep-dive']}</span><span class="section-title-text">${citrix.name} - Deep Configuration</span></div>
                     <div class="section-content">
                     <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${citrix.overview}</p>
 
@@ -4895,7 +4898,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             if (guidance.vdiDeepDive.vmwareHorizon) {
                 const vmware = guidance.vdiDeepDive.vmwareHorizon;
                 html += `<div class="impl-section extras-collapsible" id="vmware-deep-dive">
-                    <div class="impl-section-title"><span class="section-icon">${icons['vmware-deep-dive']}</span> ${vmware.name} - Deep Configuration</div>
+                    <div class="impl-section-title"><span class="section-icon">${icons['vmware-deep-dive']}</span><span class="section-title-text">${vmware.name} - Deep Configuration</span></div>
                     <div class="section-content">
                     <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${vmware.overview}</p>
 
@@ -4944,7 +4947,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.fslogixDeepDive) {
             const fsl = guidance.fslogixDeepDive;
             html += `<div class="impl-section extras-collapsible" id="fslogix-deep-dive">
-                <div class="impl-section-title"><span class="section-icon">${icons['fslogix-deep-dive']}</span> FSLogix Profile Management - Deep Dive</div>
+                <div class="impl-section-title"><span class="section-icon">${icons['fslogix-deep-dive']}</span><span class="section-title-text">FSLogix Profile Management</span></div>
                 <div class="section-content">
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">${fsl.overview.description}</p>
                 <p style="font-size:0.75rem;margin-bottom:16px"><strong>Licensing:</strong> ${fsl.overview.licensing}</p>
@@ -5019,7 +5022,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.persistentVsNonPersistent) {
             const pvnp = guidance.persistentVsNonPersistent;
             html += `<div class="impl-section extras-collapsible" id="persistent-analysis">
-                <div class="impl-section-title"><span class="section-icon">${icons['persistent-analysis']}</span> Persistent vs Non-Persistent VDI Analysis</div>
+                <div class="impl-section-title"><span class="section-icon">${icons['persistent-analysis']}</span><span class="section-title-text">Persistent vs Non-Persistent</span></div>
                 <div class="section-content">
 
                 <!-- Comparison Cards -->
@@ -5125,7 +5128,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.cmmcVdiDocumentation) {
             const cmmc = guidance.cmmcVdiDocumentation;
             html += `<div class="impl-section extras-collapsible" id="cmmc-vdi-docs">
-                <div class="impl-section-title"><span class="section-icon">${icons['cmmc-vdi-docs']}</span> CMMC Documentation for VDI Environments</div>
+                <div class="impl-section-title"><span class="section-icon">${icons['cmmc-vdi-docs']}</span><span class="section-title-text">CMMC VDI Documentation</span></div>
                 <div class="section-content">
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${cmmc.overview}</p>
 
@@ -5297,7 +5300,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.costManagementDeepDive) {
             const cost = guidance.costManagementDeepDive;
             html += `<div class="impl-section extras-collapsible" id="cost-deep-dive">
-                <div class="impl-section-title"><span class="section-icon">${icons['cost-deep-dive']}</span> VDI Cost Management Strategies</div>
+                <div class="impl-section-title"><span class="section-icon">${icons['cost-deep-dive']}</span><span class="section-title-text">VDI Cost Management</span></div>
                 <div class="section-content">
 
                 <!-- Azure Cost Management -->
@@ -5373,7 +5376,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.vdiEndpointsDeepDive) {
             const endpoints = guidance.vdiEndpointsDeepDive;
             html += `<div class="impl-section extras-collapsible" id="endpoints-deep-dive">
-                <div class="impl-section-title"><span class="section-icon">${icons['endpoints-deep-dive']}</span> VDI Endpoints - Hardware & Software</div>
+                <div class="impl-section-title"><span class="section-icon">${icons['endpoints-deep-dive']}</span><span class="section-title-text">VDI Endpoints</span></div>
                 <div class="section-content">
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${endpoints.overview}</p>
 
@@ -5582,7 +5585,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // =============================================
         const cloudName = this.implGuideCloud === 'aws' ? 'AWS GovCloud' : this.implGuideCloud === 'gcp' ? 'GCP Assured Workloads' : 'Azure GCC High';
         html += `<div class="impl-section extras-collapsible" id="cloud-security">
-            <div class="impl-section-title"><span class="section-icon">${icons['cloud-security']}</span> Cloud Security as Security Protection Assets (${cloudName})</div>
+            <div class="impl-section-title"><span class="section-icon">${icons['cloud-security']}</span><span class="section-title-text">Cloud Security (${cloudName})</span></div>
             <div class="section-content">
             <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">Cloud-native security services function as Security Protection Assets (SPAs) that support CMMC L2 assessment objectives. These services provide the technical controls necessary to protect, detect, and respond to threats against CUI.</p>
             
@@ -5769,6 +5772,9 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             </div>
             </div>
         </div>`;
+
+        // Close grid container
+        html += `</div>`;
 
         return html;
     }
