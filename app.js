@@ -2014,8 +2014,14 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     renderAssessorCheatSheet(objectiveId, controlId) {
         const ccaData = typeof getCCAQuestions === 'function' ? getCCAQuestions(objectiveId) : null;
         const fedrampData = typeof getFedRAMPServices === 'function' ? getFedRAMPServices(controlId) : null;
+        
+        // Get family ID from control ID (e.g., "3.1.1" -> "AC")
+        const familyMap = {'3.1': 'AC', '3.2': 'AT', '3.3': 'AU', '3.4': 'CM', '3.5': 'IA', '3.6': 'IR', '3.7': 'MA', '3.8': 'MP', '3.9': 'PS', '3.10': 'PE', '3.11': 'RA', '3.12': 'CA', '3.13': 'SC', '3.14': 'SI'};
+        const familyPrefix = controlId.split('.').slice(0, 2).join('.');
+        const familyId = familyMap[familyPrefix];
+        const pitfallsData = typeof CCA_PITFALLS !== 'undefined' && familyId ? CCA_PITFALLS.byFamily[familyId] : null;
 
-        if (!ccaData && !fedrampData) {
+        if (!ccaData && !fedrampData && !pitfallsData) {
             return '';
         }
 
@@ -2034,6 +2040,32 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     <ul class="cheat-sheet-list">${evidenceList}</ul>
                 </div>
             `;
+        }
+
+        // Find relevant pitfall for this control
+        let pitfallHtml = '';
+        if (pitfallsData) {
+            const relevantGap = pitfallsData.commonGaps.find(g => g.impact.includes(controlId));
+            if (relevantGap) {
+                pitfallHtml = `
+                    <div class="cheat-sheet-subsection pitfall-warning">
+                        <div class="cheat-sheet-subtitle">⚠️ Common Assessment Pitfall</div>
+                        <div class="pitfall-issue"><strong>Issue:</strong> ${relevantGap.issue}</div>
+                        <div class="pitfall-impact"><strong>Impact:</strong> ${relevantGap.impact}</div>
+                        <div class="pitfall-fix"><strong>Fix:</strong> ${relevantGap.fix}</div>
+                    </div>
+                `;
+            }
+            // Add CCA tips if this is first objective of control
+            if (objectiveId.endsWith('[a]') && pitfallsData.ccaTips && pitfallsData.ccaTips.length > 0) {
+                const tipsList = pitfallsData.ccaTips.slice(0, 3).map(t => `<li>${t}</li>`).join('');
+                pitfallHtml += `
+                    <div class="cheat-sheet-subsection cca-tips">
+                        <div class="cheat-sheet-subtitle">💡 CCA Assessment Tips</div>
+                        <ul class="cheat-sheet-list">${tipsList}</ul>
+                    </div>
+                `;
+            }
         }
 
         let servicesHtml = '';
@@ -2061,6 +2093,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     <svg class="cheat-sheet-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
                 <div class="cheat-sheet-content">
+                    ${pitfallHtml}
                     ${questionsHtml}
                     ${servicesHtml}
                 </div>

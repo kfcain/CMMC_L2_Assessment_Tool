@@ -2103,6 +2103,47 @@ body {
     margin-top: 12px;
 }
 
+.cheat-sheet-subsection.pitfall-warning {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.pitfall-warning .cheat-sheet-subtitle {
+    color: #f59e0b;
+    margin-bottom: 10px;
+}
+
+.pitfall-issue, .pitfall-impact, .pitfall-fix {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+.pitfall-issue strong { color: #ef4444; }
+.pitfall-impact strong { color: #f59e0b; }
+.pitfall-fix strong { color: #10b981; }
+
+.cheat-sheet-subsection.cca-tips {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.cca-tips .cheat-sheet-subtitle {
+    color: #3b82f6;
+}
+
+.cca-tips .cheat-sheet-list li {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
 .cheat-sheet-subtitle {
     font-size: 12px;
     font-weight: 600;

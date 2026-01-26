@@ -1687,6 +1687,143 @@ const IMPL_NOTES = {
             quickWin: "Enable SCC Event Threat Detection",
             evidenceArtifact: "SCC_ThreatDetection.json"
         }
+    },
+
+    // === AUDIT AND ACCOUNTABILITY (3.3) - Expanded ===
+    "3.3.3[a]": {
+        azure: {
+            steps: ["1. Review current audit events in Microsoft Purview Audit", "2. Enable Advanced Audit for enhanced logging", "3. Configure Log Analytics retention policies", "4. Document audit event categories", "5. Schedule quarterly reviews"],
+            quickWin: "Enable Purview Advanced Audit and extend retention to 1 year",
+            evidenceArtifact: "AuditConfig_Review.json",
+            humanInTheLoop: ["Security reviews audit events quarterly", "Compliance validates audit scope", "IT confirms log retention meets policy"],
+            policyEvidence: ["Audit and Accountability Policy", "Audit Event Configuration Procedure", "Quarterly Audit Review Checklist"]
+        },
+        aws: {
+            steps: ["1. Review CloudTrail configuration", "2. Audit S3 data events and Lambda invocations", "3. Review VPC Flow Logs", "4. Document audit changes", "5. Schedule quarterly reviews"],
+            quickWin: "Enable CloudTrail Insights for anomaly detection",
+            evidenceArtifact: "CloudTrail_ConfigReview.json"
+        },
+        gcp: {
+            steps: ["1. Review Cloud Audit Logs configuration", "2. Enable Data Access logs for critical resources", "3. Configure log router retention", "4. Document audit decisions", "5. Schedule quarterly reviews"],
+            quickWin: "Enable Data Access logs for BigQuery and Cloud Storage",
+            evidenceArtifact: "AuditLogs_Config.json"
+        }
+    },
+    "3.3.4[a]": {
+        azure: {
+            steps: ["1. Configure Azure Monitor alerts for log ingestion failures", "2. Set up Sentinel health monitoring", "3. Create alert rules for Log Analytics issues", "4. Configure notifications for audit failures", "5. Document alerting procedures"],
+            quickWin: "Create alert rule: Log Analytics data ingestion stopped",
+            evidenceArtifact: "AuditFailure_Alerts.json",
+            humanInTheLoop: ["SOC responds to audit failure alerts within 1 hour", "IT Operations investigates and restores logging", "Security documents incident"],
+            policyEvidence: ["Audit Failure Response Procedure", "Logging System Health Monitoring Standard", "Alert Escalation Matrix"]
+        },
+        aws: {
+            steps: ["1. Create CloudWatch alarms for CloudTrail delivery failures", "2. Monitor S3 bucket metrics for log delivery", "3. Set up SNS notifications", "4. Configure EventBridge rules", "5. Document response procedures"],
+            quickWin: "Create CloudWatch alarm: CloudTrailDeliveryFailure metric",
+            evidenceArtifact: "CloudTrail_HealthAlerts.json"
+        },
+        gcp: {
+            steps: ["1. Configure Cloud Monitoring alerts for audit log sinks", "2. Monitor log router health metrics", "3. Set up notification channels", "4. Create uptime checks", "5. Document response procedures"],
+            quickWin: "Create alert policy for log sink export failures",
+            evidenceArtifact: "LogSink_HealthAlerts.json"
+        }
+    },
+    "3.3.7[a]": {
+        azure: {
+            steps: ["1. Verify Windows time sync to time.windows.com", "2. Configure Linux VMs to sync with Azure NTP", "3. Verify domain controllers are authoritative", "4. Document time sync architecture", "5. Monitor time drift"],
+            quickWin: "Verify: `w32tm /query /status` on Windows, `timedatectl` on Linux",
+            evidenceArtifact: "TimeSync_Config.txt",
+            humanInTheLoop: ["IT Admin verifies time sync during VM deployment", "Security validates time correlation in log analysis"],
+            policyEvidence: ["Time Synchronization Standard", "System Configuration Baseline"]
+        },
+        aws: {
+            steps: ["1. Verify EC2 instances use Amazon Time Sync (169.254.169.123)", "2. Configure chrony/ntpd", "3. Verify containers use host time", "4. Document time source", "5. Monitor time drift"],
+            quickWin: "Verify: `chronyc sources` shows Amazon Time Sync",
+            evidenceArtifact: "TimeSync_Status.txt"
+        },
+        gcp: {
+            steps: ["1. Verify VMs use Google NTP (metadata.google.internal)", "2. Configure explicit NTP if needed", "3. Verify GKE time sync", "4. Document time source", "5. Monitor accuracy"],
+            quickWin: "Verify: `timedatectl show` displays Google NTP source",
+            evidenceArtifact: "TimeSync_GCP.txt"
+        }
+    },
+
+    // === CONFIGURATION MANAGEMENT (3.4) - Expanded ===
+    "3.4.3[a]": {
+        azure: {
+            steps: ["1. Implement Azure DevOps/GitHub for infrastructure as code", "2. Configure branch protection with PR reviews", "3. Enable Azure Policy for drift detection", "4. Use Deployment Environments for staging", "5. Document change tracking"],
+            quickWin: "Enable Azure Policy compliance scanning for drift detection",
+            evidenceArtifact: "ChangeTracking_Config.json",
+            humanInTheLoop: ["Change requester submits PR with justification", "Security reviews security-impacting changes", "CAB approves production deployments"],
+            policyEvidence: ["Configuration Management Policy", "Change Management Procedure", "Infrastructure as Code Standards"]
+        },
+        aws: {
+            steps: ["1. Use CloudFormation/CDK with source control", "2. Enable AWS Config for tracking", "3. Configure Config rules for compliance", "4. Use CodePipeline for deployments", "5. Document changes"],
+            quickWin: "Enable AWS Config with required-tags and approved-amis rules",
+            evidenceArtifact: "AWSConfig_ChangeHistory.json"
+        },
+        gcp: {
+            steps: ["1. Use Terraform with source control", "2. Enable Cloud Asset Inventory", "3. Configure SCC for drift", "4. Use Cloud Build for deployments", "5. Document changes"],
+            quickWin: "Enable Cloud Asset Inventory real-time feed to BigQuery",
+            evidenceArtifact: "AssetInventory_Changes.json"
+        }
+    },
+    "3.4.5[a]": {
+        azure: {
+            steps: ["1. Define who can make system changes in policy", "2. Restrict Azure subscription Owner/Contributor", "3. Use PIM for just-in-time admin access", "4. Require approval workflow for privileged ops", "5. Document access restrictions"],
+            quickWin: "Enable PIM approval workflow for subscription-level changes",
+            evidenceArtifact: "ChangeAccess_Restrictions.json",
+            humanInTheLoop: ["IT Director approves change access", "Security validates restrictions quarterly", "PIM approver authorizes JIT access"],
+            policyEvidence: ["Change Access Control Policy", "Privileged Access Management Procedure", "Change Authorization Matrix"]
+        },
+        aws: {
+            steps: ["1. Define change access in IAM policies", "2. Use permission boundaries", "3. Require MFA for destructive operations", "4. Use Organizations SCPs for guardrails", "5. Document restrictions"],
+            quickWin: "Create SCP requiring MFA for sensitive operations",
+            evidenceArtifact: "IAM_ChangeAccess_Policy.json"
+        },
+        gcp: {
+            steps: ["1. Define change access in IAM roles", "2. Use IAM Conditions for context-aware access", "3. Require org admin approval for org changes", "4. Use Organization Policies", "5. Document restrictions"],
+            quickWin: "Add IAM Condition requiring justification for privileged roles",
+            evidenceArtifact: "IAM_ChangeAccess_Bindings.json"
+        }
+    },
+    "3.4.7[c]": {
+        azure: {
+            steps: ["1. Document required ports per application", "2. Configure NSGs with deny-all default", "3. Use Azure Firewall for centralized control", "4. Enable JIT VM access for management ports", "5. Scan for unauthorized open ports"],
+            quickWin: "Enable Defender recommendation: Close management ports",
+            evidenceArtifact: "NSG_PortRestrictions.json",
+            humanInTheLoop: ["Application owner requests required ports", "Security approves port openings", "Network team implements NSG rules"],
+            policyEvidence: ["Network Port Management Policy", "Approved Port List by Application", "JIT Access Procedure"]
+        },
+        aws: {
+            steps: ["1. Document required ports per workload", "2. Configure Security Groups minimally", "3. Use VPC Flow Logs for analysis", "4. Enable Inspector for open port findings", "5. Remediate unauthorized ports"],
+            quickWin: "Enable Security Hub CIS control: VPC security group port restriction",
+            evidenceArtifact: "SecurityGroup_PortConfig.json"
+        },
+        gcp: {
+            steps: ["1. Document required ports", "2. Configure VPC firewall with specific ports", "3. Use Firewall Insights for analysis", "4. Enable SCC for open port findings", "5. Remediate unauthorized ports"],
+            quickWin: "Enable Firewall Insights for overly permissive rule detection",
+            evidenceArtifact: "FirewallRules_PortConfig.json"
+        }
+    },
+    "3.4.8[b]": {
+        azure: {
+            steps: ["1. Deploy Windows Defender Application Control (WDAC)", "2. Configure WDAC policy in enforced mode", "3. Use Intune to deploy WDAC to endpoints", "4. Monitor enforcement events in Sentinel", "5. Process exceptions through change management"],
+            quickWin: "Start with WDAC audit mode, analyze CodeIntegrity logs",
+            evidenceArtifact: "WDAC_Policy_Enforced.xml",
+            humanInTheLoop: ["Security defines baseline allowed publishers", "Users request exceptions via help desk", "Security reviews and approves exceptions"],
+            policyEvidence: ["Application Control Policy", "WDAC Exception Request Procedure", "Approved Publisher List"]
+        },
+        aws: {
+            steps: ["1. Use AMI pipelines with only approved software", "2. Configure SSM to detect unauthorized executables", "3. Use ECR image scanning with deny policy", "4. Block execution paths via OS config", "5. Document deny-by-exception approach"],
+            quickWin: "Configure ECR scanning to block vulnerable/unapproved images",
+            evidenceArtifact: "ECR_ScanPolicy.json"
+        },
+        gcp: {
+            steps: ["1. Use Binary Authorization for containers", "2. Configure admission policy requiring attestation", "3. Use OS Config for VM software compliance", "4. Block unauthorized container registries", "5. Document deny-by-exception"],
+            quickWin: "Enable Binary Authorization with require_attestations_by",
+            evidenceArtifact: "BinaryAuth_DenyPolicy.json"
+        }
     }
 };
 
