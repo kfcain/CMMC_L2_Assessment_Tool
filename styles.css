@@ -4894,20 +4894,14 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow-y: auto;
 }
 
 #impl-guide-view .impl-guide-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-}
-
-/* When showing category grid, allow content to expand naturally */
-#impl-guide-view .impl-guide-content:has(.arch-category-grid) {
-    overflow: visible;
-    height: auto;
-    flex: none;
+    min-height: 0;
 }
 
 .impl-guide-view-header {
@@ -4927,15 +4921,8 @@ body {
 
 #impl-guide-view .impl-guide-body {
     flex: 1;
-    overflow-y: auto;
     padding: 20px 24px;
-}
-
-/* Allow category grid to display without constrained scrolling */
-#impl-guide-view .impl-guide-body:has(.arch-category-grid) {
-    overflow: visible;
-    flex: none;
-    height: auto;
+    min-height: 0;
 }
 
 /* Disclaimer Banner */
