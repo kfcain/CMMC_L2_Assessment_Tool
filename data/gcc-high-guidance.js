@@ -890,7 +890,7 @@ Write-Host "Change DB Created in GCC High (\$SiteUrl)." -ForegroundColor Green`
         azureService: "Azure VNet, NSG, Azure Firewall",
         humanIntervention: "Required - Document external boundaries (internet, partner connections) and internal boundaries (CUI zones, admin networks).",
         docLink: "https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview",
-        smallOrgGuidance: "For small remote orgs without physical firewalls: Use Azure's built-in network controls as your boundary. Define VNets with NSGs as 'virtual firewalls'. Document internet access points (VPN, ExpressRoute) as external boundaries. Internal boundaries can separate CUI workloads from general workloads using subnet NSGs.",
+        smallOrgGuidance: "For small remote orgs without physical firewalls: Use Azure's built-in network controls as your boundary. Define VNets with NSGs as 'virtual firewalls'. Document internet access points (VPN, ExpressRoute) as external boundaries. Internal boundaries can separate CUI workloads from general workloads using subnet NSGs.\n\nFor M365-only orgs: Your boundary is Microsoft's network infrastructure. Document Conditional Access policies as your 'virtual firewall'. Use Microsoft Purview DLP and Entra ID as boundary controls. External boundary = internet access to M365 portals. Internal boundaries = separate Teams sites/SharePoint sites with different access policies.",
         automationScripts: [{
             name: "SC_Create_Network_Boundaries.ps1",
             description: "Creates VNet with NSG rules for CMMC boundary protection",
@@ -924,7 +924,7 @@ Set-AzVirtualNetworkSubnetConfig -VirtualNetwork \$VNet -Name "Admin-Access" -Ad
         azureService: "Azure Resource Manager, Azure Monitor, NSG Flow Logs",
         humanIntervention: "Required - Identify and document all internal network segmentation points (CUI zones, admin networks, DMZ equivalents).",
         docLink: "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/network-watcher-monitoring-overview",
-        smallOrgGuidance: "Small remote orgs: Internal boundaries can be logical separations within Azure. Use separate subnets for: 1) CUI processing, 2) administrative access, 3) general workloads. Tag resources with 'BoundaryType' to document classification. Enable NSG flow logs to monitor traffic between zones.",
+        smallOrgGuidance: "Small remote orgs: Internal boundaries can be logical separations within Azure. Use separate subnets for: 1) CUI processing, 2) administrative access, 3) general workloads. Tag resources with 'BoundaryType' to document classification. Enable NSG flow logs to monitor traffic between zones.\n\nFor M365-only orgs: Internal boundaries are logical separations within M365. Use separate Teams/SharePoint sites for: 1) CUI projects, 2) administrative functions, 3) general collaboration. Use sensitivity labels and DLP policies to control data flow between boundaries.",
         automationScripts: [{
             name: "SC_Internal_Boundary_Tags.ps1",
             description: "Applies boundary classification tags to Azure resources",
@@ -951,7 +951,7 @@ foreach (\$Resource in \$Resources) {
         azureService: "NSG Flow Logs, Azure Monitor, Network Watcher",
         humanIntervention: "Review traffic patterns weekly. Document approved traffic flows.",
         docLink: "https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-monitoring-overview",
-        smallOrgGuidance: "Small remote orgs: Enable NSG flow logs (free tier) to monitor external boundary traffic. Set up basic alerts for unusual traffic patterns. Use Azure Monitor workbooks to visualize traffic. No physical firewall needed - Azure NSGs provide the monitoring.",
+        smallOrgGuidance: "Small remote orgs: Enable NSG flow logs (free tier) to monitor external boundary traffic. Set up basic alerts for unusual traffic patterns. Use Azure Monitor workbooks to visualize traffic. No physical firewall needed - Azure NSGs provide the monitoring.\n\nFor M365-only orgs: Use Microsoft 365 audit logs and Entra ID sign-in logs to monitor external boundary access. Set up alerts in Microsoft Purview for unusual access patterns. Use Cloud App Security to monitor M365 service access. No physical firewall needed - Microsoft's network provides protection.",
         automationScripts: [{
             name: "SC_Enable_Boundary_Monitoring.ps1",
             description: "Enables NSG flow logs and basic monitoring",
@@ -981,7 +981,7 @@ Set-AzNetworkWatcherConfigFlowLog -NetworkWatcherLocation "USGovVirginia" -Resou
         azureService: "NSG Flow Logs, Azure Sentinel, Azure Monitor",
         humanIntervention: "Review cross-boundary traffic monthly. Document exceptions.",
         docLink: "https://learn.microsoft.com/en-us/azure/sentinel/overview",
-        smallOrgGuidance: "Small remote orgs: Monitor traffic between CUI and non-CUI subnets using NSG flow logs. Create simple alerts for traffic crossing internal boundaries. Document expected flows (e.g., admin access to CUI zone). Use Azure Monitor workbooks for visualization.",
+        smallOrgGuidance: "Small remote orgs: Monitor traffic between CUI and non-CUI subnets using NSG flow logs. Create simple alerts for traffic crossing internal boundaries. Document expected flows (e.g., admin access to CUI zone). Use Azure Monitor workbooks for visualization.\n\nFor M365-only orgs: Monitor data movement between Teams/SharePoint sites using Microsoft 365 audit logs. Create DLP alerts for CUI moving to non-CUI sites. Use Purview audit to track cross-boundary access. Document expected data flows between sites.",
         automationScripts: [{
             name: "SC_Internal_Boundary_Monitoring.ps1",
             description: "Monitors traffic between internal boundaries",
@@ -1002,7 +1002,7 @@ foreach (\$Subnet in \$Subnets) {
         azureService: "NSG Rules, Azure Firewall, Application Gateway WAF",
         humanIntervention: "Define and approve traffic control policies. Review rule effectiveness.",
         docLink: "https://learn.microsoft.com/en-us/azure/virtual-network/security-overview",
-        smallOrgGuidance: "Small remote orgs: Use NSG rules as your 'virtual firewall' at the external boundary. Default deny all inbound, allow only required ports (HTTPS 443, VPN). Use Azure Firewall Basic if available for more advanced filtering. Document all allowed traffic flows.",
+        smallOrgGuidance: "Small remote orgs: Use NSG rules as your 'virtual firewall' at the external boundary. Default deny all inbound, allow only required ports (HTTPS 443, VPN). Use Azure Firewall Basic if available for more advanced filtering. Document all allowed traffic flows.\n\nFor M365-only orgs: Use Conditional Access policies as your 'virtual firewall'. Block access from untrusted locations. Require MFA for external access. Use session controls to limit access duration. Document all CA policies and allowed access scenarios.",
         automationScripts: [{
             name: "SC_External_Boundary_Control.ps1",
             description: "Implements NSG rules for external boundary control",
@@ -1027,7 +1027,7 @@ foreach (\$Subnet in \$Subnets) {
         azureService: "Subnet NSGs, Service Endpoints, Private Endpoints",
         humanIntervention: "Define internal traffic control policies. Document business requirements.",
         docLink: "https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview",
-        smallOrgGuidance: "Small remote orgs: Use subnet NSGs to control traffic between internal boundaries. Block direct internet access from CUI subnets. Use Private Endpoints for Azure services. Allow only necessary admin traffic from designated management subnet.",
+        smallOrgGuidance: "Small remote orgs: Use subnet NSGs to control traffic between internal boundaries. Block direct internet access from CUI subnets. Use Private Endpoints for Azure services. Allow only necessary admin traffic from designated management subnet.\n\nFor M365-only orgs: Use sensitivity labels and DLP policies to control data flow between internal boundaries. Restrict sharing between CUI and non-CUI sites. Use information barriers to prevent cross-boundary communication. Document all internal data flow policies.",
         automationScripts: [{
             name: "SC_Internal_Boundary_Control.ps1",
             description: "Implements internal boundary controls between subnets",
@@ -1058,7 +1058,7 @@ Set-AzVirtualNetworkSubnetConfig -VirtualNetwork (Get-AzVirtualNetwork -Name "VN
         azureService: "Azure Firewall, WAF, DDoS Protection, Front Door",
         humanIntervention: "Configure WAF rules. Test protection effectiveness.",
         docLink: "https://learn.microsoft.com/en-us/azure/web-application-firewall/overview",
-        smallOrgGuidance: "Small remote orgs: Use Azure Firewall Basic (if available) or Network Security Groups with additional logging. Enable DDoS protection at the VNet level. For web applications, use Application Gateway with WAF. Document all protection mechanisms.",
+        smallOrgGuidance: "Small remote orgs: Use Azure Firewall Basic (if available) or Network Security Groups with additional logging. Enable DDoS protection at the VNet level. For web applications, use Application Gateway with WAF. Document all protection mechanisms.\n\nFor M365-only orgs: Microsoft provides DDoS protection and WAF for M365 services. Enable Advanced Threat Protection (ATP) for additional security. Use Safe Links and Safe Attachments in Defender. Document all Microsoft-provided protections and your additional policies.",
         automationScripts: [{
             name: "SC_External_Boundary_Protection.ps1",
             description: "Deploys protection services at external boundaries",
@@ -1086,7 +1086,7 @@ try {
         azureService: "Private Link, Service Endpoints, Azure Key Vault",
         humanIntervention: "Define internal protection requirements. Document encryption standards.",
         docLink: "https://learn.microsoft.com/en-us/azure/private-link/private-link-overview",
-        smallOrgGuidance: "Small remote orgs: Use Private Endpoints for Azure services instead of public endpoints. Enable encryption for all internal traffic (TLS 1.2+). Use Azure Key Vault for secret management. Document all internal protection mechanisms.",
+        smallOrgGuidance: "Small remote orgs: Use Private Endpoints for Azure services instead of public endpoints. Enable encryption for all internal traffic (TLS 1.2+). Use Azure Key Vault for secret management. Document all internal protection mechanisms.\n\nFor M365-only orgs: Microsoft encrypts all M365 traffic by default. Use Customer Lockbox for additional control. Enable Customer Key for advanced encryption control. Use sensitivity labels to classify and protect data. Document all Microsoft encryption and your additional controls.",
         automationScripts: [{
             name: "SC_Internal_Boundary_Protection.ps1",
             description: "Implements protection for internal boundaries",
