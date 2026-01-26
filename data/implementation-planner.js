@@ -1052,6 +1052,315 @@ const IMPLEMENTATION_PLANNER = {
                     ]
                 }
             ]
+        },
+        {
+            id: "phase-9",
+            name: "POA&M Remediation",
+            description: "Address identified gaps and track remediation to closure",
+            duration: "4-12 weeks",
+            icon: "remediation",
+            color: "#e06c75",
+            milestones: [
+                {
+                    id: "m9-1",
+                    name: "POA&M Created",
+                    description: "Document all gaps with remediation plans",
+                    tasks: [
+                        {
+                            id: "t9-1-1",
+                            name: "Create POA&M from gap assessment",
+                            description: "Document each NOT MET finding with remediation details",
+                            controls: ["3.12.2"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Export NOT MET objectives from self-assessment",
+                                    "Assign each finding a unique POA&M ID",
+                                    "Document current state and desired state",
+                                    "Identify root cause for each gap",
+                                    "Estimate resources and timeline for remediation"
+                                ],
+                                artifacts: ["POA&M Spreadsheet", "Gap Analysis Report", "Resource Estimate"]
+                            }
+                        },
+                        {
+                            id: "t9-1-2",
+                            name: "Prioritize remediation items",
+                            description: "Risk-rank POA&M items and establish remediation order",
+                            controls: ["3.11.1", "3.12.2"],
+                            priority: "high",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Score each gap by risk (likelihood x impact)",
+                                    "Identify quick wins (low effort, high impact)",
+                                    "Group related items for efficient remediation",
+                                    "Consider dependencies between items",
+                                    "Obtain management approval on prioritization"
+                                ],
+                                artifacts: ["Prioritized POA&M", "Risk Assessment Matrix", "Remediation Roadmap"]
+                            }
+                        },
+                        {
+                            id: "t9-1-3",
+                            name: "Assign remediation owners",
+                            description: "Designate responsible parties for each POA&M item",
+                            controls: ["3.12.2"],
+                            priority: "high",
+                            effort: "low",
+                            guidance: {
+                                steps: [
+                                    "Identify SMEs for each control family",
+                                    "Assign primary and backup owners",
+                                    "Establish expected completion dates",
+                                    "Define escalation path for blockers",
+                                    "Schedule regular POA&M review meetings"
+                                ],
+                                artifacts: ["POA&M with Owners", "RACI Matrix", "Meeting Schedule"]
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m9-2",
+                    name: "Remediation Complete",
+                    description: "All POA&M items closed or accepted",
+                    tasks: [
+                        {
+                            id: "t9-2-1",
+                            name: "Execute remediation tasks",
+                            description: "Implement fixes for each POA&M item",
+                            controls: ["3.12.2", "3.12.3"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Work through POA&M items by priority",
+                                    "Document implementation for each fix",
+                                    "Collect evidence of remediation",
+                                    "Update assessment status as items complete",
+                                    "Track progress in weekly POA&M reviews"
+                                ],
+                                artifacts: ["Remediation Evidence", "Updated Assessment", "Progress Reports"]
+                            }
+                        },
+                        {
+                            id: "t9-2-2",
+                            name: "Validate remediation effectiveness",
+                            description: "Verify each fix addresses the gap",
+                            controls: ["3.12.1", "3.12.3"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Re-assess each remediated objective",
+                                    "Verify evidence supports MET status",
+                                    "Test technical controls are functioning",
+                                    "Confirm process controls are being followed",
+                                    "Document validation results"
+                                ],
+                                artifacts: ["Validation Test Results", "Updated Evidence Package", "Re-Assessment Results"]
+                            }
+                        },
+                        {
+                            id: "t9-2-3",
+                            name: "Close or accept remaining items",
+                            description: "Obtain risk acceptance for any open items",
+                            controls: ["3.12.2"],
+                            priority: "high",
+                            effort: "low",
+                            guidance: {
+                                steps: [
+                                    "Review any items not fully remediated",
+                                    "Document compensating controls if applicable",
+                                    "Prepare risk acceptance package for leadership",
+                                    "Obtain signed risk acceptance memos",
+                                    "Note: CMMC does not allow POA&Ms at assessment time"
+                                ],
+                                artifacts: ["Risk Acceptance Memos", "Compensating Control Documentation", "Final POA&M Status"]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            id: "phase-10",
+            name: "Assessment Readiness",
+            description: "Prepare for C3PAO assessment with mock assessments and evidence review",
+            duration: "4-6 weeks",
+            icon: "readiness",
+            color: "#98c379",
+            milestones: [
+                {
+                    id: "m10-1",
+                    name: "Evidence Package Complete",
+                    description: "All assessment evidence organized and validated",
+                    tasks: [
+                        {
+                            id: "t10-1-1",
+                            name: "Organize evidence repository",
+                            description: "Structure evidence by control family and objective",
+                            controls: ["3.12.1", "3.12.4"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Create folder structure by control family",
+                                    "Name files with control IDs for easy reference",
+                                    "Include evidence description/index document",
+                                    "Ensure screenshots are dated and labeled",
+                                    "Verify all 320 objectives have supporting evidence"
+                                ],
+                                artifacts: ["Evidence Repository", "Evidence Index", "Evidence Mapping Matrix"]
+                            }
+                        },
+                        {
+                            id: "t10-1-2",
+                            name: "Validate evidence quality",
+                            description: "Ensure evidence clearly demonstrates control implementation",
+                            controls: ["3.12.1"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Review each artifact for completeness",
+                                    "Verify timestamps are within assessment period",
+                                    "Confirm screenshots show relevant settings",
+                                    "Check policy documents are signed and dated",
+                                    "Ensure evidence matches SSP descriptions"
+                                ],
+                                artifacts: ["Evidence Review Checklist", "Quality Assurance Report"]
+                            }
+                        },
+                        {
+                            id: "t10-1-3",
+                            name: "Prepare interview subjects",
+                            description: "Brief personnel who may be interviewed during assessment",
+                            controls: ["3.2.1", "3.12.1"],
+                            priority: "high",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Identify key personnel by role (ISSM, IT Admin, etc.)",
+                                    "Review likely questions for each role",
+                                    "Conduct practice interviews",
+                                    "Ensure personnel know where policies are located",
+                                    "Brief on assessment process and expectations"
+                                ],
+                                artifacts: ["Interview Prep Guide", "Role-Based Q&A", "Key Personnel List"]
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m10-2",
+                    name: "Mock Assessment Complete",
+                    description: "Conduct internal or third-party readiness assessment",
+                    tasks: [
+                        {
+                            id: "t10-2-1",
+                            name: "Conduct mock assessment",
+                            description: "Simulate C3PAO assessment to identify gaps",
+                            controls: ["3.12.1", "3.12.3"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Engage internal team or consultant to act as assessor",
+                                    "Walk through all 320 objectives with evidence",
+                                    "Conduct sample interviews with key personnel",
+                                    "Test technical controls with live demonstrations",
+                                    "Document findings and observations"
+                                ],
+                                artifacts: ["Mock Assessment Report", "Finding List", "Recommendations"]
+                            }
+                        },
+                        {
+                            id: "t10-2-2",
+                            name: "Address mock assessment findings",
+                            description: "Remediate any issues identified in mock assessment",
+                            controls: ["3.12.2", "3.12.3"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Review all findings from mock assessment",
+                                    "Prioritize by severity and ease of fix",
+                                    "Implement fixes before formal assessment",
+                                    "Update evidence as needed",
+                                    "Re-verify fixed items"
+                                ],
+                                artifacts: ["Remediation Tracker", "Updated Evidence", "Verification Results"]
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m10-3",
+                    name: "C3PAO Engagement",
+                    description: "Select and engage C3PAO for formal assessment",
+                    tasks: [
+                        {
+                            id: "t10-3-1",
+                            name: "Select C3PAO",
+                            description: "Choose authorized C3PAO from CMMC-AB marketplace",
+                            controls: [],
+                            priority: "critical",
+                            effort: "low",
+                            guidance: {
+                                steps: [
+                                    "Review C3PAO marketplace at cyberab.org",
+                                    "Request quotes from multiple C3PAOs",
+                                    "Verify C3PAO authorization status",
+                                    "Check references and experience",
+                                    "Negotiate timeline and pricing"
+                                ],
+                                artifacts: ["C3PAO Proposals", "Contract", "Assessment Schedule"]
+                            }
+                        },
+                        {
+                            id: "t10-3-2",
+                            name: "Schedule and prepare for assessment",
+                            description: "Coordinate logistics for formal CMMC assessment",
+                            controls: [],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Confirm assessment dates with C3PAO",
+                                    "Reserve conference rooms for interviews",
+                                    "Ensure key personnel availability",
+                                    "Provide C3PAO with pre-assessment package (SSP, boundary diagram)",
+                                    "Set up secure file sharing for evidence",
+                                    "Brief executive sponsor on assessment process"
+                                ],
+                                artifacts: ["Assessment Schedule", "Logistics Plan", "Pre-Assessment Package", "Executive Brief"]
+                            }
+                        },
+                        {
+                            id: "t10-3-3",
+                            name: "Complete assessment",
+                            description: "Support C3PAO during formal assessment activities",
+                            controls: [],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Provide requested evidence promptly",
+                                    "Make personnel available for interviews",
+                                    "Demonstrate technical controls as requested",
+                                    "Take notes on assessor observations",
+                                    "Address any real-time findings if possible",
+                                    "Receive preliminary results and plan for any conditional items"
+                                ],
+                                artifacts: ["Assessment Notes", "Evidence Request Log", "Preliminary Findings"]
+                            }
+                        }
+                    ]
+                }
+            ]
         }
     ],
     
