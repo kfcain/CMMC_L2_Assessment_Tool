@@ -2057,10 +2057,378 @@ const ENCLAVE_GUIDANCE = {
                 "Document decommissioning process (sanitization not usually needed for true thin clients)"
             ]
         }
-    }
+    },
+
+    // Platform-Specific CUI Identification (Native Tools - No 3rd Party Required)
+    cuiIdentification: {
+        azure: {
+            name: "Microsoft Purview (Native)",
+            description: "Microsoft's native data governance and DLP platform for CUI identification",
+            nativeTools: [
+                {
+                    tool: "Microsoft Purview Information Protection",
+                    purpose: "Classify and label documents containing CUI",
+                    howItWorks: "Uses trainable classifiers, regex patterns, and ML to identify sensitive data",
+                    setup: [
+                        "Navigate to Microsoft Purview Compliance Portal",
+                        "Create sensitivity labels for CUI categories",
+                        "Configure auto-labeling policies with CUI patterns",
+                        "Enable default labeling for new documents"
+                    ],
+                    cliCommands: [
+                        "# PowerShell - Get sensitivity labels",
+                        "Connect-IPPSSession",
+                        "Get-Label | Select Name, DisplayName, Priority",
+                        "Get-LabelPolicy | Select Name, Labels, Mode"
+                    ],
+                    cuiPatterns: [
+                        { pattern: "CONTROLLED UNCLASSIFIED INFORMATION", type: "Header marking" },
+                        { pattern: "CUI//SP-CTI", type: "Dissemination control" },
+                        { pattern: "EXPORT CONTROLLED", type: "Export control marking" }
+                    ],
+                    docLink: "https://learn.microsoft.com/en-us/purview/sensitivity-labels"
+                },
+                {
+                    tool: "Microsoft Purview Data Loss Prevention",
+                    purpose: "Prevent CUI from leaving authorized boundaries",
+                    howItWorks: "Monitors and blocks sensitive data in email, SharePoint, OneDrive, Teams, and endpoints",
+                    setup: [
+                        "Create DLP policy in Purview Compliance Portal",
+                        "Select 'CUI' or create custom sensitive info types",
+                        "Define policy scope (Exchange, SharePoint, OneDrive, Teams)",
+                        "Configure actions (block, notify, require justification)"
+                    ],
+                    builtInTypes: [
+                        "U.S. Social Security Number (SSN)",
+                        "U.S. Individual Taxpayer Identification Number (ITIN)",
+                        "U.S. Passport Number",
+                        "Credit Card Number",
+                        "Custom patterns for contract numbers, project codes"
+                    ],
+                    docLink: "https://learn.microsoft.com/en-us/purview/dlp-learn-about-dlp"
+                },
+                {
+                    tool: "Microsoft Purview Data Map (formerly Azure Purview)",
+                    purpose: "Discover and catalog CUI across Azure data estate",
+                    howItWorks: "Scans Azure Storage, SQL, Synapse, etc. for sensitive data patterns",
+                    setup: [
+                        "Create Purview account in Azure Portal",
+                        "Register data sources (Storage, SQL, etc.)",
+                        "Configure scanning with CUI classification rules",
+                        "Review discovered sensitive data in Data Catalog"
+                    ],
+                    supportedSources: ["Azure Blob Storage", "Azure SQL", "Azure Synapse", "Azure Data Lake", "Power BI"],
+                    docLink: "https://learn.microsoft.com/en-us/purview/concept-best-practices-scanning"
+                }
+            ],
+            costConsiderations: "Purview included in M365 E5/G5; standalone requires additional licensing"
+        },
+        
+        aws: {
+            name: "Amazon Macie (Native)",
+            description: "AWS's native ML-powered service for discovering and protecting sensitive data",
+            nativeTools: [
+                {
+                    tool: "Amazon Macie",
+                    purpose: "Automated discovery and classification of CUI in S3",
+                    howItWorks: "Uses ML and pattern matching to identify sensitive data in S3 buckets",
+                    setup: [
+                        "Enable Macie in AWS Console or CLI",
+                        "Create classification jobs for S3 buckets",
+                        "Configure custom data identifiers for CUI patterns",
+                        "Review findings in Macie console or Security Hub"
+                    ],
+                    cliCommands: [
+                        "# Enable Macie",
+                        "aws macie2 enable-macie --region us-gov-west-1",
+                        "",
+                        "# Create a classification job",
+                        "aws macie2 create-classification-job \\",
+                        "  --job-type SCHEDULED \\",
+                        "  --name 'CUI-Discovery-Job' \\",
+                        "  --s3-job-definition '{\"bucketDefinitions\":[{\"accountId\":\"123456789012\",\"buckets\":[\"cui-bucket\"]}]}'",
+                        "",
+                        "# List findings",
+                        "aws macie2 list-findings --region us-gov-west-1",
+                        "",
+                        "# Create custom data identifier for CUI markings",
+                        "aws macie2 create-custom-data-identifier \\",
+                        "  --name 'CUI-Header-Marking' \\",
+                        "  --regex 'CUI\\/\\/[A-Z\\-]+' \\",
+                        "  --description 'Identifies CUI banner markings'"
+                    ],
+                    builtInDetectors: [
+                        "PII (SSN, passport, driver's license)",
+                        "Financial data (credit cards, bank accounts)",
+                        "Credentials (API keys, passwords)",
+                        "Healthcare (HIPAA identifiers)"
+                    ],
+                    customIdentifiers: [
+                        { name: "CUI Banner", regex: "CONTROLLED\\s+UNCLASSIFIED\\s+INFORMATION", description: "Standard CUI header" },
+                        { name: "CUI Category", regex: "CUI\\/\\/[A-Z]{2,10}(-[A-Z]{2,10})*", description: "CUI category marking" },
+                        { name: "Export Control", regex: "(ITAR|EAR|EXPORT\\s+CONTROLLED)", description: "Export control markings" },
+                        { name: "Contract Number", regex: "[A-Z]{1,2}\\d{2}-\\d{4}-[A-Z]-\\d{4}", description: "DoD contract format" }
+                    ],
+                    docLink: "https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html"
+                },
+                {
+                    tool: "AWS Config Rules",
+                    purpose: "Ensure S3 buckets with CUI have proper controls",
+                    howItWorks: "Evaluates resource configurations against compliance rules",
+                    setup: [
+                        "Enable AWS Config in your account",
+                        "Deploy managed rules for S3 security",
+                        "Create custom rules for CUI-tagged resources"
+                    ],
+                    relevantRules: [
+                        "s3-bucket-server-side-encryption-enabled",
+                        "s3-bucket-ssl-requests-only",
+                        "s3-bucket-public-read-prohibited",
+                        "s3-bucket-public-write-prohibited",
+                        "s3-bucket-logging-enabled"
+                    ],
+                    docLink: "https://docs.aws.amazon.com/config/latest/developerguide/managed-rules-by-aws-config.html"
+                },
+                {
+                    tool: "AWS Security Hub",
+                    purpose: "Centralized view of security findings including Macie discoveries",
+                    howItWorks: "Aggregates findings from Macie, GuardDuty, Inspector, and custom sources",
+                    setup: [
+                        "Enable Security Hub in AWS Console",
+                        "Enable Macie integration",
+                        "Configure NIST 800-171 security standard",
+                        "Create custom insights for CUI findings"
+                    ],
+                    cliCommands: [
+                        "# Enable Security Hub",
+                        "aws securityhub enable-security-hub --enable-default-standards",
+                        "",
+                        "# Enable NIST 800-171 standard",
+                        "aws securityhub batch-enable-standards \\",
+                        "  --standards-subscription-requests '[{\"StandardsArn\":\"arn:aws-us-gov:securityhub:us-gov-west-1::standards/nist-800-171/v/2.0.0\"}]'"
+                    ],
+                    docLink: "https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html"
+                },
+                {
+                    tool: "S3 Object Tagging + Resource Policies",
+                    purpose: "Tag and control access to CUI objects",
+                    howItWorks: "Apply tags to objects, then use tag-based access control",
+                    setup: [
+                        "Define tagging schema (e.g., DataClassification=CUI)",
+                        "Apply tags via S3 console, CLI, or Macie automation",
+                        "Create IAM policies with tag conditions",
+                        "Enforce tagging via S3 bucket policies"
+                    ],
+                    cliCommands: [
+                        "# Tag an object as CUI",
+                        "aws s3api put-object-tagging \\",
+                        "  --bucket cui-bucket \\",
+                        "  --key sensitive-doc.pdf \\",
+                        "  --tagging 'TagSet=[{Key=DataClassification,Value=CUI},{Key=CUICategory,Value=CTI}]'",
+                        "",
+                        "# List objects with CUI tag",
+                        "aws resourcegroupstaggingapi get-resources \\",
+                        "  --tag-filters Key=DataClassification,Values=CUI \\",
+                        "  --resource-type-filters s3"
+                    ],
+                    docLink: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-tagging.html"
+                }
+            ],
+            costConsiderations: "Macie: ~$1/GB scanned first month, $0.10/GB thereafter. Security Hub: $0.0010/finding/month"
+        },
+        
+        gcp: {
+            name: "Cloud DLP (Native)",
+            description: "Google's native sensitive data discovery and protection service",
+            nativeTools: [
+                {
+                    tool: "Cloud Data Loss Prevention (DLP)",
+                    purpose: "Discover, classify, and protect sensitive data across GCP",
+                    howItWorks: "Scans data in Cloud Storage, BigQuery, Datastore using 150+ built-in detectors",
+                    setup: [
+                        "Enable Cloud DLP API in GCP Console",
+                        "Create inspection job for target data stores",
+                        "Configure custom infoTypes for CUI patterns",
+                        "Set up automated actions (redact, notify, quarantine)"
+                    ],
+                    cliCommands: [
+                        "# Enable DLP API",
+                        "gcloud services enable dlp.googleapis.com",
+                        "",
+                        "# Create inspection template with CUI patterns",
+                        "gcloud dlp inspect-templates create \\",
+                        "  --display-name='CUI-Detection' \\",
+                        "  --info-types='US_SOCIAL_SECURITY_NUMBER,US_PASSPORT,CREDIT_CARD_NUMBER' \\",
+                        "  --custom-info-types='[{\"infoType\":{\"name\":\"CUI_MARKING\"},\"regex\":{\"pattern\":\"CUI\\\\/\\\\/[A-Z-]+\"}}]'",
+                        "",
+                        "# Inspect a Cloud Storage bucket",
+                        "gcloud dlp jobs create \\",
+                        "  --project=PROJECT_ID \\",
+                        "  --display-name='CUI-Scan' \\",
+                        "  --inspect-template='projects/PROJECT_ID/inspectTemplates/CUI-Detection' \\",
+                        "  --storage-config='{\"cloudStorageOptions\":{\"fileSet\":{\"url\":\"gs://cui-bucket/**\"}}}'",
+                        "",
+                        "# List job findings",
+                        "gcloud dlp jobs list --project=PROJECT_ID"
+                    ],
+                    builtInInfoTypes: [
+                        "US_SOCIAL_SECURITY_NUMBER",
+                        "US_PASSPORT",
+                        "US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER",
+                        "CREDIT_CARD_NUMBER",
+                        "US_DRIVERS_LICENSE_NUMBER",
+                        "EMAIL_ADDRESS",
+                        "PHONE_NUMBER"
+                    ],
+                    customInfoTypes: [
+                        { name: "CUI_BANNER", pattern: "CONTROLLED\\\\s+UNCLASSIFIED\\\\s+INFORMATION", type: "REGEX" },
+                        { name: "CUI_CATEGORY", pattern: "CUI\\\\/\\\\/[A-Z]{2,10}(-[A-Z]{2,10})*", type: "REGEX" },
+                        { name: "ITAR_MARKING", pattern: "(ITAR|22\\\\s+CFR|EXPORT\\\\s+CONTROLLED)", type: "REGEX" },
+                        { name: "CONTRACT_NUMBER", pattern: "[FWNH]\\\\d{5}-\\\\d{2}-[A-Z]-\\\\d{4}", type: "REGEX" }
+                    ],
+                    docLink: "https://cloud.google.com/dlp/docs"
+                },
+                {
+                    tool: "Security Command Center (SCC)",
+                    purpose: "Centralized security and risk management for GCP",
+                    howItWorks: "Aggregates findings from DLP, Security Health Analytics, and other sources",
+                    setup: [
+                        "Enable Security Command Center (Standard or Premium)",
+                        "Enable DLP integration",
+                        "Configure notification channels for CUI findings",
+                        "Create custom security marks for CUI resources"
+                    ],
+                    cliCommands: [
+                        "# List DLP findings in SCC",
+                        "gcloud scc findings list organizations/ORG_ID \\",
+                        "  --source=SOURCE_ID \\",
+                        "  --filter='category=\"DLP\"'",
+                        "",
+                        "# Add security mark to a CUI resource",
+                        "gcloud scc assets update-marks ASSET_NAME \\",
+                        "  --organization=ORG_ID \\",
+                        "  --security-marks='data_classification=CUI,cui_category=CTI'"
+                    ],
+                    docLink: "https://cloud.google.com/security-command-center/docs"
+                },
+                {
+                    tool: "Data Catalog",
+                    purpose: "Metadata management and data discovery",
+                    howItWorks: "Catalogs and tags data assets across GCP for governance",
+                    setup: [
+                        "Enable Data Catalog API",
+                        "Create tag template for CUI classification",
+                        "Apply tags to BigQuery datasets, GCS buckets",
+                        "Use policy tags for column-level security"
+                    ],
+                    cliCommands: [
+                        "# Create a tag template for CUI",
+                        "gcloud data-catalog tag-templates create cui-classification \\",
+                        "  --location=us \\",
+                        "  --display-name='CUI Classification' \\",
+                        "  --field=id=classification,display-name='Classification',type=enum(CUI,CUI-SP,Non-CUI) \\",
+                        "  --field=id=category,display-name='CUI Category',type=string \\",
+                        "  --field=id=handling,display-name='Handling Instructions',type=string",
+                        "",
+                        "# Tag a BigQuery table",
+                        "gcloud data-catalog tags create \\",
+                        "  --entry=ENTRY_NAME \\",
+                        "  --tag-template=cui-classification \\",
+                        "  --tag-template-location=us \\",
+                        "  --classification=CUI \\",
+                        "  --category=CTI"
+                    ],
+                    docLink: "https://cloud.google.com/data-catalog/docs"
+                },
+                {
+                    tool: "VPC Service Controls",
+                    purpose: "Create security perimeters around CUI data",
+                    howItWorks: "Prevents data exfiltration from GCP services",
+                    setup: [
+                        "Enable Access Context Manager",
+                        "Create service perimeter for CUI project",
+                        "Add GCS, BigQuery, Cloud SQL to perimeter",
+                        "Configure access levels (device trust, IP ranges)"
+                    ],
+                    cliCommands: [
+                        "# Create access policy",
+                        "gcloud access-context-manager policies create \\",
+                        "  --organization=ORG_ID \\",
+                        "  --title='CUI Access Policy'",
+                        "",
+                        "# Create service perimeter",
+                        "gcloud access-context-manager perimeters create cui-perimeter \\",
+                        "  --policy=POLICY_ID \\",
+                        "  --title='CUI Data Perimeter' \\",
+                        "  --resources='projects/CUI_PROJECT_NUMBER' \\",
+                        "  --restricted-services='storage.googleapis.com,bigquery.googleapis.com'"
+                    ],
+                    docLink: "https://cloud.google.com/vpc-service-controls/docs"
+                },
+                {
+                    tool: "Resource Labels",
+                    purpose: "Tag GCP resources for CUI identification",
+                    howItWorks: "Apply key-value labels to resources for organization and policy",
+                    setup: [
+                        "Define labeling schema (data-classification, cui-category)",
+                        "Apply labels via Console, CLI, or Terraform",
+                        "Use labels in IAM conditions",
+                        "Query labeled resources via Asset Inventory"
+                    ],
+                    cliCommands: [
+                        "# Label a GCS bucket as CUI",
+                        "gcloud storage buckets update gs://cui-bucket \\",
+                        "  --update-labels=data-classification=cui,cui-category=cti",
+                        "",
+                        "# Find all CUI-labeled resources",
+                        "gcloud asset search-all-resources \\",
+                        "  --scope='projects/PROJECT_ID' \\",
+                        "  --query='labels.data-classification:cui'"
+                    ],
+                    docLink: "https://cloud.google.com/resource-manager/docs/creating-managing-labels"
+                }
+            ],
+            costConsiderations: "Cloud DLP: $1-3 per GB inspected. SCC Premium: ~$0.0060/resource/hour"
+        }
+    },
+    
+    // CUI Identification Best Practices
+    cuiBestPractices: [
+        {
+            practice: "Define CUI Patterns First",
+            description: "Document what CUI looks like in your environment before scanning",
+            examples: ["Contract numbers", "Technical data markings", "Export control notices", "Project code names"]
+        },
+        {
+            practice: "Start with Known CUI Locations",
+            description: "Begin scanning repositories you know contain CUI to validate detectors",
+            examples: ["Contract file shares", "Engineering document libraries", "Proposal repositories"]
+        },
+        {
+            practice: "Layer Multiple Detection Methods",
+            description: "Combine keyword/regex with ML classifiers for better accuracy",
+            examples: ["Regex for markings + ML for unmarked technical data"]
+        },
+        {
+            practice: "Tune for False Positives",
+            description: "Review and refine detection rules to reduce noise",
+            examples: ["Exclude template documents", "Whitelist known non-CUI patterns"]
+        },
+        {
+            practice: "Automate Tagging",
+            description: "Once detected, automatically tag/label for ongoing protection",
+            examples: ["Auto-apply sensitivity labels", "Tag S3 objects", "Add Data Catalog entries"]
+        },
+        {
+            practice: "Integrate with DLP",
+            description: "Connect discovery findings to prevention policies",
+            examples: ["Block sharing of detected CUI", "Require encryption", "Notify data owners"]
+        }
+    ]
 };
 
 // Helper function
 function getEnclaveGuidance() {
     return ENCLAVE_GUIDANCE;
 }
+
