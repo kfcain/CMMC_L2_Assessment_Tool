@@ -398,7 +398,53 @@ const GCP_GUIDANCE = {
         docLink: "https://cloud.google.com/iam/docs/granting-changing-revoking-access"
     },
 
+    // === PHYSICAL PROTECTION (PE) ===
+    "3.10.1[a]": {
+        automation: "Document physical access authorizations in Cloud Storage or Secret Manager. Use Cloud Identity for identity verification.",
+        gcpService: "Cloud Storage, Secret Manager, Cloud Identity",
+        humanIntervention: "Required - Define and approve physical access authorization list.",
+        docLink: "https://cloud.google.com/secret-manager/docs/overview",
+        smallOrgGuidance: "For small remote orgs with no physical office: Document that there is no physical access required. All systems are cloud-based. If home offices are used, document as 'authorized remote workspaces' with security requirements. For GCP-only orgs: Use Cloud IAM as virtual access control. Document authorized users and locations.",
+        cliCommands: [
+            "gcloud secrets versions access latest --secret=cmmc-physical-access-policy",
+            "gcloud storage cp - gs://YOUR_BUCKET/cmmc/physical-access-policy.json"
+        ]
+    },
+    "3.10.3[a]": {
+        automation: "Create visitor log in Cloud Storage. Use Cloud Audit Logs to track access.",
+        gcpService: "Cloud Storage, Cloud Audit Logs",
+        humanIntervention: "Required - Review visitor logs. Document virtual visitor access.",
+        docLink: "https://cloud.google.com/logging/docs/audit",
+        smallOrgGuidance: "For small remote orgs with no physical office: Document that there is no physical facility to visit. All access is virtual via GCP console. For any occasional in-person meetings, document as 'temporary workspace'. For GCP-only orgs: Use Cloud Audit Logs as virtual visitor records. Enable Access Transparency logs for external access tracking.",
+        cliCommands: [
+            "gcloud storage cp visitor-policy.json gs://YOUR_BUCKET/cmmc/visitor-log/",
+            "gcloud logging read 'resource.type=gce_instance AND protoPayload.methodName~\"guestUsers\"'"
+        ]
+    },
+
     // === SYSTEM AND COMMUNICATIONS PROTECTION (SC) ===
+    "3.13.1[a]": {
+        automation: "Define network boundaries using VPC networks and subnets. Use Firewall Rules as network controls.",
+        gcpService: "VPC, Firewall Rules, Cloud Armor",
+        humanIntervention: "Required - Document external boundaries (internet, Interconnect) and internal boundaries (CUI zones, admin networks).",
+        docLink: "https://cloud.google.com/vpc/docs/vpc-overview",
+        smallOrgGuidance: "For small remote orgs: Use GCP VPC with Firewall Rules as 'virtual firewalls'. Document internet access points (Cloud VPN, Interconnect) as external boundaries. Internal boundaries can separate CUI workloads using subnets and firewall tags.\n\nFor GCP-only orgs (no on-prem): Your boundary is GCP network infrastructure. Use Firewall Rules and VPC Service Controls as controls. External boundary = internet gateway. Internal boundaries = separate subnets with different firewall rules.",
+        cliCommands: [
+            "gcloud compute networks list --format='table(name,autoCreateSubnetworks)'",
+            "gcloud compute firewall-rules list --format='table(name,direction,priority,sourceRanges)'"
+        ]
+    },
+    "3.13.5[a]": {
+        automation: "Create separate subnets for public-facing resources. Use Cloud Load Balancing with Cloud Armor.",
+        gcpService: "VPC, Subnets, Cloud Load Balancing, Cloud Armor",
+        humanIntervention: "Required - Identify public-facing services and design network separation.",
+        docLink: "https://cloud.google.com/vpc/docs/vpc-overview#subnets",
+        smallOrgGuidance: "For small remote orgs: Public services = GCP console, Cloud Storage signed URLs. GCP handles network separation. Document reliance on GCP network segmentation. For GCP-only orgs: Use external IP addresses only for load balancers. Keep application servers in private subnets. Use Cloud Armor for WAF protection.",
+        cliCommands: [
+            "gcloud compute subnets list --format='table(name,region,ipCidrRange,privateIpGoogleAccess)'",
+            "gcloud compute addresses list --format='table(name,address,type,region)'"
+        ]
+    },
     
     // SC.L2-3.13.14 - Voice over IP (VoIP) Protection
     "3.13.14[a]": {

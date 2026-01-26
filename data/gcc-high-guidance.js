@@ -831,6 +831,42 @@ Write-Host "Change DB Created in GCC High (\$SiteUrl)." -ForegroundColor Green`
         humanIntervention: "Approve security setting changes via CCB process.",
         docLink: "https://learn.microsoft.com/en-us/mem/intune/configuration/settings-catalog"
     },
+    "3.4.5[a]": {
+        automation: "Use Entra ID Privileged Identity Management (PIM) for just-in-time access. Document change approvals in SharePoint.",
+        azureService: "Entra ID PIM, SharePoint",
+        humanIntervention: "Required - Define and approve change access restrictions.",
+        docLink: "https://learn.microsoft.com/en-us/entra/identity/privileged-identity-management/pim-configure",
+        smallOrgGuidance: "For small remote orgs: Use PIM for admin access control. Document that physical access to systems = home office access. Use Conditional Access to restrict admin tasks to specific locations/devices. For M365-only orgs: Use Microsoft 365 admin center with role-based access control. Enable approval workflows for privileged operations.",
+        automationScripts: [{
+            name: "CM_Change_Access_Approval.json",
+            description: "Power Automate flow for change access approval",
+            script: `{
+  "flow": {
+    "name": "Change Access Approval",
+    "trigger": "When item created",
+    "source": "SharePoint List: Change_Requests",
+    "actions": [
+      {
+        "name": "Notify_Approvers",
+        "type": "Send_email",
+        "recipients": ["security-team@company.com"],
+        "subject": "Change Access Request Approval Needed"
+      },
+      {
+        "name": "Wait_Approval",
+        "type": "Wait_for_approval",
+        "approvers": ["Security_Approvers"]
+      },
+      {
+        "name": "Grant_Temporary_Access",
+        "type": "Call_PIM_API",
+        "duration": "4_hours"
+      }
+    ]
+  }
+}`
+        }]
+    },
 
     // === MEDIA PROTECTION (MP) ===
     "3.8.1[a]": {
@@ -838,6 +874,7 @@ Write-Host "Change DB Created in GCC High (\$SiteUrl)." -ForegroundColor Green`
         azureService: "Intune, Defender for Endpoint",
         humanIntervention: "Required - Define approved media types and devices.",
         docLink: "https://learn.microsoft.com/en-us/defender-endpoint/device-control-removable-storage-access-control",
+        smallOrgGuidance: "For small remote orgs: Use BitLocker To Go for encrypted USB drives. Implement Intune policies to block unauthorized USB devices. Document approved media types (e.g., FIPS 140-2 validated drives). For M365-only orgs: Use SharePoint/OneDrive with sensitivity labels instead of physical media. Enable DLP to prevent CUI downloads to unapproved devices.",
         automationScripts: [{
             name: "MP_Defender_Device_Control.xml",
             description: "Import into Intune (Custom OMA-URI) to block all USBs except approved devices like IronKeys",
@@ -859,11 +896,71 @@ Write-Host "Change DB Created in GCC High (\$SiteUrl)." -ForegroundColor Green`
     },
 
     // === PHYSICAL PROTECTION (PE) ===
+    "3.10.1[a]": {
+        automation: "Document physical access authorizations in SharePoint. Use Entra ID for identity verification.",
+        azureService: "SharePoint, Entra ID",
+        humanIntervention: "Required - Define and approve physical access authorization list.",
+        docLink: "https://learn.microsoft.com/en-us/sharepoint/Lists/overview",
+        smallOrgGuidance: "For small remote orgs with no physical office: Document that there is no physical access required. All systems are cloud-based. If home offices are used, document as 'authorized remote workspaces' with security requirements. For M365-only orgs: Use Conditional Access policies as virtual access control. Document authorized users and locations.",
+        automationScripts: [{
+            name: "PE_Physical_Access_List.json",
+            description: "SharePoint list schema for tracking physical access authorizations",
+            script: `{
+  "list": {
+    "title": "Physical_Access_Authorizations",
+    "description": "CMMC 3.10.1 Physical Access Authorizations",
+    "columns": [
+      { "name": "EmployeeName", "type": "User", "required": true },
+      { "name": "AccessLevel", "type": "Choice", "choices": ["Full", "Limited", "Emergency"], "required": true },
+      { "name": "AreasAuthorized", "type": "Text", "required": true },
+      { "name": "AuthorizationDate", "type": "DateTime", "default": "[Today]" },
+      { "name": "ReviewDate", "type": "DateTime" },
+      { "name": "Notes", "type": "Text" }
+    ]
+  }
+}`
+        }]
+    },
+    "3.10.2[a]": {
+        automation: "Use Microsoft Defender for IoT to monitor physical infrastructure sensors. Document in SharePoint.",
+        azureService: "Defender for IoT, SharePoint",
+        humanIntervention: "Required - Conduct physical security assessments quarterly.",
+        docLink: "https://learn.microsoft.com/en-us/azure/defender-for-iot/overview",
+        smallOrgGuidance: "For small remote orgs: Physical facility = employee home offices. Document security measures (locks, cameras if used). Use home network security best practices. For M365-only orgs: Microsoft data centers provide physical protection. Document reliance on Microsoft's physical security controls and any additional home office measures.",
+        automationScripts: [{
+            name: "PE_Home_Office_Security.md",
+            description: "Template for documenting home office security measures",
+            script: `# Home Office Security Documentation
+
+## Physical Security Measures
+- [ ] Door locks installed and functional
+- [ ] Windows lockable when away
+- [ ] Shredder for sensitive documents
+- [ ] Locked cabinet for paper CUI
+
+## Network Security
+- [ ] Router password changed from default
+- [ ] WPA3 encryption enabled
+- [ ] Guest network separate from work network
+- [ ] VPN required for CUI access
+
+## Environmental Controls
+- [ ] Smoke detector installed
+- [ ] Fire extinguisher present
+- [ ] Surge protectors for equipment
+
+## Access Control
+- [ ] Family members aware of secure work area
+- [ ] Screen privacy filter used
+- [ ] Computer locked when unattended`
+        }]
+    },
     "3.10.3[a]": {
         automation: "Create SharePoint Visitor Log list. Integrate with badge systems via Power Automate.",
         azureService: "SharePoint, Power Automate",
         humanIntervention: "Required - Review visitor logs. Escort foreign nationals.",
         docLink: "https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/get-started/build-a-hello-world-web-part",
+        smallOrgGuidance: "For small remote orgs with no physical office: Document that there is no physical facility to visit. All access is virtual via M365. For any occasional in-person meetings (e.g., coffee shops), document as 'temporary workspace' with visitor log in SharePoint. For M365-only orgs: Use Teams meeting logs as virtual visitor records. Enable lobby feature for guest access control.",
         automationScripts: [{
             name: "PE_Visitor_Log_Schema.json",
             description: "JSON schema to create Visitor Log list in SharePoint for CMMC 3.10 Physical Access tracking",
@@ -1103,6 +1200,38 @@ try {
 \$VirtualNetworkLink = New-AzPrivateDnsVirtualNetworkLink -ResourceGroupName \$VNet.ResourceGroupName -ZoneName "privatelink.blob.core.usgovcloudapi.net" -Name "Storage-DNS-Link" -VirtualNetworkId \$VNet.Id -EnableRegistration
 
 Write-Host "Private Endpoint created for secure internal access"`
+        }]
+    },
+    "3.13.5[a]": {
+        automation: "Create separate VNets or subnets for public-facing services. Use NSGs to isolate from internal networks.",
+        azureService: "Azure VNet, NSG, Application Gateway",
+        humanIntervention: "Required - Identify public-facing services and design network separation.",
+        docLink: "https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview",
+        smallOrgGuidance: "For small remote orgs: Public services = M365 portals (Teams, SharePoint). Microsoft handles network separation. Document reliance on Microsoft's network segmentation. For M365-only orgs: No public subnetworks to manage - Microsoft isolates services. Use Conditional Access to control external access to M365 services.",
+        automationScripts: [{
+            name: "SC_Public_Subnet_Separation.ps1",
+            description: "Creates separate subnet for public-facing services",
+            script: `# Create Public Subnet Separation
+\$VNet = Get-AzVirtualNetwork -Name "VNet-CUI"
+
+# Create DMZ subnet for public services
+\$DmzSubnet = New-AzVirtualNetworkSubnetConfig -Name "DMZ-Public" -AddressPrefix "10.100.10.0/24"
+\$VNet.Subnets.Add(\$DmzSubnet)
+
+# Create NSG for DMZ
+\$DmzNsg = New-AzNetworkSecurityGroup -ResourceGroupName "RG-CUI-Boundary" -Name "NSG-DMZ-Public" -Location "USGovVirginia"
+
+# Allow only HTTPS from internet
+\$AllowHTTPS = New-AzNetworkSecurityRuleConfig -Name "AllowHTTPS" -Priority 100 -Direction Inbound -Access Allow -Protocol Tcp -SourceAddressPrefix Internet -SourcePortRange * -DestinationAddressPrefix 10.100.10.0/24 -DestinationPortRange 443
+
+# Deny all other inbound
+\$DenyAll = New-AzNetworkSecurityRuleConfig -Name "DenyAll" -Priority 4096 -Direction Inbound -Access Deny -Protocol * -SourceAddressPrefix * -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange *
+
+\$DmzNsg.SecurityRules = \$AllowHTTPS, \$DenyAll
+
+# Apply NSG to DMZ subnet
+Set-AzVirtualNetworkSubnetConfig -VirtualNetwork \$VNet -Name "DMZ-Public" -NetworkSecurityGroupId \$DmzNsg.Id
+\$VNet | Set-AzVirtualNetwork`
         }]
     },
     "3.13.8[a]": {

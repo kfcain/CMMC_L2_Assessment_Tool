@@ -398,7 +398,53 @@ const AWS_GOVCLOUD_GUIDANCE = {
         docLink: "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/security-iam.html"
     },
 
+    // === PHYSICAL PROTECTION (PE) ===
+    "3.10.1[a]": {
+        automation: "Document physical access authorizations in AWS Systems Manager (SSM) Parameter Store. Use IAM for identity verification.",
+        awsService: "Systems Manager, IAM",
+        humanIntervention: "Required - Define and approve physical access authorization list.",
+        docLink: "https://docs.aws.amazon.com/systems-manager/latest/userguide/parameter-store.html",
+        smallOrgGuidance: "For small remote orgs with no physical office: Document that there is no physical access required. All systems are cloud-based. If home offices are used, document as 'authorized remote workspaces' with security requirements. For AWS-only orgs: Use IAM as virtual access control. Document authorized users and locations.",
+        cliCommands: [
+            "aws ssm get-parameters-by-path --path /cmmc/physical-access --recursive",
+            "aws ssm put-parameter --name /cmmc/physical-access/policy --value '{\"policy\":\"no_physical_facility\"}'"
+        ]
+    },
+    "3.10.3[a]": {
+        automation: "Create visitor log in AWS Systems Manager (SSM) Parameter Store. Use AWS Config to track changes.",
+        awsService: "Systems Manager, AWS Config",
+        humanIntervention: "Required - Review visitor logs. Document virtual visitor access.",
+        docLink: "https://docs.aws.amazon.com/config/latest/developerguide/what-is-config.html",
+        smallOrgGuidance: "For small remote orgs with no physical office: Document that there is no physical facility to visit. All access is virtual via AWS console. For any occasional in-person meetings, document as 'temporary workspace'. For AWS-only orgs: Use AWS CloudTrail logs as virtual visitor records. Enable IAM access analyzer for external access tracking.",
+        cliCommands: [
+            "aws ssm put-parameter --name /cmmc/visitor-log/policy --value '{\"type\":\"virtual_only\"}'",
+            "aws cloudtrail lookup-events --lookup-attributes AttributeKey=Username,AttributeValue=guest_user"
+        ]
+    },
+
     // === SYSTEM AND COMMUNICATIONS PROTECTION (SC) ===
+    "3.13.1[a]": {
+        automation: "Define network boundaries using VPCs and subnets. Use Network ACLs and Security Groups as firewalls.",
+        awsService: "VPC, Security Groups, Network ACLs, AWS Network Firewall",
+        humanIntervention: "Required - Document external boundaries (internet, Direct Connect) and internal boundaries (CUI zones, admin networks).",
+        docLink: "https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html",
+        smallOrgGuidance: "For small remote orgs: Use AWS VPC with Security Groups as 'virtual firewalls'. Document internet access points (VPN, Direct Connect) as external boundaries. Internal boundaries can separate CUI workloads using subnets and NACLs.\n\nFor AWS-only orgs (no on-prem): Your boundary is AWS network infrastructure. Use Security Groups and NACLs as controls. External boundary = internet gateway. Internal boundaries = separate subnets with different ACLs.",
+        cliCommands: [
+            "aws ec2 describe-vpcs --query 'Vpcs[*].[VpcId,CidrBlock,IsDefault]' --output table",
+            "aws ec2 describe-security-groups --query 'SecurityGroups[*].[GroupId,Description]' --output table"
+        ]
+    },
+    "3.13.5[a]": {
+        automation: "Create separate subnets for public-facing resources in different AZs. Use public subnets with Internet Gateway.",
+        awsService: "VPC, Subnets, Internet Gateway, Route Tables",
+        humanIntervention: "Required - Identify public-facing services and design network separation.",
+        docLink: "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html",
+        smallOrgGuidance: "For small remote orgs: Public services = AWS console, S3 presigned URLs. AWS handles network separation. Document reliance on AWS network segmentation. For AWS-only orgs: Use public subnets for ALB/NLB. Keep application servers in private subnets. Use AWS WAF for additional protection.",
+        cliCommands: [
+            "aws ec2 describe-subnets --query 'Subnets[*].[SubnetId,AvailabilityZone,CidrBlock,MapPublicIpOnLaunch]' --output table",
+            "aws ec2 describe-route-tables --query 'RouteTables[*].[RouteTableId,Associations]' --output table"
+        ]
+    },
     
     // SC.L2-3.13.14 - Voice over IP (VoIP) Protection
     "3.13.14[a]": {
