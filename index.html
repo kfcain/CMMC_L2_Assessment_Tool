@@ -9,7 +9,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co;">
     <title>CMMC Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=44">
+    <link rel="stylesheet" href="styles.css?v=45">
     <link rel="stylesheet" href="css/evidence.css?v=1">
     <link rel="stylesheet" href="css/theme-picker.css?v=3">
     <link rel="stylesheet" href="css/crosswalk.css?v=20260125k">
@@ -522,36 +522,44 @@
         </div>
     </div>
 
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- External CDNs - defer loading -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    
+    <!-- Core data files - needed for initial render -->
     <script src="data/families-ac-at-au.js"></script>
     <script src="data/families-cm-ia.js"></script>
     <script src="data/families-ir-ma-mp-ps-pe.js"></script>
     <script src="data/families-ra-ca-sc-si.js"></script>
     <script src="data/sprs-scoring.js"></script>
     <script src="data/ctrl-xref.js?v=2"></script>
-    <script src="data/gcc-high-guidance.js?v=4"></script>
-    <script src="data/gcc-high-impl-guide.js?v=9"></script>
-    <script src="data/aws-govcloud-impl-guide.js?v=3"></script>
-    <script src="data/gcp-impl-guide.js?v=3"></script>
-    <script src="data/impl-notes.js?v=2"></script>
-    <script src="data/aws-govcloud-guidance.js?v=2"></script>
-    <script src="data/gcp-guidance.js?v=2"></script>
-    <script src="data/cca-questions.js?v=1"></script>
-    <script src="data/fedramp-services.js?v=1"></script>
     <script src="data/related-objectives.js?v=1"></script>
-    <script src="data/itar-guidance.js?v=1"></script>
-    <script src="data/fedramp-20x-ksi.js?v=3"></script>
-    <script src="data/nist-800-53a.js?v=1"></script>
-    <script src="data/framework-mappings.js?v=20260125c"></script>
-    <script src="data/enclave-guidance.js?v=4"></script>
-    <script src="data/implementation-planner.js?v=2"></script>
+    <script src="data/fedramp-services.js?v=1"></script>
+    <script src="data/cca-questions.js?v=1"></script>
     <script src="data/loader.js"></script>
+    
+    <!-- Lazy-loaded scripts - loaded on demand by LazyLoader -->
+    <!-- implementation-planner.js, gcc-high-*.js, aws-*.js, gcp-*.js, 
+         framework-mappings.js, crosswalk-visualizer.js, enclave-guidance.js,
+         fedramp-20x-ksi.js, nist-800-53a.js, itar-guidance.js, impl-notes.js -->
+    
+    <!-- Core app scripts -->
+    <script src="js/lazy-loader.js?v=1"></script>
     <script src="js/security.js?v=1"></script>
-    <script src="app.js?v=55"></script>
-    <script src="js/supabase-client.js?v=1"></script>
-    <script src="js/evidence-ui.js?v=1"></script>
+    <script src="app.js?v=56"></script>
+    <script src="js/supabase-client.js?v=1" defer></script>
+    <script src="js/evidence-ui.js?v=1" defer></script>
     <script src="js/theme-picker.js?v=5"></script>
-    <script src="js/crosswalk-visualizer.js?v=20260125w"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('[App] Service Worker registered'))
+                    .catch(err => console.log('[App] Service Worker registration failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>

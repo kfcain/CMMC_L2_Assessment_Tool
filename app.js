@@ -514,7 +514,7 @@ class AssessmentApp {
         });
     }
 
-    switchView(view) {
+    async switchView(view) {
         this.currentView = view;
         localStorage.setItem('nist-current-view', view);
         
@@ -527,6 +527,20 @@ class AssessmentApp {
         document.querySelectorAll('.view').forEach(v => {
             v.classList.toggle('active', v.id === `${view}-view`);
         });
+
+        // Lazy load scripts for view if needed
+        if (window.LazyLoader && window.LazyLoader.viewScripts[view]) {
+            const container = document.getElementById(`${view}-content`) || document.getElementById(`${view.replace('-', '')}-content`);
+            if (container && !container.dataset.loaded) {
+                container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:60px;color:var(--text-muted)"><svg class="spinner" width="24" height="24" viewBox="0 0 24 24" style="animation:spin 1s linear infinite;margin-right:12px"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" opacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg>Loading...</div>';
+                try {
+                    await window.LazyLoader.loadViewScripts(view);
+                    container.dataset.loaded = 'true';
+                } catch (e) {
+                    console.error('Failed to load view scripts:', e);
+                }
+            }
+        }
 
         // Render view content
         if (view === 'poam') {
@@ -542,6 +556,18 @@ class AssessmentApp {
         } else if (view === 'impl-planner') {
             this.renderImplPlanner();
         }
+        
+        // Prefetch adjacent views for faster navigation
+        this.prefetchAdjacentViews(view);
+    }
+    
+    prefetchAdjacentViews(currentView) {
+        if (!window.LazyLoader) return;
+        const views = ['dashboard', 'assessment', 'poam', 'impl-planner', 'impl-guide', 'crosswalk'];
+        const currentIdx = views.indexOf(currentView);
+        // Prefetch next and previous views
+        if (currentIdx > 0) window.LazyLoader.preloadView(views[currentIdx - 1]);
+        if (currentIdx < views.length - 1) window.LazyLoader.preloadView(views[currentIdx + 1]);
     }
     
     // =============================================

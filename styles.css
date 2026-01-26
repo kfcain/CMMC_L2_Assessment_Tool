@@ -4,6 +4,12 @@
     box-sizing: border-box;
 }
 
+/* Spinner animation for lazy loading */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 :root {
     /* One Dark Pro - Default Theme */
     --bg-primary: #282c34;
