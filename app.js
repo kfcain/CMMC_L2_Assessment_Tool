@@ -3319,12 +3319,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     <span class="score-badge-value">${controlsMet}/110</span>
                     <span>${meetsConditionalThreshold ? '✓' : '⚠'}</span>
                 </div>
-                <div class="header-theme-picker" id="header-theme-picker"></div>
             `;
-            // Re-render theme picker after scores update
-            if (typeof ThemePicker !== 'undefined') {
-                ThemePicker.renderHeaderPicker();
-            }
         }
 
         let html = `

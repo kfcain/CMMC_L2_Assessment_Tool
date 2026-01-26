@@ -3344,6 +3344,10 @@ body {
     letter-spacing: -0.3px;
 }
 
+.top-header-bar .header-theme-picker {
+    margin-left: auto;
+}
+
 .hamburger-menu-toggle {
     display: flex;
     align-items: center;
