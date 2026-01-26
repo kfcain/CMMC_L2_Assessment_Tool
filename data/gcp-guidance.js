@@ -398,6 +398,100 @@ const GCP_GUIDANCE = {
         docLink: "https://cloud.google.com/iam/docs/granting-changing-revoking-access"
     },
 
+    // === SYSTEM AND COMMUNICATIONS PROTECTION (SC) ===
+    
+    // SC.L2-3.13.14 - Voice over IP (VoIP) Protection
+    "3.13.14[a]": {
+        automation: "Deploy Google Meet with Assured Workloads for secure VoIP. Configure with TLS and SRTP encryption.",
+        gcpService: "Google Meet, Google Voice, Cloud Interconnect",
+        humanIntervention: "Required - Configure SIP trunk providers. Test call quality and compliance.",
+        docLink: "https://support.google.com/a/answer/7582694",
+        fipsCompliance: "Google Meet uses DTLS/SRTP for media encryption. TLS 1.3 for signaling. FedRAMP Moderate authorized.",
+        implementationDetails: {
+            googleMeet: {
+                description: "Google Meet provides enterprise video conferencing with FedRAMP Moderate authorization",
+                features: ["DTLS/SRTP media encryption", "TLS 1.3 signaling", "Meeting recording with encryption", "Data region controls"],
+                assuredWorkloads: "Configure Assured Workloads for FedRAMP Moderate compliance boundary"
+            },
+            googleVoice: {
+                description: "Google Voice for Google Workspace provides cloud telephony",
+                features: ["TLS encryption for signaling", "SRTP for voice media", "Call recording compliance", "Emergency calling (E911)"],
+                limitations: "Not available in Assured Workloads - use third-party SIP for FedRAMP High"
+            },
+            alternativeOptions: [
+                { name: "Cisco Webex Calling (FedRAMP)", description: "Enterprise VoIP with FedRAMP Moderate+ authorization" },
+                { name: "RingCentral for Government", description: "Cloud PBX with FedRAMP authorization" },
+                { name: "Dialpad for Government", description: "AI-powered VoIP with security certifications" }
+            ],
+            securityControls: [
+                "Enable Assured Workloads for compliance boundary",
+                "Configure data region policies for US-only",
+                "Use VPC Service Controls for network isolation",
+                "Store recordings in encrypted Cloud Storage with CMEK",
+                "Implement DLP policies for meeting content"
+            ]
+        },
+        cliCommands: [
+            "# Create Assured Workloads folder\\ngcloud assured workloads create --organization=ORG_ID --location=us --compliance-regime=FEDRAMP_MODERATE --display-name='VoIP Workload'",
+            "# Configure data region for Google Workspace (Admin Console required)\\n# Settings > Directory > Data Regions",
+            "# Enable VPC Service Controls\\ngcloud access-context-manager perimeters create voip-perimeter --resources=projects/PROJECT_ID --restricted-services=meet.googleapis.com"
+        ]
+    },
+    
+    // SC.L2-3.13.16 - Protect CUI at Rest
+    "3.13.16[a]": {
+        automation: "Enable Cloud Storage encryption with Customer-Managed Encryption Keys (CMEK). Configure Cloud KMS or Cloud HSM.",
+        gcpService: "Cloud KMS, Cloud HSM, Cloud Storage, Persistent Disk",
+        humanIntervention: "Required - Generate and rotate encryption keys. Document key management procedures.",
+        docLink: "https://cloud.google.com/storage/docs/encryption/customer-managed-keys",
+        fipsCompliance: "Cloud HSM is FIPS 140-2 Level 3 validated. Cloud KMS uses FIPS 140-2 validated modules.",
+        implementationDetails: {
+            cloudStorage: {
+                description: "Cloud Storage encryption options for CUI data at rest",
+                encryptionOptions: [
+                    { type: "Google-managed (default)", fips: "Google-managed keys", recommendation: "Acceptable baseline" },
+                    { type: "CMEK (Cloud KMS)", fips: "FIPS 140-2 Level 1", recommendation: "Required for CUI" },
+                    { type: "CMEK (Cloud HSM)", fips: "FIPS 140-2 Level 3", recommendation: "Highest assurance" },
+                    { type: "CSEK (Customer-Supplied)", fips: "Customer responsibility", recommendation: "Advanced use cases" }
+                ],
+                steps: [
+                    "Create Cloud KMS keyring and key in Assured Workloads project",
+                    "Grant Cloud Storage service account access to the key",
+                    "Configure bucket default encryption with CMEK",
+                    "Enable Object Versioning and retention policies",
+                    "Use VPC Service Controls for access boundary"
+                ]
+            },
+            persistentDisk: {
+                description: "Persistent Disk encryption for Compute Engine VMs",
+                options: [
+                    { type: "Google-managed encryption", description: "Default AES-256 encryption" },
+                    { type: "CMEK", description: "Customer-managed keys from Cloud KMS" },
+                    { type: "CMEK with Cloud HSM", description: "FIPS 140-2 Level 3 key protection" }
+                ],
+                steps: [
+                    "Create CMEK in Cloud KMS",
+                    "Specify CMEK when creating disk",
+                    "Use Confidential VMs for additional protection"
+                ]
+            },
+            bigQuery: {
+                description: "BigQuery encryption at rest with CMEK",
+                steps: [
+                    "Create Cloud KMS key for BigQuery",
+                    "Configure dataset-level CMEK",
+                    "Enable Customer-managed encryption for queries"
+                ]
+            }
+        },
+        cliCommands: [
+            "# Create Cloud KMS keyring\\ngcloud kms keyrings create cui-keyring --location=us --project=PROJECT_ID",
+            "# Create CMEK for storage\\ngcloud kms keys create storage-cmek --keyring=cui-keyring --location=us --purpose=encryption --project=PROJECT_ID",
+            "# Create bucket with CMEK\\ngsutil mb -l US -k projects/PROJECT_ID/locations/us/keyRings/cui-keyring/cryptoKeys/storage-cmek gs://cui-encrypted-bucket",
+            "# Verify bucket encryption\\ngsutil kms encryption gs://cui-encrypted-bucket"
+        ]
+    },
+
     // Default fallback
     "_default": {
         automation: "Automation guidance not yet available for this objective. Check GCP Security Best Practices documentation.",

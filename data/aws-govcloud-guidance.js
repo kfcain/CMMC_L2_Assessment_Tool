@@ -398,6 +398,101 @@ const AWS_GOVCLOUD_GUIDANCE = {
         docLink: "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/security-iam.html"
     },
 
+    // === SYSTEM AND COMMUNICATIONS PROTECTION (SC) ===
+    
+    // SC.L2-3.13.14 - Voice over IP (VoIP) Protection
+    "3.13.14[a]": {
+        automation: "Deploy Amazon Chime SDK for secure VoIP in GovCloud. Configure with TLS and SRTP encryption.",
+        awsService: "Amazon Chime, Amazon Connect, Direct Connect",
+        humanIntervention: "Required - Configure SIP trunk providers. Test call quality and failover.",
+        docLink: "https://docs.aws.amazon.com/chime-sdk/latest/dg/what-is-chime-sdk.html",
+        fipsCompliance: "Amazon Connect uses FIPS 140-2 validated endpoints in GovCloud. TLS 1.2+ for signaling, SRTP for media.",
+        implementationDetails: {
+            amazonConnect: {
+                description: "Amazon Connect provides cloud contact center with FedRAMP High authorization in GovCloud",
+                features: ["TLS 1.2+ signaling encryption", "SRTP media encryption", "Call recording with S3 encryption", "Integration with KMS for key management"],
+                sipTrunking: "Use certified carriers (Bandwidth, Twilio, Lumen) with secure SIP connectivity",
+                fipsEndpoints: "connect-fips.us-gov-west-1.amazonaws.com"
+            },
+            amazonChime: {
+                description: "Amazon Chime SDK for custom VoIP applications",
+                features: ["WebRTC with DTLS/SRTP", "PSTN Audio via SIP", "Real-time transcription"],
+                govCloudSupport: "Chime SDK available in GovCloud with FIPS endpoints"
+            },
+            alternativeOptions: [
+                { name: "Cisco Webex Calling (FedRAMP)", description: "Enterprise VoIP with FedRAMP Moderate+ authorization" },
+                { name: "RingCentral for Government", description: "Cloud PBX with FedRAMP authorization" },
+                { name: "Genesys Cloud (FedRAMP)", description: "Contact center with FedRAMP Moderate" }
+            ],
+            securityControls: [
+                "Enable FIPS endpoints for all VoIP services",
+                "Configure TLS 1.2+ for SIP signaling",
+                "Use SRTP for media encryption",
+                "Store call recordings in encrypted S3 with CMK",
+                "Implement VPC endpoints for private connectivity"
+            ]
+        },
+        cliCommands: [
+            "# Create Amazon Connect instance in GovCloud\\naws connect create-instance --identity-management-type SAML --instance-alias my-contact-center --region us-gov-west-1",
+            "# List Connect instances\\naws connect list-instances --region us-gov-west-1",
+            "# Enable call recording encryption\\naws connect update-instance-storage-config --instance-id INSTANCE_ID --resource-type CALL_RECORDINGS --storage-config S3Config={BucketName=call-recordings,EncryptionConfig={EncryptionType=KMS,KeyId=KEY_ARN}}"
+        ]
+    },
+    
+    // SC.L2-3.13.16 - Protect CUI at Rest
+    "3.13.16[a]": {
+        automation: "Enable S3 default encryption with SSE-KMS using CMK. Configure FIPS endpoints for all operations.",
+        awsService: "S3, KMS, CloudHSM, EBS",
+        humanIntervention: "Required - Generate and rotate encryption keys. Document key management procedures.",
+        docLink: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html",
+        fipsCompliance: "AWS KMS is FIPS 140-2 Level 2 validated. CloudHSM is FIPS 140-2 Level 3. Use FIPS endpoints in GovCloud.",
+        implementationDetails: {
+            s3Encryption: {
+                description: "S3 encryption options for CUI data at rest",
+                encryptionOptions: [
+                    { type: "SSE-S3 (AES-256)", fips: "AWS-managed keys", recommendation: "Acceptable baseline" },
+                    { type: "SSE-KMS (CMK)", fips: "FIPS 140-2 Level 2", recommendation: "Required for CUI" },
+                    { type: "SSE-KMS (CloudHSM)", fips: "FIPS 140-2 Level 3", recommendation: "Highest assurance" },
+                    { type: "SSE-C (Customer-Provided)", fips: "Customer responsibility", recommendation: "Advanced use cases" }
+                ],
+                steps: [
+                    "Create KMS CMK in GovCloud with key rotation enabled",
+                    "Configure S3 bucket policy requiring encryption",
+                    "Enable default encryption with SSE-KMS",
+                    "Use VPC endpoints for S3 access (no internet transit)",
+                    "Enable S3 Object Lock for compliance retention"
+                ]
+            },
+            ebsEncryption: {
+                description: "EBS volume encryption for EC2 instances",
+                options: [
+                    { type: "AWS-managed CMK", description: "Default encryption with AWS-managed key" },
+                    { type: "Customer-managed CMK", description: "CMK from KMS for enhanced control" },
+                    { type: "CloudHSM-backed CMK", description: "FIPS 140-2 Level 3 key protection" }
+                ],
+                steps: [
+                    "Enable EBS encryption by default in account settings",
+                    "Create CMK for EBS encryption",
+                    "Encrypt existing volumes using snapshots"
+                ]
+            },
+            rdsEncryption: {
+                description: "RDS database encryption at rest",
+                steps: [
+                    "Enable encryption when creating RDS instance",
+                    "Use CMK for RDS encryption",
+                    "Enable SSL/TLS for connections in transit"
+                ]
+            }
+        },
+        cliCommands: [
+            "# Create KMS CMK for S3 encryption\\naws kms create-key --description 'CUI S3 Encryption Key' --key-usage ENCRYPT_DECRYPT --origin AWS_KMS --region us-gov-west-1",
+            "# Enable S3 default encryption with CMK\\naws s3api put-bucket-encryption --bucket cui-data-bucket --server-side-encryption-configuration '{\"Rules\":[{\"ApplyServerSideEncryptionByDefault\":{\"SSEAlgorithm\":\"aws:kms\",\"KMSMasterKeyID\":\"KEY_ARN\"}}]}'",
+            "# Enable EBS encryption by default\\naws ec2 enable-ebs-encryption-by-default --region us-gov-west-1",
+            "# Verify bucket encryption\\naws s3api get-bucket-encryption --bucket cui-data-bucket"
+        ]
+    },
+
     // Default fallback
     "_default": {
         automation: "Automation guidance not yet available for this objective. Check AWS Well-Architected Framework and GovCloud documentation.",

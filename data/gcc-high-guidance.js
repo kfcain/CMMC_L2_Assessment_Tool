@@ -945,6 +945,119 @@ Invoke-MgGraphRequest -Method POST -Uri \$Uri -Body \$BitLockerJSON -ContentType
 Write-Host "BitLocker Profile Deployed" -ForegroundColor Green`
         }]
     },
+    
+    // SC.L2-3.13.14 - Voice over IP (VoIP) Protection
+    "3.13.14[a]": {
+        automation: "Deploy Microsoft Teams Voice in GCC High with E2E encryption. Configure Direct Routing with certified SBCs.",
+        azureService: "Microsoft Teams, Phone System, Direct Routing",
+        humanIntervention: "Required - Select certified SBC vendors. Configure PSTN connectivity. Test call quality.",
+        docLink: "https://learn.microsoft.com/en-us/microsoftteams/direct-routing-plan",
+        fipsCompliance: "Teams uses SRTP with AES-256 for media encryption. TLS 1.2+ for signaling.",
+        implementationDetails: {
+            teamsVoice: {
+                description: "Microsoft Teams Phone System provides enterprise VoIP with FedRAMP High authorization",
+                features: ["E2E encryption for 1:1 calls", "SRTP media encryption", "TLS signaling", "Call recording compliance"],
+                directRouting: "Use certified SBCs (AudioCodes, Ribbon, Oracle) for PSTN connectivity",
+                callingPlans: "Available in GCC High for domestic calling"
+            },
+            alternativeOptions: [
+                { name: "Cisco Webex Calling (FedRAMP)", description: "Enterprise VoIP with FedRAMP Moderate authorization" },
+                { name: "RingCentral for Government", description: "Cloud PBX with FedRAMP authorization" },
+                { name: "Zoom Phone for Government", description: "Cloud phone with FedRAMP Moderate" }
+            ],
+            securityControls: [
+                "Enable end-to-end encryption for 1:1 Teams calls",
+                "Configure SBC with TLS 1.2+ mutual authentication",
+                "Implement call admission control policies",
+                "Enable call recording for compliance",
+                "Configure emergency calling (E911) compliance"
+            ]
+        },
+        cliCommands: [
+            "# Check Teams Voice licensing\\nGet-CsOnlineUser -Identity user@domain.com | Select EnterpriseVoiceEnabled, LineUri",
+            "# Configure Direct Routing SBC\\nNew-CsOnlinePSTNGateway -Fqdn sbc.contoso.com -SipSignalingPort 5061 -Enabled $true",
+            "# Enable E2E encryption policy\\nSet-CsTeamsEnhancedEncryptionPolicy -Identity Global -CallingEndToEndEncryptionEnabledType Enabled"
+        ]
+    },
+    
+    // SC.L2-3.13.16 - Protect CUI at Rest
+    "3.13.16[a]": {
+        automation: "Enable Azure Storage encryption with Customer-Managed Keys (CMK) in Key Vault HSM. Configure FIPS 140-2 Level 3.",
+        azureService: "Azure Key Vault HSM, Azure Storage, Azure Disk Encryption",
+        humanIntervention: "Required - Generate and rotate encryption keys. Document key management procedures.",
+        docLink: "https://learn.microsoft.com/en-us/azure/storage/common/customer-managed-keys-overview",
+        fipsCompliance: "Azure Key Vault HSM is FIPS 140-2 Level 3 validated. Storage Service Encryption uses AES-256.",
+        implementationDetails: {
+            azureBlob: {
+                description: "Azure Blob Storage encryption for CUI data at rest",
+                encryptionOptions: [
+                    { type: "Microsoft-Managed Keys (MMK)", fips: "FIPS 140-2 Level 1", recommendation: "Acceptable for non-CUI" },
+                    { type: "Customer-Managed Keys (CMK)", fips: "FIPS 140-2 Level 2/3", recommendation: "Required for CUI" },
+                    { type: "Customer-Provided Keys (CPK)", fips: "Customer responsibility", recommendation: "Advanced use cases" }
+                ],
+                steps: [
+                    "Create Key Vault with HSM-backed keys in Azure Government",
+                    "Enable soft-delete and purge protection on Key Vault",
+                    "Grant Storage Account identity access to Key Vault",
+                    "Configure CMK encryption on Storage Account",
+                    "Enable infrastructure encryption (double encryption)"
+                ]
+            },
+            azureDisk: {
+                description: "Azure Disk Encryption for VMs using BitLocker/DM-Crypt",
+                options: [
+                    { type: "Azure Disk Encryption (ADE)", description: "BitLocker for Windows, DM-Crypt for Linux" },
+                    { type: "Server-Side Encryption (SSE)", description: "Platform-managed or CMK encryption" },
+                    { type: "Encryption at Host", description: "Encrypts temp disks and OS/data disk caches" }
+                ]
+            },
+            sqlDatabase: {
+                description: "Azure SQL TDE with CMK for database encryption",
+                steps: [
+                    "Enable Transparent Data Encryption (TDE)",
+                    "Configure TDE protector with CMK from Key Vault",
+                    "Enable Always Encrypted for column-level encryption"
+                ]
+            }
+        },
+        cliCommands: [
+            "# Create Key Vault with HSM\\naz keyvault create --name kv-cui-cmk --resource-group rg-security --location usgovvirginia --sku premium --enable-purge-protection true --enable-soft-delete true",
+            "# Create CMK for storage encryption\\naz keyvault key create --vault-name kv-cui-cmk --name storage-cmk --kty RSA-HSM --size 2048",
+            "# Enable CMK on Storage Account\\naz storage account update --name stcuiencrypted --resource-group rg-data --encryption-key-vault https://kv-cui-cmk.vault.usgovcloudapi.net --encryption-key-name storage-cmk --encryption-key-source Microsoft.Keyvault",
+            "# Verify encryption status\\naz storage account show --name stcuiencrypted --query encryption"
+        ],
+        automationScripts: [{
+            name: "SC_Enable_CMK_Encryption.ps1",
+            description: "Configures Customer-Managed Key encryption for Azure Storage in GCC High",
+            script: `# Enable CMK Encryption for Azure Storage
+Connect-AzAccount -Environment AzureUSGovernment
+
+\$RG = "RG-CUI-Data"
+\$Location = "USGovVirginia"
+\$KVName = "kv-cui-cmk-\$(Get-Random -Maximum 9999)"
+\$StorageName = "stcuiencrypted\$(Get-Random -Maximum 9999)"
+
+# Create Key Vault with HSM
+Write-Host "Creating Key Vault HSM..." -ForegroundColor Cyan
+New-AzKeyVault -Name \$KVName -ResourceGroupName \$RG -Location \$Location -Sku Premium -EnablePurgeProtection -EnableSoftDelete
+
+# Create CMK
+\$Key = Add-AzKeyVaultKey -VaultName \$KVName -Name "storage-cmk" -Destination HSM
+
+# Create Storage Account with CMK
+Write-Host "Creating encrypted Storage Account..." -ForegroundColor Cyan
+\$Storage = New-AzStorageAccount -ResourceGroupName \$RG -Name \$StorageName -Location \$Location -SkuName Standard_GRS -Kind StorageV2 -EnableHttpsTrafficOnly \$true
+
+# Assign identity and configure CMK
+Set-AzStorageAccount -ResourceGroupName \$RG -Name \$StorageName -AssignIdentity
+\$Identity = (Get-AzStorageAccount -ResourceGroupName \$RG -Name \$StorageName).Identity.PrincipalId
+Set-AzKeyVaultAccessPolicy -VaultName \$KVName -ObjectId \$Identity -PermissionsToKeys get,wrapkey,unwrapkey
+
+Set-AzStorageAccount -ResourceGroupName \$RG -Name \$StorageName -KeyvaultEncryption -KeyVaultUri "https://\$KVName.vault.usgovcloudapi.net" -KeyName "storage-cmk"
+
+Write-Host "CMK Encryption Configured Successfully" -ForegroundColor Green`
+        }]
+    },
 
     // === AUTOMATION IDENTITY SETUP (Prerequisite) ===
     "_setup": {
