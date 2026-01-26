@@ -5149,3 +5149,41 @@ table td {
 .control-link-btn:active {
     transform: translateY(0);
 }
+
+/* Permanent Footer Disclaimer */
+.site-footer-disclaimer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    z-index: 1000;
+}
+
+.footer-disclaimer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-align: center;
+}
+
+.footer-disclaimer-content svg {
+    flex-shrink: 0;
+    color: #f59e0b;
+}
+
+.footer-disclaimer-content strong {
+    color: #f59e0b;
+}
+
+/* Add bottom padding to main content to account for fixed footer */
+.main-content {
+    padding-bottom: 50px;
+}
