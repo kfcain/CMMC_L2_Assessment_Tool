@@ -4,7 +4,7 @@
 const IMPLEMENTATION_PLANNER = {
     version: "2.0.0",
     title: "CMMC Implementation Planner - Greenfield Edition",
-    description: "A comprehensive, phased approach to implementing CMMC Level 2 compliance from scratch, including all policies, procedures, and technical controls needed for a greenfield deployment.",
+    description: "A comprehensive, phased approach to implementing CMMC Level 2 compliance from scratch in under 12 months, including all policies, procedures, and technical controls needed for a greenfield deployment.",
     
     // Project Phases
     phases: [
@@ -12,7 +12,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-1",
             name: "Foundation & Assessment",
             description: "Establish baseline, scope CUI, and assess current state",
-            duration: "4-6 weeks",
+            duration: "2-3 weeks",
             icon: "foundation",
             color: "#61afef",
             milestones: [
@@ -122,7 +122,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-1b",
             name: "Policy & Procedure Development",
             description: "Create comprehensive policies, procedures, and documentation framework",
-            duration: "6-8 weeks",
+            duration: "3-4 weeks",
             icon: "policy",
             color: "#d19a66",
             milestones: [
@@ -841,7 +841,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-2",
             name: "Identity & Access",
             description: "Implement identity management, authentication, and access controls",
-            duration: "6-8 weeks",
+            duration: "3-4 weeks",
             icon: "identity",
             color: "#c678dd",
             milestones: [
@@ -1161,7 +1161,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-3",
             name: "Endpoint Security & Asset Management",
             description: "Secure endpoints with hardening, EDR, and management",
-            duration: "4-6 weeks",
+            duration: "3-4 weeks",
             icon: "endpoint",
             color: "#98c379",
             milestones: [
@@ -1307,7 +1307,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-4",
             name: "Network & Infrastructure",
             description: "Segment networks, secure communications, and harden infrastructure",
-            duration: "6-8 weeks",
+            duration: "3-4 weeks",
             icon: "network",
             color: "#e5c07b",
             milestones: [
@@ -1414,7 +1414,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-5",
             name: "Data Protection",
             description: "Protect CUI at rest and in transit with encryption and DLP",
-            duration: "4-6 weeks",
+            duration: "2-3 weeks",
             icon: "data",
             color: "#e06c75",
             milestones: [
@@ -1512,7 +1512,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-6",
             name: "Monitoring & Logging",
             description: "Implement comprehensive audit logging and monitoring",
-            duration: "4-6 weeks",
+            duration: "2-3 weeks",
             icon: "monitor",
             color: "#56b6c2",
             milestones: [
@@ -1587,7 +1587,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-7",
             name: "Remote Access & VDI",
             description: "Implement secure remote access (required) with optional VDI for enhanced CUI protection",
-            duration: "4-8 weeks",
+            duration: "2-3 weeks",
             icon: "vdi",
             color: "#d19a66",
             milestones: [
@@ -1841,7 +1841,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-8",
             name: "Final Documentation & Review",
             description: "Complete remaining documentation and prepare for assessment",
-            duration: "2-4 weeks",
+            duration: "1-2 weeks",
             icon: "policies",
             color: "#abb2bf",
             milestones: [
@@ -1921,7 +1921,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-9",
             name: "POA&M Remediation",
             description: "Address identified gaps and track remediation to closure",
-            duration: "4-12 weeks",
+            duration: "4-8 weeks",
             icon: "remediation",
             color: "#e06c75",
             milestones: [
@@ -2053,7 +2053,7 @@ const IMPLEMENTATION_PLANNER = {
             id: "phase-10",
             name: "Assessment Readiness",
             description: "Prepare for C3PAO assessment with mock assessments and evidence review",
-            duration: "4-6 weeks",
+            duration: "2-3 weeks",
             icon: "readiness",
             color: "#98c379",
             milestones: [
