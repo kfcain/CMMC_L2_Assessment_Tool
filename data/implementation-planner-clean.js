@@ -118,6 +118,16 @@ const IMPLEMENTATION_PLANNER = {
                             priority: "critical",
                             effort: "high",
                             // Project Plan Integration
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "CUI Scoping & Asset Inventory",
+                                week: 1,
+                                taskId: "T-1.2",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                raciCategory: "Operations",
+                                deliverable: "CUI Data Flow Diagram"
+                            },
                             guidance: {
                                 steps: [
                                     "Interview stakeholders handling CUI per 3.1.3[c] - identify designated sources and destinations",
@@ -138,6 +148,16 @@ const IMPLEMENTATION_PLANNER = {
                             priority: "critical",
                             effort: "medium",
                             // Project Plan Integration
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "CUI Scoping & Asset Inventory",
+                                week: 2,
+                                taskId: "T-1.3",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                raciCategory: "Architecture",
+                                deliverable: "System Boundary Document"
+                            },
                             guidance: {
                                 steps: [
                                     "Document system boundary in SSP per 3.12.4[b] - describe boundary for assessment",
@@ -158,6 +178,16 @@ const IMPLEMENTATION_PLANNER = {
                             priority: "critical",
                             effort: "high",
                             // Project Plan Integration
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "CUI Scoping & Asset Inventory",
+                                week: 2,
+                                taskId: "T-1.4",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                raciCategory: "Operations",
+                                deliverable: "Comprehensive Asset Inventory"
+                            },
                             guidance: {
                                 steps: [
                                     "Establish system inventory per 3.4.1[d] - inventory all hardware, software, firmware, and documentation",
