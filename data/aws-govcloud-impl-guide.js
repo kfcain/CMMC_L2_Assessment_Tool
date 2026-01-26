@@ -203,7 +203,12 @@ const AWS_GOVCLOUD_IMPL_GUIDE = {
             thirdParty: [
                 { service: "CrowdStrike Falcon (GovCloud)", type: "EDR", fedramp: "High", assetType: "Security Protection Asset", purpose: "Endpoint detection, threat hunting, IR" },
                 { service: "Palo Alto Cortex XSOAR", type: "SOAR", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Playbook automation, case management" },
-                { service: "ServiceNow SecOps", type: "ITSM/SOAR", fedramp: "High", assetType: "Security Protection Asset", purpose: "Security incident management, workflows" }
+                { service: "ServiceNow SecOps", type: "ITSM/SOAR", fedramp: "High", assetType: "Security Protection Asset", purpose: "Security incident management, workflows" },
+                { service: "Jira Service Management", type: "Ticketing", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Incident ticketing, SLA tracking, workflows" },
+                { service: "Zendesk", type: "Ticketing", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Help desk, incident tracking" },
+                { service: "MSSP Ticketing (Various)", type: "Managed Service", fedramp: "Varies", assetType: "Contractor Risk Managed Asset", purpose: "Outsourced SOC incident management" },
+                { service: "Slack (Enterprise Grid)", type: "Collaboration", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "IR communication, alerting integrations" },
+                { service: "PagerDuty", type: "On-Call/Alerting", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Incident escalation, on-call management" }
             ]
         },
         "Maintenance (MA)": {
@@ -269,7 +274,12 @@ const AWS_GOVCLOUD_IMPL_GUIDE = {
             ],
             thirdParty: [
                 { service: "ServiceNow GRC", type: "GRC", fedramp: "High", assetType: "Security Protection Asset", purpose: "Risk register, policy management" },
-                { service: "Archer", type: "GRC", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Security assessment automation" }
+                { service: "Archer", type: "GRC", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Security assessment automation" },
+                { service: "Vanta", type: "Continuous Monitoring", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Automated compliance monitoring, evidence collection" },
+                { service: "Drata", type: "Continuous Monitoring", fedramp: "Moderate", assetType: "Security Protection Asset", purpose: "Automated GRC, control monitoring" },
+                { service: "Secureframe", type: "Continuous Monitoring", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Compliance automation, audit readiness" },
+                { service: "IntelliGRC", type: "GRC", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Risk management, compliance workflows" },
+                { service: "Hyperproof", type: "Continuous Monitoring", fedramp: "N/A", assetType: "Security Protection Asset", purpose: "Evidence collection, compliance management" }
             ]
         },
         "System & Communications Protection (SC)": {
