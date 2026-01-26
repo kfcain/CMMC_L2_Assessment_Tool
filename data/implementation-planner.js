@@ -2,9 +2,9 @@
 // A comprehensive, phased approach to implementing CMMC controls
 
 const IMPLEMENTATION_PLANNER = {
-    version: "1.0.0",
-    title: "CMMC Implementation Planner",
-    description: "A structured, phased approach to achieving CMMC Level 2 compliance with trackable milestones and technical implementation guidance.",
+    version: "2.0.0",
+    title: "CMMC Implementation Planner - Greenfield Edition",
+    description: "A comprehensive, phased approach to implementing CMMC Level 2 compliance from scratch, including all policies, procedures, and technical controls needed for a greenfield deployment.",
     
     // Project Phases
     phases: [
@@ -119,6 +119,725 @@ const IMPLEMENTATION_PLANNER = {
             ]
         },
         {
+            id: "phase-1b",
+            name: "Policy & Procedure Development",
+            description: "Create comprehensive policies, procedures, and documentation framework",
+            duration: "6-8 weeks",
+            icon: "policy",
+            color: "#d19a66",
+            milestones: [
+                {
+                    id: "m1b-1",
+                    name: "Policy Framework Established",
+                    description: "Create all required CMMC policies with templates",
+                    tasks: [
+                        {
+                            id: "t1b-1-1",
+                            name: "Develop Access Control Policy",
+                            description: "Create comprehensive access control policies and procedures",
+                            controls: ["3.1.1", "3.1.2", "3.5.1", "3.5.2"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Create Access Control Policy template",
+                                    "Define user access request process",
+                                    "Document role-based access control (RBAC) matrix",
+                                    "Establish access review procedures (quarterly)",
+                                    "Define privileged access management",
+                                    "Create account creation/deletion procedures",
+                                    "Document remote access policies"
+                                ],
+                                templates: [
+                                    "Access Control Policy.docx",
+                                    "User Access Request Form.docx",
+                                    "Role Access Matrix.xlsx",
+                                    "Access Review Checklist.docx"
+                                ],
+                                storage: "SharePoint > Policies > Access Control",
+                                approval: "Security Committee + CIO"
+                            }
+                        },
+                        {
+                            id: "t1b-1-2",
+                            name: "Develop Cyber & Network Security Policy",
+                            description: "Create comprehensive cybersecurity and network security policies",
+                            controls: ["3.12.1", "3.12.2", "3.12.3", "3.12.4", "3.13.1"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Create Cybersecurity Program Policy",
+                                    "Develop Network Security Policy",
+                                    "Define boundary protection requirements",
+                                    "Create incident response procedures",
+                                    "Document vulnerability management process",
+                                    "Establish change management procedures",
+                                    "Create system security planning process"
+                                ],
+                                templates: [
+                                    "Cybersecurity Program Policy.docx",
+                                    "Network Security Policy.docx",
+                                    "Incident Response Plan.docx",
+                                    "Vulnerability Management Procedure.docx",
+                                    "Change Management Procedure.docx"
+                                ],
+                                storage: "SharePoint > Policies > Cybersecurity",
+                                approval: "CISO + Security Committee"
+                            }
+                        },
+                        {
+                            id: "t1b-1-3",
+                            name: "Develop Mobile Device Management Policy",
+                            description: "Create MDM policies for mobile devices and telework",
+                            controls: ["3.1.6", "3.1.7", "3.1.8", "3.2.1"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create Mobile Device Management Policy",
+                                    "Define Bring Your Own Device (BYOD) rules",
+                                    "Document telework security requirements",
+                                    "Create device encryption requirements",
+                                    "Define mobile application management",
+                                    "Establish device sanitization procedures",
+                                    "Create lost/stolen device procedures"
+                                ],
+                                templates: [
+                                    "Mobile Device Management Policy.docx",
+                                    "Telework Security Policy.docx",
+                                    "BYOD Policy.docx",
+                                    "Device Security Checklist.docx"
+                                ],
+                                storage: "SharePoint > Policies > Mobile & Telework",
+                                approval: "IT Director + HR Director"
+                            }
+                        },
+                        {
+                            id: "t1b-1-4",
+                            name: "Develop Acceptable Use Policy",
+                            description: "Create acceptable use policies for systems and data",
+                            controls: ["3.1.4", "3.1.5"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create Acceptable Use Policy for IT systems",
+                                    "Define acceptable use of CUI",
+                                    "Document social media restrictions",
+                                    "Create email and communication policies",
+                                    "Define software installation restrictions",
+                                    "Establish internet usage policies",
+                                    "Create user acknowledgment forms"
+                                ],
+                                templates: [
+                                    "Acceptable Use Policy.docx",
+                                    "CUI Handling Guidelines.docx",
+                                    "Social Media Policy.docx",
+                                    "AUP Acknowledgment Form.docx"
+                                ],
+                                storage: "SharePoint > Policies > Acceptable Use",
+                                approval: "Legal + HR + IT"
+                            }
+                        },
+                        {
+                            id: "t1b-1-5",
+                            name: "Develop Incident Response Policy",
+                            description: "Create comprehensive incident response procedures",
+                            controls: ["3.6.1", "3.6.2"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Create Incident Response Policy",
+                                    "Define incident classification levels",
+                                    "Document incident response team (IRT) structure",
+                                    "Create incident reporting procedures",
+                                    "Establish communication protocols",
+                                    "Define evidence preservation procedures",
+                                    "Create post-incident review process",
+                                    "Document coordination with external parties"
+                                ],
+                                templates: [
+                                    "Incident Response Plan.docx",
+                                    "Incident Report Form.docx",
+                                    "IRT Contact List.xlsx",
+                                    "Incident Classification Guide.docx"
+                                ],
+                                storage: "SharePoint > Policies > Incident Response",
+                                approval: "CISO + Legal + PR"
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m1b-2",
+                    name: "Personnel Security Framework",
+                    description: "Establish personnel security processes and background checks",
+                    tasks: [
+                        {
+                            id: "t1b-2-1",
+                            name: "Implement Background Check Process",
+                            description: "Create background check procedures for US persons (ITAR)",
+                            controls: ["3.7.1", "3.7.2"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Define background check requirements",
+                                    "Select background check vendor (FCRA compliant)",
+                                    "Create background check request process",
+                                    "Document adjudication procedures",
+                                    "Define re-investigation schedule (5 years)",
+                                    "Create ITAR-specific requirements",
+                                    "Establish foreign national screening process"
+                                ],
+                                templates: [
+                                    "Background Check Policy.docx",
+                                    "Background Check Authorization Form.docx",
+                                    "ITAR Screening Checklist.docx",
+                                    "Personnel Security Checklist.docx"
+                                ],
+                                storage: "SharePoint > HR > Personnel Security",
+                                approval: "HR Director + Legal + Security",
+                                notes: "For ITAR: Must verify US person status, check export violations"
+                            }
+                        },
+                        {
+                            id: "t1b-2-2",
+                            name: "Create Personnel Transfer & Termination Procedures",
+                            description: "Document processes for personnel changes",
+                            controls: ["3.7.3", "3.7.4", "3.7.5"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create employee termination checklist",
+                                    "Define access revocation procedures",
+                                    "Document knowledge transfer process",
+                                    "Create exit interview process",
+                                    "Establish equipment return procedures",
+                                    "Define CUI handover requirements",
+                                    "Create notification procedures for transfers"
+                                ],
+                                templates: [
+                                    "Employee Termination Checklist.docx",
+                                    "Access Revocation Form.docx",
+                                    "Knowledge Transfer Template.docx",
+                                    "Exit Interview Form.docx"
+                                ],
+                                storage: "SharePoint > HR > Offboarding",
+                                approval: "HR Director + IT Director + Security"
+                            }
+                        },
+                        {
+                            id: "t1b-2-3",
+                            name: "Create Roles & Responsibilities Matrix",
+                            description: "Document security roles and responsibilities",
+                            controls: ["3.3.1", "3.3.2"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create RACI matrix for security functions",
+                                    "Define security officer responsibilities",
+                                    "Document system owner responsibilities",
+                                    "Create user responsibility definitions",
+                                    "Establish management oversight roles",
+                                    "Define incident response team roles",
+                                    "Create training responsibility matrix"
+                                ],
+                                templates: [
+                                    "Security RACI Matrix.xlsx",
+                                    "Role Definitions.docx",
+                                    "Responsibility Assignment Matrix.xlsx"
+                                ],
+                                storage: "SharePoint > Governance > Roles",
+                                approval: "CEO + CISO + Department Heads"
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m1b-3",
+                    name: "Physical & Media Security Framework",
+                    description: "Establish physical security and media handling procedures",
+                    tasks: [
+                        {
+                            id: "t1b-3-1",
+                            name: "Develop Physical Security Policies",
+                            description: "Create physical security procedures (inheriting from CSPs)",
+                            controls: ["3.10.1", "3.10.2", "3.10.3"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Document reliance on CSP physical security",
+                                    "Create telework physical security policy",
+                                    "Define home office security requirements",
+                                    "Create visitor management procedures",
+                                    "Document physical access controls",
+                                    "Establish secure area requirements",
+                                    "Create physical security training"
+                                ],
+                                templates: [
+                                    "Physical Security Policy.docx",
+                                    "Telework Security Guidelines.docx",
+                                    "Home Office Security Checklist.docx",
+                                    "Visitor Log Template.xlsx"
+                                ],
+                                storage: "SharePoint > Policies > Physical Security",
+                                approval: "Security Manager + Facilities Manager",
+                                notes: "Leverage FedRAMP documentation from cloud providers"
+                            }
+                        },
+                        {
+                            id: "t1b-3-2",
+                            name: "Develop Media Handling Procedures",
+                            description: "Create procedures for marking and handling CUI media",
+                            controls: ["3.8.1", "3.8.2", "3.8.3", "3.8.4", "3.8.5", "3.8.6"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Create CUI marking procedures",
+                                    "Define media classification system",
+                                    "Document chain of custody procedures",
+                                    "Create media inventory process",
+                                    "Define storage requirements for CUI media",
+                                    "Establish media sanitization procedures",
+                                    "Create media destruction procedures",
+                                    "Document transport procedures for CUI"
+                                ],
+                                templates: [
+                                    "CUI Marking Guide.docx",
+                                    "Media Handling Procedure.docx",
+                                    "Chain of Custody Form.docx",
+                                    "Media Inventory Log.xlsx",
+                                    "Media Sanitization Procedure.docx"
+                                ],
+                                storage: "SharePoint > Policies > Media Security",
+                                approval: "Security Manager + Records Manager"
+                            }
+                        },
+                        {
+                            id: "t1b-3-3",
+                            name: "Create Data/Device Sanitization Procedures",
+                            description: "Document sanitization for all data and devices",
+                            controls: ["3.8.4", "3.8.5"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create device sanitization procedures",
+                                    "Define approved sanitization methods",
+                                    "Document verification procedures",
+                                    "Create sanitization log templates",
+                                    "Define disposal procedures",
+                                    "Establish third-party destruction process",
+                                    "Create exception handling procedures"
+                                ],
+                                templates: [
+                                    "Device Sanitization Procedure.docx",
+                                    "Sanitization Verification Form.docx",
+                                    "Media Destruction Certificate.docx",
+                                    "Sanitization Log.xlsx"
+                                ],
+                                storage: "SharePoint > Policies > Sanitization",
+                                approval: "IT Director + Security Manager"
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m1b-4",
+                    name: "Risk & Compliance Management",
+                    description: "Establish risk management and compliance processes",
+                    tasks: [
+                        {
+                            id: "t1b-4-1",
+                            name: "Develop Corporate Risk Management Framework",
+                            description: "Create comprehensive risk management process",
+                            controls: ["3.11.1", "3.11.2"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Create Risk Management Policy",
+                                    "Define risk assessment methodology",
+                                    "Establish risk appetite statement",
+                                    "Create risk register template",
+                                    "Document risk treatment process",
+                                    "Define risk monitoring procedures",
+                                    "Create risk reporting templates",
+                                    "Establish risk governance structure"
+                                ],
+                                templates: [
+                                    "Risk Management Policy.docx",
+                                    "Risk Assessment Methodology.docx",
+                                    "Risk Register.xlsx",
+                                    "Risk Treatment Plan.xlsx",
+                                    "Risk Report Template.pptx"
+                                ],
+                                storage: "SharePoint > Governance > Risk Management",
+                                approval: "CEO + Board + CISO"
+                            }
+                        },
+                        {
+                            id: "t1b-4-2",
+                            name: "Create Vulnerability Management Program",
+                            description: "Establish vulnerability scanning and remediation",
+                            controls: ["3.14.1", "3.14.2", "3.14.3"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Select vulnerability scanning tool",
+                                    "Create scanning schedule (weekly for critical)",
+                                    "Define vulnerability classification",
+                                    "Create remediation SLAs",
+                                    "Establish exception process",
+                                    "Document patch management procedures",
+                                    "Create vulnerability reporting",
+                                    "Define continuous monitoring process"
+                                ],
+                                tools: [
+                                    { name: "Tenable.io", type: "Commercial", notes: "Comprehensive vulnerability management" },
+                                    { name: "Qualys", type: "Commercial", notes: "Cloud-based vulnerability management" },
+                                    { name: "OpenVAS", type: "Open Source", notes: "Free vulnerability scanner" }
+                                ],
+                                templates: [
+                                    "Vulnerability Management Policy.docx",
+                                    "Scanning Schedule.xlsx",
+                                    "Remediation SLA Matrix.xlsx",
+                                    "Vulnerability Report Template.xlsx"
+                                ],
+                                storage: "SharePoint > Operations > Vulnerability Management",
+                                approval: "CISO + IT Director"
+                            }
+                        },
+                        {
+                            id: "t1b-4-3",
+                            name: "Create EDR & Malware Protection Framework",
+                            description: "Implement endpoint protection and malware prevention",
+                            controls: ["3.1.9", "3.1.10"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Select EDR solution",
+                                    "Create malware protection policy",
+                                    "Define application whitelisting process",
+                                    "Create incident response for malware",
+                                    "Establish quarantine procedures",
+                                    "Define false positive handling",
+                                    "Create EDR monitoring procedures",
+                                    "Document integration with SIEM"
+                                ],
+                                tools: [
+                                    { name: "Microsoft Defender for Endpoint", type: "Included with M365", notes: "Native integration with M365" },
+                                    { name: "CrowdStrike Falcon", type: "Commercial", notes: "Leading EDR solution" },
+                                    { name: "SentinelOne", type: "Commercial", notes: "AI-powered endpoint protection" }
+                                ],
+                                templates: [
+                                    "EDR Policy.docx",
+                                    "Application Whitelisting Procedure.docx",
+                                    "Malware Response Plan.docx",
+                                    "EDR Monitoring Guide.docx"
+                                ],
+                                storage: "SharePoint > Operations > Endpoint Protection",
+                                approval: "CISO + IT Director"
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m1b-5",
+                    name: "Audit & Monitoring Framework",
+                    description: "Establish audit logging, monitoring, and reporting",
+                    tasks: [
+                        {
+                            id: "t1b-5-1",
+                            name: "Create Audit & Accountability Policy",
+                            description: "Define comprehensive audit logging requirements",
+                            controls: ["3.3.1", "3.3.2", "3.3.3", "3.3.4", "3.3.5"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Define required audit events",
+                                    "Create log retention policy (minimum 1 year)",
+                                    "Establish log protection procedures",
+                                    "Create log review process",
+                                    "Define non-repudiation requirements",
+                                    "Create audit trail documentation",
+                                    "Establish log failure alerts",
+                                    "Define forensic evidence procedures"
+                                ],
+                                requiredLogs: [
+                                    "User authentication (success/failure)",
+                                    "Privileged access use",
+                                    "Policy changes",
+                                    "CUI access",
+                                    "System configuration changes",
+                                    "Failed logon attempts",
+                                    "Data export/transfers",
+                                    "Administrative actions"
+                                ],
+                                templates: [
+                                    "Audit Policy.docx",
+                                    "Log Retention Schedule.xlsx",
+                                    "Log Review Checklist.docx",
+                                    "Audit Evidence Guide.docx"
+                                ],
+                                storage: "SharePoint > Policies > Audit & Accountability",
+                                approval: "CISO + Compliance Officer"
+                            }
+                        },
+                        {
+                            id: "t1b-5-2",
+                            name: "Implement SIEM & Log Correlation",
+                            description: "Deploy SIEM for log correlation and reporting",
+                            controls: ["3.3.6", "3.3.7"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Select SIEM solution",
+                                    "Define log collection requirements",
+                                    "Create correlation rules",
+                                    "Establish alert thresholds",
+                                    "Create dashboard requirements",
+                                    "Define reporting schedules",
+                                    "Document escalation procedures",
+                                    "Create SIEM tuning process"
+                                ],
+                                tools: [
+                                    { name: "Microsoft Sentinel", type: "Azure Native", notes: "Integrates with M365/Azure" },
+                                    { name: "Splunk", type: "Commercial", notes: "Powerful SIEM with extensive features" },
+                                    { name: "LogRhythm", type: "Commercial", notes: "SIEM with compliance focus" },
+                                    { name: "ELK Stack", type: "Open Source", notes: "Elasticsearch, Logstash, Kibana" }
+                                ],
+                                templates: [
+                                    "SIEM Configuration Guide.docx",
+                                    "Correlation Rules Library.xlsx",
+                                    "Alert Playbooks.docx",
+                                    "SIEM Dashboard Requirements.xlsx"
+                                ],
+                                storage: "SharePoint > Operations > SIEM",
+                                approval: "CISO + Security Operations Manager"
+                            }
+                        },
+                        {
+                            id: "t1b-5-3",
+                            name: "Create Continuous Monitoring Process",
+                            description: "Establish continuous monitoring and self-assessment",
+                            controls: ["3.12.1", "3.12.2"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Select continuous monitoring tool",
+                                    "Define monitoring frequency",
+                                    "Create control assessment schedule",
+                                    "Establish automated testing",
+                                    "Create compliance dashboards",
+                                    "Define remediation workflows",
+                                    "Document status reporting",
+                                    "Create POA&M management process"
+                                ],
+                                tools: [
+                                    { name: "Vanta", type: "Commercial", notes: "Automated compliance monitoring" },
+                                    { name: "Drata", type: "Commercial", notes: "Continuous compliance automation" },
+                                    { name: "Hyperproof", type: "Commercial", notes: "Compliance operations platform" }
+                                ],
+                                templates: [
+                                    "Continuous Monitoring Plan.docx",
+                                    "Control Assessment Schedule.xlsx",
+                                    "POA&M Template.xlsx",
+                                    "Compliance Dashboard.xlsx"
+                                ],
+                                storage: "SharePoint > Compliance > Monitoring",
+                                approval: "CISO + Compliance Officer"
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m1b-6",
+                    name: "Training & Awareness Program",
+                    description: "Establish security awareness and training programs",
+                    tasks: [
+                        {
+                            id: "t1b-6-1",
+                            name: "Create Security Awareness Training",
+                            description: "Develop comprehensive security awareness program",
+                            controls: ["3.2.1", "3.2.2", "3.2.3", "3.2.4"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create annual security awareness training",
+                                    "Develop role-based training modules",
+                                    "Create new hire security orientation",
+                                    "Establish refresher training schedule",
+                                    "Create phishing simulation program",
+                                    "Document training effectiveness metrics",
+                                    "Create training record management",
+                                    "Define training for contractors"
+                                ],
+                                modules: [
+                                    "Introduction to CMMC",
+                                    "CUI Handling and Marking",
+                                    "Phishing and Social Engineering",
+                                    "Password Security and MFA",
+                                    "Physical Security",
+                                    "Incident Reporting",
+                                    "Acceptable Use",
+                                    "Insider Threat Awareness"
+                                ],
+                                templates: [
+                                    "Security Awareness Training.pptx",
+                                    "Training Attendance Log.xlsx",
+                                    "Training Effectiveness Survey.docx",
+                                    "Phishing Test Report.xlsx"
+                                ],
+                                storage: "SharePoint > Training > Security Awareness",
+                                approval: "CISO + HR Director + Training Manager"
+                            }
+                        },
+                        {
+                            id: "t1b-6-2",
+                            name: "Create CUI-Specific Training",
+                            description: "Develop specialized CUI handling training",
+                            controls: ["3.2.1", "3.2.2"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create CUI identification training",
+                                    "Develop marking procedures training",
+                                    "Create CUI storage and transmission training",
+                                    "Establish CUI incident response training",
+                                    "Create export control awareness (ITAR)",
+                                    "Document CUI handling certification",
+                                    "Create refresher training schedule"
+                                ],
+                                modules: [
+                                    "CUI Identification and Marking",
+                                    "CUI Storage Requirements",
+                                    "Secure CUI Transmission",
+                                    "ITAR and Export Controls",
+                                    "CUI Incident Response",
+                                    "Cross-Boundary Transfers"
+                                ],
+                                templates: [
+                                    "CUI Training Manual.docx",
+                                    "CUI Certification Form.docx",
+                                    "CUI Quiz.docx",
+                                    "Training Certificate Template.docx"
+                                ],
+                                storage: "SharePoint > Training > CUI",
+                                approval: "Security Officer + Compliance Officer"
+                            }
+                        },
+                        {
+                            id: "t1b-6-3",
+                            name: "Create Insider Threat Program",
+                            description: "Establish insider threat detection and prevention",
+                            controls: ["3.2.5"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create insider threat policy",
+                                    "Define behavioral indicators",
+                                    "Establish reporting mechanisms",
+                                    "Create investigation procedures",
+                                    "Document privacy considerations",
+                                    "Define escalation procedures",
+                                    "Create training for managers",
+                                    "Establish coordination with HR"
+                                ],
+                                templates: [
+                                    "Insider Threat Policy.docx",
+                                    "Insider Threat Report Form.docx",
+                                    "Behavioral Indicators Guide.docx",
+                                    "Manager Training Guide.docx"
+                                ],
+                                storage: "SharePoint > Policies > Insider Threat",
+                                approval: "CISO + HR Director + Legal"
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m1b-7",
+                    name: "Communications & Data Protection",
+                    description: "Establish communications policies and data protection",
+                    tasks: [
+                        {
+                            id: "t1b-7-1",
+                            name: "Create Communications Policy",
+                            description: "Ensure CUI is not posted publicly",
+                            controls: ["3.1.4", "3.1.5"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create communications security policy",
+                                    "Define approved communication channels",
+                                    "Establish social media restrictions",
+                                    "Create email security procedures",
+                                    "Define public posting restrictions",
+                                    "Create external communication review",
+                                    "Establish secure communication methods",
+                                    "Document encryption requirements"
+                                ],
+                                templates: [
+                                    "Communications Security Policy.docx",
+                                    "Social Media Policy.docx",
+                                    "Email Security Guidelines.docx",
+                                    "External Communication Review Form.docx"
+                                ],
+                                storage: "SharePoint > Policies > Communications",
+                                approval: "Legal + PR + CISO"
+                            }
+                        },
+                        {
+                            id: "t1b-7-2",
+                            name: "Document ESP/CSP Relationships",
+                            description: "Track all cloud providers and their FedRAMP status",
+                            controls: ["3.13.1", "3.13.2"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Inventory all cloud service providers",
+                                    "Collect FedRAMP authorizations",
+                                    "Review SRM (Security Responsibility Matrix)",
+                                    "Obtain FedRAMP Body of Evidence",
+                                    "Document shared responsibilities",
+                                    "Create CSP monitoring procedures",
+                                    "Establish CSP security reviews",
+                                    "Document CSP incident coordination"
+                                ],
+                                templates: [
+                                    "CSP Inventory.xlsx",
+                                    "FedRAMP Status Tracker.xlsx",
+                                    "Security Responsibility Matrix.xlsx",
+                                    "CSP Security Review Checklist.docx"
+                                ],
+                                storage: "SharePoint > Governance > Cloud Providers",
+                                approval: "CISO + Procurement + Legal",
+                                notes: "Maintain current FedRAMP authorizations for all CSPs"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             id: "phase-2",
             name: "Identity & Access",
             description: "Implement identity management, authentication, and access controls",
@@ -226,6 +945,151 @@ const IMPLEMENTATION_PLANNER = {
                                     }
                                 },
                                 artifacts: ["Conditional Access Policy Matrix", "Policy Screenshots"]
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m2-1b",
+                    name: "MFA Provider Integrated",
+                    description: "Select and integrate MFA provider across all platforms",
+                    tasks: [
+                        {
+                            id: "t2-1b-1",
+                            name: "Select MFA Provider",
+                            description: "Evaluate and select MFA solution for all platforms",
+                            controls: ["3.5.3"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Evaluate MFA provider options",
+                                    "Consider integration with existing systems",
+                                    "Assess FIDO2/WebAuthn support",
+                                    "Evaluate hardware token support",
+                                    "Review compliance features",
+                                    "Assess pricing and licensing",
+                                    "Create provider selection matrix",
+                                    "Select primary and backup providers"
+                                ],
+                                providers: [
+                                    {
+                                        name: "Microsoft Entra ID MFA",
+                                        type: "Integrated with M365",
+                                        pros: ["Native M365 integration", "No additional cost", "Conditional Access integration", "FIDO2 support"],
+                                        cons: ["Limited to Microsoft ecosystem", "Requires Azure AD Premium P1 for advanced features"],
+                                        bestFor: "Organizations using M365/Azure"
+                                    },
+                                    {
+                                        name: "Duo Security",
+                                        type: "Third-party",
+                                        pros: ["Platform agnostic", "Hardware token support", "Push notifications", "Device health checks"],
+                                        cons: ["Additional licensing cost", "Separate management console"],
+                                        bestFor: "Mixed environments requiring broad device support"
+                                    },
+                                    {
+                                        name: "Okta Adaptive MFA",
+                                        type: "Third-party",
+                                        pros: ["Advanced risk assessment", "Broad integration", "Contextual policies", "API access"],
+                                        cons: ["Higher cost", "Complex setup", "Requires Okta subscription"],
+                                        bestFor: "Enterprises with advanced security needs"
+                                    },
+                                    {
+                                        name: "Google Authenticator",
+                                        type: "Free/Basic",
+                                        pros: ["Free", "Simple to use", "TOTP standard", "Offline capability"],
+                                        cons: ["No centralized management", "No push notifications", "No device health checks"],
+                                        bestFor: "Small organizations with basic needs"
+                                    }
+                                ],
+                                templates: [
+                                    "MFA Provider Evaluation Matrix.xlsx",
+                                    "MFA Requirements Document.docx",
+                                    "Provider Selection Memo.docx"
+                                ],
+                                storage: "SharePoint > Projects > MFA Implementation",
+                                approval: "CISO + IT Director + Procurement"
+                            }
+                        },
+                        {
+                            id: "t2-1b-2",
+                            name: "Integrate MFA with Platforms",
+                            description: "Configure MFA across all systems and applications",
+                            controls: ["3.5.3"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Configure MFA in identity provider",
+                                    "Integrate with VPN/RDP solutions",
+                                    "Configure MFA for cloud applications",
+                                    "Set up MFA for privileged accounts",
+                                    "Configure MFA for remote access",
+                                    "Test MFA workflows",
+                                    "Create user documentation",
+                                    "Establish support procedures"
+                                ],
+                                integrations: [
+                                    {
+                                        platform: "Microsoft 365",
+                                        method: "Entra ID Conditional Access",
+                                        config: "Require MFA for all users, Block legacy auth",
+                                        docs: "https://learn.microsoft.com/entra/identity/conditional-access/"
+                                    },
+                                    {
+                                        platform: "VPN",
+                                        method: "RADIUS/NPS with MFA extension",
+                                        config: "Point NPS to MFA provider",
+                                        docs: "Provider-specific documentation"
+                                    },
+                                    {
+                                        platform: "Remote Desktop",
+                                        method: "RD Gateway with MFA",
+                                        config: "Configure RD Gateway to use MFA",
+                                        docs: "Windows Server documentation"
+                                    },
+                                    {
+                                        platform: "SaaS Applications",
+                                        method: "SAML/OIDC with MFA",
+                                        config: "Configure federation with IdP",
+                                        docs: "Application-specific guides"
+                                    }
+                                ],
+                                templates: [
+                                    "MFA Integration Checklist.xlsx",
+                                    "MFA Configuration Guide.docx",
+                                    "User MFA Setup Guide.docx"
+                                ],
+                                storage: "SharePoint > Operations > MFA",
+                                approval: "IT Director + Security Manager"
+                            }
+                        },
+                        {
+                            id: "t2-1b-3",
+                            name: "Create MFA Policies & Procedures",
+                            description: "Document MFA policies and exception handling",
+                            controls: ["3.5.3"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create MFA policy document",
+                                    "Define MFA enforcement rules",
+                                    "Document exception process",
+                                    "Create backup authentication procedures",
+                                    "Establish lost device procedures",
+                                    "Create MFA training materials",
+                                    "Define compliance monitoring",
+                                    "Create incident response for MFA failures"
+                                ],
+                                templates: [
+                                    "MFA Policy.docx",
+                                    "MFA Exception Request Form.docx",
+                                    "MFA Troubleshooting Guide.docx",
+                                    "MFA Training Materials.pptx"
+                                ],
+                                storage: "SharePoint > Policies > Authentication",
+                                approval: "CISO + Legal + HR"
                             }
                         }
                     ]
@@ -433,6 +1297,236 @@ const IMPLEMENTATION_PLANNER = {
                                     }
                                 },
                                 artifacts: ["EDR Deployment Status", "Detection Policy Configuration", "SIEM Integration"]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            id: "phase-3b",
+            name: "Asset Management & Configuration",
+            description: "Create/manage baseline configurations and inventory all assets",
+            duration: "4-6 weeks",
+            icon: "inventory",
+            color: "#98c379",
+            milestones: [
+                {
+                    id: "m3b-1",
+                    name: "Asset Inventory Complete",
+                    description: "Comprehensive inventory of all systems, data, and personnel",
+                    tasks: [
+                        {
+                            id: "t3b-1-1",
+                            name: "Create Asset Inventory Framework",
+                            description: "Establish comprehensive asset inventory processes",
+                            controls: ["3.2.4", "3.3.1"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Define asset types and categories",
+                                    "Create asset classification scheme",
+                                    "Establish CMDB (Configuration Management Database)",
+                                    "Define asset lifecycle management",
+                                    "Create asset tagging procedures",
+                                    "Establish inventory schedule",
+                                    "Define asset owner responsibilities",
+                                    "Create asset disposal procedures"
+                                ],
+                                assetTypes: [
+                                    { category: "Hardware", examples: ["Servers", "Workstations", "Laptops", "Mobile Devices", "Network Equipment"] },
+                                    { category: "Software", examples: ["Operating Systems", "Applications", "Databases", "Security Tools"] },
+                                    { category: "Data", examples: ["CUI Data", "PII", "Intellectual Property", "System Data"] },
+                                    { category: "Cloud", examples: ["IaaS Resources", "SaaS Applications", "Storage Accounts", "Network Resources"] },
+                                    { category: "Personnel", examples: ["Employees", "Contractors", "System Accounts", "Service Accounts"] }
+                                ],
+                                templates: [
+                                    "Asset Inventory Template.xlsx",
+                                    "Asset Classification Guide.docx",
+                                    "CMDB Schema.xlsx",
+                                    "Asset Lifecycle Procedure.docx"
+                                ],
+                                storage: "SharePoint > Operations > Asset Management",
+                                approval: "IT Director + Asset Manager"
+                            }
+                        },
+                        {
+                            id: "t3b-1-2",
+                            name: "Label Assets Based on CMMC Scope",
+                            description: "Apply CMMC assessment and scoping methodology to assets",
+                            controls: ["3.2.4", "3.12.4"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Review CMMC scoping methodology",
+                                    "Identify in-scope assets for CUI handling",
+                                    "Label assets by CMMC level requirement",
+                                    "Create asset boundary documentation",
+                                    "Define asset criticality levels",
+                                    "Map assets to CMMC controls",
+                                    "Create asset dependency mapping",
+                                    "Document asset interconnections"
+                                ],
+                                labelingScheme: [
+                                    { label: "CUI-In-Scope", description: "Assets that process, store, or transmit CUI", color: "Red" },
+                                    { label: "CUI-Boundary", description: "Assets at CMMC assessment boundary", color: "Orange" },
+                                    { label: "Security-Control", description: "Assets implementing security controls", color: "Blue" },
+                                    { label: "Out-of-Scope", description: "Assets not in CMMC assessment scope", color: "Green" }
+                                ],
+                                templates: [
+                                    "Asset Labeling Guide.docx",
+                                    "CMMC Asset Matrix.xlsx",
+                                    "Asset Boundary Diagram.vsdx",
+                                    "Asset Control Mapping.xlsx"
+                                ],
+                                storage: "SharePoint > Governance > CMMC Scope",
+                                approval: "CISO + Compliance Officer + System Owners"
+                            }
+                        },
+                        {
+                            id: "t3b-1-3",
+                            name: "Document CMMC Boundary & Scope",
+                            description: "Formally document assessment boundary and scope",
+                            controls: ["3.12.4"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create system boundary diagram",
+                                    "Document network boundaries",
+                                    "Define CUI flow boundaries",
+                                    "Identify shared responsibility boundaries",
+                                    "Create scope justification document",
+                                    "Document boundary control points",
+                                    "Define scope change management",
+                                    "Create boundary monitoring procedures"
+                                ],
+                                boundaries: [
+                                    { type: "Network Boundary", description: "VPCs, subnets, firewalls separating CUI from non-CUI" },
+                                    { type: "System Boundary", description: "Systems included in CMMC assessment" },
+                                    { type: "Data Boundary", description: "Where CUI is processed, stored, transmitted" },
+                                    { type: "Physical Boundary", description: "Facilities, home offices in scope" },
+                                    { type: "Cloud Boundary", description: "CSP responsibilities and customer responsibilities" }
+                                ],
+                                templates: [
+                                    "CMMC Boundary Document.docx",
+                                    "System Boundary Diagram.vsdx",
+                                    "Scope Justification Memo.docx",
+                                    "Boundary Control Matrix.xlsx"
+                                ],
+                                storage: "SharePoint > Governance > CMMC Scope",
+                                approval: "CISO + CEO + Assessment Coordinator"
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m3b-2",
+                    name: "Baseline Configurations Established",
+                    description: "Create and manage security baselines for all asset types",
+                    tasks: [
+                        {
+                            id: "t3b-2-1",
+                            name: "Create Security Baselines",
+                            description: "Develop standardized configurations for all systems",
+                            controls: ["3.4.1", "3.4.2", "3.4.3"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Select baseline standards (STIG, CIS, NIST)",
+                                    "Create operating system baselines",
+                                    "Develop application hardening guides",
+                                    "Create network device configurations",
+                                    "Establish cloud service baselines",
+                                    "Document baseline deviations",
+                                    "Create baseline compliance checks",
+                                    "Establish baseline update process"
+                                ],
+                                standards: [
+                                    {
+                                        name: "DISA STIGs",
+                                        type: "Military",
+                                        coverage: "Windows, Linux, Network Devices, Databases",
+                                        notes: "Required for DoD contractors"
+                                    },
+                                    {
+                                        name: "CIS Benchmarks",
+                                        type: "Industry",
+                                        coverage: "Broad coverage of systems and applications",
+                                        notes: "Widely accepted industry standard"
+                                    },
+                                    {
+                                        name: "NIST Configuration Baselines",
+                                        type: "Government",
+                                        coverage: "Federal systems baseline",
+                                        notes: "Aligns with NIST 800-53"
+                                    }
+                                ],
+                                templates: [
+                                    "Baseline Configuration Template.docx",
+                                    "Deviation Justification Form.docx",
+                                    "Baseline Compliance Checklist.xlsx",
+                                    "Baseline Update Procedure.docx"
+                                ],
+                                storage: "SharePoint > Operations > Baselines",
+                                approval: "CISO + System Owners + Change Manager"
+                            }
+                        },
+                        {
+                            id: "t3b-2-2",
+                            name: "Implement Configuration Management",
+                            description: "Deploy and maintain baseline configurations",
+                            controls: ["3.4.4", "3.4.5", "3.4.6"],
+                            priority: "critical",
+                            effort: "high",
+                            guidance: {
+                                steps: [
+                                    "Select configuration management tool",
+                                    "Create deployment automation",
+                                    "Establish configuration drift monitoring",
+                                    "Implement change control process",
+                                    "Create configuration backup procedures",
+                                    "Establish rollback procedures",
+                                    "Document configuration testing",
+                                    "Create compliance reporting"
+                                ],
+                                tools: [
+                                    {
+                                        name: "Microsoft Intune",
+                                        type: "MDM",
+                                        capabilities: ["Endpoint configuration", "Application deployment", "Compliance monitoring"],
+                                        bestFor: "M365 environments"
+                                    },
+                                    {
+                                        name: "Ansible",
+                                        type: "Automation",
+                                        capabilities: ["Infrastructure as code", "Configuration management", "Orchestration"],
+                                        bestFor: "Multi-platform environments"
+                                    },
+                                    {
+                                        name: "PowerShell DSC",
+                                        type: "Windows Native",
+                                        capabilities: ["Desired state configuration", "Automated remediation", "Compliance checking"],
+                                        bestFor: "Windows-only environments"
+                                    },
+                                    {
+                                        name: "Chef/Puppet",
+                                        type: "Configuration Management",
+                                        capabilities: ["Cross-platform management", "Policy enforcement", "Automated remediation"],
+                                        bestFor: "Complex heterogeneous environments"
+                                    }
+                                ],
+                                templates: [
+                                    "Configuration Management Plan.docx",
+                                    "Change Control Procedure.docx",
+                                    "Configuration Drift Report.xlsx",
+                                    "Baseline Deployment Guide.docx"
+                                ],
+                                storage: "SharePoint > Operations > Config Management",
+                                approval: "Change Manager + IT Director + Security"
                             }
                         }
                     ]
