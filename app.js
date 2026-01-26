@@ -1025,7 +1025,7 @@ class AssessmentApp {
             <!-- Kanban View -->
             ${this.implPlannerView === 'kanban' ? `
             <div class="impl-kanban-container" id="impl-kanban-content" data-debug-view="kanban">
-                ${this.renderPlannerKanban(planner, allTasks)}
+                ${console.log('About to render Kanban HTML'), this.renderPlannerKanban(planner, allTasks)}
             </div>
             ` : ''}
             
@@ -1036,6 +1036,10 @@ class AssessmentApp {
             </div>
             ` : ''}
         `;
+        
+        console.log('Generated HTML length:', html.length);
+        console.log('HTML contains kanban:', html.includes('impl-kanban-container'));
+        console.log('HTML contains list:', html.includes('impl-list-container'));
         
         this.bindImplPlannerEvents(container, planner, phaseProgress);
     }
