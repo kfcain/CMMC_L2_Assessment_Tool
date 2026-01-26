@@ -884,6 +884,9 @@ class AssessmentApp {
         if (siteTitleBar) siteTitleBar.style.display = 'none';
         
         const planner = typeof IMPLEMENTATION_PLANNER !== 'undefined' ? IMPLEMENTATION_PLANNER : null;
+        console.log('IMPLEMENTATION_PLANNER available:', typeof IMPLEMENTATION_PLANNER !== 'undefined');
+        console.log('ProjectPlanIntegration available:', typeof ProjectPlanIntegration !== 'undefined');
+        
         if (!planner) {
             container.innerHTML = '<p style="padding:40px;text-align:center;color:var(--text-muted)">Implementation Planner data not loaded.</p>';
             return;
