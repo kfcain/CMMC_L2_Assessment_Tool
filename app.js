@@ -591,6 +591,10 @@ class AssessmentApp {
         const container = document.getElementById('impl-planner-content');
         if (!container) return;
         
+        // Hide site title bar when Implementation Planner is shown
+        const siteTitleBar = document.getElementById('site-title-bar');
+        if (siteTitleBar) siteTitleBar.style.display = 'none';
+        
         const planner = typeof IMPLEMENTATION_PLANNER !== 'undefined' ? IMPLEMENTATION_PLANNER : null;
         if (!planner) {
             container.innerHTML = '<p style="padding:40px;text-align:center;color:var(--text-muted)">Implementation Planner data not loaded.</p>';
