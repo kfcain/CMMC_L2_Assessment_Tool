@@ -909,6 +909,7 @@ class AssessmentApp {
         this.implPlannerProgress = JSON.parse(localStorage.getItem('impl-planner-progress') || '{}');
         this.implPlannerCurrentPhase = localStorage.getItem('impl-planner-phase') || planner.phases[0].id;
         this.implPlannerView = localStorage.getItem('impl-planner-view') || 'phases';
+        console.log('Current implementation planner view:', this.implPlannerView);
         
         // Calculate overall progress
         const allTasks = this.getAllPlannerTasks(planner);
@@ -1562,8 +1563,11 @@ class AssessmentApp {
         // View toggle
         container.querySelectorAll('.impl-view-toggle button').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                this.implPlannerView = e.currentTarget.dataset.view;
+                const view = e.currentTarget.dataset.view;
+                console.log('View toggle clicked:', view);
+                this.implPlannerView = view;
                 localStorage.setItem('impl-planner-view', this.implPlannerView);
+                console.log('About to renderImplPlanner with view:', this.implPlannerView);
                 this.renderImplPlanner();
             });
         });
