@@ -731,15 +731,16 @@ class AssessmentApp {
         const completedCount = milestoneTasks.filter(t => this.implPlannerProgress[t.id]).length;
         const isComplete = completedCount === milestoneTasks.length && milestoneTasks.length > 0;
         const isPartial = completedCount > 0 && completedCount < milestoneTasks.length;
+        const isOptional = milestone.optional;
         
         return `
-            <div class="impl-milestone" data-milestone="${milestone.id}">
+            <div class="impl-milestone ${isOptional ? 'optional' : ''}" data-milestone="${milestone.id}">
                 <div class="impl-milestone-header">
                     <div class="impl-milestone-checkbox ${isComplete ? 'completed' : ''} ${isPartial ? 'partial' : ''}">
                         ${isComplete ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
                     </div>
                     <div class="impl-milestone-info">
-                        <h3>${milestone.name}</h3>
+                        <h3>${milestone.name} ${isOptional ? '<span class="impl-optional-badge">Optional</span>' : ''}</h3>
                         <p>${milestone.description}</p>
                     </div>
                     <div class="impl-milestone-progress">${completedCount}/${milestoneTasks.length}</div>
@@ -793,6 +794,39 @@ class AssessmentApp {
     renderTaskDetails(task) {
         const guidance = task.guidance || {};
         let html = '';
+        
+        // Deployment Options (for remote access strategy selection)
+        if (guidance.deploymentOptions && guidance.deploymentOptions.length > 0) {
+            html += `
+                <div class="impl-task-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        Deployment Options
+                    </h4>
+                    <div class="impl-deployment-options">
+                        ${guidance.deploymentOptions.map((opt, idx) => `
+                            <div class="impl-deployment-option" style="border-left:3px solid ${idx === 0 ? 'var(--status-met)' : idx === 1 ? 'var(--accent-blue)' : 'var(--accent-purple)'}">
+                                <div class="impl-deployment-option-header">
+                                    <strong>${opt.name}</strong>
+                                    <span class="impl-deployment-best-for">${opt.bestFor}</span>
+                                </div>
+                                <p style="font-size:0.75rem;color:var(--text-secondary);margin:6px 0">${opt.description}</p>
+                                <div class="impl-deployment-pros-cons">
+                                    <div class="impl-pros">
+                                        <span style="color:var(--status-met);font-weight:600;font-size:0.65rem">✓ PROS</span>
+                                        ${opt.pros.map(p => `<span class="impl-pro-item">${p}</span>`).join('')}
+                                    </div>
+                                    <div class="impl-cons">
+                                        <span style="color:var(--status-not-met);font-weight:600;font-size:0.65rem">✗ CONS</span>
+                                        ${opt.cons.map(c => `<span class="impl-con-item">${c}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
         
         // Steps
         if (guidance.steps && guidance.steps.length > 0) {

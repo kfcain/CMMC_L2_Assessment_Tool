@@ -754,6 +754,92 @@
     background: var(--bg-tertiary);
 }
 
+/* Optional Badge */
+.impl-optional-badge {
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    background: var(--bg-tertiary);
+    border: 1px dashed var(--border-color);
+    border-radius: 4px;
+    color: var(--text-muted);
+    margin-left: 8px;
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+.impl-milestone.optional {
+    border-style: dashed;
+    opacity: 0.9;
+}
+
+.impl-milestone.optional .impl-milestone-header {
+    background: var(--bg-secondary);
+}
+
+/* Deployment Options */
+.impl-deployment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.impl-deployment-option {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.impl-deployment-option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.impl-deployment-option-header strong {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+}
+
+.impl-deployment-best-for {
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    color: var(--text-muted);
+}
+
+.impl-deployment-pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.impl-pros, .impl-cons {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.impl-pro-item, .impl-con-item {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    padding: 2px 0;
+}
+
+.impl-pro-item::before {
+    content: "• ";
+    color: var(--status-met);
+}
+
+.impl-con-item::before {
+    content: "• ";
+    color: var(--status-not-met);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .impl-planner-container {

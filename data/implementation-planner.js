@@ -721,31 +721,168 @@ const IMPLEMENTATION_PLANNER = {
         },
         {
             id: "phase-7",
-            name: "VDI & Remote Access",
-            description: "Implement secure VDI for CUI access",
-            duration: "6-8 weeks",
+            name: "Remote Access & VDI",
+            description: "Implement secure remote access (required) with optional VDI for enhanced CUI protection",
+            duration: "4-8 weeks",
             icon: "vdi",
             color: "#d19a66",
             milestones: [
                 {
                     id: "m7-1",
-                    name: "VDI Platform Deployed",
-                    description: "Deploy secure virtual desktop infrastructure",
+                    name: "Secure Remote Access (Required)",
+                    description: "Establish secure remote access foundation - required for all remote CUI access",
                     tasks: [
                         {
                             id: "t7-1-1",
-                            name: "Deploy VDI platform",
-                            description: "Implement AVD, Citrix, or VMware Horizon",
-                            controls: ["3.1.12", "3.1.13", "3.13.1"],
+                            name: "Select remote access deployment model",
+                            description: "Choose deployment approach based on security requirements and resources",
+                            controls: ["3.1.12", "3.13.1"],
+                            priority: "critical",
+                            effort: "low",
+                            guidance: {
+                                steps: [
+                                    "Assess remote workforce size and CUI access needs",
+                                    "Evaluate existing infrastructure and budget",
+                                    "Choose deployment model: VPN-Only, VDI, or Hybrid",
+                                    "Document decision rationale in SSP"
+                                ],
+                                artifacts: ["Remote Access Strategy Document", "Deployment Decision Matrix"],
+                                deploymentOptions: [
+                                    {
+                                        name: "Option A: VPN + Managed Endpoints (Minimum)",
+                                        description: "Traditional VPN with hardened managed devices",
+                                        pros: ["Lower cost", "Simpler deployment", "Familiar to users"],
+                                        cons: ["CUI on endpoints", "Requires device management", "Higher endpoint risk"],
+                                        bestFor: "Small teams, limited budget, low CUI volume"
+                                    },
+                                    {
+                                        name: "Option B: VDI-Only (Maximum Security)",
+                                        description: "All CUI access via virtual desktops",
+                                        pros: ["CUI never leaves datacenter", "Thin client support", "Centralized control"],
+                                        cons: ["Higher cost", "Complex deployment", "Latency sensitive"],
+                                        bestFor: "High CUI volume, strict data control requirements"
+                                    },
+                                    {
+                                        name: "Option C: Hybrid (VPN + VDI)",
+                                        description: "VPN for general access, VDI for CUI workloads",
+                                        pros: ["Flexible", "CUI isolated", "Phased deployment"],
+                                        cons: ["Two systems to manage", "User training needed"],
+                                        bestFor: "Mixed workloads, phased migration, budget flexibility"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            id: "t7-1-2",
+                            name: "Deploy secure VPN solution",
+                            description: "Implement FIPS-validated VPN with MFA integration",
+                            controls: ["3.1.12", "3.13.8", "3.13.11"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Select FIPS 140-2/3 validated VPN solution",
+                                    "Configure TLS 1.2+ with approved cipher suites",
+                                    "Integrate with identity provider for MFA",
+                                    "Implement split tunneling restrictions for CUI",
+                                    "Configure device compliance checks"
+                                ],
+                                platforms: {
+                                    azure: {
+                                        name: "Azure VPN / Global Secure Access",
+                                        config: [
+                                            { setting: "VPN Gateway", value: "VpnGw2AZ or higher (FIPS mode)", location: "Azure Portal > VPN Gateway" },
+                                            { setting: "P2S Authentication", value: "Entra ID + Certificate", location: "VPN Gateway > Point-to-site" },
+                                            { setting: "Global Secure Access", value: "Private Access app for CUI resources", location: "Entra Admin > Global Secure Access" }
+                                        ]
+                                    },
+                                    onprem: {
+                                        name: "On-Premises VPN (Cisco, Palo Alto, etc.)",
+                                        config: [
+                                            { setting: "IKEv2 + IPsec", value: "AES-256-GCM, SHA-384", location: "VPN Concentrator" },
+                                            { setting: "RADIUS/SAML", value: "Integrate with IdP for MFA", location: "AAA Configuration" },
+                                            { setting: "Tunnel Mode", value: "Full tunnel for CUI destinations", location: "Split Tunnel Policy" }
+                                        ]
+                                    }
+                                },
+                                artifacts: ["VPN Configuration Documentation", "Network Diagram", "FIPS Validation Certificate"]
+                            }
+                        },
+                        {
+                            id: "t7-1-3",
+                            name: "Configure remote session controls",
+                            description: "Implement session timeout, idle disconnect, and monitoring",
+                            controls: ["3.1.10", "3.1.11", "3.1.21"],
                             priority: "high",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Configure 15-minute idle timeout (CMMC requirement)",
+                                    "Implement session locking after inactivity",
+                                    "Enable session recording for privileged access",
+                                    "Configure concurrent session limits",
+                                    "Implement remote session termination capability"
+                                ],
+                                platforms: {
+                                    windows: {
+                                        name: "Windows GPO",
+                                        gpo: [
+                                            { setting: "Interactive logon: Machine inactivity limit", value: "900 seconds", path: "Computer > Windows Settings > Security Settings > Local Policies > Security Options" },
+                                            { setting: "Screen saver timeout", value: "900 seconds", path: "User > Administrative Templates > Control Panel > Personalization" }
+                                        ]
+                                    },
+                                    intune: {
+                                        name: "Intune / Endpoint Manager",
+                                        config: [
+                                            { setting: "Device Lock", value: "Require after 15 min inactivity", location: "Endpoint Security > Account Protection" },
+                                            { setting: "Session Limit", value: "1 concurrent session", location: "Configuration Profile > Device Restrictions" }
+                                        ]
+                                    }
+                                },
+                                artifacts: ["Session Policy Configuration", "GPO Documentation"]
+                            }
+                        },
+                        {
+                            id: "t7-1-4",
+                            name: "Implement remote access monitoring",
+                            description: "Deploy logging and alerting for remote connections",
+                            controls: ["3.3.1", "3.3.2", "3.14.6"],
+                            priority: "high",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Enable VPN connection logging",
+                                    "Forward logs to SIEM",
+                                    "Create alerts for anomalous connections",
+                                    "Monitor for impossible travel scenarios",
+                                    "Track failed authentication attempts"
+                                ],
+                                artifacts: ["SIEM Alert Rules", "Remote Access Monitoring Runbook"]
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m7-2",
+                    name: "VDI Platform (Optional - Enhanced Security)",
+                    description: "Deploy virtual desktop infrastructure for centralized CUI access - recommended for high-security environments",
+                    optional: true,
+                    tasks: [
+                        {
+                            id: "t7-2-1",
+                            name: "Deploy VDI platform",
+                            description: "Implement AVD, Citrix, or VMware Horizon for CUI workloads",
+                            controls: ["3.1.12", "3.1.13", "3.13.1"],
+                            priority: "medium",
                             effort: "high",
+                            optional: true,
                             guidance: {
                                 steps: [
                                     "Select VDI platform based on requirements",
                                     "Design host pool architecture",
-                                    "Create golden image with hardening",
-                                    "Configure FSLogix for profiles",
-                                    "Implement security policies"
+                                    "Create STIG-hardened golden image",
+                                    "Configure FSLogix for profile management",
+                                    "Implement restrictive security policies"
                                 ],
                                 platforms: {
                                     avd: {
@@ -778,19 +915,20 @@ const IMPLEMENTATION_PLANNER = {
                             }
                         },
                         {
-                            id: "t7-1-2",
+                            id: "t7-2-2",
                             name: "Deploy VDI endpoints",
-                            description: "Provision thin clients or locked-down endpoints",
+                            description: "Provision thin clients or locked-down endpoints for VDI access",
                             controls: ["3.1.1", "3.1.21", "3.4.6"],
-                            priority: "high",
+                            priority: "medium",
                             effort: "medium",
+                            optional: true,
                             guidance: {
                                 steps: [
                                     "Select endpoint strategy (thin client, repurpose, IGEL)",
-                                    "Configure endpoint management",
-                                    "Disable local storage and USB",
-                                    "Implement certificate-based auth",
-                                    "Deploy and inventory endpoints"
+                                    "Configure endpoint management platform",
+                                    "Disable local storage and USB on endpoints",
+                                    "Implement certificate-based authentication",
+                                    "Deploy and inventory all endpoints"
                                 ],
                                 platforms: {
                                     igel: {
@@ -798,11 +936,37 @@ const IMPLEMENTATION_PLANNER = {
                                         config: [
                                             { setting: "USB Control", value: "Block storage class", location: "UMS > Profiles > Devices > USB" },
                                             { setting: "Local Storage", value: "Disabled", location: "UMS > Profiles > Sessions" },
-                                            { setting: "Session Protocol", value: "AVD/Citrix/Horizon client", location: "UMS > Profiles > Sessions" }
+                                            { setting: "Session Protocol", value: "AVD/Citrix/Horizon client only", location: "UMS > Profiles > Sessions" }
+                                        ]
+                                    },
+                                    windows: {
+                                        name: "Windows Thin Client / Locked Kiosk",
+                                        config: [
+                                            { setting: "Assigned Access", value: "Single-app kiosk (VDI client)", location: "Settings > Accounts > Access work or school > Kiosk" },
+                                            { setting: "USB Block", value: "Block removable storage", location: "GPO > Administrative Templates > System > Removable Storage Access" }
                                         ]
                                     }
                                 },
-                                artifacts: ["Endpoint Inventory", "Endpoint Configuration", "UMS Profiles"]
+                                artifacts: ["Endpoint Inventory", "Endpoint Configuration Standards", "UMS/Intune Profiles"]
+                            }
+                        },
+                        {
+                            id: "t7-2-3",
+                            name: "Configure VDI data protection",
+                            description: "Ensure CUI cannot be extracted from VDI environment",
+                            controls: ["3.1.3", "3.8.3", "3.13.1"],
+                            priority: "medium",
+                            effort: "medium",
+                            optional: true,
+                            guidance: {
+                                steps: [
+                                    "Disable clipboard redirection",
+                                    "Block drive mapping to local devices",
+                                    "Disable printing or route to secure printers only",
+                                    "Block USB passthrough",
+                                    "Implement watermarking for screenshots"
+                                ],
+                                artifacts: ["VDI Security Policy", "Data Loss Prevention Configuration"]
                             }
                         }
                     ]
