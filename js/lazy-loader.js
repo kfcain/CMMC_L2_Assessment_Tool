@@ -7,9 +7,9 @@ const LazyLoader = {
     
     // Script configurations - which scripts are needed for which views
     viewScripts: {
-        'impl-planner': [
-            'data/implementation-planner.js'
-        ],
+        // 'impl-planner': [
+        //     'data/implementation-planner.js'
+        // ], // Loaded directly in HTML
         'assessment': [
             'data/gcc-high-guidance.js',
             'data/aws-govcloud-guidance.js',
