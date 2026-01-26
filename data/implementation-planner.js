@@ -4,7 +4,7 @@
 const IMPLEMENTATION_PLANNER = {
     version: "2.0.0",
     title: "CMMC Implementation Planner - Greenfield Edition",
-    description: "A comprehensive, phased approach to implementing CMMC Level 2 compliance from scratch in under 12 months, including all policies, procedures, and technical controls needed for a greenfield deployment.",
+    description: "A comprehensive, phased approach to implementing CMMC Level 2 compliance from scratch in under 12 months, including all policies, procedures, and technical controls needed for a greenfield deployment. Remote access is integrated with network infrastructure for logical flow.",
     
     // Project Phases
     phases: [
@@ -1305,9 +1305,9 @@ const IMPLEMENTATION_PLANNER = {
         },
         {
             id: "phase-4",
-            name: "Network & Infrastructure",
-            description: "Segment networks, secure communications, and harden infrastructure",
-            duration: "3-4 weeks",
+            name: "Network, Infrastructure & Remote Access",
+            description: "Segment networks, secure communications, harden infrastructure, and implement secure remote access",
+            duration: "4-5 weeks",
             icon: "network",
             color: "#e5c07b",
             milestones: [
@@ -1404,6 +1404,53 @@ const IMPLEMENTATION_PLANNER = {
                                     }
                                 },
                                 artifacts: ["TLS Audit Report", "Protocol Configuration", "Certificate Inventory"]
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m4-3",
+                    name: "Secure Remote Access Implemented",
+                    description: "Establish secure remote access foundation for CUI",
+                    tasks: [
+                        {
+                            id: "t4-3-1",
+                            name: "Configure VPN with MFA",
+                            description: "Implement secure VPN with multi-factor authentication",
+                            controls: ["3.1.12", "3.5.3", "3.13.1"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Select VPN solution (Azure VPN, Cisco AnyConnect, etc.)",
+                                    "Configure MFA integration with IdP",
+                                    "Implement split tunnel prevention",
+                                    "Set up connection logging",
+                                    "Test VPN security controls"
+                                ],
+                                artifacts: ["VPN Configuration Documentation", "MFA Integration Guide"]
+                            }
+                        },
+                        {
+                            id: "t4-3-2",
+                            name: "Implement Remote Access Policies",
+                            description: "Create and enforce remote access security policies",
+                            controls: ["3.1.12", "3.1.22"],
+                            priority: "critical",
+                            effort: "medium",
+                            guidance: {
+                                steps: [
+                                    "Create remote access policy",
+                                    "Define approved remote access methods",
+                                    "Establish session timeout requirements",
+                                    "Create remote user training materials"
+                                ],
+                                templates: [
+                                    "Remote Access Policy.docx",
+                                    "VPN User Guide.docx"
+                                ],
+                                storage: "SharePoint > Policies > Remote Access",
+                                approval: "CISO + IT Director"
                             }
                         }
                     ]
