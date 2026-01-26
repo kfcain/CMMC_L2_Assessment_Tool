@@ -5113,8 +5113,8 @@ table td {
 
 .hero-badge {
     display: inline-block;
-    padding: 6px 16px;
-    font-size: 0.75rem;
+    padding: 5px 12px;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
