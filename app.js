@@ -513,6 +513,280 @@ class AssessmentApp {
                 }
             });
         });
+
+        // Initialize Command Search (Cmd+K)
+        this.initCommandSearch();
+    }
+
+    // =============================================
+    // COMMAND SEARCH (Cmd+K)
+    // =============================================
+    initCommandSearch() {
+        this.commandSearchModal = document.getElementById('command-search-modal');
+        this.commandSearchInput = document.getElementById('command-search-input');
+        this.commandSearchResults = document.getElementById('command-search-results');
+        this.commandSelectedIndex = 0;
+        this.commandSearchItems = [];
+        this.commandSearchFilter = 'all';
+
+        // Build search index
+        this.buildSearchIndex();
+
+        // Keyboard shortcut: Cmd+K (Mac) or Ctrl+K (Windows)
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                this.openCommandSearch();
+            }
+            // Also allow / to open search when not in an input
+            if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+                e.preventDefault();
+                this.openCommandSearch();
+            }
+        });
+
+        // Close on backdrop click
+        this.commandSearchModal?.querySelector('.command-search-backdrop')?.addEventListener('click', () => {
+            this.closeCommandSearch();
+        });
+
+        // Search input handler
+        this.commandSearchInput?.addEventListener('input', (e) => {
+            this.performCommandSearch(e.target.value);
+        });
+
+        // Keyboard navigation in search
+        this.commandSearchInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeCommandSearch();
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                this.navigateCommandSearch(1);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                this.navigateCommandSearch(-1);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                this.selectCommandSearchItem();
+            }
+        });
+
+        // Filter buttons
+        document.querySelectorAll('.command-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.command-filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.commandSearchFilter = btn.dataset.filter;
+                this.performCommandSearch(this.commandSearchInput?.value || '');
+            });
+        });
+    }
+
+    buildSearchIndex() {
+        this.searchIndex = [];
+
+        // Add all controls
+        if (typeof CONTROL_FAMILIES !== 'undefined') {
+            CONTROL_FAMILIES.forEach(family => {
+                family.controls.forEach(control => {
+                    const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
+                    const level = mapping?.cmmc?.level || 2;
+                    this.searchIndex.push({
+                        type: 'controls',
+                        id: control.id,
+                        title: control.name,
+                        description: family.name,
+                        badges: [
+                            { text: 'CMMC', class: 'cmmc' },
+                            { text: `L${level}`, class: level === 1 ? 'l1' : 'l2' }
+                        ],
+                        action: () => {
+                            this.closeCommandSearch();
+                            this.switchView('assessment');
+                            setTimeout(() => {
+                                const el = document.querySelector(`[data-control-id="${control.id}"]`);
+                                if (el) {
+                                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    el.style.boxShadow = '0 0 0 3px var(--accent-blue)';
+                                    setTimeout(() => el.style.boxShadow = '', 2000);
+                                }
+                            }, 100);
+                        }
+                    });
+                });
+            });
+        }
+
+        // Add views
+        const views = [
+            { id: 'dashboard', title: 'Dashboard', desc: 'Assessment overview and progress' },
+            { id: 'assessment', title: 'Assessment', desc: 'Evaluate controls and objectives' },
+            { id: 'poam', title: 'POA&M', desc: 'Plan of Action and Milestones' },
+            { id: 'sprs', title: 'SPRS Calculator', desc: 'Calculate SPRS score' },
+            { id: 'crosswalk', title: 'Framework Crosswalk', desc: 'Map controls across frameworks' },
+            { id: 'impl-guide', title: 'Implementation Guide', desc: 'Technical implementation guidance' },
+            { id: 'cheat-sheet', title: 'Assessor Cheat Sheet', desc: 'Quick reference for assessors' }
+        ];
+        views.forEach(v => {
+            this.searchIndex.push({
+                type: 'views',
+                id: v.id,
+                title: v.title,
+                description: v.desc,
+                badges: [{ text: 'View', class: 'view' }],
+                action: () => {
+                    this.closeCommandSearch();
+                    this.switchView(v.id);
+                }
+            });
+        });
+
+        // Add guides
+        const guides = [
+            { id: 'guide-vdi', title: 'VDI Architecture', desc: 'Virtual Desktop Infrastructure guidance' },
+            { id: 'guide-network', title: 'Network Architecture', desc: 'Enclave network design' },
+            { id: 'guide-identity', title: 'Identity & Access', desc: 'IAM and authentication' },
+            { id: 'guide-logging', title: 'Logging & Monitoring', desc: 'SIEM and audit configuration' },
+            { id: 'guide-encryption', title: 'Encryption', desc: 'Data protection and key management' }
+        ];
+        guides.forEach(g => {
+            this.searchIndex.push({
+                type: 'guides',
+                id: g.id,
+                title: g.title,
+                description: g.desc,
+                badges: [{ text: 'Guide', class: 'guide' }],
+                action: () => {
+                    this.closeCommandSearch();
+                    this.switchView('impl-guide');
+                }
+            });
+        });
+    }
+
+    openCommandSearch() {
+        if (!this.commandSearchModal) return;
+        this.commandSearchModal.style.display = 'block';
+        this.commandSearchInput.value = '';
+        this.commandSearchInput.focus();
+        this.commandSelectedIndex = 0;
+        this.performCommandSearch('');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeCommandSearch() {
+        if (!this.commandSearchModal) return;
+        this.commandSearchModal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    performCommandSearch(query) {
+        const q = query.toLowerCase().trim();
+        let results = this.searchIndex;
+
+        // Filter by type
+        if (this.commandSearchFilter !== 'all') {
+            results = results.filter(item => item.type === this.commandSearchFilter);
+        }
+
+        // Filter by query
+        if (q) {
+            results = results.filter(item => 
+                item.id.toLowerCase().includes(q) ||
+                item.title.toLowerCase().includes(q) ||
+                item.description.toLowerCase().includes(q)
+            );
+        }
+
+        // Limit results
+        results = results.slice(0, 50);
+        this.commandSearchItems = results;
+        this.commandSelectedIndex = 0;
+
+        // Render results
+        this.renderCommandSearchResults(results);
+    }
+
+    renderCommandSearchResults(results) {
+        if (!this.commandSearchResults) return;
+
+        if (results.length === 0) {
+            this.commandSearchResults.innerHTML = '<div class="command-search-empty">No results found</div>';
+            return;
+        }
+
+        // Group by type
+        const grouped = {};
+        results.forEach(item => {
+            if (!grouped[item.type]) grouped[item.type] = [];
+            grouped[item.type].push(item);
+        });
+
+        const typeLabels = {
+            controls: 'Controls',
+            views: 'Views',
+            guides: 'Guides'
+        };
+
+        let html = '';
+        let globalIndex = 0;
+        for (const [type, items] of Object.entries(grouped)) {
+            html += `<div class="command-search-group">
+                <div class="command-search-group-title">${typeLabels[type] || type}</div>`;
+            items.forEach(item => {
+                const isSelected = globalIndex === this.commandSelectedIndex;
+                html += `<div class="command-search-item ${isSelected ? 'selected' : ''}" data-index="${globalIndex}">
+                    <span class="command-item-id">${item.id}</span>
+                    <div class="command-item-content">
+                        <div class="command-item-title">${item.title}</div>
+                        <div class="command-item-desc">${item.description}</div>
+                        <div class="command-item-badges">
+                            ${item.badges.map(b => `<span class="command-item-badge ${b.class}">${b.text}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>`;
+                globalIndex++;
+            });
+            html += '</div>';
+        }
+
+        this.commandSearchResults.innerHTML = html;
+
+        // Bind click handlers
+        this.commandSearchResults.querySelectorAll('.command-search-item').forEach(el => {
+            el.addEventListener('click', () => {
+                this.commandSelectedIndex = parseInt(el.dataset.index);
+                this.selectCommandSearchItem();
+            });
+            el.addEventListener('mouseenter', () => {
+                this.commandSelectedIndex = parseInt(el.dataset.index);
+                this.updateCommandSearchSelection();
+            });
+        });
+    }
+
+    navigateCommandSearch(direction) {
+        const newIndex = this.commandSelectedIndex + direction;
+        if (newIndex >= 0 && newIndex < this.commandSearchItems.length) {
+            this.commandSelectedIndex = newIndex;
+            this.updateCommandSearchSelection();
+        }
+    }
+
+    updateCommandSearchSelection() {
+        this.commandSearchResults?.querySelectorAll('.command-search-item').forEach((el, i) => {
+            el.classList.toggle('selected', i === this.commandSelectedIndex);
+            if (i === this.commandSelectedIndex) {
+                el.scrollIntoView({ block: 'nearest' });
+            }
+        });
+    }
+
+    selectCommandSearchItem() {
+        const item = this.commandSearchItems[this.commandSelectedIndex];
+        if (item?.action) {
+            item.action();
+        }
     }
 
     async switchView(view) {

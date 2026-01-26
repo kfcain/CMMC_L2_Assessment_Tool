@@ -5260,3 +5260,271 @@ table td {
         padding-bottom: 70px;
     }
 }
+
+/* =============================================
+   COMMAND SEARCH MODAL (Cmd+K)
+   ============================================= */
+.command-search-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+}
+
+.command-search-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+.command-search-container {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 600px;
+    padding: 16px;
+    z-index: 1000000;
+}
+
+.command-search-box {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.command-search-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.command-search-header svg {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+#command-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+#command-search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.command-search-kbd {
+    padding: 4px 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: inherit;
+}
+
+.command-search-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.command-filter-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.command-filter-btn:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.command-filter-btn.active {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+.command-search-results {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.command-search-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.command-search-group {
+    margin-bottom: 8px;
+}
+
+.command-search-group-title {
+    padding: 8px 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.command-search-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s ease;
+}
+
+.command-search-item:hover,
+.command-search-item.selected {
+    background: var(--bg-tertiary);
+}
+
+.command-search-item.selected {
+    background: var(--accent-blue);
+}
+
+.command-search-item.selected .command-item-title,
+.command-search-item.selected .command-item-desc,
+.command-search-item.selected .command-item-id {
+    color: white;
+}
+
+.command-item-id {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    flex-shrink: 0;
+    min-width: 80px;
+}
+
+.command-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.command-item-title {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.command-item-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.command-item-badges {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.command-item-badge {
+    padding: 2px 6px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.command-item-badge.cmmc {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+}
+
+.command-item-badge.l1 {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55a;
+}
+
+.command-item-badge.l2 {
+    background: rgba(249, 115, 22, 0.2);
+    color: #f97316;
+}
+
+.command-item-badge.view {
+    background: rgba(168, 85, 247, 0.2);
+    color: #a855f7;
+}
+
+.command-item-badge.guide {
+    background: rgba(20, 184, 166, 0.2);
+    color: #14b8a6;
+}
+
+.command-search-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.command-footer-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.command-footer-hint kbd {
+    padding: 2px 6px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.65rem;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+    .command-search-container {
+        padding: 12px;
+        max-width: calc(100% - 24px);
+    }
+    
+    .command-search-results {
+        max-height: 50vh;
+    }
+    
+    .command-search-footer {
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+}
