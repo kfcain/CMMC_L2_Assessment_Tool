@@ -6,6 +6,65 @@ const IMPLEMENTATION_PLANNER = {
     title: "CMMC Implementation Planner - Greenfield Edition",
     description: "A comprehensive, phased approach to implementing CMMC Level 2 compliance from scratch in under 12 months, including all policies, procedures, and technical controls needed for a greenfield deployment. Remote access is integrated with network infrastructure for logical flow.",
     
+    // Integration with Implementation Guide Project Plan Categories
+    projectPlanMapping: {
+        // Map phases to implementation guide categories
+        phaseCategories: {
+            "phase-1": "Foundation",           // Foundation & Assessment
+            "phase-1b": "Foundation",          // Policy Development 
+            "phase-2": "Foundation",           // Identity & Access
+            "phase-3": "Foundation",           // Endpoint Security
+            "phase-4": "Foundation",           // Network & Infrastructure
+            "phase-5": "Foundation",           // Data Protection
+            "phase-6": "Governance",           // Monitoring & Logging
+            "phase-7": "Foundation",           // VDI Implementation (Optional)
+            "phase-8": "Governance",           // Documentation
+            "phase-9": "Governance",           // POA&M Remediation
+            "phase-10": "Audit Prep"           // Assessment Readiness
+        },
+        
+        // Map subcategories for detailed task organization
+        subcategories: {
+            "Foundation": [
+                "CUI Scoping & Asset Inventory",
+                "Policy Development", 
+                "Identity & Access Management",
+                "Endpoint Security",
+                "Network Infrastructure",
+                "Data Protection",
+                "Remote Access & VDI"
+            ],
+            "People": [
+                "Personnel Security",
+                "Training & Awareness",
+                "Physical Security"
+            ],
+            "Governance": [
+                "Monitoring & Logging",
+                "Documentation & SSP",
+                "POA&M Management",
+                "Change Management",
+                "Incident Response"
+            ],
+            "Audit Prep": [
+                "Evidence Collection",
+                "Assessment Readiness",
+                "Compliance Validation"
+            ]
+        },
+        
+        // RACI role mapping
+        roleMapping: {
+            "Exec Sponsor": "Executive Sponsor",
+            "CMMC Lead": "CMMC Program Lead", 
+            "FSO": "Facility Security Officer",
+            "IT Admin": "IT Administrator",
+            "HR Mgr": "HR Manager",
+            "Dept Leads": "Department Leads",
+            "SecOps": "Security Operations"
+        }
+    },
+    
     // Project Phases
     phases: [
         {
@@ -28,6 +87,17 @@ const IMPLEMENTATION_PLANNER = {
                             controls: ["3.1.3[c]", "3.8.1[a]", "3.8.1[c]"],
                             priority: "critical",
                             effort: "medium",
+                            // Project Plan Integration
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "CUI Scoping & Asset Inventory",
+                                week: 1,
+                                taskId: "T-1.1",
+                                owner: "CMMC Lead",
+                                accountable: "FSO",
+                                raciCategory: "Governance",
+                                deliverable: "CUI Inventory Spreadsheet"
+                            },
                             guidance: {
                                 steps: [
                                     "Review all DoD contracts for CUI requirements per 3.1.3[c] - identify designated sources and destinations",
@@ -45,6 +115,17 @@ const IMPLEMENTATION_PLANNER = {
                             controls: ["3.1.3[c]", "3.13.1[a]", "3.13.1[b]"],
                             priority: "critical",
                             effort: "high",
+                            // Project Plan Integration
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "CUI Scoping & Asset Inventory",
+                                week: 1,
+                                taskId: "T-1.2",
+                                owner: "CMMC Lead",
+                                accountable: "FSO",
+                                raciCategory: "Governance",
+                                deliverable: "Data Flow Diagram"
+                            },
                             guidance: {
                                 steps: [
                                     "Interview stakeholders handling CUI per 3.1.3[c] - identify designated sources and destinations",
@@ -64,6 +145,17 @@ const IMPLEMENTATION_PLANNER = {
                             controls: ["3.12.4[b]", "3.13.1[a]"],
                             priority: "critical",
                             effort: "medium",
+                            // Project Plan Integration
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "CUI Scoping & Asset Inventory",
+                                week: 2,
+                                taskId: "T-1.3",
+                                owner: "CMMC Lead",
+                                accountable: "FSO",
+                                raciCategory: "Governance",
+                                deliverable: "System Boundary Diagram"
+                            },
                             guidance: {
                                 steps: [
                                     "Document system boundary in SSP per 3.12.4[b] - describe boundary for assessment",
@@ -83,6 +175,17 @@ const IMPLEMENTATION_PLANNER = {
                             controls: ["3.4.1[d]", "3.4.1[a]", "3.4.1[f]", "3.12.4[b]"],
                             priority: "critical",
                             effort: "high",
+                            // Project Plan Integration
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "CUI Scoping & Asset Inventory",
+                                week: 2,
+                                taskId: "T-1.4",
+                                owner: "IT Admin",
+                                accountable: "FSO",
+                                raciCategory: "Endpoints",
+                                deliverable: "Asset Inventory Database"
+                            },
                             guidance: {
                                 steps: [
                                     "Establish system inventory per 3.4.1[d] - inventory all hardware, software, firmware, and documentation",
@@ -2386,3 +2489,204 @@ function getAllTasks() {
     }
     return tasks;
 }
+
+// Helper functions for project plan integration
+const ProjectPlanIntegration = {
+    // Generate project plan view from implementation planner
+    generateProjectPlan: function(planner) {
+        const projectPlan = [];
+        let weekCounter = 1;
+        
+        planner.phases.forEach(phase => {
+            phase.milestones.forEach(milestone => {
+                milestone.tasks.forEach(task => {
+                    if (task.projectPlan) {
+                        projectPlan.push({
+                            phase: task.projectPlan.category,
+                            week: task.projectPlan.week || weekCounter,
+                            taskId: task.projectPlan.taskId || `${phase.id}-${task.id}`,
+                            task: task.name,
+                            owner: task.projectPlan.owner,
+                            accountable: task.projectPlan.accountable,
+                            deliverable: task.projectPlan.deliverable,
+                            // Link back to implementation planner
+                            phaseId: phase.id,
+                            taskId: task.id,
+                            controls: task.controls,
+                            priority: task.priority,
+                            effort: task.effort,
+                            duration: phase.duration
+                        });
+                    }
+                });
+            });
+            // Increment week based on phase duration (rough estimate)
+            weekCounter += Math.ceil(parseInt(phase.duration) / 7) || 1;
+        });
+        
+        return projectPlan;
+    },
+    
+    // Generate RACI matrix from implementation planner
+    generateRACIMatrix: function(planner) {
+        const raciMatrix = {
+            roles: ["Exec Sponsor", "CMMC Lead", "FSO", "IT Admin", "HR Mgr", "Dept Leads"],
+            tasks: []
+        };
+        
+        const categoryMapping = {
+            "Governance": ["Approve SSP & Policies", "Maintain POA&M", "Coordinate CMMC Assessment", "CUI Scope Definition"],
+            "Access Control": ["Create Entra ID / MFA Rules", "Manage Privileged Access (PIM)", "Quarterly Access Reviews"],
+            "Endpoints": ["Deploy Intune Baselines", "Patch Management"],
+            "Personnel": ["Background Checks & Screening", "Onboarding/Offboarding"],
+            "Training": ["CUI Awareness Training", "Insider Threat Training"],
+            "Physical (PE)": ["Facility Access Control", "Escort Visitors / Visitor Log", "Physical Security Inspections", "Badge Management"],
+            "Media (MP)": ["CUI Media Handling Procedures", "Removable Media Authorization", "Media Sanitization & Disposal", "CUI Transport Approval"],
+            "Change Mgmt": ["Approve Firewall/Software Changes", "Change Control Board (CCB)"],
+            "Incidents": ["Incident Detection & Triage", "Report to DIBNet (72-Hour Rule)", "Forensic Preservation"],
+            "Audit": ["Weekly Evidence Collection", "Log Review & Anomaly Detection", "Annual Internal Assessment"]
+        };
+        
+        // Add RACI entries based on task assignments
+        Object.entries(categoryMapping).forEach(([category, actions]) => {
+            actions.forEach(action => {
+                const raci = this.getRACIPattern(category);
+                raciMatrix.tasks.push({
+                    category: category,
+                    action: action,
+                    raci: raci
+                });
+            });
+        });
+        
+        return raciMatrix;
+    },
+    
+    // Get RACI pattern for category
+    getRACIPattern: function(category) {
+        const patterns = {
+            "Governance": ["A", "R", "C", "C", "I", "I"],
+            "Access Control": ["I", "A", "I", "R", "I", "I"],
+            "Endpoints": ["I", "C", "I", "R/A", "I", "C"],
+            "Personnel": ["I", "C", "I", "I", "R/A", "I"],
+            "Training": ["I", "A", "C", "I", "R", "C"],
+            "Physical (PE)": ["I", "C", "R/A", "I", "I", "I"],
+            "Media (MP)": ["I", "A", "R", "C", "I", "C"],
+            "Change Mgmt": ["I", "A", "I", "R", "I", "C"],
+            "Incidents": ["I", "A", "I", "R", "I", "I"],
+            "Audit": ["I", "R/A", "I", "R", "I", "I"]
+        };
+        return patterns[category] || ["I", "C", "I", "R", "I", "I"];
+    },
+    
+    // Generate timeline view
+    generateTimeline: function(planner) {
+        const timeline = [];
+        let currentWeek = 1;
+        
+        planner.phases.forEach(phase => {
+            const phaseDuration = Math.ceil(parseInt(phase.duration) / 7) || 1;
+            
+            phase.milestones.forEach(milestone => {
+                milestone.tasks.forEach(task => {
+                    if (task.projectPlan) {
+                        timeline.push({
+                            week: task.projectPlan.week || currentWeek,
+                            phase: phase.name,
+                            milestone: milestone.name,
+                            task: task.name,
+                            owner: task.projectPlan.owner,
+                            category: task.projectPlan.category,
+                            priority: task.priority,
+                            status: "Planned"
+                        });
+                    }
+                });
+            });
+            
+            currentWeek += phaseDuration;
+        });
+        
+        return timeline;
+    },
+    
+    // Get tasks by category
+    getTasksByCategory: function(planner, category) {
+        const tasks = [];
+        
+        planner.phases.forEach(phase => {
+            phase.milestones.forEach(milestone => {
+                milestone.tasks.forEach(task => {
+                    if (task.projectPlan && task.projectPlan.category === category) {
+                        tasks.push({
+                            ...task,
+                            phase: phase.name,
+                            milestone: milestone.name
+                        });
+                    }
+                });
+            });
+        });
+        
+        return tasks;
+    },
+    
+    // Get tasks by owner
+    getTasksByOwner: function(planner, owner) {
+        const tasks = [];
+        
+        planner.phases.forEach(phase => {
+            phase.milestones.forEach(milestone => {
+                milestone.tasks.forEach(task => {
+                    if (task.projectPlan && task.projectPlan.owner === owner) {
+                        tasks.push({
+                            ...task,
+                            phase: phase.name,
+                            milestone: milestone.name
+                        });
+                    }
+                });
+            });
+        });
+        
+        return tasks;
+    }
+};
+
+// Export integration functions for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        IMPLEMENTATION_PLANNER,
+        ProjectPlanIntegration,
+        getAllTasks
+    };
+}
+
+// Integration Summary
+const INTEGRATION_SUMMARY = {
+    purpose: "Bridge Implementation Planner with Implementation Guide Project Plan Structure",
+    mapping: {
+        phasesToCategories: {
+            "Foundation": ["phase-1", "phase-1b", "phase-2", "phase-3", "phase-4", "phase-5", "phase-7"],
+            "People": ["Personnel Security", "Training & Awareness", "Physical Security"],
+            "Governance": ["phase-6", "phase-8", "phase-9"],
+            "Audit Prep": ["phase-10"]
+        },
+        features: [
+            "Project Plan Generation: Convert implementation phases to weekly project plan",
+            "RACI Matrix: Auto-generate responsibility assignments",
+            "Timeline View: Week-by-week task scheduling",
+            "Category Filtering: View tasks by project plan category",
+            "Owner Assignment: Track responsibilities across phases",
+            "Deliverable Tracking: Link tasks to specific deliverables"
+        ],
+        benefits: [
+            "Unified project management across platform",
+            "Consistent terminology and structure",
+            "Seamless transition between planning and execution",
+            "Integrated compliance tracking",
+            "Role-based task assignment",
+            "Timeline-based progress tracking"
+        ]
+    }
+};
