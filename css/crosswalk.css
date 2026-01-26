@@ -593,10 +593,18 @@ a.mapping-tag:hover {
 .related-ctrl {
     font-family: 'SF Mono', 'Fira Code', monospace;
     font-size: 0.6875rem;
-    color: var(--text-secondary);
-    background: var(--bg-tertiary);
+    color: var(--accent-blue);
+    background: rgba(97, 175, 239, 0.1);
     padding: 2px 6px;
     border-radius: 3px;
+    border: 1px solid rgba(97, 175, 239, 0.3);
+    box-shadow: 0 0 6px rgba(97, 175, 239, 0.2);
+    transition: all 0.2s ease;
+}
+
+.related-ctrl:hover {
+    background: rgba(97, 175, 239, 0.2);
+    box-shadow: 0 0 10px rgba(97, 175, 239, 0.4);
 }
 
 .related-more {
