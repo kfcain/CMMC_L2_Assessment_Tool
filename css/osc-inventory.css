@@ -593,6 +593,51 @@
     color: var(--text-primary);
 }
 
+/* Import Button & Header Actions */
+.osc-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.osc-import-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.osc-import-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.osc-import-btn svg {
+    flex-shrink: 0;
+}
+
+/* Item Attachment Indicator */
+.osc-item-attachment {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    color: var(--accent-blue);
+    margin-top: 4px;
+}
+
+.osc-item-attachment svg {
+    flex-shrink: 0;
+}
+
 /* Diagram Grid */
 .osc-diagram-grid {
     display: grid;

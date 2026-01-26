@@ -151,10 +151,17 @@ const OSCInventory = {
             <div class="osc-section">
                 <div class="osc-section-header">
                     <h2>${this.getTabIcon(key === 'ssp' ? 'ssp' : key)} ${title}</h2>
-                    <button class="osc-add-btn" data-add="${type}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        Add ${type.charAt(0).toUpperCase() + type.slice(1)}
-                    </button>
+                    <div class="osc-header-actions">
+                        <label class="osc-import-btn" title="Import from CSV">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Import CSV
+                            <input type="file" accept=".csv" data-import="${type}" style="display:none">
+                        </label>
+                        <button class="osc-add-btn" data-add="${type}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add ${type.charAt(0).toUpperCase() + type.slice(1)}
+                        </button>
+                    </div>
                 </div>
                 <div class="osc-section-body">
                     ${items.length > 0 ? `
@@ -167,8 +174,14 @@ const OSCInventory = {
                                     <div class="osc-item-content">
                                         <div class="osc-item-name">${item.name}</div>
                                         <div class="osc-item-meta">${item.description || item.version || 'No details'}</div>
+                                        ${item.attachmentName ? `<div class="osc-item-attachment"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> ${item.attachmentName}</div>` : ''}
                                     </div>
                                     <div class="osc-item-actions">
+                                        <label class="osc-item-action" title="Attach Document">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                            <input type="file" data-attach="${type}" data-index="${idx}" style="display:none">
+                                        </label>
+                                        ${item.attachmentData ? `<button class="osc-item-action" data-view-attachment="${type}" data-index="${idx}" title="View Attachment"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>` : ''}
                                         <button class="osc-item-action" data-edit="${type}" data-index="${idx}" title="Edit">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                         </button>
@@ -182,6 +195,11 @@ const OSCInventory = {
                     ` : `
                         <div class="osc-empty-state">
                             <p>No ${title.toLowerCase()} documented yet.</p>
+                            <label class="osc-import-btn" style="margin-right:12px">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Import CSV
+                                <input type="file" accept=".csv" data-import="${type}" style="display:none">
+                            </label>
                             <button class="osc-add-btn" data-add="${type}">Add First ${type.charAt(0).toUpperCase() + type.slice(1)}</button>
                         </div>
                     `}
@@ -197,10 +215,17 @@ const OSCInventory = {
             <div class="osc-section">
                 <div class="osc-section-header">
                     <h2>${this.getTabIcon('assets')} Asset Inventory</h2>
-                    <button class="osc-add-btn" data-add="asset">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        Add Asset
-                    </button>
+                    <div class="osc-header-actions">
+                        <label class="osc-import-btn" title="Import from CSV">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Import CSV
+                            <input type="file" accept=".csv" data-import="asset" style="display:none">
+                        </label>
+                        <button class="osc-add-btn" data-add="asset">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Asset
+                        </button>
+                    </div>
                 </div>
                 <div class="osc-section-body">
                     <div class="osc-asset-categories">
@@ -251,10 +276,17 @@ const OSCInventory = {
             <div class="osc-section">
                 <div class="osc-section-header">
                     <h2>${this.getTabIcon('fips')} FIPS 140-2/140-3 Certificates</h2>
-                    <button class="osc-add-btn" data-add="fips">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        Add Certificate
-                    </button>
+                    <div class="osc-header-actions">
+                        <label class="osc-import-btn" title="Import from CSV">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Import CSV
+                            <input type="file" accept=".csv" data-import="fips" style="display:none">
+                        </label>
+                        <button class="osc-add-btn" data-add="fips">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Certificate
+                        </button>
+                    </div>
                 </div>
                 <div class="osc-section-body">
                     ${this.data.fipsCerts.length > 0 ? `
@@ -281,7 +313,17 @@ const OSCInventory = {
                                 </tbody>
                             </table>
                         </div>
-                    ` : `<div class="osc-empty-state"><p>No FIPS certificates tracked.</p><button class="osc-add-btn" data-add="fips">Add Certificate</button></div>`}
+                    ` : `
+                        <div class="osc-empty-state">
+                            <p>No FIPS certificates tracked.</p>
+                            <label class="osc-import-btn" style="margin-right:12px">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Import CSV
+                                <input type="file" accept=".csv" data-import="fips" style="display:none">
+                            </label>
+                            <button class="osc-add-btn" data-add="fips">Add Certificate</button>
+                        </div>
+                    `}
                 </div>
             </div>
             <div class="osc-section" style="margin-top:20px">
@@ -394,6 +436,18 @@ const OSCInventory = {
         });
         container.querySelectorAll('[data-view-file]').forEach(btn => {
             btn.addEventListener('click', (e) => { e.stopPropagation(); this.viewFile(btn.dataset.viewFile, parseInt(btn.dataset.index)); });
+        });
+        // CSV Import handlers
+        container.querySelectorAll('[data-import]').forEach(input => {
+            input.addEventListener('change', (e) => this.handleCSVImport(e.target.dataset.import, e.target.files[0], app));
+        });
+        // File attachment handlers
+        container.querySelectorAll('[data-attach]').forEach(input => {
+            input.addEventListener('change', (e) => this.handleAttachment(e.target.dataset.attach, parseInt(e.target.dataset.index), e.target.files[0], app));
+        });
+        // View attachment handlers
+        container.querySelectorAll('[data-view-attachment]').forEach(btn => {
+            btn.addEventListener('click', (e) => { e.stopPropagation(); this.viewAttachment(btn.dataset.viewAttachment, parseInt(btn.dataset.index)); });
         });
         document.getElementById('osc-modal-close')?.addEventListener('click', () => this.closeModal());
         document.getElementById('osc-modal-cancel')?.addEventListener('click', () => this.closeModal());
@@ -569,6 +623,166 @@ const OSCInventory = {
         } else {
             // Download other files
             link.download = item.fileName || 'diagram';
+            link.click();
+        }
+    },
+    
+    // CSV Import handler
+    async handleCSVImport(type, file, app) {
+        if (!file) return;
+        
+        try {
+            const text = await file.text();
+            const rows = this.parseCSV(text);
+            if (rows.length < 2) {
+                alert('CSV file must have a header row and at least one data row.');
+                return;
+            }
+            
+            const headers = rows[0].map(h => h.toLowerCase().trim());
+            const items = [];
+            
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (row.length === 0 || (row.length === 1 && !row[0])) continue;
+                
+                const item = { dateAdded: Date.now() };
+                
+                // Map CSV columns to item fields based on type
+                if (type === 'policy' || type === 'procedure' || type === 'ssp') {
+                    item.name = row[headers.indexOf('name')] || row[0] || '';
+                    item.description = row[headers.indexOf('description')] || row[1] || '';
+                    item.version = row[headers.indexOf('version')] || row[2] || '1.0';
+                    if (type === 'procedure') {
+                        item.relatedPolicy = row[headers.indexOf('relatedpolicy')] || row[headers.indexOf('related policy')] || row[3] || '';
+                    }
+                } else if (type === 'asset') {
+                    item.name = row[headers.indexOf('name')] || row[0] || '';
+                    item.category = row[headers.indexOf('category')] || row[1] || 'cui';
+                    item.assetType = row[headers.indexOf('assettype')] || row[headers.indexOf('type')] || row[2] || 'server';
+                    item.hostname = row[headers.indexOf('hostname')] || row[3] || '';
+                    item.ipAddress = row[headers.indexOf('ipaddress')] || row[headers.indexOf('ip')] || row[4] || '';
+                    item.owner = row[headers.indexOf('owner')] || row[5] || '';
+                    item.location = row[headers.indexOf('location')] || row[6] || '';
+                } else if (type === 'fips') {
+                    item.certNumber = row[headers.indexOf('certnumber')] || row[headers.indexOf('cert')] || row[headers.indexOf('certificate')] || row[0] || '';
+                    item.moduleName = row[headers.indexOf('modulename')] || row[headers.indexOf('module')] || row[1] || '';
+                    item.vendor = row[headers.indexOf('vendor')] || row[2] || '';
+                    item.standard = row[headers.indexOf('standard')] || row[3] || 'FIPS 140-2';
+                    item.level = row[headers.indexOf('level')] || row[4] || '1';
+                    item.status = row[headers.indexOf('status')] || row[5] || 'active';
+                }
+                
+                if (item.name || item.certNumber || item.moduleName) {
+                    items.push(item);
+                }
+            }
+            
+            if (items.length === 0) {
+                alert('No valid items found in CSV.');
+                return;
+            }
+            
+            // Add items to data
+            const map = { policy: 'policies', procedure: 'procedures', ssp: 'ssp', asset: 'assets', fips: 'fipsCerts' };
+            const key = map[type];
+            this.data[key] = [...this.data[key], ...items];
+            this.save();
+            this.render(app);
+            
+            alert(`Successfully imported ${items.length} ${type}(s).`);
+        } catch (e) {
+            console.error('CSV import error:', e);
+            alert('Error importing CSV file. Please check the format.');
+        }
+    },
+    
+    // Simple CSV parser
+    parseCSV(text) {
+        const rows = [];
+        let current = [];
+        let field = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const next = text[i + 1];
+            
+            if (inQuotes) {
+                if (char === '"' && next === '"') {
+                    field += '"';
+                    i++;
+                } else if (char === '"') {
+                    inQuotes = false;
+                } else {
+                    field += char;
+                }
+            } else {
+                if (char === '"') {
+                    inQuotes = true;
+                } else if (char === ',') {
+                    current.push(field.trim());
+                    field = '';
+                } else if (char === '\n' || (char === '\r' && next === '\n')) {
+                    current.push(field.trim());
+                    rows.push(current);
+                    current = [];
+                    field = '';
+                    if (char === '\r') i++;
+                } else if (char !== '\r') {
+                    field += char;
+                }
+            }
+        }
+        
+        if (field || current.length > 0) {
+            current.push(field.trim());
+            rows.push(current);
+        }
+        
+        return rows;
+    },
+    
+    // File attachment handler
+    async handleAttachment(type, index, file, app) {
+        if (!file) return;
+        
+        try {
+            const reader = new FileReader();
+            const fileData = await new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+            
+            const map = { policy: 'policies', procedure: 'procedures', ssp: 'ssp', asset: 'assets', fips: 'fipsCerts' };
+            const key = map[type];
+            
+            if (this.data[key]?.[index]) {
+                this.data[key][index].attachmentData = fileData;
+                this.data[key][index].attachmentName = file.name;
+                this.data[key][index].attachmentType = file.type;
+                this.save();
+                this.render(app);
+            }
+        } catch (e) {
+            console.error('Attachment error:', e);
+            alert('Error attaching file.');
+        }
+    },
+    
+    // View attachment
+    viewAttachment(type, index) {
+        const map = { policy: 'policies', procedure: 'procedures', ssp: 'ssp', asset: 'assets', fips: 'fipsCerts' };
+        const item = this.data[map[type]]?.[index];
+        if (!item?.attachmentData) return;
+        
+        if (item.attachmentType?.startsWith('image/') || item.attachmentType === 'application/pdf') {
+            window.open(item.attachmentData, '_blank');
+        } else {
+            const link = document.createElement('a');
+            link.href = item.attachmentData;
+            link.download = item.attachmentName || 'attachment';
             link.click();
         }
     }
