@@ -4891,17 +4891,11 @@ body {
 
 /* Impl Guide View Content */
 #impl-guide-view.active {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow-y: auto;
+    display: block;
 }
 
 #impl-guide-view .impl-guide-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
+    display: block;
 }
 
 .impl-guide-view-header {
@@ -4911,7 +4905,6 @@ body {
     padding: 12px 24px;
     border-bottom: 1px solid var(--border-color);
     background: var(--bg-primary);
-    flex-shrink: 0;
 }
 
 .impl-guide-view-header .impl-guide-tabs {
@@ -4920,9 +4913,7 @@ body {
 }
 
 #impl-guide-view .impl-guide-body {
-    flex: 1;
     padding: 20px 24px;
-    min-height: 0;
 }
 
 /* Disclaimer Banner */

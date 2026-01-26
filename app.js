@@ -560,7 +560,17 @@ class AssessmentApp {
                 }
             }
         } else if (view === 'crosswalk') {
-            if (typeof CrosswalkVisualizer !== 'undefined') {
+            // Load crosswalk scripts if needed, then initialize
+            if (window.LazyLoader) {
+                try {
+                    await window.LazyLoader.loadViewScripts('crosswalk');
+                    if (typeof CrosswalkVisualizer !== 'undefined') {
+                        CrosswalkVisualizer.init();
+                    }
+                } catch (e) {
+                    console.error('Failed to load crosswalk scripts:', e);
+                }
+            } else if (typeof CrosswalkVisualizer !== 'undefined') {
                 CrosswalkVisualizer.init();
             }
         } else if (view === 'impl-guide') {
