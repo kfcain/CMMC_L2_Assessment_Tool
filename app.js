@@ -964,6 +964,10 @@ class AssessmentApp {
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                         Phases
                     </button>
+                    <button class="${this.implPlannerView === 'project-plan' ? 'active' : ''}" data-view="project-plan">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
+                        Project Plan
+                    </button>
                     <button class="${this.implPlannerView === 'kanban' ? 'active' : ''}" data-view="kanban">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6" height="16"/><rect x="14" y="4" width="6" height="10"/></svg>
                         Kanban
@@ -989,6 +993,11 @@ class AssessmentApp {
             <!-- Phases View Content -->
             <div id="impl-phases-content" style="${this.implPlannerView !== 'phases' ? 'display:none' : ''}">
                 ${this.renderPlannerPhaseContent(currentPhase, phaseProgress)}
+            </div>
+            
+            <!-- Project Plan View -->
+            <div class="impl-project-plan-container ${this.implPlannerView === 'project-plan' ? 'active' : ''}" id="impl-project-plan-content">
+                ${this.renderProjectPlanView(planner, allTasks)}
             </div>
             
             <!-- Kanban View -->
@@ -1338,6 +1347,186 @@ class AssessmentApp {
         return icons[iconName] || icons.foundation;
     }
     
+    renderProjectPlanView(planner, allTasks) {
+        // Check if ProjectPlanIntegration is available
+        if (typeof ProjectPlanIntegration === 'undefined') {
+            return '<div style="padding:40px;text-align:center;color:var(--text-muted)">Project Plan Integration not available. Please ensure implementation-planner.js is loaded.</div>';
+        }
+        
+        // Generate project plan data
+        const projectPlan = ProjectPlanIntegration.generateProjectPlan(planner);
+        const raciMatrix = ProjectPlanIntegration.generateRACIMatrix(planner);
+        const timeline = ProjectPlanIntegration.generateTimeline(planner);
+        
+        // Group tasks by category
+        const tasksByCategory = {};
+        projectPlan.forEach(task => {
+            if (!tasksByCategory[task.phase]) {
+                tasksByCategory[task.phase] = [];
+            }
+            tasksByCategory[task.phase].push(task);
+        });
+        
+        return `
+            <div class="project-plan-wrapper">
+                <!-- Project Plan Header -->
+                <div class="project-plan-header">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
+                        Project Plan View
+                    </h2>
+                    <p>Implementation tasks organized by project plan categories with RACI assignments and timeline</p>
+                </div>
+                
+                <!-- Category Tabs -->
+                <div class="project-plan-tabs">
+                    ${Object.keys(tasksByCategory).map(category => `
+                        <button class="project-plan-tab ${category === 'Foundation' ? 'active' : ''}" data-category="${category}">
+                            ${category}
+                            <span class="task-count">${tasksByCategory[category].length}</span>
+                        </button>
+                    `).join('')}
+                </div>
+                
+                <!-- Category Content -->
+                <div class="project-plan-content">
+                    ${Object.entries(tasksByCategory).map(([category, tasks]) => `
+                        <div class="project-plan-category ${category === 'Foundation' ? 'active' : ''}" data-category="${category}">
+                            <div class="category-header">
+                                <h3>${category}</h3>
+                                <div class="category-stats">
+                                    <span class="stat-item">
+                                        <strong>${tasks.length}</strong> tasks
+                                    </span>
+                                    <span class="stat-item">
+                                        <strong>${tasks.filter(t => this.implPlannerProgress[t.taskId]).length}</strong> complete
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="project-plan-table-wrapper">
+                                <table class="project-plan-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Week</th>
+                                            <th>Task ID</th>
+                                            <th>Task</th>
+                                            <th>Owner</th>
+                                            <th>Accountable</th>
+                                            <th>Deliverable</th>
+                                            <th>Priority</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${tasks.map(task => `
+                                            <tr class="${this.implPlannerProgress[t.taskId] ? 'completed' : ''}">
+                                                <td><span class="week-badge">Week ${task.week}</span></td>
+                                                <td><code>${task.taskId}</code></td>
+                                                <td>
+                                                    <div class="task-name">${task.task}</div>
+                                                    <div class="task-controls">
+                                                        ${task.controls ? task.controls.map(c => `<span class="control-tag">${c}</span>`).join(' ') : ''}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="owner-badge" style="background: var(--bg-tertiary); color: var(--text-primary); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">
+                                                        ${task.owner}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="accountable-badge" style="background: var(--accent-blue); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">
+                                                        ${task.accountable}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="deliverable" style="font-size: 0.8rem; color: var(--text-secondary);">
+                                                        ${task.deliverable}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="priority-badge ${task.priority}">${task.priority}</span>
+                                                </td>
+                                                <td>
+                                                    <button class="task-status-btn ${this.implPlannerProgress[t.taskId] ? 'complete' : ''}" 
+                                                            data-task-id="${task.taskId}"
+                                                            onclick="app.toggleProjectPlanTask('${task.taskId}')">
+                                                        ${this.implPlannerProgress[t.taskId] ? '✓ Complete' : '○ Pending'}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <!-- RACI Matrix Section -->
+                <div class="raci-section">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                        RACI Matrix
+                    </h3>
+                    <div class="raci-table-wrapper">
+                        <table class="raci-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Action</th>
+                                    ${raciMatrix.roles.map(role => `<th>${role}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${raciMatrix.tasks.map(task => `
+                                    <tr>
+                                        <td><span class="category-tag">${task.category}</span></td>
+                                        <td>${task.action}</td>
+                                        ${task.raci.map((role, idx) => `
+                                            <td class="raci-cell ${role}">
+                                                ${role}
+                                            </td>
+                                        `).join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Timeline Section -->
+                <div class="timeline-section">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Implementation Timeline
+                    </h3>
+                    <div class="timeline-wrapper">
+                        ${timeline.map(item => `
+                            <div class="timeline-item ${this.implPlannerProgress[item.taskId] ? 'complete' : ''}">
+                                <div class="timeline-week">Week ${item.week}</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-task">${item.task}</div>
+                                    <div class="timeline-meta">
+                                        <span class="timeline-phase">${item.phase}</span>
+                                        <span class="timeline-owner">${item.owner}</span>
+                                        <span class="timeline-priority ${item.priority}">${item.priority}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    toggleProjectPlanTask(taskId) {
+        this.implPlannerProgress[taskId] = !this.implPlannerProgress[taskId];
+        localStorage.setItem('impl-planner-progress', JSON.stringify(this.implPlannerProgress));
+        this.renderImplPlanner();
+    }
+    
     bindImplPlannerEvents(container, planner, phaseProgress) {
         // Phase tab clicks
         container.querySelectorAll('.impl-phase-tab').forEach(tab => {
@@ -1376,6 +1565,25 @@ class AssessmentApp {
                     localStorage.setItem('impl-planner-progress', JSON.stringify(this.implPlannerProgress));
                     this.renderImplPlanner();
                 }
+            });
+        });
+        
+        // Project Plan category tabs
+        container.querySelectorAll('.project-plan-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const category = e.currentTarget.dataset.category;
+                
+                // Update active tab
+                container.querySelectorAll('.project-plan-tab').forEach(t => t.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                
+                // Update active content
+                container.querySelectorAll('.project-plan-category').forEach(cat => {
+                    cat.classList.remove('active');
+                    if (cat.dataset.category === category) {
+                        cat.classList.add('active');
+                    }
+                });
             });
         });
         

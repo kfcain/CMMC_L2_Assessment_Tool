@@ -2662,6 +2662,12 @@ if (typeof module !== 'undefined' && module.exports) {
     };
 }
 
+// Also expose globally for browser use
+if (typeof window !== 'undefined') {
+    window.IMPLEMENTATION_PLANNER = IMPLEMENTATION_PLANNER;
+    window.ProjectPlanIntegration = ProjectPlanIntegration;
+}
+
 // Integration Summary
 const INTEGRATION_SUMMARY = {
     purpose: "Bridge Implementation Planner with Implementation Guide Project Plan Structure",
