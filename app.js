@@ -5358,7 +5358,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // System Use Banner (Azure)
         if (guide.systemUseBanner) {
             html += `
-                <div class="impl-section">
+                <div class="impl-section extras-collapsible" id="system-banner">
                     <div class="impl-section-title">System Use Banner (3.1.9)</div>
                     <div class="impl-policy-card">
                         <div class="impl-policy-header">
@@ -5384,7 +5384,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 </tr>
             `).join('');
             html += `
-                <div class="impl-section">
+                <div class="impl-section extras-collapsible" id="raci-matrix">
                     <div class="impl-section-title">RACI Matrix</div>
                     <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:8px">R=Responsible, A=Accountable, C=Consulted, I=Informed</p>
                     <table class="impl-table">
@@ -5538,7 +5538,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 </tr>
             `).join('');
             html += `
-                <div class="impl-section">
+                <div class="impl-section extras-collapsible" id="org-policies">
                     <div class="impl-section-title">Organization Policy Constraints</div>
                     <table class="impl-table">
                         <thead><tr><th>Policy Name</th><th>Constraint</th><th>Description</th><th>Effect</th></tr></thead>
@@ -5712,7 +5712,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 </tr>
             `).join('');
             html += `
-                <div class="impl-section">
+                <div class="impl-section extras-collapsible" id="azure-endpoints">
                     <div class="impl-section-title">Azure Government Endpoints</div>
                     <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">${ag.description}</p>
                     <table class="impl-table">
@@ -5797,7 +5797,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             }
             
             html += `
-                <div class="impl-section">
+                <div class="impl-section extras-collapsible" id="cui-patterns">
                     <div class="impl-section-title">CUI Marking Regex Patterns (Purview SITs)</div>
                     <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">${crp.description}</p>
                     <div class="regex-patterns-container">${patternsHtml}</div>
@@ -5846,7 +5846,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             `).join('');
             
             html += `
-                <div class="impl-section">
+                <div class="impl-section extras-collapsible" id="purview-labels">
                     <div class="impl-section-title">Microsoft Purview Sensitivity Labels</div>
                     <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">${plc.description}</p>
                     <div class="purview-labels-grid">${labelCards}</div>
@@ -5898,7 +5898,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             `).join('');
             
             html += `
-                <div class="impl-section dfars-section">
+                <div class="impl-section dfars-section extras-collapsible" id="dfars-7012">
                     <div class="impl-section-title">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                         DFARS 252.204-7012 Incident Reporting
@@ -5970,7 +5970,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             }).join('');
             
             html += `
-                <div class="impl-section ttx-section">
+                <div class="impl-section ttx-section extras-collapsible" id="tabletop">
                     <div class="impl-section-title">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
                         Tabletop Exercise Scenarios
@@ -6010,7 +6010,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             const bestPracticesList = ll.bestPractices.map(bp => `<li>${bp}</li>`).join('');
             
             html += `
-                <div class="impl-section ll-section-container">
+                <div class="impl-section ll-section-container extras-collapsible" id="lessons-learned">
                     <div class="impl-section-title">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                         Lessons Learned Template
