@@ -909,8 +909,6 @@ class AssessmentApp {
         this.implPlannerProgress = JSON.parse(localStorage.getItem('impl-planner-progress') || '{}');
         this.implPlannerCurrentPhase = localStorage.getItem('impl-planner-phase') || planner.phases[0].id;
         this.implPlannerView = localStorage.getItem('impl-planner-view') || 'phases';
-        console.log('Current implementation planner view:', this.implPlannerView);
-        console.log('About to render view containers for:', this.implPlannerView);
         
         // Calculate overall progress
         const allTasks = this.getAllPlannerTasks(planner);
@@ -1028,10 +1026,6 @@ class AssessmentApp {
                 ${this.renderPlannerList(planner, allTasks)}
             </div>
         `;
-        
-        console.log('Generated HTML length:', html.length);
-        console.log('HTML contains kanban:', html.includes('impl-kanban-container'));
-        console.log('HTML contains list:', html.includes('impl-list-container'));
         
         this.bindImplPlannerEvents(container, planner, phaseProgress);
     }
@@ -1272,11 +1266,9 @@ class AssessmentApp {
     }
     
     renderPlannerKanban(planner, allTasks) {
-        console.log('Rendering Kanban view with', allTasks.length, 'tasks');
         const todo = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority === 'critical');
         const inProgress = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority !== 'critical');
         const done = allTasks.filter(t => this.implPlannerProgress[t.id]);
-        console.log('Kanban tasks - Critical:', todo.length, 'To Do:', inProgress.length, 'Done:', done.length);
         
         return `
             <div class="impl-kanban-column">
@@ -1310,7 +1302,6 @@ class AssessmentApp {
     }
     
     renderKanbanCard(task) {
-        console.log('Rendering Kanban card for task:', task.id, task.name);
         return `
             <div class="impl-kanban-task" data-task="${task.id}" style="border-left:3px solid ${task.phaseColor || 'var(--border-color)'}">
                 <div class="impl-kanban-task-title">${task.name}</div>
@@ -1324,7 +1315,6 @@ class AssessmentApp {
     }
     
     renderPlannerList(planner, allTasks) {
-        console.log('Rendering List view with', allTasks.length, 'tasks');
         return `
             <div class="impl-list-container">
                 <table class="impl-list-table">
@@ -1571,19 +1561,9 @@ class AssessmentApp {
         container.querySelectorAll('.impl-view-toggle button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const view = e.currentTarget.dataset.view;
-                console.log('View toggle clicked:', view);
                 this.implPlannerView = view;
                 localStorage.setItem('impl-planner-view', this.implPlannerView);
-                console.log('About to renderImplPlanner with view:', this.implPlannerView);
                 this.renderImplPlanner();
-                // Debug: Check if Kanban container is visible
-                setTimeout(() => {
-                    const kanbanContainer = document.getElementById('impl-kanban-content');
-                    if (kanbanContainer) {
-                        console.log('Kanban container style:', kanbanContainer.style.display);
-                        console.log('Kanban container visible:', kanbanContainer.style.display !== 'none');
-                    }
-                }, 100);
             });
         });
         
