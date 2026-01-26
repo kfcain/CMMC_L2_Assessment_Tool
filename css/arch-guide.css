@@ -4,8 +4,6 @@
     padding: 24px;
     max-width: 1400px;
     margin: 0 auto;
-    overflow-y: auto;
-    max-height: calc(100vh - 100px);
 }
 
 /* Header */
@@ -641,16 +639,13 @@
 }
 
 .extras-collapsible .section-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    display: none;
     padding: 0 16px;
 }
 
 .extras-collapsible.section-expanded .section-content {
-    max-height: 5000px;
+    display: block;
     padding: 16px;
-    transition: max-height 0.5s ease-in, padding 0.3s ease-in;
 }
 
 .extras-details {
@@ -1154,7 +1149,6 @@ details.extras-details[open] > .extras-summary::before {
 @media (max-width: 768px) {
     .arch-guide-container {
         padding: 16px;
-        max-height: calc(100vh - 140px);
     }
     
     .arch-guide-header-top {
