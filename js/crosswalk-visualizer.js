@@ -23,10 +23,14 @@ const CrosswalkVisualizer = {
     },
     
     init() {
+        console.log('[Crosswalk] init() called');
+        console.log('[Crosswalk] FEDRAMP_20X_KSI defined:', typeof FEDRAMP_20X_KSI !== 'undefined');
+        console.log('[Crosswalk] FRAMEWORK_MAPPINGS defined:', typeof FRAMEWORK_MAPPINGS !== 'undefined');
         this.populateFamilyFilter();
         this.populateControlSelector();
         this.bindEvents();
         this.renderTable();
+        console.log('[Crosswalk] init() complete');
     },
     
     bindEvents() {
@@ -243,10 +247,13 @@ const CrosswalkVisualizer = {
     },
     
     renderTable() {
+        console.log('[Crosswalk] renderTable() called');
         const container = document.getElementById('crosswalk-table-view');
+        console.log('[Crosswalk] container found:', !!container);
         if (!container) return;
         
         const familyGroups = this.getKsiData();
+        console.log('[Crosswalk] familyGroups:', Object.keys(familyGroups));
         const familyOrder = ['AFR', 'CED', 'CMT', 'CNA', 'IAM', 'INR', 'MLA', 'PIY', 'RPL', 'SVC', 'TPR'];
         
         // Count total indicators
