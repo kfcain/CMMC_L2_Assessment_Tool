@@ -145,6 +145,8 @@ body {
     flex: 1;
     margin-left: 260px;
     padding: 16px 24px;
+    overflow-y: auto;
+    height: 100vh;
 }
 
 .view {
