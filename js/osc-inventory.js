@@ -287,6 +287,9 @@ const OSCInventory = {
                 <div class="osc-section-header">
                     <h2>${this.getTabIcon('assets')} Asset Inventory</h2>
                     <div class="osc-header-actions">
+                        <button class="osc-csv-help-btn" data-csv-help="asset" title="View CSV format">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        </button>
                         <label class="osc-import-btn" title="Import from CSV">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             Import CSV
@@ -348,6 +351,9 @@ const OSCInventory = {
                 <div class="osc-section-header">
                     <h2>${this.getTabIcon('fips')} FIPS 140-2/140-3 Certificates</h2>
                     <div class="osc-header-actions">
+                        <button class="osc-csv-help-btn" data-csv-help="fips" title="View CSV format">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        </button>
                         <label class="osc-import-btn" title="Import from CSV">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                             Import CSV
