@@ -4549,6 +4549,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                             </div>
                         </div>
                     </div>
+                    </div>
                 </div>`;
             }
 
@@ -4556,10 +4557,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             if (guidance.vdiDeepDive.vmwareHorizon) {
                 const vmware = guidance.vdiDeepDive.vmwareHorizon;
                 html += `<div class="impl-section extras-collapsible" id="vmware-deep-dive">
-                    <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-green);padding-bottom:8px">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                        ${vmware.name} - Deep Configuration
-                    </div>
+                    <div class="impl-section-title">🔷 ${vmware.name} - Deep Configuration</div>
+                    <div class="section-content">
                     <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${vmware.overview}</p>
 
                     <!-- UAG Security -->
@@ -4596,6 +4595,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                             </tbody>
                         </table>
                     </div>
+                    </div>
                 </div>`;
             }
         }
@@ -4606,10 +4606,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.fslogixDeepDive) {
             const fsl = guidance.fslogixDeepDive;
             html += `<div class="impl-section extras-collapsible" id="fslogix-deep-dive">
-                <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-purple);padding-bottom:8px">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                    FSLogix Profile Management - Deep Dive
-                </div>
+                <div class="impl-section-title">📁 FSLogix Profile Management - Deep Dive</div>
+                <div class="section-content">
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">${fsl.overview.description}</p>
                 <p style="font-size:0.75rem;margin-bottom:16px"><strong>Licensing:</strong> ${fsl.overview.licensing}</p>
 
@@ -4673,6 +4671,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         </tbody>
                     </table>
                 </div>
+                </div>
             </div>`;
         }
 
@@ -4682,10 +4681,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.persistentVsNonPersistent) {
             const pvnp = guidance.persistentVsNonPersistent;
             html += `<div class="impl-section extras-collapsible" id="persistent-analysis">
-                <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-green);padding-bottom:8px">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-                    Persistent vs Non-Persistent VDI Analysis
-                </div>
+                <div class="impl-section-title">🔄 Persistent vs Non-Persistent VDI Analysis</div>
+                <div class="section-content">
 
                 <!-- Comparison Cards -->
                 <div class="impl-cards-grid" style="margin-bottom:20px">
@@ -4780,6 +4777,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         </tbody>
                     </table>
                 </div>
+            </div>
             </div>`;
         }
 
@@ -4789,10 +4787,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.cmmcVdiDocumentation) {
             const cmmc = guidance.cmmcVdiDocumentation;
             html += `<div class="impl-section extras-collapsible" id="cmmc-vdi-docs">
-                <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-orange);padding-bottom:8px">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    CMMC Documentation for VDI Environments
-                </div>
+                <div class="impl-section-title">📋 CMMC Documentation for VDI Environments</div>
+                <div class="section-content">
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${cmmc.overview}</p>
 
                 <!-- Enhanced Assessment Q&A with Controls and Implementation -->
@@ -4953,6 +4949,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         </tbody>
                     </table>
                 </div>
+                </div>
             </div>`;
         }
 
@@ -4962,10 +4959,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.costManagementDeepDive) {
             const cost = guidance.costManagementDeepDive;
             html += `<div class="impl-section extras-collapsible" id="cost-deep-dive">
-                <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-blue);padding-bottom:8px">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                    VDI Cost Management Strategies
-                </div>
+                <div class="impl-section-title">📊 VDI Cost Management Strategies</div>
+                <div class="section-content">
 
                 <!-- Azure Cost Management -->
                 <h4 style="margin:16px 0 8px;color:var(--accent-blue)">${cost.azure.name}</h4>
@@ -5030,6 +5025,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         </tbody>
                     </table>
                 </div>
+                </div>
             </div>`;
         }
 
@@ -5039,10 +5035,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guidance.vdiEndpointsDeepDive) {
             const endpoints = guidance.vdiEndpointsDeepDive;
             html += `<div class="impl-section extras-collapsible" id="endpoints-deep-dive">
-                <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-purple);padding-bottom:8px">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                    VDI Endpoints - Hardware & Software
-                </div>
+                <div class="impl-section-title">💻 VDI Endpoints - Hardware & Software</div>
+                <div class="section-content">
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${endpoints.overview}</p>
 
                 <!-- Thin Client Hardware Vendors -->
@@ -5241,6 +5235,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         ${endpoints.endpointManagement.lifecycleRecommendations.map(r => `<li>${r}</li>`).join('')}
                     </ul>
                 </div>
+                </div>
             </div>`;
         }
 
@@ -5249,10 +5244,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // =============================================
         const cloudName = this.implGuideCloud === 'aws' ? 'AWS GovCloud' : this.implGuideCloud === 'gcp' ? 'GCP Assured Workloads' : 'Azure GCC High';
         html += `<div class="impl-section extras-collapsible" id="cloud-security">
-            <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid #22c55e;padding-bottom:8px">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Cloud Security as Security Protection Assets (${cloudName})
-            </div>
+            <div class="impl-section-title">🛡️ Cloud Security as Security Protection Assets (${cloudName})</div>
+            <div class="section-content">
             <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">Cloud-native security services function as Security Protection Assets (SPAs) that support CMMC L2 assessment objectives. These services provide the technical controls necessary to protect, detect, and respond to threats against CUI.</p>
             
             <!-- SPA Categories -->
@@ -5435,6 +5428,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         <tr><td>Backup Service</td><td>${this.implGuideCloud === 'azure' ? 'Azure Backup' : this.implGuideCloud === 'aws' ? 'AWS Backup' : 'Cloud Storage + Snapshots'}</td><td>CUI Data</td><td>IT Ops</td><td><input type="checkbox"> Documented</td></tr>
                     </tbody>
                 </table>
+            </div>
             </div>
         </div>`;
 
