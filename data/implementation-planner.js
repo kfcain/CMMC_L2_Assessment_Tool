@@ -25,15 +25,15 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1-1-1",
                             name: "Identify CUI data types and sources",
                             description: "Review contracts, DD Form 254s, and markings to identify CUI categories",
-                            controls: ["3.1.3", "3.8.1"],
+                            controls: ["3.1.3[c]", "3.8.1[a]", "3.8.1[c]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
                                 steps: [
-                                    "Review all DoD contracts for CUI requirements",
+                                    "Review all DoD contracts for CUI requirements per 3.1.3[c] - identify designated sources and destinations",
                                     "Identify CDI (Covered Defense Information) in scope",
                                     "Document CUI categories (CTI, ITAR, Export Controlled, etc.)",
-                                    "Create CUI data inventory spreadsheet"
+                                    "Create CUI data inventory spreadsheet per 3.8.1[a]/[c] - track paper and digital media locations"
                                 ],
                                 artifacts: ["CUI Inventory", "Data Classification Guide", "Contract Review Summary"]
                             }
@@ -42,16 +42,17 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1-1-2",
                             name: "Map CUI data flows",
                             description: "Document how CUI enters, moves through, and exits your environment",
-                            controls: ["3.1.3", "3.13.1"],
+                            controls: ["3.1.3[c]", "3.13.1[a]", "3.13.1[b]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
                                 steps: [
-                                    "Interview stakeholders handling CUI",
+                                    "Interview stakeholders handling CUI per 3.1.3[c] - identify designated sources and destinations",
                                     "Document ingress points (email, file transfer, portals)",
                                     "Map internal storage and processing systems",
-                                    "Identify egress points (deliverables, sharing)",
-                                    "Create data flow diagrams"
+                                    "Define external system boundary per 3.13.1[a]",
+                                    "Define key internal boundaries per 3.13.1[b]",
+                                    "Create data flow diagrams showing all CUI flows"
                                 ],
                                 artifacts: ["Data Flow Diagram", "System Interconnection Matrix"]
                             }
@@ -60,11 +61,13 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1-1-3",
                             name: "Define system boundary",
                             description: "Establish the authorization boundary for CMMC assessment",
-                            controls: ["3.12.4", "3.13.1"],
+                            controls: ["3.12.4[b]", "3.13.1[a]"],
                             priority: "critical",
                             effort: "medium",
                             guidance: {
                                 steps: [
+                                    "Document system boundary in SSP per 3.12.4[b] - describe boundary for assessment",
+                                    "Define external system boundary per 3.13.1[a]",
                                     "List all systems processing, storing, or transmitting CUI",
                                     "Define network segments in scope",
                                     "Identify cloud services and FedRAMP authorization status",
@@ -77,7 +80,7 @@ const IMPLEMENTATION_PLANNER = {
                             id: "t1-1-4",
                             name: "Create comprehensive asset inventory",
                             description: "Inventory all systems, data, and personnel within CMMC scope",
-                            controls: ["3.4.1", "3.12.4"],
+                            controls: ["3.4.1[d]", "3.4.1[a]", "3.4.1[f]", "3.12.4[b]"],
                             priority: "critical",
                             effort: "high",
                             guidance: {
