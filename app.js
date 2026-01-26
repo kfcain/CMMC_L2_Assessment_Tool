@@ -1318,7 +1318,7 @@ class AssessmentApp {
     
     renderPlannerList(planner, allTasks) {
         console.log('List: allTasks.length =', allTasks.length);
-        return `
+        const html = `
             <div class="impl-list-container">
                 <table class="impl-list-table">
                     <thead>
@@ -1353,6 +1353,9 @@ class AssessmentApp {
                 </table>
             </div>
         `;
+        console.log('List HTML length:', html.length);
+        console.log('List HTML contains table:', html.includes('<table'));
+        return html;
     }
     
     getPhaseIcon(iconName) {
