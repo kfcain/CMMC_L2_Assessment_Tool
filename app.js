@@ -1271,6 +1271,7 @@ class AssessmentApp {
         const todo = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority === 'critical');
         const inProgress = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority !== 'critical');
         const done = allTasks.filter(t => this.implPlannerProgress[t.id]);
+        console.log('Kanban tasks - Critical:', todo.length, 'To Do:', inProgress.length, 'Done:', done.length);
         
         return `
             <div class="impl-kanban-column">
@@ -1304,6 +1305,7 @@ class AssessmentApp {
     }
     
     renderKanbanCard(task) {
+        console.log('Rendering Kanban card for task:', task.id, task.name);
         return `
             <div class="impl-kanban-task" data-task="${task.id}" style="border-left:3px solid ${task.phaseColor || 'var(--border-color)'}">
                 <div class="impl-kanban-task-title">${task.name}</div>
