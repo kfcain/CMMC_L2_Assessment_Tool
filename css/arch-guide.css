@@ -619,18 +619,18 @@
     white-space: nowrap;
 }
 
-/* Extras Collapsible Sections - 2 column grid */
+/* Extras Collapsible Sections - single column, natural scroll */
 .extras-sections-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .extras-collapsible {
     scroll-margin-top: 120px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    overflow: hidden;
+    background: var(--bg-primary);
 }
 
 .section-icon {
