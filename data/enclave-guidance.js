@@ -392,6 +392,937 @@ const ENCLAVE_GUIDANCE = {
             "Implement screen capture prevention where available",
             "Require device certificates or compliance checks before VDI access"
         ]
+    },
+
+    // ========================================
+    // DEEP VDI PLATFORM CONFIGURATION GUIDES
+    // ========================================
+    
+    vdiDeepDive: {
+        // Azure Virtual Desktop (AVD) Deep Configuration
+        avd: {
+            name: "Azure Virtual Desktop (AVD)",
+            overview: "Microsoft's cloud-native VDI platform with native GCC High support",
+            
+            deploymentOptions: {
+                pooled: {
+                    name: "Pooled (Multi-Session)",
+                    description: "Multiple users share session hosts, users get random VM assignment",
+                    bestFor: "Task workers, cost optimization, standardized workloads",
+                    sessionHostOS: "Windows 11 Enterprise Multi-Session or Windows 10 Enterprise Multi-Session",
+                    maxUsersPerHost: "Depends on VM size: D4s_v5 = 10-15 users, D8s_v5 = 20-25 users",
+                    profileRequirement: "FSLogix required for profile persistence"
+                },
+                personal: {
+                    name: "Personal (Dedicated)",
+                    description: "Each user assigned dedicated VM, persists between sessions",
+                    bestFor: "Power users, developers, CAD/engineering, specialized software",
+                    sessionHostOS: "Windows 11 Enterprise or Windows 10 Enterprise (single-session)",
+                    autoStartStop: "Configure auto-start/stop to control costs",
+                    profileRequirement: "Local profiles acceptable, FSLogix optional"
+                }
+            },
+            
+            securityConfiguration: {
+                hostPoolSettings: [
+                    { setting: "Load Balancing", recommendation: "Breadth-first for better distribution, Depth-first for cost optimization" },
+                    { setting: "Max Session Limit", recommendation: "Set based on VM sizing and performance testing" },
+                    { setting: "Validation Environment", recommendation: "Enable for host pool used to test updates before production" },
+                    { setting: "Start VM on Connect", recommendation: "Enable to reduce always-on costs for personal desktops" },
+                    { setting: "Drain Mode", recommendation: "Use during maintenance to gracefully move users" }
+                ],
+                rdpProperties: [
+                    { property: "audiocapturemode:i:1", purpose: "Enable microphone redirection (for Teams)" },
+                    { property: "audiomode:i:0", purpose: "Audio plays on remote computer" },
+                    { property: "camerastoredirect:s:*", purpose: "Enable camera redirection" },
+                    { property: "drivestoredirect:s:", purpose: "DISABLE drive redirection for CUI security" },
+                    { property: "redirectclipboard:i:0", purpose: "DISABLE clipboard for CUI security" },
+                    { property: "redirectprinters:i:0", purpose: "DISABLE printer redirection for CUI security" },
+                    { property: "encode redirected video capture:i:1", purpose: "Improve camera quality" },
+                    { property: "redirected video capture encoding quality:i:2", purpose: "High quality video encoding" }
+                ],
+                conditionalAccess: [
+                    { policy: "Require MFA", target: "Windows Virtual Desktop cloud app", setting: "Grant: Require MFA" },
+                    { policy: "Require Compliant Device", target: "Windows Virtual Desktop + Azure Virtual Desktop", setting: "Grant: Require device compliance or Hybrid Azure AD joined" },
+                    { policy: "Block Legacy Auth", target: "All cloud apps", setting: "Conditions: Client apps = Other clients; Block" },
+                    { policy: "Session Controls", target: "Windows Virtual Desktop", setting: "Sign-in frequency: 8 hours; Persistent browser: No" },
+                    { policy: "Named Locations", target: "Windows Virtual Desktop", setting: "Block access from non-approved countries" }
+                ],
+                networkSecurity: [
+                    { control: "Private Endpoints", description: "Deploy AVD private endpoints for workspace and host pool" },
+                    { control: "RDP Shortpath", description: "Enable for managed networks to reduce latency (UDP-based)" },
+                    { control: "Network Firewall", description: "Azure Firewall Premium with TLS inspection for egress" },
+                    { control: "NSG Rules", description: "Restrict session host subnet to required ports only" },
+                    { control: "Azure Bastion", description: "Use for administrative access, never expose RDP directly" }
+                ]
+            },
+            
+            baselineHardening: {
+                stig: {
+                    name: "DISA STIGs",
+                    description: "Apply Windows 11 STIG or Windows 10 STIG to session hosts",
+                    automationTools: ["Azure Policy Guest Configuration", "Intune Security Baselines", "PowerSTIG (PowerShell DSC)"],
+                    keySettings: [
+                        "Disable SMBv1",
+                        "Enable Credential Guard",
+                        "Configure Windows Firewall",
+                        "Disable unnecessary services",
+                        "Audit policy configuration",
+                        "User rights assignments"
+                    ]
+                },
+                cis: {
+                    name: "CIS Benchmarks",
+                    description: "Alternative to STIG, widely recognized baseline",
+                    levels: ["Level 1 (recommended minimum)", "Level 2 (more restrictive)"],
+                    automationTools: ["Intune Security Baselines", "Azure Policy", "Third-party tools (Nessus, Qualys)"]
+                },
+                microsoftBaselines: {
+                    name: "Microsoft Security Baselines",
+                    description: "Microsoft's recommended security settings",
+                    source: "Microsoft Security Compliance Toolkit",
+                    deployment: "Deploy via Intune Security Baselines or GPO"
+                }
+            },
+            
+            imageManagement: {
+                goldenImage: {
+                    description: "Master image used for session host deployment",
+                    components: [
+                        "Base Windows 11 Enterprise Multi-Session",
+                        "All Windows Updates applied",
+                        "FSLogix Agent installed and configured",
+                        "Required applications (Office, Teams, LOB apps)",
+                        "Security baseline applied",
+                        "Optimizations (VDI optimizer tool)",
+                        "Endpoint protection agent"
+                    ],
+                    tools: [
+                        { name: "Azure Image Builder", description: "Automate image creation in Azure" },
+                        { name: "HashiCorp Packer", description: "Cross-platform image automation" },
+                        { name: "Azure VM Capture", description: "Manual image creation from configured VM" }
+                    ],
+                    updateStrategy: "Monthly image refresh aligned with Patch Tuesday"
+                },
+                sharedImageGallery: {
+                    description: "Store and version golden images in Azure",
+                    features: [
+                        "Version tracking for rollback",
+                        "Replication across regions",
+                        "RBAC for image access control",
+                        "Integration with Image Builder"
+                    ],
+                    bestPractices: [
+                        "Maintain last 3 image versions for rollback",
+                        "Use naming convention with date (e.g., AVD-Win11-2026-01)",
+                        "Document changes in image description",
+                        "Test new images in validation pool first"
+                    ]
+                }
+            },
+            
+            monitoring: {
+                azureMonitor: [
+                    { metric: "User Connections", description: "Track concurrent users and peak usage" },
+                    { metric: "Session Host Health", description: "Monitor VM health and availability" },
+                    { metric: "User Experience Metrics", description: "Round-trip time, input delay, frames skipped" },
+                    { metric: "Profile Load Time", description: "FSLogix profile container attach duration" }
+                ],
+                avdInsights: {
+                    description: "Pre-built Azure Monitor workbook for AVD",
+                    features: ["Connection reliability", "Performance trends", "User session details", "Host pool health"],
+                    requirement: "Log Analytics workspace with AVD diagnostics enabled"
+                },
+                alerts: [
+                    { alert: "No Available Hosts", condition: "Available session hosts = 0", action: "Scale out or investigate" },
+                    { alert: "High CPU", condition: "CPU > 80% for 10 minutes", action: "Add capacity or investigate runaway process" },
+                    { alert: "Profile Attach Failure", condition: "FSLogix error events", action: "Investigate storage or profile corruption" },
+                    { alert: "Disconnected Sessions", condition: "Disconnected > 50% for 30 minutes", action: "Network or client issue investigation" }
+                ]
+            },
+            
+            cmmcDocumentation: [
+                { artifact: "Network Diagram", description: "Show AVD subnet, NSGs, firewall, private endpoints", controls: "SC.L2-3.13.1, SC.L2-3.13.5" },
+                { artifact: "Baseline Configuration", description: "Document STIG/CIS baseline applied to session hosts", controls: "CM.L2-3.4.1, CM.L2-3.4.2" },
+                { artifact: "Access Control Policy", description: "Document Conditional Access policies and RDP restrictions", controls: "AC.L2-3.1.1, AC.L2-3.1.12" },
+                { artifact: "User Access List", description: "Entra ID group membership for AVD access", controls: "AC.L2-3.1.1, AC.L2-3.1.2" },
+                { artifact: "Audit Log Configuration", description: "Diagnostic settings, Log Analytics, retention", controls: "AU.L2-3.3.1, AU.L2-3.3.2" },
+                { artifact: "Encryption Documentation", description: "Disk encryption, TLS in transit, profile encryption", controls: "SC.L2-3.13.8, SC.L2-3.13.16" }
+            ]
+        },
+        
+        // Citrix Deep Configuration
+        citrix: {
+            name: "Citrix Virtual Apps and Desktops",
+            overview: "Enterprise VDI platform with on-prem, cloud, and hybrid deployment options",
+            
+            deploymentOptions: {
+                citrixCloud: {
+                    name: "Citrix DaaS (Cloud)",
+                    description: "Control plane hosted by Citrix, resources in customer environment",
+                    components: ["Citrix Cloud (control plane)", "Cloud Connectors (on-prem agents)", "VDAs (session hosts)", "StoreFront or Workspace"],
+                    gccHighSupport: "Citrix DaaS for Government (FedRAMP High authorized)",
+                    advantages: ["Reduced management overhead", "Always current platform", "Faster deployment"]
+                },
+                onPremises: {
+                    name: "Citrix CVAD On-Premises",
+                    description: "Full control plane hosted in customer datacenter",
+                    components: ["Delivery Controllers", "SQL Database", "StoreFront", "License Server", "Director", "VDAs"],
+                    advantages: ["Full control", "Air-gap capable", "No cloud dependency"],
+                    disadvantages: ["Higher management burden", "Manual updates", "Infrastructure requirements"]
+                },
+                hybrid: {
+                    name: "Hybrid (Cloud + On-Prem Resources)",
+                    description: "Citrix Cloud control with resources across clouds and on-prem",
+                    useCases: ["DR failover", "Cloud bursting", "Migration pathway"]
+                }
+            },
+            
+            securityConfiguration: {
+                policies: [
+                    { policy: "Client Drive Mapping", setting: "Disable for CUI environment", purpose: "Prevent data exfiltration" },
+                    { policy: "Clipboard Redirection", setting: "Disable or one-way (to server only)", purpose: "Control data movement" },
+                    { policy: "Client Printer Mapping", setting: "Disable or restrict to specific printers", purpose: "Control print of CUI" },
+                    { policy: "USB Device Redirection", setting: "Disable or whitelist specific devices", purpose: "Prevent unauthorized removable media" },
+                    { policy: "Session Recording", setting: "Enable for privileged sessions", purpose: "Audit trail for sensitive access" },
+                    { policy: "Watermarking", setting: "Enable with username and timestamp", purpose: "Deter screen photography" },
+                    { policy: "Anti-Keylogging", setting: "Enable App Protection", purpose: "Protect against keyloggers on endpoints" },
+                    { policy: "Anti-Screen Capture", setting: "Enable App Protection", purpose: "Block screen capture tools" }
+                ],
+                authentication: [
+                    { method: "SAML 2.0 Federation", description: "Integrate with Entra ID or Okta for SSO" },
+                    { method: "Smart Card", description: "PKI certificate-based authentication (CAC/PIV)" },
+                    { method: "TOTP MFA", description: "Native Citrix Cloud MFA or third-party integration" },
+                    { method: "Federated Authentication Service (FAS)", description: "SSO to Windows without password prompts" }
+                ],
+                networkSecurity: [
+                    { component: "Citrix Gateway", description: "Secure remote access with SSL VPN and ICA proxy" },
+                    { component: "NetScaler ADC", description: "Load balancing, WAF, DDoS protection" },
+                    { component: "SSL/TLS Configuration", description: "TLS 1.2+ only, strong cipher suites" },
+                    { component: "ICA Encryption", description: "SecureICA with RC5-128 minimum" }
+                ]
+            },
+            
+            profileManagement: {
+                citrixProfileManagement: {
+                    name: "Citrix Profile Management (CPM)",
+                    description: "Native Citrix solution for user profile roaming",
+                    features: [
+                        "Active write-back for real-time sync",
+                        "Profile streaming for fast logon",
+                        "Folder redirection integration",
+                        "Cross-platform profile support"
+                    ],
+                    configuration: [
+                        { setting: "Enable Profile Management", value: "Policy: Enabled" },
+                        { setting: "Path to User Store", value: "UNC path: \\\\server\\profiles$\\%username%" },
+                        { setting: "Profile Streaming", value: "Enabled for faster logon" },
+                        { setting: "Active Write Back", value: "Enabled for profile resilience" },
+                        { setting: "Delete Cached Copies", value: "Enabled for non-persistent VDA" }
+                    ],
+                    storageOptions: ["On-premises file share (SMB)", "Azure Files", "Azure NetApp Files", "NetApp ONTAP"]
+                },
+                fslogixWithCitrix: {
+                    name: "FSLogix with Citrix",
+                    description: "Microsoft FSLogix can be used with Citrix VDA",
+                    advantages: ["Better Office 365 container support", "Application masking", "Unified solution if using AVD too"],
+                    configuration: "Same as AVD FSLogix configuration",
+                    considerations: ["Licensing (included with M365 E3/E5 or RDS CAL)", "Separate from Citrix CPM (choose one)"]
+                }
+            },
+            
+            baselineHardening: {
+                citrixSecurityBaseline: {
+                    name: "Citrix Hardening Guide",
+                    source: "Citrix Product Documentation",
+                    keyAreas: [
+                        "Disable unnecessary Citrix services",
+                        "Configure XML service encryption",
+                        "Harden StoreFront IIS settings",
+                        "Configure Delivery Controller security",
+                        "Enable auditing and logging"
+                    ]
+                },
+                vdaHardening: [
+                    { area: "Windows Baseline", description: "Apply STIG/CIS to VDA Windows OS" },
+                    { area: "Citrix Policies", description: "Disable risky redirections and features" },
+                    { area: "Application Control", description: "AppLocker or Citrix App Protection" },
+                    { area: "Antimalware", description: "VDA-optimized AV (CrowdStrike, Defender)" },
+                    { area: "Local Accounts", description: "Rename/disable local admin, use LAPS" }
+                ]
+            },
+            
+            cmmcDocumentation: [
+                { artifact: "Architecture Diagram", description: "Show all Citrix components, network flows, integration points", controls: "SC.L2-3.13.1" },
+                { artifact: "Policy Documentation", description: "Export and document all Citrix policies applied", controls: "CM.L2-3.4.2, AC.L2-3.1.1" },
+                { artifact: "Session Recording Procedures", description: "Document when/how session recording is used", controls: "AU.L2-3.3.1" },
+                { artifact: "Certificate Management", description: "Document SSL certs, renewal process, key storage", controls: "SC.L2-3.13.10" },
+                { artifact: "Citrix Cloud SOC Reports", description: "Obtain SOC 2 Type II for Citrix Cloud environment", controls: "CA.L2-3.12.4" }
+            ]
+        },
+        
+        // VMware Horizon Deep Configuration
+        vmwareHorizon: {
+            name: "VMware Horizon",
+            overview: "VMware's enterprise VDI and application virtualization platform",
+            
+            deploymentOptions: {
+                horizonCloud: {
+                    name: "Horizon Cloud on Azure",
+                    description: "VMware control plane with VMs running in Azure",
+                    azureGov: "Supported in Azure Government for GCC High workloads",
+                    components: ["Horizon Cloud Service", "Unified Access Gateway", "Connection Servers", "Desktop Pools"]
+                },
+                horizonOnPrem: {
+                    name: "Horizon On-Premises",
+                    description: "Full VMware infrastructure in customer datacenter",
+                    components: ["vCenter Server", "ESXi Hosts", "Connection Servers", "Unified Access Gateway", "App Volumes", "DEM"],
+                    vSAN: "vSAN for hyper-converged storage"
+                }
+            },
+            
+            securityConfiguration: {
+                uag: {
+                    name: "Unified Access Gateway (UAG)",
+                    description: "Secure edge gateway for Horizon remote access",
+                    features: [
+                        "SAML authentication",
+                        "RADIUS/RSA integration",
+                        "Smart card support",
+                        "Compliance checking",
+                        "Per-app tunneling"
+                    ],
+                    hardening: [
+                        "Deploy in DMZ with proper NSG/firewall rules",
+                        "Enable FIPS 140-2 mode",
+                        "Configure TLS 1.2+ only",
+                        "Disable unused authentication methods",
+                        "Enable syslog to SIEM"
+                    ]
+                },
+                desktopPolicies: [
+                    { policy: "USB Redirection", setting: "Disable or filter by device class", purpose: "Prevent removable media" },
+                    { policy: "Clipboard", setting: "Disable or server-to-client only", purpose: "Control data exfiltration" },
+                    { policy: "Drive Redirection", setting: "Disable", purpose: "Prevent local drive access" },
+                    { policy: "Printing", setting: "Disable or restrict to specific printers", purpose: "Control CUI printing" },
+                    { policy: "PCoIP Security", setting: "AES-256 encryption", purpose: "Encrypt display protocol" }
+                ],
+                dynamicEnvironmentManager: {
+                    name: "VMware DEM",
+                    description: "Profile and application personalization",
+                    features: ["Profile management", "Application configuration", "Conditional settings based on context"],
+                    cmmcUse: "Apply different policies based on CUI vs non-CUI sessions"
+                }
+            },
+            
+            profileManagement: {
+                dem: {
+                    name: "Dynamic Environment Manager (DEM)",
+                    description: "VMware's native profile and settings management",
+                    features: [
+                        "Application personalization",
+                        "Windows settings roaming",
+                        "Conditional policies",
+                        "Privilege elevation"
+                    ],
+                    storage: "File share for configuration data"
+                },
+                appVolumes: {
+                    name: "App Volumes",
+                    description: "Real-time application delivery",
+                    useCase: "Deliver applications as VMDK layers, not installed in base image",
+                    advantages: ["Smaller base images", "Instant app updates", "Per-user app entitlements"]
+                },
+                fslogixWithHorizon: {
+                    name: "FSLogix with Horizon",
+                    description: "Can use FSLogix for profile containers with VMware",
+                    advantages: ["Better Office 365 integration", "Profile container approach"],
+                    configuration: "Same as AVD/Citrix FSLogix setup"
+                }
+            },
+            
+            cmmcDocumentation: [
+                { artifact: "vSphere Security Config", description: "Document ESXi and vCenter hardening", controls: "CM.L2-3.4.1" },
+                { artifact: "UAG Configuration", description: "Document gateway security settings", controls: "SC.L2-3.13.1, AC.L2-3.1.12" },
+                { artifact: "Desktop Pool Policies", description: "Export and document Horizon policies", controls: "CM.L2-3.4.2" },
+                { artifact: "Network Diagram", description: "Show Horizon components and traffic flows", controls: "SC.L2-3.13.5" }
+            ]
+        }
+    },
+
+    // ========================================
+    // FSLOGIX DEEP DIVE
+    // ========================================
+    
+    fslogixDeepDive: {
+        overview: {
+            description: "Microsoft FSLogix provides profile container and application masking solutions for VDI environments",
+            licensing: "Included with Microsoft 365 E3/E5, Windows Enterprise E3/E5, or RDS CAL with SA",
+            components: [
+                { name: "Profile Container", description: "VHD/VHDX that contains entire user profile" },
+                { name: "Office Container", description: "Separate container for Office 365 data (optional)" },
+                { name: "Application Masking", description: "Show/hide applications based on user/group" },
+                { name: "Java Version Control", description: "Manage multiple Java versions per application" }
+            ]
+        },
+        
+        profileContainerConfig: {
+            description: "Core FSLogix configuration for profile management",
+            
+            registrySettings: [
+                { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "Enabled", data: "1", description: "Enable Profile Containers" },
+                { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "VHDLocations", data: "\\\\server\\share", description: "UNC path to profile storage" },
+                { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "SizeInMBs", data: "30000", description: "Max profile size (30GB)" },
+                { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "IsDynamic", data: "1", description: "Dynamic VHD (grows as needed)" },
+                { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "VolumeType", data: "VHDX", description: "Use VHDX format for larger profiles" },
+                { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "FlipFlopProfileDirectoryName", data: "1", description: "SID_Username format (recommended)" },
+                { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "DeleteLocalProfileWhenVHDShouldApply", data: "1", description: "Clean up local profiles" },
+                { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "LockedRetryCount", data: "3", description: "Retry if container locked" },
+                { key: "HKLM\\SOFTWARE\\FSLogix\\Profiles", value: "LockedRetryInterval", data: "15", description: "Seconds between retries" }
+            ],
+            
+            officeContainerSettings: [
+                { key: "HKLM\\SOFTWARE\\Policies\\FSLogix\\ODFC", value: "Enabled", data: "1", description: "Enable Office Container" },
+                { key: "HKLM\\SOFTWARE\\Policies\\FSLogix\\ODFC", value: "VHDLocations", data: "\\\\server\\odfc$", description: "Separate location for Office data" },
+                { key: "HKLM\\SOFTWARE\\Policies\\FSLogix\\ODFC", value: "IncludeOutlook", data: "1", description: "Include Outlook data/OST" },
+                { key: "HKLM\\SOFTWARE\\Policies\\FSLogix\\ODFC", value: "IncludeOneDrive", data: "1", description: "Include OneDrive cache" },
+                { key: "HKLM\\SOFTWARE\\Policies\\FSLogix\\ODFC", value: "IncludeTeams", data: "1", description: "Include Teams data" }
+            ],
+            
+            advancedSettings: [
+                { setting: "Concurrent User Access", description: "RW access for primary, RO for additional sessions", recommendation: "Enable if users may have multiple sessions" },
+                { setting: "Profile Compaction", description: "Automatically shrink VHD on logoff", recommendation: "Enable to reclaim space, slight logoff delay" },
+                { setting: "Cloud Cache", description: "Local cache with async replication to multiple locations", recommendation: "Use for multi-region or DR scenarios" },
+                { setting: "Redirections.xml", description: "Exclude folders from profile container", recommendation: "Exclude Chrome/Edge cache, temp files, OneDrive (if using KFM)" }
+            ]
+        },
+        
+        storageOptions: {
+            azureFiles: {
+                name: "Azure Files",
+                description: "Native Azure file shares for FSLogix",
+                tiers: [
+                    { tier: "Premium", iops: "Based on provisioned size", latency: "Sub-millisecond", bestFor: "Production VDI" },
+                    { tier: "Standard (Hot)", iops: "Transaction-based", latency: "Single-digit ms", bestFor: "Dev/test or low-intensity" }
+                ],
+                setup: [
+                    "Create Storage Account in same region as session hosts",
+                    "Enable Azure AD DS or AD DS authentication",
+                    "Create file share with appropriate quota",
+                    "Configure NTFS permissions via storage account key or AD",
+                    "Set share-level permissions in Azure portal",
+                    "Mount in session hosts via Private Endpoint"
+                ],
+                sizing: "Formula: (Users x 30GB) / 1024 = TB provisioned; Premium IOPS = Size(GB) + baseline",
+                privateEndpoint: "Required for GCC High / secure environments"
+            },
+            azureNetAppFiles: {
+                name: "Azure NetApp Files (ANF)",
+                description: "High-performance NFS/SMB for large-scale VDI",
+                tiers: ["Ultra (128 MiB/s per TiB)", "Premium (64 MiB/s per TiB)", "Standard (16 MiB/s per TiB)"],
+                advantages: ["Sub-millisecond latency", "Massive scale", "Snapshot and backup built-in"],
+                bestFor: "Large deployments (500+ users), performance-sensitive workloads",
+                sizing: "Start with Premium tier, 4TB minimum capacity pool"
+            },
+            onPremFileServer: {
+                name: "On-Premises File Server",
+                description: "Windows File Server with SMB shares",
+                requirements: [
+                    "Windows Server 2019/2022",
+                    "SSD or NVMe storage for profile share",
+                    "Proper IOPS (5 IOPS/user minimum, 10+ recommended)",
+                    "SMB 3.0+ with encryption enabled",
+                    "DFS-N for namespace abstraction (optional)"
+                ],
+                sizing: "RAID10 with enterprise SSD, 10GbE network minimum",
+                highAvailability: "DFS-R for replication, failover clustering for server HA"
+            },
+            cloudCache: {
+                name: "FSLogix Cloud Cache",
+                description: "Local SSD cache with async replication to cloud storage",
+                architecture: "Local VHD on fast storage, changes replicated to Azure Files or remote SMB",
+                advantages: ["Fast logon (local read)", "DR built-in", "Multi-region support"],
+                configuration: "CCDLocations instead of VHDLocations, specify multiple providers",
+                bestFor: "Hybrid scenarios, DR requirements, multi-region deployments"
+            }
+        },
+        
+        troubleshooting: {
+            commonIssues: [
+                { issue: "Slow logon times", cause: "Network latency to storage, large profile", solution: "Use premium storage, enable Cloud Cache, clean up profile bloat" },
+                { issue: "Profile not loading", cause: "Container locked by previous session", solution: "Check for stale locks, increase retry settings, reboot session host" },
+                { issue: "Disk full errors", cause: "Profile exceeded SizeInMBs limit", solution: "Increase limit, enable compaction, clean up via Redirections.xml" },
+                { issue: "Permission denied", cause: "NTFS or share permissions incorrect", solution: "Users need Modify on profile folder, Full Control on their VHD" },
+                { issue: "Office data not roaming", cause: "ODFC not enabled or misconfigured", solution: "Enable Office Container, verify Include* settings" }
+            ],
+            logLocations: [
+                { log: "FSLogix Profile Log", path: "C:\\ProgramData\\FSLogix\\Logs\\Profile*.log" },
+                { log: "FSLogix ODFC Log", path: "C:\\ProgramData\\FSLogix\\Logs\\ODFC*.log" },
+                { log: "Windows Event Log", path: "Applications and Services > FSLogix Apps" }
+            ],
+            tools: [
+                { tool: "frx.exe", description: "FSLogix command-line utility for troubleshooting" },
+                { tool: "FSLogix Profile Container Sizing", description: "Script to analyze profile sizes" },
+                { tool: "ProcMon", description: "Trace file access during logon issues" }
+            ]
+        },
+        
+        cmmcDocumentation: [
+            { artifact: "Storage Security", description: "Document share permissions, encryption, private endpoints", controls: "SC.L2-3.13.16, AC.L2-3.1.1" },
+            { artifact: "Backup Configuration", description: "Document VHD backup strategy and retention", controls: "MP.L2-3.8.9" },
+            { artifact: "Access Control", description: "Document who can access profile storage", controls: "AC.L2-3.1.2, AC.L2-3.1.3" },
+            { artifact: "Encryption Settings", description: "Document BitLocker on VHD and SMB encryption in transit", controls: "SC.L2-3.13.8, SC.L2-3.13.16" }
+        ]
+    },
+
+    // ========================================
+    // PERSISTENT VS NON-PERSISTENT VDI
+    // ========================================
+    
+    persistentVsNonPersistent: {
+        comparison: {
+            persistent: {
+                name: "Persistent VDI",
+                description: "User gets the same VM every session, changes persist",
+                architecture: "1:1 mapping of user to VM",
+                profileManagement: "Local profiles work, FSLogix optional",
+                applications: "Install on each desktop or use app virtualization",
+                
+                pros: [
+                    "Full desktop experience",
+                    "No profile solution complexity",
+                    "Works with poorly-designed apps",
+                    "Users can personalize extensively",
+                    "Simpler troubleshooting (dedicated VM)"
+                ],
+                cons: [
+                    "Higher storage costs (full VM per user)",
+                    "Patch management at scale",
+                    "Longer provisioning time",
+                    "No user density benefits",
+                    "VM sprawl risk"
+                ],
+                
+                bestFor: "Developers, power users, CAD/engineering, niche software requirements",
+                
+                costModel: {
+                    compute: "VM runs during user hours (or always-on for quick access)",
+                    storage: "Full OS disk (~128GB) + data per user",
+                    example: "100 users x D4s_v5 ($140/mo) + 128GB Premium SSD ($19/mo) = $15,900/mo"
+                }
+            },
+            nonPersistent: {
+                name: "Non-Persistent VDI (Pooled)",
+                description: "Users get a random VM from a pool, VM resets between sessions",
+                architecture: "N:M mapping of users to VMs (multi-session or pooled single-session)",
+                profileManagement: "FSLogix required for profile persistence",
+                applications: "Baked into gold image or app virtualization (MSIX, App-V)",
+                
+                pros: [
+                    "Lower compute costs (VM sharing)",
+                    "Simplified patching (update gold image)",
+                    "Consistent user experience",
+                    "Reduced storage costs",
+                    "Better security (clean state each session)"
+                ],
+                cons: [
+                    "Profile solution required (FSLogix)",
+                    "App compatibility testing needed",
+                    "More complex troubleshooting",
+                    "Some apps don't work well (per-machine installs)",
+                    "Initial logon may be slower (profile attach)"
+                ],
+                
+                bestFor: "Task workers, call center, standardized workloads, security-sensitive environments",
+                
+                costModel: {
+                    compute: "Shared VMs with user density 10-25 users per host",
+                    storage: "Shared OS disk + profile containers (smaller)",
+                    example: "100 users / 15 per host = 7 hosts x D8s_v5 ($280/mo) + profiles = $2,500/mo"
+                }
+            }
+        },
+        
+        costBenefitAnalysis: {
+            factors: [
+                {
+                    factor: "User Count",
+                    persistent: "Cost scales linearly with users",
+                    nonPersistent: "Cost scales sub-linearly due to density",
+                    breakeven: "Non-persistent almost always cheaper at scale"
+                },
+                {
+                    factor: "User Workload",
+                    persistent: "Better for inconsistent, heavy workloads",
+                    nonPersistent: "Better for consistent, predictable workloads",
+                    guidance: "Mix: pooled for task workers, persistent for power users"
+                },
+                {
+                    factor: "Application Complexity",
+                    persistent: "Handles any application",
+                    nonPersistent: "Requires app compatibility testing",
+                    guidance: "Test critical apps in non-persistent before committing"
+                },
+                {
+                    factor: "Security Requirements",
+                    persistent: "VM state persists (potential for malware persistence)",
+                    nonPersistent: "Clean slate each session (better security posture)",
+                    guidance: "Non-persistent preferred for CUI environments"
+                },
+                {
+                    factor: "Management Overhead",
+                    persistent: "More VMs to patch and maintain",
+                    nonPersistent: "Update gold image, redeploy",
+                    guidance: "Non-persistent significantly easier at scale"
+                }
+            ],
+            
+            recommendations: [
+                {
+                    scenario: "Small CUI user base (<25 users)",
+                    recommendation: "Persistent may be simpler despite higher cost",
+                    reasoning: "Profile solution complexity may not be worth it for small scale"
+                },
+                {
+                    scenario: "Medium CUI user base (25-200 users)",
+                    recommendation: "Non-persistent pooled with FSLogix",
+                    reasoning: "Cost savings justify FSLogix complexity"
+                },
+                {
+                    scenario: "Large CUI user base (200+ users)",
+                    recommendation: "Non-persistent with tiered pools",
+                    reasoning: "Significant savings, mature FSLogix deployment"
+                },
+                {
+                    scenario: "Mixed workload types",
+                    recommendation: "Hybrid: pooled for task workers, personal for power users",
+                    reasoning: "Match solution to user needs"
+                }
+            ]
+        },
+        
+        hybridApproach: {
+            description: "Use different pool types for different user personas",
+            implementation: [
+                {
+                    pool: "Task Worker Pool",
+                    type: "Pooled multi-session",
+                    users: "Email, web apps, basic Office",
+                    density: "15-20 users per D8s_v5",
+                    profile: "FSLogix Profile Container"
+                },
+                {
+                    pool: "Knowledge Worker Pool",
+                    type: "Pooled multi-session",
+                    users: "Heavy Office, SharePoint, Teams",
+                    density: "8-12 users per D8s_v5",
+                    profile: "FSLogix with Office Container"
+                },
+                {
+                    pool: "Power User Pool",
+                    type: "Personal (dedicated)",
+                    users: "Developers, analysts",
+                    density: "1:1",
+                    profile: "Local profiles, auto-start on connect"
+                },
+                {
+                    pool: "Engineering Pool",
+                    type: "Personal (GPU)",
+                    users: "CAD, 3D modeling",
+                    density: "1:1 with GPU",
+                    profile: "Local profiles, large OS disk"
+                }
+            ]
+        }
+    },
+
+    // ========================================
+    // CMMC DOCUMENTATION FOR VDI
+    // ========================================
+    
+    cmmcVdiDocumentation: {
+        overview: "Documentation artifacts required for CMMC assessment of VDI environments",
+        
+        sspSections: [
+            {
+                section: "System Boundary",
+                vdiContent: [
+                    "Define VDI session hosts as part of CUI boundary",
+                    "Document profile storage location and security",
+                    "Define endpoint strategy (thin client, managed laptop, BYOD)",
+                    "Document network segmentation of VDI infrastructure"
+                ],
+                artifacts: ["Network diagram", "System inventory", "Data flow diagram"]
+            },
+            {
+                section: "System Components",
+                vdiContent: [
+                    "List all VDI infrastructure (connection brokers, session hosts, gateways)",
+                    "Document VDI platform and version",
+                    "List supporting infrastructure (storage, networking, identity)"
+                ],
+                artifacts: ["Hardware/software inventory", "Component diagram"]
+            },
+            {
+                section: "User Roles",
+                vdiContent: [
+                    "Define VDI user roles and access levels",
+                    "Document VDI administrator roles",
+                    "Define privileged access for VDI management"
+                ],
+                artifacts: ["Role definitions", "Access matrix"]
+            }
+        ],
+        
+        controlEvidence: {
+            accessControl: [
+                { control: "AC.L2-3.1.1", evidence: "Conditional Access policies, host pool assignments, Entra ID group membership" },
+                { control: "AC.L2-3.1.2", evidence: "Role-based access to different host pools, application groups" },
+                { control: "AC.L2-3.1.3", evidence: "RDP policies restricting clipboard, drives, printers for CUI flow control" },
+                { control: "AC.L2-3.1.12", evidence: "Gateway configuration, Conditional Access for remote access" },
+                { control: "AC.L2-3.1.13", evidence: "TLS configuration for connection broker and gateway" }
+            ],
+            auditAccountability: [
+                { control: "AU.L2-3.3.1", evidence: "Diagnostic settings for AVD/Citrix/VMware to Log Analytics or SIEM" },
+                { control: "AU.L2-3.3.2", evidence: "User login/logout events, session duration, application usage" },
+                { control: "AU.L2-3.3.4", evidence: "Alerting on audit log failures, log shipping monitoring" }
+            ],
+            configurationManagement: [
+                { control: "CM.L2-3.4.1", evidence: "Gold image documentation, baseline configuration" },
+                { control: "CM.L2-3.4.2", evidence: "STIG/CIS benchmark applied, VDI policy settings" },
+                { control: "CM.L2-3.4.5", evidence: "Change management for gold image updates" },
+                { control: "CM.L2-3.4.6", evidence: "Disabled services, removed features in gold image" }
+            ],
+            identification: [
+                { control: "IA.L2-3.5.1", evidence: "Entra ID integration, user identification in VDI" },
+                { control: "IA.L2-3.5.3", evidence: "MFA configuration for VDI access (Conditional Access)" },
+                { control: "IA.L2-3.5.4", evidence: "Token-based auth for broker, SAML integration" }
+            ],
+            systemProtection: [
+                { control: "SC.L2-3.13.1", evidence: "VDI network segmentation, firewall rules, gateway config" },
+                { control: "SC.L2-3.13.8", evidence: "TLS for management plane, ICA/RDP encryption, profile traffic encryption" },
+                { control: "SC.L2-3.13.11", evidence: "FIPS-validated cryptography settings in VDI platform" },
+                { control: "SC.L2-3.13.16", evidence: "Profile container encryption, OS disk encryption" }
+            ],
+            integrity: [
+                { control: "SI.L2-3.14.1", evidence: "Session host patch management, gold image update schedule" },
+                { control: "SI.L2-3.14.2", evidence: "Endpoint protection on session hosts (Defender, CrowdStrike)" },
+                { control: "SI.L2-3.14.6", evidence: "Network monitoring for VDI traffic, anomaly detection" }
+            ]
+        },
+        
+        assessmentPrep: {
+            commonQuestions: [
+                {
+                    question: "How do you prevent CUI from being extracted from VDI sessions?",
+                    answer: "Clipboard, drive, and printer redirection are disabled. Screen watermarking is enabled. DLP policies scan for CUI content. USB device filtering blocks removable media."
+                },
+                {
+                    question: "How are VDI session hosts patched?",
+                    answer: "For non-persistent: Gold image updated monthly via automated pipeline, session hosts redeployed from new image. For persistent: Intune/WSUS patch management with compliance reporting."
+                },
+                {
+                    question: "How is user activity in VDI sessions logged?",
+                    answer: "VDI diagnostic logs sent to Log Analytics/SIEM. Session recording enabled for privileged users. Windows Event logs forwarded from session hosts."
+                },
+                {
+                    question: "How do you ensure only authorized users access CUI in VDI?",
+                    answer: "Conditional Access requires MFA, compliant/managed device, and approved location. Host pool assignment via Entra ID groups with access reviews."
+                },
+                {
+                    question: "Where is user data stored in VDI?",
+                    answer: "User profiles in FSLogix containers on encrypted Azure Files (or specified storage). No CUI stored locally on session hosts. OneDrive KFM for user files with DLP."
+                }
+            ],
+            
+            documentChecklist: [
+                { document: "VDI Architecture Diagram", status: "Required", description: "Show all components, network flows, storage locations" },
+                { document: "RDP/ICA Policy Export", status: "Required", description: "Prove redirection restrictions" },
+                { document: "Conditional Access Policy Screenshots", status: "Required", description: "Show MFA and device compliance requirements" },
+                { document: "Gold Image Build Documentation", status: "Required", description: "Show STIG baseline, installed software, hardening" },
+                { document: "FSLogix Configuration Export", status: "Required", description: "Show profile storage settings, encryption" },
+                { document: "SIEM Integration Proof", status: "Required", description: "Show logs flowing to SIEM, retention settings" },
+                { document: "Patch Management Records", status: "Required", description: "Show image update schedule, compliance reports" },
+                { document: "VDI User Access List", status: "Required", description: "Export Entra ID group membership" },
+                { document: "Session Host Vulnerability Scans", status: "Required", description: "Recent scan results for gold image or session hosts" },
+                { document: "DR/BC Documentation", status: "Recommended", description: "VDI recovery procedures, profile backup" }
+            ]
+        }
+    },
+
+    // ========================================
+    // COST MANAGEMENT DEEP DIVE
+    // ========================================
+    
+    costManagementDeepDive: {
+        azure: {
+            name: "Azure Cost Management for AVD",
+            strategies: [
+                {
+                    name: "Scaling Plans",
+                    description: "Automatically scale session hosts based on schedule and demand",
+                    configuration: [
+                        "Ramp-up: 7 AM, increase capacity for morning login surge",
+                        "Peak hours: 9 AM - 5 PM, maintain capacity based on load",
+                        "Ramp-down: 5 PM, start draining and shutting down",
+                        "Off-hours: 7 PM - 7 AM, minimum hosts for emergency access"
+                    ],
+                    savings: "40-60% compute cost reduction vs always-on"
+                },
+                {
+                    name: "Start VM on Connect",
+                    description: "Personal desktops start when user connects",
+                    bestFor: "Personal desktop pools",
+                    savings: "30-50% vs always-on personal desktops"
+                },
+                {
+                    name: "Reserved Instances",
+                    description: "1-year or 3-year commitment for steady-state VMs",
+                    savings: "1-year: 30-40%, 3-year: 50-60%",
+                    recommendation: "Reserve minimum required capacity, use PAYG for burst"
+                },
+                {
+                    name: "Spot Instances",
+                    description: "Deeply discounted VMs with eviction risk",
+                    bestFor: "Dev/test VDI, non-critical burst capacity",
+                    savings: "Up to 90% discount",
+                    warning: "NOT for production CUI workloads"
+                },
+                {
+                    name: "Azure Hybrid Benefit",
+                    description: "Use existing Windows Server licenses",
+                    savings: "Up to 40% on Windows VMs",
+                    requirement: "Windows Server with active SA or subscription"
+                }
+            ],
+            monitoring: {
+                tools: ["Azure Cost Management + Billing", "AVD Insights workbook", "Azure Advisor"],
+                metrics: [
+                    "Cost per user per month",
+                    "Session host utilization",
+                    "Idle time percentage",
+                    "Profile storage growth"
+                ],
+                alerts: [
+                    "Budget threshold alerts (50%, 75%, 90%)",
+                    "Anomaly detection for unusual spending",
+                    "Unattached disk alerts",
+                    "Over-provisioned VM alerts"
+                ]
+            }
+        },
+        
+        aws: {
+            name: "AWS Cost Management for WorkSpaces",
+            strategies: [
+                {
+                    name: "AutoStop Mode",
+                    description: "WorkSpaces stop after idle period, restart on connect",
+                    default: "Enabled by default for hourly bundles",
+                    savings: "Significant for part-time users"
+                },
+                {
+                    name: "Billing Mode Selection",
+                    description: "Choose hourly vs monthly billing per WorkSpace",
+                    hourly: "Best for users < 80 hours/month",
+                    monthly: "Best for users > 80 hours/month (always-on)",
+                    automation: "Use WorkSpaces Cost Optimizer to auto-switch"
+                },
+                {
+                    name: "Reserved Bundles",
+                    description: "Commit to 1-year term for monthly billing WorkSpaces",
+                    savings: "Up to 50% vs on-demand monthly"
+                },
+                {
+                    name: "Bundle Right-Sizing",
+                    description: "Match bundle to actual user workload",
+                    analysis: "Use CloudWatch metrics to identify over-provisioned bundles",
+                    action: "Downgrade Value users using Standard bundles"
+                }
+            ],
+            monitoring: {
+                tools: ["AWS Cost Explorer", "CloudWatch", "WorkSpaces Events"],
+                metrics: [
+                    "WorkSpaces running hours",
+                    "Connection success rate",
+                    "Monthly active users vs provisioned",
+                    "Bundle utilization (CPU, memory)"
+                ]
+            }
+        },
+        
+        onPrem: {
+            name: "On-Premises VDI Cost Management",
+            strategies: [
+                {
+                    name: "Right-Sized Hardware",
+                    description: "Match server specs to actual VDI density requirements",
+                    analysis: "Pilot with monitoring before full deployment",
+                    tip: "Budget for 25% growth headroom"
+                },
+                {
+                    name: "Hyper-Converged Infrastructure",
+                    description: "vSAN, Nutanix, or Azure Stack HCI for simplified management",
+                    advantages: "Reduced storage costs, easier scaling",
+                    considerations: "Upfront cost vs long-term OpEx savings"
+                },
+                {
+                    name: "License Optimization",
+                    description: "Right-size Windows, Citrix, VMware licensing",
+                    perDevice: "Citrix/VMware per-CCU licensing for shift workers",
+                    perUser: "Better for dedicated users with multiple devices"
+                },
+                {
+                    name: "Power Management",
+                    description: "Server and storage power savings",
+                    actions: ["Consolidate workloads", "Power off unused hosts", "Use efficient cooling"]
+                }
+            ],
+            tcoBudgeting: {
+                categories: [
+                    { category: "Hardware", items: ["Servers", "Storage", "Networking", "Endpoints"], lifecycle: "3-5 years" },
+                    { category: "Software", items: ["VDI platform", "OS licenses", "CALs", "Security tools"], lifecycle: "Annual" },
+                    { category: "Facilities", items: ["Power", "Cooling", "Rack space", "Physical security"], lifecycle: "Monthly" },
+                    { category: "Personnel", items: ["VDI admins", "Helpdesk", "Security team"], lifecycle: "Annual" }
+                ]
+            }
+        },
+        
+        crossPlatformComparison: {
+            description: "Compare TCO across VDI platforms",
+            template: [
+                {
+                    lineItem: "Compute",
+                    azure: "VM cost x hours",
+                    aws: "Bundle pricing",
+                    onPrem: "Server amortization"
+                },
+                {
+                    lineItem: "Storage",
+                    azure: "Premium SSD + Azure Files",
+                    aws: "Included in bundle (root), extra for user",
+                    onPrem: "SAN/vSAN cost"
+                },
+                {
+                    lineItem: "Networking",
+                    azure: "Egress, Private Endpoints, Firewall",
+                    aws: "NAT Gateway, Direct Connect",
+                    onPrem: "WAN, internet, DMZ"
+                },
+                {
+                    lineItem: "Licensing",
+                    azure: "Included with M365/Windows E3+",
+                    aws: "WorkSpaces includes Windows (standard)",
+                    onPrem: "Windows Server, VDI platform, CALs"
+                },
+                {
+                    lineItem: "Management",
+                    azure: "Included in Azure pricing",
+                    aws: "Included in WorkSpaces",
+                    onPrem: "Admin FTEs, management tools"
+                }
+            ]
+        }
     }
 };
 

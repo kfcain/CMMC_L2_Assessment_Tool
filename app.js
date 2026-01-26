@@ -3287,6 +3287,544 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             </div>
         </div>`;
 
+        // =============================================
+        // VDI DEEP DIVE SECTIONS
+        // =============================================
+
+        if (guidance.vdiDeepDive) {
+            // AVD Deep Dive
+            if (guidance.vdiDeepDive.avd) {
+                const avd = guidance.vdiDeepDive.avd;
+                html += `<div class="impl-section">
+                    <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-blue);padding-bottom:8px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        ${avd.name} - Deep Configuration
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${avd.overview}</p>
+                    
+                    <!-- Deployment Options -->
+                    <div class="impl-cards-grid" style="margin-bottom:20px">
+                        <div class="impl-policy-card">
+                            <div class="impl-policy-header" style="background:var(--accent-blue)"><h4>${avd.deploymentOptions.pooled.name}</h4></div>
+                            <div class="impl-policy-body">
+                                <p style="font-size:0.75rem;margin-bottom:8px">${avd.deploymentOptions.pooled.description}</p>
+                                <p style="font-size:0.7rem"><strong>Best For:</strong> ${avd.deploymentOptions.pooled.bestFor}</p>
+                                <p style="font-size:0.7rem"><strong>OS:</strong> ${avd.deploymentOptions.pooled.sessionHostOS}</p>
+                                <p style="font-size:0.7rem"><strong>Density:</strong> ${avd.deploymentOptions.pooled.maxUsersPerHost}</p>
+                                <p style="font-size:0.65rem;color:var(--accent-orange)"><strong>Profile:</strong> ${avd.deploymentOptions.pooled.profileRequirement}</p>
+                            </div>
+                        </div>
+                        <div class="impl-policy-card">
+                            <div class="impl-policy-header" style="background:var(--accent-purple)"><h4>${avd.deploymentOptions.personal.name}</h4></div>
+                            <div class="impl-policy-body">
+                                <p style="font-size:0.75rem;margin-bottom:8px">${avd.deploymentOptions.personal.description}</p>
+                                <p style="font-size:0.7rem"><strong>Best For:</strong> ${avd.deploymentOptions.personal.bestFor}</p>
+                                <p style="font-size:0.7rem"><strong>OS:</strong> ${avd.deploymentOptions.personal.sessionHostOS}</p>
+                                <p style="font-size:0.7rem"><strong>Cost Control:</strong> ${avd.deploymentOptions.personal.autoStartStop}</p>
+                                <p style="font-size:0.65rem;color:var(--accent-green)"><strong>Profile:</strong> ${avd.deploymentOptions.personal.profileRequirement}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Configuration -->
+                    <h4 style="margin:16px 0 8px;color:var(--accent-orange)">Security Configuration</h4>
+                    
+                    <!-- RDP Properties -->
+                    <div class="impl-table-container" style="margin-bottom:16px">
+                        <table class="impl-table">
+                            <thead><tr><th>RDP Property</th><th>Purpose</th></tr></thead>
+                            <tbody>
+                                ${avd.securityConfiguration.rdpProperties.map(p => `
+                                    <tr style="${p.purpose.includes('DISABLE') ? 'background:rgba(255,100,100,0.1)' : ''}">
+                                        <td><code style="font-size:0.7rem">${p.property}</code></td>
+                                        <td style="font-size:0.7rem">${p.purpose}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Conditional Access -->
+                    <div class="impl-table-container" style="margin-bottom:16px">
+                        <table class="impl-table">
+                            <thead><tr><th>Conditional Access Policy</th><th>Target</th><th>Setting</th></tr></thead>
+                            <tbody>
+                                ${avd.securityConfiguration.conditionalAccess.map(ca => `
+                                    <tr>
+                                        <td><strong style="font-size:0.75rem">${ca.policy}</strong></td>
+                                        <td style="font-size:0.7rem">${ca.target}</td>
+                                        <td style="font-size:0.7rem">${ca.setting}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Baseline Hardening -->
+                    <h4 style="margin:16px 0 8px;color:var(--accent-green)">Baseline Hardening</h4>
+                    <div class="impl-cards-grid" style="margin-bottom:16px">
+                        <div class="impl-policy-card">
+                            <div class="impl-policy-header"><h4>${avd.baselineHardening.stig.name}</h4></div>
+                            <div class="impl-policy-body">
+                                <p style="font-size:0.75rem;margin-bottom:8px">${avd.baselineHardening.stig.description}</p>
+                                <p style="font-size:0.7rem"><strong>Tools:</strong> ${avd.baselineHardening.stig.automationTools.join(', ')}</p>
+                                <ul style="font-size:0.65rem;margin:8px 0 0 16px">${avd.baselineHardening.stig.keySettings.map(s => `<li>${s}</li>`).join('')}</ul>
+                            </div>
+                        </div>
+                        <div class="impl-policy-card">
+                            <div class="impl-policy-header"><h4>${avd.baselineHardening.cis.name}</h4></div>
+                            <div class="impl-policy-body">
+                                <p style="font-size:0.75rem;margin-bottom:8px">${avd.baselineHardening.cis.description}</p>
+                                <p style="font-size:0.7rem"><strong>Levels:</strong> ${avd.baselineHardening.cis.levels.join(', ')}</p>
+                                <p style="font-size:0.7rem"><strong>Tools:</strong> ${avd.baselineHardening.cis.automationTools.join(', ')}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Management -->
+                    <h4 style="margin:16px 0 8px;color:var(--accent-purple)">Golden Image Management</h4>
+                    <div class="impl-policy-card" style="margin-bottom:16px">
+                        <div class="impl-policy-header"><h4>Golden Image Components</h4></div>
+                        <div class="impl-policy-body">
+                            <ul style="font-size:0.75rem;columns:2;column-gap:24px">${avd.imageManagement.goldenImage.components.map(c => `<li style="margin-bottom:4px">${c}</li>`).join('')}</ul>
+                            <p style="font-size:0.7rem;margin-top:12px"><strong>Update Strategy:</strong> ${avd.imageManagement.goldenImage.updateStrategy}</p>
+                            <p style="font-size:0.7rem"><strong>Automation Tools:</strong> ${avd.imageManagement.goldenImage.tools.map(t => t.name).join(', ')}</p>
+                        </div>
+                    </div>
+
+                    <!-- CMMC Documentation -->
+                    <h4 style="margin:16px 0 8px;color:var(--accent-blue)">CMMC Documentation Artifacts</h4>
+                    <div class="impl-table-container">
+                        <table class="impl-table">
+                            <thead><tr><th>Artifact</th><th>Description</th><th>Controls</th></tr></thead>
+                            <tbody>
+                                ${avd.cmmcDocumentation.map(doc => `
+                                    <tr>
+                                        <td><strong>${doc.artifact}</strong></td>
+                                        <td style="font-size:0.7rem">${doc.description}</td>
+                                        <td style="font-size:0.65rem;color:var(--text-muted)">${doc.controls}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            }
+
+            // Citrix Deep Dive
+            if (guidance.vdiDeepDive.citrix) {
+                const citrix = guidance.vdiDeepDive.citrix;
+                html += `<div class="impl-section">
+                    <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-orange);padding-bottom:8px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        ${citrix.name} - Deep Configuration
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${citrix.overview}</p>
+
+                    <!-- Deployment Options -->
+                    <div class="impl-cards-grid" style="margin-bottom:20px">
+                        ${Object.values(citrix.deploymentOptions).map(opt => `
+                            <div class="impl-policy-card">
+                                <div class="impl-policy-header"><h4>${opt.name}</h4></div>
+                                <div class="impl-policy-body">
+                                    <p style="font-size:0.75rem;margin-bottom:8px">${opt.description}</p>
+                                    ${opt.components ? `<p style="font-size:0.7rem"><strong>Components:</strong> ${opt.components.join(', ')}</p>` : ''}
+                                    ${opt.gccHighSupport ? `<p style="font-size:0.65rem;color:var(--accent-green)">${opt.gccHighSupport}</p>` : ''}
+                                    ${opt.advantages ? `<p style="font-size:0.7rem"><strong>Advantages:</strong> ${opt.advantages.join(', ')}</p>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Security Policies -->
+                    <h4 style="margin:16px 0 8px;color:var(--accent-orange)">Security Policies</h4>
+                    <div class="impl-table-container" style="margin-bottom:16px">
+                        <table class="impl-table">
+                            <thead><tr><th>Policy</th><th>Setting</th><th>Purpose</th></tr></thead>
+                            <tbody>
+                                ${citrix.securityConfiguration.policies.map(p => `
+                                    <tr style="${p.setting.includes('Disable') ? 'background:rgba(255,100,100,0.1)' : ''}">
+                                        <td><strong>${p.policy}</strong></td>
+                                        <td style="font-size:0.7rem">${p.setting}</td>
+                                        <td style="font-size:0.7rem">${p.purpose}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Profile Management -->
+                    <h4 style="margin:16px 0 8px;color:var(--accent-purple)">Profile Management Options</h4>
+                    <div class="impl-cards-grid">
+                        <div class="impl-policy-card">
+                            <div class="impl-policy-header"><h4>${citrix.profileManagement.citrixProfileManagement.name}</h4></div>
+                            <div class="impl-policy-body">
+                                <p style="font-size:0.75rem;margin-bottom:8px">${citrix.profileManagement.citrixProfileManagement.description}</p>
+                                <ul style="font-size:0.7rem;margin:8px 0 0 16px">${citrix.profileManagement.citrixProfileManagement.features.map(f => `<li>${f}</li>`).join('')}</ul>
+                                <p style="font-size:0.7rem;margin-top:8px"><strong>Storage:</strong> ${citrix.profileManagement.citrixProfileManagement.storageOptions.join(', ')}</p>
+                            </div>
+                        </div>
+                        <div class="impl-policy-card">
+                            <div class="impl-policy-header"><h4>${citrix.profileManagement.fslogixWithCitrix.name}</h4></div>
+                            <div class="impl-policy-body">
+                                <p style="font-size:0.75rem;margin-bottom:8px">${citrix.profileManagement.fslogixWithCitrix.description}</p>
+                                <ul style="font-size:0.7rem;margin:8px 0 0 16px">${citrix.profileManagement.fslogixWithCitrix.advantages.map(a => `<li>${a}</li>`).join('')}</ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            // VMware Horizon Deep Dive
+            if (guidance.vdiDeepDive.vmwareHorizon) {
+                const vmware = guidance.vdiDeepDive.vmwareHorizon;
+                html += `<div class="impl-section">
+                    <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-green);padding-bottom:8px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        ${vmware.name} - Deep Configuration
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${vmware.overview}</p>
+
+                    <!-- UAG Security -->
+                    <h4 style="margin:16px 0 8px;color:var(--accent-green)">Unified Access Gateway (UAG)</h4>
+                    <div class="impl-policy-card" style="margin-bottom:16px">
+                        <div class="impl-policy-header"><h4>${vmware.securityConfiguration.uag.name}</h4></div>
+                        <div class="impl-policy-body">
+                            <p style="font-size:0.75rem;margin-bottom:8px">${vmware.securityConfiguration.uag.description}</p>
+                            <div style="display:flex;gap:24px">
+                                <div>
+                                    <strong style="font-size:0.7rem">Features:</strong>
+                                    <ul style="font-size:0.7rem;margin:4px 0 0 16px">${vmware.securityConfiguration.uag.features.map(f => `<li>${f}</li>`).join('')}</ul>
+                                </div>
+                                <div>
+                                    <strong style="font-size:0.7rem">Hardening:</strong>
+                                    <ul style="font-size:0.7rem;margin:4px 0 0 16px">${vmware.securityConfiguration.uag.hardening.map(h => `<li>${h}</li>`).join('')}</ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Policies -->
+                    <div class="impl-table-container">
+                        <table class="impl-table">
+                            <thead><tr><th>Policy</th><th>Setting</th><th>Purpose</th></tr></thead>
+                            <tbody>
+                                ${vmware.securityConfiguration.desktopPolicies.map(p => `
+                                    <tr>
+                                        <td><strong>${p.policy}</strong></td>
+                                        <td style="font-size:0.7rem">${p.setting}</td>
+                                        <td style="font-size:0.7rem">${p.purpose}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+            }
+        }
+
+        // =============================================
+        // FSLOGIX DEEP DIVE
+        // =============================================
+        if (guidance.fslogixDeepDive) {
+            const fsl = guidance.fslogixDeepDive;
+            html += `<div class="impl-section">
+                <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-purple);padding-bottom:8px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    FSLogix Profile Management - Deep Dive
+                </div>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px">${fsl.overview.description}</p>
+                <p style="font-size:0.75rem;margin-bottom:16px"><strong>Licensing:</strong> ${fsl.overview.licensing}</p>
+
+                <!-- Components -->
+                <div class="impl-cards-grid" style="margin-bottom:20px">
+                    ${fsl.overview.components.map(c => `
+                        <div class="impl-policy-card" style="padding:12px">
+                            <strong style="font-size:0.8rem">${c.name}</strong>
+                            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:4px">${c.description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- Registry Settings -->
+                <h4 style="margin:16px 0 8px;color:var(--accent-purple)">Profile Container Registry Settings</h4>
+                <div class="impl-table-container" style="margin-bottom:16px">
+                    <table class="impl-table">
+                        <thead><tr><th>Registry Key</th><th>Value</th><th>Data</th><th>Description</th></tr></thead>
+                        <tbody>
+                            ${fsl.profileContainerConfig.registrySettings.map(r => `
+                                <tr>
+                                    <td style="font-size:0.65rem;font-family:monospace">${r.key}</td>
+                                    <td><code>${r.value}</code></td>
+                                    <td><code>${r.data}</code></td>
+                                    <td style="font-size:0.7rem">${r.description}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Storage Options -->
+                <h4 style="margin:16px 0 8px;color:var(--accent-blue)">Storage Options</h4>
+                <div class="impl-cards-grid" style="margin-bottom:16px">
+                    ${Object.values(fsl.storageOptions).map(opt => `
+                        <div class="impl-policy-card">
+                            <div class="impl-policy-header"><h4>${opt.name}</h4></div>
+                            <div class="impl-policy-body">
+                                <p style="font-size:0.75rem;margin-bottom:8px">${opt.description}</p>
+                                ${opt.tiers ? `<p style="font-size:0.7rem"><strong>Tiers:</strong> ${Array.isArray(opt.tiers) ? opt.tiers.map(t => typeof t === 'object' ? t.tier : t).join(', ') : opt.tiers}</p>` : ''}
+                                ${opt.advantages ? `<ul style="font-size:0.7rem;margin:8px 0 0 16px">${opt.advantages.map(a => `<li>${a}</li>`).join('')}</ul>` : ''}
+                                ${opt.bestFor ? `<p style="font-size:0.65rem;color:var(--text-muted);margin-top:8px">${opt.bestFor}</p>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- Troubleshooting -->
+                <h4 style="margin:16px 0 8px;color:var(--accent-orange)">Common Issues & Troubleshooting</h4>
+                <div class="impl-table-container">
+                    <table class="impl-table">
+                        <thead><tr><th>Issue</th><th>Cause</th><th>Solution</th></tr></thead>
+                        <tbody>
+                            ${fsl.troubleshooting.commonIssues.map(i => `
+                                <tr>
+                                    <td><strong>${i.issue}</strong></td>
+                                    <td style="font-size:0.7rem">${i.cause}</td>
+                                    <td style="font-size:0.7rem">${i.solution}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        // =============================================
+        // PERSISTENT VS NON-PERSISTENT
+        // =============================================
+        if (guidance.persistentVsNonPersistent) {
+            const pvnp = guidance.persistentVsNonPersistent;
+            html += `<div class="impl-section">
+                <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-green);padding-bottom:8px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                    Persistent vs Non-Persistent VDI Analysis
+                </div>
+
+                <!-- Comparison Cards -->
+                <div class="impl-cards-grid" style="margin-bottom:20px">
+                    <div class="impl-policy-card">
+                        <div class="impl-policy-header" style="background:var(--accent-purple)"><h4>${pvnp.comparison.persistent.name}</h4></div>
+                        <div class="impl-policy-body">
+                            <p style="font-size:0.75rem;margin-bottom:8px">${pvnp.comparison.persistent.description}</p>
+                            <p style="font-size:0.7rem"><strong>Architecture:</strong> ${pvnp.comparison.persistent.architecture}</p>
+                            <p style="font-size:0.7rem"><strong>Profiles:</strong> ${pvnp.comparison.persistent.profileManagement}</p>
+                            <div style="margin:12px 0">
+                                <strong style="color:var(--accent-green);font-size:0.7rem">Pros:</strong>
+                                <ul style="font-size:0.65rem;margin:4px 0 0 16px">${pvnp.comparison.persistent.pros.map(p => `<li>${p}</li>`).join('')}</ul>
+                            </div>
+                            <div>
+                                <strong style="color:var(--accent-orange);font-size:0.7rem">Cons:</strong>
+                                <ul style="font-size:0.65rem;margin:4px 0 0 16px">${pvnp.comparison.persistent.cons.map(c => `<li>${c}</li>`).join('')}</ul>
+                            </div>
+                            <div style="margin-top:12px;padding:8px;background:var(--bg-secondary);border-radius:4px">
+                                <strong style="font-size:0.7rem">Cost Example:</strong>
+                                <p style="font-size:0.65rem">${pvnp.comparison.persistent.costModel.example}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="impl-policy-card">
+                        <div class="impl-policy-header" style="background:var(--accent-blue)"><h4>${pvnp.comparison.nonPersistent.name}</h4></div>
+                        <div class="impl-policy-body">
+                            <p style="font-size:0.75rem;margin-bottom:8px">${pvnp.comparison.nonPersistent.description}</p>
+                            <p style="font-size:0.7rem"><strong>Architecture:</strong> ${pvnp.comparison.nonPersistent.architecture}</p>
+                            <p style="font-size:0.7rem"><strong>Profiles:</strong> ${pvnp.comparison.nonPersistent.profileManagement}</p>
+                            <div style="margin:12px 0">
+                                <strong style="color:var(--accent-green);font-size:0.7rem">Pros:</strong>
+                                <ul style="font-size:0.65rem;margin:4px 0 0 16px">${pvnp.comparison.nonPersistent.pros.map(p => `<li>${p}</li>`).join('')}</ul>
+                            </div>
+                            <div>
+                                <strong style="color:var(--accent-orange);font-size:0.7rem">Cons:</strong>
+                                <ul style="font-size:0.65rem;margin:4px 0 0 16px">${pvnp.comparison.nonPersistent.cons.map(c => `<li>${c}</li>`).join('')}</ul>
+                            </div>
+                            <div style="margin-top:12px;padding:8px;background:var(--bg-secondary);border-radius:4px">
+                                <strong style="font-size:0.7rem">Cost Example:</strong>
+                                <p style="font-size:0.65rem">${pvnp.comparison.nonPersistent.costModel.example}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cost-Benefit Factors -->
+                <h4 style="margin:16px 0 8px">Cost-Benefit Analysis by Factor</h4>
+                <div class="impl-table-container" style="margin-bottom:16px">
+                    <table class="impl-table">
+                        <thead><tr><th>Factor</th><th>Persistent</th><th>Non-Persistent</th><th>Guidance</th></tr></thead>
+                        <tbody>
+                            ${pvnp.costBenefitAnalysis.factors.map(f => `
+                                <tr>
+                                    <td><strong>${f.factor}</strong></td>
+                                    <td style="font-size:0.7rem">${f.persistent}</td>
+                                    <td style="font-size:0.7rem">${f.nonPersistent}</td>
+                                    <td style="font-size:0.7rem;color:var(--accent-blue)">${f.guidance || f.breakeven}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Recommendations -->
+                <h4 style="margin:16px 0 8px">Recommendations by Scenario</h4>
+                <div class="impl-cards-grid">
+                    ${pvnp.costBenefitAnalysis.recommendations.map(r => `
+                        <div class="impl-policy-card" style="padding:12px">
+                            <strong style="font-size:0.8rem">${r.scenario}</strong>
+                            <p style="font-size:0.75rem;color:var(--accent-green);margin:4px 0">${r.recommendation}</p>
+                            <p style="font-size:0.65rem;color:var(--text-muted)">${r.reasoning}</p>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- Hybrid Approach -->
+                <h4 style="margin:20px 0 8px;color:var(--accent-purple)">Hybrid Pool Strategy</h4>
+                <p style="font-size:0.75rem;margin-bottom:12px">${pvnp.hybridApproach.description}</p>
+                <div class="impl-table-container">
+                    <table class="impl-table">
+                        <thead><tr><th>Pool</th><th>Type</th><th>Users</th><th>Density</th><th>Profile</th></tr></thead>
+                        <tbody>
+                            ${pvnp.hybridApproach.implementation.map(p => `
+                                <tr>
+                                    <td><strong>${p.pool}</strong></td>
+                                    <td style="font-size:0.7rem">${p.type}</td>
+                                    <td style="font-size:0.7rem">${p.users}</td>
+                                    <td style="font-size:0.7rem">${p.density}</td>
+                                    <td style="font-size:0.7rem">${p.profile}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        // =============================================
+        // CMMC VDI DOCUMENTATION
+        // =============================================
+        if (guidance.cmmcVdiDocumentation) {
+            const cmmc = guidance.cmmcVdiDocumentation;
+            html += `<div class="impl-section">
+                <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-orange);padding-bottom:8px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-orange)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    CMMC Documentation for VDI Environments
+                </div>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${cmmc.overview}</p>
+
+                <!-- Assessment Q&A -->
+                <h4 style="margin:16px 0 8px;color:var(--accent-orange)">Common Assessment Questions</h4>
+                ${cmmc.assessmentPrep.commonQuestions.map(q => `
+                    <div class="impl-policy-card" style="margin-bottom:12px">
+                        <div class="impl-policy-header"><h4 style="font-size:0.8rem">${q.question}</h4></div>
+                        <div class="impl-policy-body">
+                            <p style="font-size:0.75rem">${q.answer}</p>
+                        </div>
+                    </div>
+                `).join('')}
+
+                <!-- Document Checklist -->
+                <h4 style="margin:20px 0 8px;color:var(--accent-green)">Assessment Document Checklist</h4>
+                <div class="impl-table-container">
+                    <table class="impl-table">
+                        <thead><tr><th>Document</th><th>Status</th><th>Description</th></tr></thead>
+                        <tbody>
+                            ${cmmc.assessmentPrep.documentChecklist.map(d => `
+                                <tr>
+                                    <td><strong>${d.document}</strong></td>
+                                    <td><span class="impl-phase-badge ${d.status === 'Required' ? 'security' : 'governance'}">${d.status}</span></td>
+                                    <td style="font-size:0.7rem">${d.description}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        // =============================================
+        // COST MANAGEMENT DEEP DIVE
+        // =============================================
+        if (guidance.costManagementDeepDive) {
+            const cost = guidance.costManagementDeepDive;
+            html += `<div class="impl-section">
+                <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-blue);padding-bottom:8px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    VDI Cost Management Strategies
+                </div>
+
+                <!-- Azure Cost Management -->
+                <h4 style="margin:16px 0 8px;color:var(--accent-blue)">${cost.azure.name}</h4>
+                <div class="impl-table-container" style="margin-bottom:16px">
+                    <table class="impl-table">
+                        <thead><tr><th>Strategy</th><th>Description</th><th>Savings</th></tr></thead>
+                        <tbody>
+                            ${cost.azure.strategies.map(s => `
+                                <tr>
+                                    <td><strong>${s.name}</strong></td>
+                                    <td style="font-size:0.7rem">${s.description}</td>
+                                    <td style="font-size:0.7rem;color:var(--accent-green)">${s.savings || s.bestFor || ''}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- AWS Cost Management -->
+                <h4 style="margin:16px 0 8px;color:var(--accent-orange)">${cost.aws.name}</h4>
+                <div class="impl-table-container" style="margin-bottom:16px">
+                    <table class="impl-table">
+                        <thead><tr><th>Strategy</th><th>Description</th><th>Details</th></tr></thead>
+                        <tbody>
+                            ${cost.aws.strategies.map(s => `
+                                <tr>
+                                    <td><strong>${s.name}</strong></td>
+                                    <td style="font-size:0.7rem">${s.description}</td>
+                                    <td style="font-size:0.7rem">${s.savings || s.hourly || ''}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- On-Prem Cost Management -->
+                <h4 style="margin:16px 0 8px;color:var(--accent-purple)">${cost.onPrem.name}</h4>
+                <div class="impl-cards-grid" style="margin-bottom:16px">
+                    ${cost.onPrem.strategies.map(s => `
+                        <div class="impl-policy-card" style="padding:12px">
+                            <strong style="font-size:0.8rem">${s.name}</strong>
+                            <p style="font-size:0.7rem;margin-top:4px">${s.description}</p>
+                            ${s.tip ? `<p style="font-size:0.65rem;color:var(--accent-green);margin-top:4px">Tip: ${s.tip}</p>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- TCO Comparison -->
+                <h4 style="margin:16px 0 8px">Cross-Platform TCO Comparison</h4>
+                <div class="impl-table-container">
+                    <table class="impl-table">
+                        <thead><tr><th>Line Item</th><th>Azure</th><th>AWS</th><th>On-Prem</th></tr></thead>
+                        <tbody>
+                            ${cost.crossPlatformComparison.template.map(t => `
+                                <tr>
+                                    <td><strong>${t.lineItem}</strong></td>
+                                    <td style="font-size:0.7rem">${t.azure}</td>
+                                    <td style="font-size:0.7rem">${t.aws}</td>
+                                    <td style="font-size:0.7rem">${t.onPrem}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
         return html;
     }
 
