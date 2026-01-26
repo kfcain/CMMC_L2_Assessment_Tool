@@ -1266,6 +1266,7 @@ class AssessmentApp {
     }
     
     renderPlannerKanban(planner, allTasks) {
+        console.log('Rendering Kanban view with', allTasks.length, 'tasks');
         const todo = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority === 'critical');
         const inProgress = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority !== 'critical');
         const done = allTasks.filter(t => this.implPlannerProgress[t.id]);
@@ -1309,43 +1310,47 @@ class AssessmentApp {
                     <span class="impl-kanban-task-phase">${task.phaseName || ''}</span>
                     <span class="impl-task-priority ${task.priority}" style="font-size:0.6rem">${task.priority}</span>
                 </div>
+                <div class="impl-kanban-task-desc">${task.description}</div>
             </div>
         `;
     }
     
     renderPlannerList(planner, allTasks) {
+        console.log('Rendering List view with', allTasks.length, 'tasks');
         return `
-            <table class="impl-list-table">
-                <thead>
-                    <tr>
-                        <th style="width:40px"></th>
-                        <th>Task</th>
-                        <th>Phase</th>
-                        <th>Priority</th>
-                        <th>Controls</th>
-                        <th>Effort</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${allTasks.map(t => `
-                        <tr data-task="${t.id}">
-                            <td>
-                                <div class="impl-task-checkbox ${this.implPlannerProgress[t.id] ? 'completed' : ''}" data-task-id="${t.id}" style="width:18px;height:18px">
-                                    ${this.implPlannerProgress[t.id] ? '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
-                                </div>
-                            </td>
-                            <td>
-                                <div style="font-weight:500;${this.implPlannerProgress[t.id] ? 'text-decoration:line-through;opacity:0.6' : ''}">${t.name}</div>
-                                <div style="font-size:0.7rem;color:var(--text-muted)">${t.description}</div>
-                            </td>
-                            <td><span style="font-size:0.7rem;padding:2px 6px;background:var(--bg-tertiary);border-radius:4px">${t.phaseName}</span></td>
-                            <td><span class="impl-task-priority ${t.priority}">${t.priority}</span></td>
-                            <td>${t.controls ? t.controls.map(c => `<button class="impl-task-control" data-control="${c}" style="margin:1px">${c}</button>`).join('') : '-'}</td>
-                            <td style="font-size:0.75rem;color:var(--text-secondary)">${t.effort || '-'}</td>
+            <div class="impl-list-container">
+                <table class="impl-list-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40px"></th>
+                            <th>Task</th>
+                            <th>Phase</th>
+                            <th>Priority</th>
+                            <th>Controls</th>
+                            <th>Effort</th>
                         </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        ${allTasks.map(t => `
+                            <tr data-task="${t.id}">
+                                <td>
+                                    <div class="impl-task-checkbox ${this.implPlannerProgress[t.id] ? 'completed' : ''}" data-task-id="${t.id}" style="width:18px;height:18px">
+                                        ${this.implPlannerProgress[t.id] ? '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight:500;${this.implPlannerProgress[t.id] ? 'text-decoration:line-through;opacity:0.6' : ''}">${t.name}</div>
+                                    <div style="font-size:0.7rem;color:var(--text-muted)">${t.description}</div>
+                                </td>
+                                <td><span style="font-size:0.7rem;padding:2px 6px;background:var(--bg-tertiary);border-radius:4px">${t.phaseName}</span></td>
+                                <td><span class="impl-task-priority ${t.priority}">${t.priority}</span></td>
+                                <td>${t.controls ? t.controls.map(c => `<button class="impl-task-control" data-control="${c}" style="margin:1px">${c}</button>`).join('') : '-'}</td>
+                                <td style="font-size:0.75rem;color:var(--text-secondary)">${t.effort || '-'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
         `;
     }
     
