@@ -10,6 +10,7 @@ class AssessmentApp {
         this.orgData = {}; // Organization info (assessor, OSC)
         this.assessmentLevel = localStorage.getItem('nist-assessment-level') || '2'; // '1' for L1, '2' for L2
         this.currentView = localStorage.getItem('nist-current-view') || 'dashboard';
+        this.assessmentScriptsLoaded = false; // Track if guidance scripts are loaded
         this.init();
     }
 
@@ -547,6 +548,17 @@ class AssessmentApp {
             this.renderPOAM();
         } else if (view === 'dashboard') {
             this.renderDashboard();
+        } else if (view === 'assessment') {
+            // Load assessment scripts if needed, then re-render controls
+            if (window.LazyLoader && !this.assessmentScriptsLoaded) {
+                try {
+                    await window.LazyLoader.loadViewScripts('assessment');
+                    this.assessmentScriptsLoaded = true;
+                    this.renderControls(); // Re-render with guidance available
+                } catch (e) {
+                    console.error('Failed to load assessment scripts:', e);
+                }
+            }
         } else if (view === 'crosswalk') {
             if (typeof CrosswalkVisualizer !== 'undefined') {
                 CrosswalkVisualizer.init();

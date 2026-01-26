@@ -10,6 +10,14 @@ const LazyLoader = {
         'impl-planner': [
             'data/implementation-planner.js'
         ],
+        'assessment': [
+            'data/gcc-high-guidance.js',
+            'data/aws-govcloud-guidance.js',
+            'data/gcp-guidance.js',
+            'data/itar-guidance.js',
+            'data/impl-notes.js',
+            'data/framework-mappings.js'
+        ],
         'impl-guide': [
             'data/gcc-high-guidance.js',
             'data/gcc-high-impl-guide.js',
