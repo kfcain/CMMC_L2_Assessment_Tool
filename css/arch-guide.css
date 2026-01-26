@@ -597,6 +597,55 @@
 /* Extras Collapsible Sections */
 .extras-collapsible {
     scroll-margin-top: 120px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.extras-collapsible .impl-section-title {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    margin: 0;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid transparent;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.extras-collapsible .impl-section-title:hover {
+    background: var(--bg-secondary);
+}
+
+.extras-collapsible .impl-section-title::after {
+    content: '▼';
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+    transform: rotate(-90deg);
+}
+
+.extras-collapsible.section-expanded .impl-section-title::after {
+    transform: rotate(0deg);
+}
+
+.extras-collapsible.section-expanded .impl-section-title {
+    border-bottom-color: var(--border-color);
+}
+
+.extras-collapsible .section-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    padding: 0 16px;
+}
+
+.extras-collapsible.section-expanded .section-content {
+    max-height: 5000px;
+    padding: 16px;
+    transition: max-height 0.5s ease-in, padding 0.3s ease-in;
 }
 
 .extras-details {
