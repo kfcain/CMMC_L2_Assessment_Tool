@@ -539,7 +539,546 @@ class AssessmentApp {
             }
         } else if (view === 'impl-guide') {
             this.renderImplGuideView();
+        } else if (view === 'impl-planner') {
+            this.renderImplPlanner();
         }
+    }
+    
+    // =============================================
+    // IMPLEMENTATION PLANNER
+    // =============================================
+    renderImplPlanner() {
+        const container = document.getElementById('impl-planner-content');
+        if (!container) return;
+        
+        const planner = typeof IMPLEMENTATION_PLANNER !== 'undefined' ? IMPLEMENTATION_PLANNER : null;
+        if (!planner) {
+            container.innerHTML = '<p style="padding:40px;text-align:center;color:var(--text-muted)">Implementation Planner data not loaded.</p>';
+            return;
+        }
+        
+        // Load saved progress
+        this.implPlannerProgress = JSON.parse(localStorage.getItem('impl-planner-progress') || '{}');
+        this.implPlannerCurrentPhase = localStorage.getItem('impl-planner-phase') || planner.phases[0].id;
+        this.implPlannerView = localStorage.getItem('impl-planner-view') || 'phases';
+        
+        // Calculate overall progress
+        const allTasks = this.getAllPlannerTasks(planner);
+        const completedTasks = allTasks.filter(t => this.implPlannerProgress[t.id]);
+        const overallProgress = allTasks.length > 0 ? Math.round((completedTasks.length / allTasks.length) * 100) : 0;
+        
+        // Calculate phase progress
+        const phaseProgress = {};
+        planner.phases.forEach(phase => {
+            const phaseTasks = this.getPhaseTasks(phase);
+            const phaseCompleted = phaseTasks.filter(t => this.implPlannerProgress[t.id]).length;
+            phaseProgress[phase.id] = {
+                total: phaseTasks.length,
+                completed: phaseCompleted,
+                percent: phaseTasks.length > 0 ? Math.round((phaseCompleted / phaseTasks.length) * 100) : 0
+            };
+        });
+        
+        const currentPhase = planner.phases.find(p => p.id === this.implPlannerCurrentPhase) || planner.phases[0];
+        
+        container.innerHTML = `
+            <!-- Header -->
+            <div class="impl-planner-header">
+                <h1>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 14l2 2 4-4"/></svg>
+                    CMMC Implementation Planner
+                </h1>
+                <p>${planner.description}</p>
+            </div>
+            
+            <!-- Progress Overview -->
+            <div class="impl-progress-overview">
+                <div class="impl-progress-card">
+                    <h3>Overall Progress</h3>
+                    <div class="value">${overallProgress}%</div>
+                    <div class="subtext">${completedTasks.length} of ${allTasks.length} tasks complete</div>
+                    <div class="impl-progress-bar-container">
+                        <div class="impl-progress-bar">
+                            <div class="impl-progress-bar-fill" style="width:${overallProgress}%;background:var(--status-met)"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="impl-progress-card">
+                    <h3>Current Phase</h3>
+                    <div class="value" style="font-size:1.25rem">${currentPhase.name}</div>
+                    <div class="subtext">${phaseProgress[currentPhase.id].percent}% complete</div>
+                    <div class="impl-progress-bar-container">
+                        <div class="impl-progress-bar">
+                            <div class="impl-progress-bar-fill" style="width:${phaseProgress[currentPhase.id].percent}%;background:${currentPhase.color}"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="impl-progress-card">
+                    <h3>Total Phases</h3>
+                    <div class="value">${planner.phases.length}</div>
+                    <div class="subtext">${planner.phases.filter(p => phaseProgress[p.id].percent === 100).length} complete</div>
+                </div>
+                <div class="impl-progress-card">
+                    <h3>Critical Tasks</h3>
+                    <div class="value">${allTasks.filter(t => t.priority === 'critical' && !this.implPlannerProgress[t.id]).length}</div>
+                    <div class="subtext">remaining critical items</div>
+                </div>
+            </div>
+            
+            <!-- View Controls -->
+            <div class="impl-view-controls">
+                <div class="impl-view-toggle">
+                    <button class="${this.implPlannerView === 'phases' ? 'active' : ''}" data-view="phases">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        Phases
+                    </button>
+                    <button class="${this.implPlannerView === 'kanban' ? 'active' : ''}" data-view="kanban">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6" height="16"/><rect x="14" y="4" width="6" height="10"/></svg>
+                        Kanban
+                    </button>
+                    <button class="${this.implPlannerView === 'list' ? 'active' : ''}" data-view="list">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                        List
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Phase Timeline (for phases view) -->
+            <div class="impl-phase-timeline" style="${this.implPlannerView !== 'phases' ? 'display:none' : ''}">
+                ${planner.phases.map((phase, idx) => `
+                    <div class="impl-phase-tab ${phase.id === this.implPlannerCurrentPhase ? 'active' : ''}" data-phase="${phase.id}" style="border-left:3px solid ${phase.color}">
+                        <div class="phase-tab-number">Phase ${idx + 1}</div>
+                        <div class="phase-tab-name">${phase.name}</div>
+                        <div class="phase-tab-progress">${phaseProgress[phase.id].completed}/${phaseProgress[phase.id].total} tasks</div>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <!-- Phases View Content -->
+            <div id="impl-phases-content" style="${this.implPlannerView !== 'phases' ? 'display:none' : ''}">
+                ${this.renderPlannerPhaseContent(currentPhase, phaseProgress)}
+            </div>
+            
+            <!-- Kanban View -->
+            <div class="impl-kanban-container ${this.implPlannerView === 'kanban' ? 'active' : ''}" id="impl-kanban-content">
+                ${this.renderPlannerKanban(planner, allTasks)}
+            </div>
+            
+            <!-- List View -->
+            <div class="impl-list-container ${this.implPlannerView === 'list' ? 'active' : ''}" id="impl-list-content">
+                ${this.renderPlannerList(planner, allTasks)}
+            </div>
+        `;
+        
+        this.bindImplPlannerEvents(container, planner, phaseProgress);
+    }
+    
+    getAllPlannerTasks(planner) {
+        const tasks = [];
+        planner.phases.forEach(phase => {
+            phase.milestones.forEach(milestone => {
+                milestone.tasks.forEach(task => {
+                    tasks.push({ ...task, phaseId: phase.id, phaseName: phase.name, milestoneId: milestone.id, milestoneName: milestone.name, phaseColor: phase.color });
+                });
+            });
+        });
+        return tasks;
+    }
+    
+    getPhaseTasks(phase) {
+        const tasks = [];
+        phase.milestones.forEach(milestone => {
+            milestone.tasks.forEach(task => {
+                tasks.push(task);
+            });
+        });
+        return tasks;
+    }
+    
+    renderPlannerPhaseContent(phase, phaseProgress) {
+        const phaseIcon = this.getPhaseIcon(phase.icon);
+        
+        return `
+            <div class="impl-phase-content">
+                <div class="impl-phase-header">
+                    <div class="impl-phase-icon" style="background:${phase.color}">
+                        ${phaseIcon}
+                    </div>
+                    <div class="impl-phase-info">
+                        <h2>${phase.name}</h2>
+                        <p>${phase.description}</p>
+                        <div class="impl-phase-meta">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                ${phase.duration}
+                            </span>
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                ${phaseProgress[phase.id].completed}/${phaseProgress[phase.id].total} tasks
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="impl-milestones">
+                    ${phase.milestones.map(milestone => this.renderPlannerMilestone(milestone, phase)).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    renderPlannerMilestone(milestone, phase) {
+        const milestoneTasks = milestone.tasks;
+        const completedCount = milestoneTasks.filter(t => this.implPlannerProgress[t.id]).length;
+        const isComplete = completedCount === milestoneTasks.length && milestoneTasks.length > 0;
+        const isPartial = completedCount > 0 && completedCount < milestoneTasks.length;
+        
+        return `
+            <div class="impl-milestone" data-milestone="${milestone.id}">
+                <div class="impl-milestone-header">
+                    <div class="impl-milestone-checkbox ${isComplete ? 'completed' : ''} ${isPartial ? 'partial' : ''}">
+                        ${isComplete ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                    </div>
+                    <div class="impl-milestone-info">
+                        <h3>${milestone.name}</h3>
+                        <p>${milestone.description}</p>
+                    </div>
+                    <div class="impl-milestone-progress">${completedCount}/${milestoneTasks.length}</div>
+                    <div class="impl-milestone-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                </div>
+                <div class="impl-tasks">
+                    ${milestoneTasks.map(task => this.renderPlannerTask(task, phase)).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    renderPlannerTask(task, phase) {
+        const isComplete = this.implPlannerProgress[task.id];
+        
+        return `
+            <div class="impl-task" data-task="${task.id}">
+                <div class="impl-task-checkbox ${isComplete ? 'completed' : ''}" data-task-id="${task.id}">
+                    ${isComplete ? '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                </div>
+                <div class="impl-task-content">
+                    <div class="impl-task-header">
+                        <span class="impl-task-name ${isComplete ? 'completed' : ''}">${task.name}</span>
+                        <span class="impl-task-priority ${task.priority}">${task.priority}</span>
+                    </div>
+                    <div class="impl-task-description">${task.description}</div>
+                    ${task.controls && task.controls.length > 0 ? `
+                        <div class="impl-task-controls">
+                            ${task.controls.map(c => `
+                                <button class="impl-task-control" data-control="${c}">
+                                    ${c}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </button>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    <button class="impl-task-expand" data-task-id="${task.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        Show implementation details
+                    </button>
+                    <div class="impl-task-details" id="task-details-${task.id}">
+                        ${this.renderTaskDetails(task)}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    renderTaskDetails(task) {
+        const guidance = task.guidance || {};
+        let html = '';
+        
+        // Steps
+        if (guidance.steps && guidance.steps.length > 0) {
+            html += `
+                <div class="impl-task-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                        Implementation Steps
+                    </h4>
+                    <ol class="impl-task-steps">
+                        ${guidance.steps.map(s => `<li>${s}</li>`).join('')}
+                    </ol>
+                </div>
+            `;
+        }
+        
+        // Artifacts
+        if (guidance.artifacts && guidance.artifacts.length > 0) {
+            html += `
+                <div class="impl-task-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Required Artifacts
+                    </h4>
+                    <div class="impl-task-artifacts">
+                        ${guidance.artifacts.map(a => `<span class="impl-artifact-badge">${a}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Platform-specific configs
+        if (guidance.platforms) {
+            html += `
+                <div class="impl-task-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        Platform Configuration
+                    </h4>
+                    <div class="impl-platform-configs">
+                        ${Object.entries(guidance.platforms).map(([key, platform]) => `
+                            <div class="impl-platform-card ${key}">
+                                <h5>${platform.name}</h5>
+                                ${platform.config ? platform.config.map(c => `
+                                    <div class="impl-config-item">
+                                        <strong>${c.setting}:</strong> <span class="config-value">${c.value || c.config || ''}</span>
+                                        ${c.location ? `<span class="config-location">${c.location}</span>` : ''}
+                                        ${c.path ? `<span class="config-location">${c.path}</span>` : ''}
+                                    </div>
+                                `).join('') : ''}
+                                ${platform.steps ? platform.steps.map(s => `
+                                    <div class="impl-config-item">${s}</div>
+                                `).join('') : ''}
+                                ${platform.gpo ? platform.gpo.map(g => `
+                                    <div class="impl-config-item">
+                                        <strong>${g.setting}:</strong> <span class="config-value">${g.value}</span>
+                                        <span class="config-location">${g.path}</span>
+                                    </div>
+                                `).join('') : ''}
+                                ${platform.registry ? platform.registry.map(r => `
+                                    <div class="impl-config-item">
+                                        <strong>${r.value}:</strong> <span class="config-value">${r.data}</span>
+                                        <span class="config-location">${r.key}</span>
+                                    </div>
+                                `).join('') : ''}
+                                ${platform.policies ? platform.policies.map(p => `
+                                    <div class="impl-config-item">
+                                        <strong>${p.name}:</strong> ${p.controls}
+                                        <span class="config-location">Conditions: ${p.conditions}</span>
+                                    </div>
+                                `).join('') : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        return html || '<p style="font-size:0.75rem;color:var(--text-muted)">No additional details available.</p>';
+    }
+    
+    renderPlannerKanban(planner, allTasks) {
+        const todo = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority === 'critical');
+        const inProgress = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority !== 'critical');
+        const done = allTasks.filter(t => this.implPlannerProgress[t.id]);
+        
+        return `
+            <div class="impl-kanban-column">
+                <div class="impl-kanban-header">
+                    <h3>Critical</h3>
+                    <span class="impl-kanban-count">${todo.length}</span>
+                </div>
+                <div class="impl-kanban-tasks">
+                    ${todo.map(t => this.renderKanbanCard(t)).join('')}
+                </div>
+            </div>
+            <div class="impl-kanban-column">
+                <div class="impl-kanban-header">
+                    <h3>To Do</h3>
+                    <span class="impl-kanban-count">${inProgress.length}</span>
+                </div>
+                <div class="impl-kanban-tasks">
+                    ${inProgress.map(t => this.renderKanbanCard(t)).join('')}
+                </div>
+            </div>
+            <div class="impl-kanban-column">
+                <div class="impl-kanban-header" style="background:rgba(152,195,121,0.1)">
+                    <h3 style="color:var(--status-met)">Done</h3>
+                    <span class="impl-kanban-count">${done.length}</span>
+                </div>
+                <div class="impl-kanban-tasks">
+                    ${done.map(t => this.renderKanbanCard(t)).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    renderKanbanCard(task) {
+        return `
+            <div class="impl-kanban-task" data-task="${task.id}" style="border-left:3px solid ${task.phaseColor || 'var(--border-color)'}">
+                <div class="impl-kanban-task-title">${task.name}</div>
+                <div class="impl-kanban-task-meta">
+                    <span class="impl-kanban-task-phase">${task.phaseName || ''}</span>
+                    <span class="impl-task-priority ${task.priority}" style="font-size:0.6rem">${task.priority}</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    renderPlannerList(planner, allTasks) {
+        return `
+            <table class="impl-list-table">
+                <thead>
+                    <tr>
+                        <th style="width:40px"></th>
+                        <th>Task</th>
+                        <th>Phase</th>
+                        <th>Priority</th>
+                        <th>Controls</th>
+                        <th>Effort</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${allTasks.map(t => `
+                        <tr data-task="${t.id}">
+                            <td>
+                                <div class="impl-task-checkbox ${this.implPlannerProgress[t.id] ? 'completed' : ''}" data-task-id="${t.id}" style="width:18px;height:18px">
+                                    ${this.implPlannerProgress[t.id] ? '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight:500;${this.implPlannerProgress[t.id] ? 'text-decoration:line-through;opacity:0.6' : ''}">${t.name}</div>
+                                <div style="font-size:0.7rem;color:var(--text-muted)">${t.description}</div>
+                            </td>
+                            <td><span style="font-size:0.7rem;padding:2px 6px;background:var(--bg-tertiary);border-radius:4px">${t.phaseName}</span></td>
+                            <td><span class="impl-task-priority ${t.priority}">${t.priority}</span></td>
+                            <td>${t.controls ? t.controls.map(c => `<button class="impl-task-control" data-control="${c}" style="margin:1px">${c}</button>`).join('') : '-'}</td>
+                            <td style="font-size:0.75rem;color:var(--text-secondary)">${t.effort || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+    
+    getPhaseIcon(iconName) {
+        const icons = {
+            foundation: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"/><path d="M5 20V8l7-4 7 4v12"/><path d="M9 20v-6h6v6"/></svg>',
+            identity: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+            endpoint: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+            network: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="6"/><rect x="16" y="16" width="6" height="6"/><rect x="2" y="16" width="6" height="6"/><path d="M5 16v-4h14v4"/><line x1="12" y1="12" x2="12" y2="8"/></svg>',
+            data: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',
+            monitor: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>',
+            vdi: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2m2 0h2m2 0h2"/><path d="M7 11h10"/></svg>',
+            policies: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'
+        };
+        return icons[iconName] || icons.foundation;
+    }
+    
+    bindImplPlannerEvents(container, planner, phaseProgress) {
+        // Phase tab clicks
+        container.querySelectorAll('.impl-phase-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const phaseId = e.currentTarget.dataset.phase;
+                this.implPlannerCurrentPhase = phaseId;
+                localStorage.setItem('impl-planner-phase', phaseId);
+                this.renderImplPlanner();
+            });
+        });
+        
+        // View toggle
+        container.querySelectorAll('.impl-view-toggle button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.implPlannerView = e.currentTarget.dataset.view;
+                localStorage.setItem('impl-planner-view', this.implPlannerView);
+                this.renderImplPlanner();
+            });
+        });
+        
+        // Milestone expand/collapse
+        container.querySelectorAll('.impl-milestone-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                header.classList.toggle('expanded');
+                header.nextElementSibling.classList.toggle('expanded');
+            });
+        });
+        
+        // Task checkboxes
+        container.querySelectorAll('.impl-task-checkbox').forEach(cb => {
+            cb.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const taskId = e.currentTarget.dataset.taskId;
+                if (taskId) {
+                    this.implPlannerProgress[taskId] = !this.implPlannerProgress[taskId];
+                    localStorage.setItem('impl-planner-progress', JSON.stringify(this.implPlannerProgress));
+                    this.renderImplPlanner();
+                }
+            });
+        });
+        
+        // Task detail expand
+        container.querySelectorAll('.impl-task-expand').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const taskId = e.currentTarget.dataset.taskId;
+                const details = document.getElementById(`task-details-${taskId}`);
+                if (details) {
+                    details.classList.toggle('expanded');
+                    e.currentTarget.innerHTML = details.classList.contains('expanded') 
+                        ? '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg> Hide details'
+                        : '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg> Show implementation details';
+                }
+            });
+        });
+        
+        // Control navigation
+        container.querySelectorAll('.impl-task-control').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const controlId = e.currentTarget.dataset.control;
+                if (controlId && this.navigateToControl) {
+                    this.navigateToControl(controlId);
+                }
+            });
+        });
+        
+        // Kanban card clicks
+        container.querySelectorAll('.impl-kanban-task').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const taskId = e.currentTarget.dataset.task;
+                // Find the task's phase and switch to it
+                const taskInfo = this.findTaskPhase(planner, taskId);
+                if (taskInfo) {
+                    this.implPlannerCurrentPhase = taskInfo.phaseId;
+                    this.implPlannerView = 'phases';
+                    localStorage.setItem('impl-planner-phase', taskInfo.phaseId);
+                    localStorage.setItem('impl-planner-view', 'phases');
+                    this.renderImplPlanner();
+                    // Expand milestone after render
+                    setTimeout(() => {
+                        const milestone = document.querySelector(`[data-milestone="${taskInfo.milestoneId}"]`);
+                        if (milestone) {
+                            milestone.querySelector('.impl-milestone-header')?.classList.add('expanded');
+                            milestone.querySelector('.impl-tasks')?.classList.add('expanded');
+                            const task = milestone.querySelector(`[data-task="${taskId}"]`);
+                            if (task) {
+                                task.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                task.style.boxShadow = '0 0 0 2px var(--accent-blue)';
+                                setTimeout(() => task.style.boxShadow = '', 2000);
+                            }
+                        }
+                    }, 100);
+                }
+            });
+        });
+    }
+    
+    findTaskPhase(planner, taskId) {
+        for (const phase of planner.phases) {
+            for (const milestone of phase.milestones) {
+                if (milestone.tasks.find(t => t.id === taskId)) {
+                    return { phaseId: phase.id, milestoneId: milestone.id };
+                }
+            }
+        }
+        return null;
     }
     
     renderImplGuideView() {
