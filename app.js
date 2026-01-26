@@ -1179,14 +1179,23 @@ class AssessmentApp {
         const currentCloud = this.implGuideCloud || 'azure';
         this.archGuideSection = this.archGuideSection || null;
         
+        // Calculate assessment progress for mini indicator
+        const totalObjectives = 320;
+        const metCount = Object.values(this.assessmentData).filter(s => s === 'met').length;
+        const progressPct = Math.round((metCount / totalObjectives) * 100);
+        
         // Render the redesigned Architecture Guide
         container.innerHTML = `
             <div class="arch-guide-container">
                 <div class="arch-guide-header">
                     <div class="arch-guide-header-top">
                         <div class="arch-guide-title">
-                            <div class="arch-guide-title-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            <div class="arch-guide-progress-mini" title="Assessment Progress: ${metCount}/${totalObjectives} objectives met">
+                                <svg viewBox="0 0 36 36" class="arch-progress-ring">
+                                    <path class="arch-progress-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    <path class="arch-progress-fill" stroke-dasharray="${progressPct}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    <text x="18" y="20.5" class="arch-progress-text">${progressPct}%</text>
+                                </svg>
                             </div>
                             <div>
                                 <h1>Architecture Guide</h1>

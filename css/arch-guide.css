@@ -28,21 +28,41 @@
     gap: 16px;
 }
 
-.arch-guide-title-icon {
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(97, 175, 239, 0.3);
+/* Progress Ring Mini Indicator */
+.arch-guide-progress-mini {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    cursor: help;
 }
 
-.arch-guide-title-icon svg {
-    width: 28px;
-    height: 28px;
-    color: white;
+.arch-progress-ring {
+    width: 48px;
+    height: 48px;
+    transform: rotate(-90deg);
+}
+
+.arch-progress-bg {
+    fill: none;
+    stroke: var(--bg-tertiary);
+    stroke-width: 3;
+}
+
+.arch-progress-fill {
+    fill: none;
+    stroke: var(--status-met);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dasharray 0.3s ease;
+}
+
+.arch-progress-text {
+    fill: var(--text-primary);
+    font-size: 8px;
+    font-weight: 600;
+    text-anchor: middle;
+    transform: rotate(90deg);
+    transform-origin: 18px 18px;
 }
 
 .arch-guide-title h1 {
