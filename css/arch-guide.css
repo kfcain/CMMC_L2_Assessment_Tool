@@ -369,7 +369,7 @@
     padding: 24px;
 }
 
-/* Back Button - Sticky while scrolling */
+/* Back Button - Fixed while scrolling */
 .arch-back-btn {
     display: inline-flex;
     align-items: center;
@@ -383,10 +383,10 @@
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
-    position: sticky;
-    top: 10px;
+    position: fixed;
+    bottom: 80px;
+    left: 280px;
     z-index: 100;
-    margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
