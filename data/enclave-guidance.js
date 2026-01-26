@@ -1323,6 +1323,432 @@ const ENCLAVE_GUIDANCE = {
                 }
             ]
         }
+    },
+
+    // ========================================
+    // VDI ENDPOINTS DEEP DIVE
+    // ========================================
+    
+    vdiEndpointsDeepDive: {
+        overview: "Endpoint selection is critical for VDI success. The right endpoint reduces attack surface, simplifies management, and improves user experience.",
+        
+        // Thin Client Hardware
+        thinClientHardware: {
+            description: "Purpose-built devices for VDI/remote desktop access with minimal local attack surface",
+            
+            vendors: [
+                {
+                    vendor: "HP",
+                    products: [
+                        { model: "HP t640", specs: "AMD Ryzen R1505G, 8GB RAM, 64GB flash", useCase: "General VDI, dual-monitor support", priceRange: "$400-500" },
+                        { model: "HP t740", specs: "AMD Ryzen V1756B, 8GB RAM, 128GB SSD", useCase: "Power users, graphics workloads", priceRange: "$600-800" },
+                        { model: "HP t430", specs: "Intel Celeron, 4GB RAM, 32GB flash", useCase: "Task workers, cost-sensitive", priceRange: "$250-350" },
+                        { model: "HP mt46", specs: "AMD Ryzen 3, 8GB RAM, mobile thin client", useCase: "Mobile workers, laptop form factor", priceRange: "$500-650" }
+                    ],
+                    osOptions: ["HP ThinPro (Linux-based)", "Windows 10 IoT Enterprise"],
+                    management: "HP Device Manager for centralized management",
+                    strengths: ["Wide product range", "Strong enterprise support", "Good build quality"]
+                },
+                {
+                    vendor: "Dell Wyse",
+                    products: [
+                        { model: "Wyse 5070", specs: "Intel Celeron/Pentium, 4-8GB RAM", useCase: "General VDI, reliable workhorse", priceRange: "$350-500" },
+                        { model: "Wyse 5470", specs: "Intel Celeron, 4GB RAM, mobile", useCase: "Mobile thin client laptop", priceRange: "$450-600" },
+                        { model: "Wyse 5070 Extended", specs: "Intel Pentium, 8GB RAM, PCIe slot", useCase: "Expansion needs, graphics cards", priceRange: "$500-650" },
+                        { model: "Wyse 3040", specs: "Intel Atom, 2GB RAM, 8GB flash", useCase: "Ultra-low cost, basic VDI", priceRange: "$200-280" }
+                    ],
+                    osOptions: ["Wyse ThinOS", "ThinLinux", "Windows 10 IoT"],
+                    management: "Dell Wyse Management Suite (WMS)",
+                    strengths: ["ThinOS is very secure (proprietary)", "Good Dell ecosystem integration", "Long lifecycle"]
+                },
+                {
+                    vendor: "LG",
+                    products: [
+                        { model: "LG gram", specs: "Intel Core i5/i7, 16GB RAM, ultralight laptop", useCase: "Executive/mobile VDI access, also local work", priceRange: "$1,200-1,600" },
+                        { model: "LG CL600N", specs: "Intel Celeron, 4GB RAM, Chromebook", useCase: "Chrome Enterprise + VDI client", priceRange: "$350-450" }
+                    ],
+                    osOptions: ["Windows 11 Pro", "Chrome OS"],
+                    management: "Standard Windows/Chrome management",
+                    strengths: ["Ultra-portable", "All-day battery", "Dual-use capability"]
+                },
+                {
+                    vendor: "Lenovo",
+                    products: [
+                        { model: "ThinkCentre M75n", specs: "AMD Athlon, 4-8GB RAM, nano form", useCase: "Space-constrained, VESA mount", priceRange: "$350-450" },
+                        { model: "ThinkCentre M90n", specs: "Intel Core i3/i5, 8GB RAM", useCase: "Higher performance thin client", priceRange: "$500-700" }
+                    ],
+                    osOptions: ["Windows 10 IoT Enterprise", "Linux"],
+                    management: "Lenovo Device Manager",
+                    strengths: ["ThinkCentre reliability", "Good port selection", "VESA mounting"]
+                }
+            ],
+            
+            selectionCriteria: [
+                { factor: "Display Support", guidance: "Match to user needs (single, dual, 4K). Most thin clients support 2 displays." },
+                { factor: "USB Ports", guidance: "Ensure enough for keyboard, mouse, headset, webcam. USB-C is increasingly common." },
+                { factor: "Form Factor", guidance: "Desktop (VESA mount), mobile (laptop), or all-in-one" },
+                { factor: "Processor", guidance: "Celeron/Atom for basic, Ryzen/Core for local decode or multimedia" },
+                { factor: "Local Storage", guidance: "Minimal (16-64GB) for thin OS, more for hybrid use" },
+                { factor: "Network", guidance: "Gigabit Ethernet required, Wi-Fi 6 for mobile. Dual NIC for network isolation." }
+            ]
+        },
+        
+        // Thin Client Software/OS
+        thinClientSoftware: {
+            description: "Operating systems and software that convert endpoints into secure VDI access points",
+            
+            solutions: [
+                {
+                    name: "IGEL OS",
+                    type: "Linux-based endpoint OS",
+                    description: "Read-only Linux OS designed specifically for VDI/DaaS access",
+                    features: [
+                        "Read-only OS (cannot be modified by malware)",
+                        "Supports all major VDI platforms (AVD, Citrix, VMware, AWS)",
+                        "USB device filtering and control",
+                        "Smart card and biometric authentication",
+                        "Integrated 2FA support",
+                        "Secure boot and full disk encryption",
+                        "Kiosk mode for locked-down access"
+                    ],
+                    management: {
+                        tool: "IGEL Universal Management Suite (UMS)",
+                        capabilities: ["Centralized configuration", "Profile-based management", "Remote firmware updates", "Asset tracking", "Shadow sessions for support"]
+                    },
+                    deployment: [
+                        "Native on IGEL hardware",
+                        "Convert existing PCs to IGEL (IGEL OS Creator)",
+                        "USB boot (IGEL UD Pocket)"
+                    ],
+                    licensing: "Per-device subscription (~$50-100/year)",
+                    cmmcRelevance: [
+                        "AC.L2-3.1.1: Read-only OS limits local access",
+                        "SC.L2-3.13.16: No local data storage capability",
+                        "CM.L2-3.4.2: Centralized baseline enforcement",
+                        "SI.L2-3.14.2: Minimal attack surface, no local malware persistence"
+                    ],
+                    bestFor: "Organizations wanting maximum endpoint security with managed thin clients"
+                },
+                {
+                    name: "Dell Wyse ThinOS",
+                    type: "Proprietary secure OS",
+                    description: "Dell's proprietary thin client OS, extremely lightweight and secure",
+                    features: [
+                        "Proprietary OS (not based on Windows/Linux)",
+                        "Boots in under 10 seconds",
+                        "No local attack surface",
+                        "Citrix and VMware native support",
+                        "AVD support via browser"
+                    ],
+                    management: {
+                        tool: "Wyse Management Suite (WMS)",
+                        capabilities: ["Cloud or on-prem management", "Configuration policies", "Firmware updates", "Real-time monitoring"]
+                    },
+                    deployment: ["Dell Wyse hardware only"],
+                    licensing: "Included with Dell Wyse hardware",
+                    cmmcRelevance: [
+                        "Proprietary OS has extremely small attack surface",
+                        "No local user accounts or data storage",
+                        "Centralized management for baseline enforcement"
+                    ],
+                    bestFor: "Dell shops wanting simplest possible thin client with Citrix/VMware"
+                },
+                {
+                    name: "HP ThinPro",
+                    type: "Linux-based endpoint OS",
+                    description: "HP's Linux-based thin client OS for HP thin client hardware",
+                    features: [
+                        "Lightweight Linux kernel",
+                        "Support for Citrix, VMware, AVD, RDP",
+                        "Imprivata OneSign integration",
+                        "Smart card and proximity badge support",
+                        "Write filter for OS protection"
+                    ],
+                    management: {
+                        tool: "HP Device Manager",
+                        capabilities: ["Central configuration", "Group policies", "Software deployment", "Remote troubleshooting"]
+                    },
+                    deployment: ["HP thin client hardware only"],
+                    licensing: "Included with HP thin client hardware",
+                    cmmcRelevance: [
+                        "Write filter prevents persistent changes",
+                        "Centralized management and configuration",
+                        "Healthcare-grade authentication options"
+                    ],
+                    bestFor: "HP hardware customers, healthcare with Imprivata needs"
+                },
+                {
+                    name: "Windows 10/11 IoT Enterprise",
+                    type: "Locked-down Windows",
+                    description: "Windows with enterprise lockdown features for kiosk/thin client use",
+                    features: [
+                        "Full Windows compatibility",
+                        "Unified Write Filter (UWF) for protection",
+                        "AppLocker/WDAC for application control",
+                        "Assigned Access (kiosk mode)",
+                        "Shell Launcher for custom shell"
+                    ],
+                    management: {
+                        tool: "Intune, SCCM, or third-party",
+                        capabilities: ["Standard Windows management", "GPO/MDM policies", "Windows Update for Business"]
+                    },
+                    deployment: ["Any compatible hardware"],
+                    licensing: "OEM or volume licensing",
+                    cmmcRelevance: [
+                        "UWF provides malware resilience (reboot to clean state)",
+                        "Full STIG available for Windows 10/11",
+                        "Native Intune/Entra ID integration"
+                    ],
+                    bestFor: "Organizations needing some local Windows apps alongside VDI"
+                },
+                {
+                    name: "Chrome OS / ChromeOS Flex",
+                    type: "Google's cloud-first OS",
+                    description: "Lightweight, secure OS designed for web and cloud access",
+                    features: [
+                        "Verified boot (secure boot chain)",
+                        "Automatic updates",
+                        "Sandboxed browser",
+                        "Native Citrix/VMware Workspace clients",
+                        "Parallels Desktop for Chromebook (Windows apps)"
+                    ],
+                    management: {
+                        tool: "Google Workspace / Chrome Enterprise",
+                        capabilities: ["Zero-touch enrollment", "Policy management", "App deployment", "Remote wipe"]
+                    },
+                    deployment: ["Chromebooks (native)", "Any PC (ChromeOS Flex - free)"],
+                    licensing: "Chrome Enterprise Upgrade (~$50/device/year)",
+                    cmmcRelevance: [
+                        "Verified boot ensures OS integrity",
+                        "No local data (cloud-first)",
+                        "Minimal management overhead"
+                    ],
+                    bestFor: "Google Workspace shops, web-app focused organizations"
+                }
+            ],
+            
+            comparisonTable: [
+                { feature: "Attack Surface", igel: "Minimal (read-only)", thinOS: "Minimal (proprietary)", thinPro: "Low (Linux)", winIoT: "Medium (Windows)", chromeOS: "Low (sandboxed)" },
+                { feature: "VDI Support", igel: "All platforms", thinOS: "Citrix, VMware, AVD", thinPro: "Citrix, VMware, AVD", winIoT: "All platforms", chromeOS: "Citrix, VMware, AVD" },
+                { feature: "Hardware Lock-in", igel: "No (converts PCs)", thinOS: "Dell only", thinPro: "HP only", winIoT: "No", chromeOS: "No" },
+                { feature: "Management Complexity", igel: "Medium", thinOS: "Low", thinPro: "Low", winIoT: "High", chromeOS: "Low" },
+                { feature: "Local Apps", igel: "Limited", thinOS: "None", thinPro: "Limited", winIoT: "Full Windows", chromeOS: "Web + Android" },
+                { feature: "STIG Available", igel: "Vendor hardening guide", thinOS: "Vendor hardening", thinPro: "Vendor hardening", winIoT: "Full DISA STIG", chromeOS: "CIS Benchmark" }
+            ]
+        },
+        
+        // Zero Client Options
+        zeroClients: {
+            description: "Hardware with no local OS - all processing done on VDI host. Smallest possible attack surface.",
+            
+            options: [
+                {
+                    vendor: "Teradici (HP)",
+                    product: "Tera2 PCoIP Zero Clients",
+                    description: "Hardware-based PCoIP clients for VMware Horizon",
+                    features: ["No local OS", "Hardware PCoIP decode", "Dual 4K display support", "Smart card reader"],
+                    limitation: "VMware Horizon with PCoIP only",
+                    priceRange: "$300-500"
+                },
+                {
+                    vendor: "Dell",
+                    product: "Wyse 3030 LT Zero Client",
+                    description: "Citrix HDX and VMware PCoIP support",
+                    features: ["Dual display", "PoE option", "Very small form factor"],
+                    limitation: "Citrix or VMware only",
+                    priceRange: "$250-350"
+                },
+                {
+                    vendor: "10ZiG",
+                    product: "Zero Client Series",
+                    description: "Purpose-built for VMware and Citrix",
+                    features: ["Hardware-based protocol decode", "Lowest latency", "Fanless designs"],
+                    limitation: "Specific VDI platform",
+                    priceRange: "$300-450"
+                }
+            ],
+            
+            prosAndCons: {
+                pros: [
+                    "Absolute minimal attack surface (no OS)",
+                    "Cannot be compromised (nothing to compromise)",
+                    "Simple lifecycle (hardware only)",
+                    "Lowest latency for real-time graphics"
+                ],
+                cons: [
+                    "Locked to specific VDI platform",
+                    "No flexibility for local tasks",
+                    "Higher per-unit cost than repurposed PCs",
+                    "Declining market (thin clients more flexible)"
+                ]
+            }
+        },
+        
+        // Repurposing Existing Hardware
+        repurposingHardware: {
+            description: "Convert existing PCs and laptops into thin clients to extend hardware life and reduce costs",
+            
+            options: [
+                {
+                    solution: "IGEL OS Creator (UD Pocket)",
+                    method: "Boot from USB to run IGEL OS",
+                    hardware: "Any x86 PC with 2GB+ RAM",
+                    cost: "~$50-100/year per device",
+                    pros: ["Instant conversion", "No reimaging", "Boot from USB"],
+                    cons: ["Requires USB boot capability", "Performance depends on host hardware"]
+                },
+                {
+                    solution: "ChromeOS Flex",
+                    method: "Install Google's free Chrome OS on existing PCs",
+                    hardware: "Most PCs with 4GB+ RAM (check certified list)",
+                    cost: "Free (Chrome Enterprise upgrade optional at ~$50/year)",
+                    pros: ["Free OS", "Easy deployment", "Google management"],
+                    cons: ["Not all hardware certified", "Limited offline capability"]
+                },
+                {
+                    solution: "Windows Unified Write Filter",
+                    method: "Lock down existing Windows PCs with UWF and kiosk mode",
+                    hardware: "Any Windows 10/11 Enterprise PC",
+                    cost: "Included with Windows Enterprise licensing",
+                    pros: ["Keeps Windows familiarity", "No new hardware", "Full STIG baseline"],
+                    cons: ["Windows attack surface still present", "More management overhead"]
+                },
+                {
+                    solution: "ThinKiosk (by ThinScale)",
+                    method: "Convert Windows PCs to locked-down thin clients",
+                    hardware: "Any Windows PC",
+                    cost: "~$30-50/device/year",
+                    pros: ["Works on any Windows PC", "Granular lockdown", "BYOD support"],
+                    cons: ["Underlying Windows still present", "Additional software layer"]
+                }
+            ],
+            
+            costBenefit: {
+                scenario: "100 users needing new endpoints",
+                newThinClients: "$400 x 100 = $40,000 hardware + $5,000/year management",
+                repurpose: "$100/year x 100 = $10,000/year (reuse existing PCs)",
+                breakeven: "Repurposing saves money if existing PCs have 2+ years remaining life"
+            }
+        },
+        
+        // Mobile/BYOD Access
+        mobileAccess: {
+            description: "Strategies for mobile device access to VDI environments",
+            
+            options: [
+                {
+                    type: "Native VDI Apps",
+                    description: "Install VDI client on mobile device",
+                    apps: ["AVD (Microsoft Remote Desktop)", "Citrix Workspace", "VMware Horizon Client", "AWS WorkSpaces"],
+                    security: ["Conditional Access for device compliance", "MAM policies for app protection", "Certificate-based auth"],
+                    pros: ["Best user experience", "Offline capability (some)"],
+                    cons: ["App must be installed", "Device compliance required"]
+                },
+                {
+                    type: "Web Client (HTML5)",
+                    description: "Browser-based VDI access, no app install",
+                    platforms: ["AVD Web Client", "Citrix StoreFront/Workspace", "VMware Horizon HTML5"],
+                    security: ["Conditional Access", "Session-based controls", "Watermarking"],
+                    pros: ["No app install", "Works on any browser", "Easier BYOD"],
+                    cons: ["Performance may be lower", "Some features unavailable"]
+                },
+                {
+                    type: "Secure Browser/Container",
+                    description: "Isolated browser for VDI access on untrusted devices",
+                    solutions: ["Island Enterprise Browser", "Citrix Secure Browser", "Microsoft Edge for Business"],
+                    security: ["Sandboxed environment", "No data leakage to device", "DLP integration"],
+                    pros: ["Strong isolation", "Works on personal devices"],
+                    cons: ["Browser-only experience", "Additional licensing"]
+                }
+            ],
+            
+            byodPolicy: {
+                description: "BYOD access to CUI VDI should be carefully controlled",
+                requirements: [
+                    "Device must pass compliance check (MDM enrollment or health attestation)",
+                    "MFA required for every session",
+                    "Clipboard/drive/print redirection disabled",
+                    "Screen watermarking enabled",
+                    "Session timeout enforced",
+                    "Conditional Access blocks jailbroken/rooted devices",
+                    "Consider prohibiting BYOD for CUI entirely"
+                ],
+                cmmcConsiderations: "BYOD for CUI access is high-risk. Consider VDI-only access from managed endpoints or use strict Conditional Access with device compliance."
+            }
+        },
+        
+        // Endpoint Security Hardening
+        endpointHardening: {
+            description: "Security configurations for VDI endpoints regardless of platform",
+            
+            universalControls: [
+                { control: "Disable Local Storage", description: "No USB mass storage, no local drives mapped to VDI", cmmc: "AC.L2-3.1.21, MP.L2-3.8.7" },
+                { control: "Disable Clipboard", description: "Prevent copy/paste between VDI and local", cmmc: "AC.L2-3.1.3" },
+                { control: "Disable Printing", description: "Or restrict to approved network printers only", cmmc: "AC.L2-3.1.3" },
+                { control: "Enable Screen Watermarking", description: "Display username/timestamp to deter screen photos", cmmc: "AU.L2-3.3.1" },
+                { control: "Enforce MFA", description: "Require MFA for VDI connection, not just endpoint login", cmmc: "IA.L2-3.5.3" },
+                { control: "Certificate-Based Auth", description: "Require device certificate for VDI access", cmmc: "IA.L2-3.5.2" },
+                { control: "Network Segmentation", description: "Endpoints on separate VLAN from VDI hosts", cmmc: "SC.L2-3.13.5" },
+                { control: "Firmware Updates", description: "Keep endpoint firmware current (BIOS, NIC, etc.)", cmmc: "SI.L2-3.14.1" }
+            ],
+            
+            platformSpecific: {
+                igel: [
+                    "Enable secure boot in UMS",
+                    "Configure USB device class filtering",
+                    "Disable local terminal/shell access",
+                    "Enable full disk encryption for persistent storage",
+                    "Configure automatic screen lock"
+                ],
+                windows: [
+                    "Apply Windows 10/11 STIG baseline",
+                    "Enable Unified Write Filter (UWF)",
+                    "Configure AppLocker/WDAC for application control",
+                    "Disable all unnecessary services",
+                    "Configure BitLocker with TPM",
+                    "Enable Credential Guard",
+                    "Use Assigned Access or Shell Launcher for kiosk mode"
+                ],
+                chromeOS: [
+                    "Enroll in Chrome Enterprise",
+                    "Disable developer mode",
+                    "Configure verified access",
+                    "Restrict sign-in to managed accounts",
+                    "Disable external storage",
+                    "Configure idle timeout and screen lock"
+                ]
+            }
+        },
+        
+        // Management and Lifecycle
+        endpointManagement: {
+            description: "Centralized management is critical for VDI endpoints at scale",
+            
+            capabilities: [
+                { capability: "Zero-Touch Provisioning", description: "Endpoints auto-configure on first boot", importance: "Reduces deployment time" },
+                { capability: "Configuration Management", description: "Centrally push settings and policies", importance: "Ensures consistent baseline" },
+                { capability: "Firmware Updates", description: "Remote OS/firmware updates without physical access", importance: "Security patching" },
+                { capability: "Asset Inventory", description: "Track all endpoints and their status", importance: "Compliance and auditing" },
+                { capability: "Remote Support", description: "Shadow sessions, remote reboot, diagnostics", importance: "Helpdesk efficiency" },
+                { capability: "Compliance Reporting", description: "Report on endpoint configuration state", importance: "CMMC evidence" }
+            ],
+            
+            toolsByPlatform: {
+                igel: "IGEL Universal Management Suite (UMS)",
+                dellWyse: "Wyse Management Suite (WMS)",
+                hp: "HP Device Manager",
+                windows: "Intune, SCCM, or third-party UEM",
+                chromeOS: "Google Admin Console / Chrome Enterprise"
+            },
+            
+            lifecycleRecommendations: [
+                "Plan 5-7 year lifecycle for thin clients (longer than PCs due to less wear)",
+                "Maintain spare pool (5-10%) for quick replacements",
+                "Standardize on 1-2 models for simplified management",
+                "Include endpoint refresh in annual budgeting",
+                "Document decommissioning process (sanitization not usually needed for true thin clients)"
+            ]
+        }
     }
 };
 

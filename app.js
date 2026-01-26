@@ -3825,6 +3825,217 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             </div>`;
         }
 
+        // =============================================
+        // VDI ENDPOINTS DEEP DIVE
+        // =============================================
+        if (guidance.vdiEndpointsDeepDive) {
+            const endpoints = guidance.vdiEndpointsDeepDive;
+            html += `<div class="impl-section">
+                <div class="impl-section-title" style="font-size:1.1rem;border-bottom:2px solid var(--accent-purple);padding-bottom:8px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    VDI Endpoints - Hardware & Software
+                </div>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px">${endpoints.overview}</p>
+
+                <!-- Thin Client Hardware Vendors -->
+                <h4 style="margin:16px 0 8px;color:var(--accent-blue)">Thin Client Hardware</h4>
+                <p style="font-size:0.75rem;margin-bottom:12px">${endpoints.thinClientHardware.description}</p>
+                
+                ${endpoints.thinClientHardware.vendors.map(vendor => `
+                    <div class="impl-policy-card" style="margin-bottom:12px">
+                        <div class="impl-policy-header"><h4>${vendor.vendor}</h4></div>
+                        <div class="impl-policy-body">
+                            <div class="impl-table-container" style="margin-bottom:8px">
+                                <table class="impl-table">
+                                    <thead><tr><th>Model</th><th>Specs</th><th>Use Case</th><th>Price</th></tr></thead>
+                                    <tbody>
+                                        ${vendor.products.map(p => `
+                                            <tr>
+                                                <td><strong>${p.model}</strong></td>
+                                                <td style="font-size:0.65rem">${p.specs}</td>
+                                                <td style="font-size:0.7rem">${p.useCase}</td>
+                                                <td style="font-size:0.7rem;color:var(--accent-green)">${p.priceRange}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p style="font-size:0.7rem"><strong>OS Options:</strong> ${vendor.osOptions.join(', ')}</p>
+                            <p style="font-size:0.7rem"><strong>Management:</strong> ${vendor.management}</p>
+                            <p style="font-size:0.65rem;color:var(--text-muted)"><strong>Strengths:</strong> ${vendor.strengths.join(', ')}</p>
+                        </div>
+                    </div>
+                `).join('')}
+
+                <!-- Selection Criteria -->
+                <h4 style="margin:20px 0 8px">Hardware Selection Criteria</h4>
+                <div class="impl-table-container" style="margin-bottom:16px">
+                    <table class="impl-table">
+                        <thead><tr><th>Factor</th><th>Guidance</th></tr></thead>
+                        <tbody>
+                            ${endpoints.thinClientHardware.selectionCriteria.map(c => `
+                                <tr>
+                                    <td><strong>${c.factor}</strong></td>
+                                    <td style="font-size:0.7rem">${c.guidance}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Thin Client Software/OS -->
+                <h4 style="margin:20px 0 8px;color:var(--accent-orange)">Thin Client Operating Systems</h4>
+                <p style="font-size:0.75rem;margin-bottom:12px">${endpoints.thinClientSoftware.description}</p>
+                
+                <div class="impl-cards-grid" style="margin-bottom:16px">
+                    ${endpoints.thinClientSoftware.solutions.map(sol => `
+                        <div class="impl-policy-card">
+                            <div class="impl-policy-header" style="${sol.name === 'IGEL OS' ? 'background:var(--accent-green)' : ''}">
+                                <h4>${sol.name}</h4>
+                                <span style="font-size:0.6rem;opacity:0.8">${sol.type}</span>
+                            </div>
+                            <div class="impl-policy-body">
+                                <p style="font-size:0.75rem;margin-bottom:8px">${sol.description}</p>
+                                <div style="margin-bottom:8px">
+                                    <strong style="font-size:0.7rem">Features:</strong>
+                                    <ul style="font-size:0.65rem;margin:4px 0 0 16px">${sol.features.slice(0,5).map(f => `<li>${f}</li>`).join('')}</ul>
+                                </div>
+                                <p style="font-size:0.7rem"><strong>Management:</strong> ${sol.management.tool}</p>
+                                <p style="font-size:0.7rem"><strong>Deployment:</strong> ${sol.deployment.join(', ')}</p>
+                                <p style="font-size:0.7rem"><strong>Licensing:</strong> ${sol.licensing}</p>
+                                <p style="font-size:0.65rem;color:var(--accent-blue);margin-top:8px">${sol.bestFor}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- OS Comparison Table -->
+                <h4 style="margin:16px 0 8px">Thin Client OS Comparison</h4>
+                <div class="impl-table-container" style="margin-bottom:16px">
+                    <table class="impl-table">
+                        <thead><tr><th>Feature</th><th>IGEL</th><th>ThinOS</th><th>ThinPro</th><th>Win IoT</th><th>ChromeOS</th></tr></thead>
+                        <tbody>
+                            ${endpoints.thinClientSoftware.comparisonTable.map(row => `
+                                <tr>
+                                    <td><strong>${row.feature}</strong></td>
+                                    <td style="font-size:0.65rem">${row.igel}</td>
+                                    <td style="font-size:0.65rem">${row.thinOS}</td>
+                                    <td style="font-size:0.65rem">${row.thinPro}</td>
+                                    <td style="font-size:0.65rem">${row.winIoT}</td>
+                                    <td style="font-size:0.65rem">${row.chromeOS}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Zero Clients -->
+                <h4 style="margin:20px 0 8px;color:var(--accent-green)">Zero Clients</h4>
+                <p style="font-size:0.75rem;margin-bottom:12px">${endpoints.zeroClients.description}</p>
+                <div class="impl-table-container" style="margin-bottom:12px">
+                    <table class="impl-table">
+                        <thead><tr><th>Vendor</th><th>Product</th><th>Features</th><th>Limitation</th><th>Price</th></tr></thead>
+                        <tbody>
+                            ${endpoints.zeroClients.options.map(opt => `
+                                <tr>
+                                    <td><strong>${opt.vendor}</strong></td>
+                                    <td>${opt.product}</td>
+                                    <td style="font-size:0.65rem">${opt.features.join(', ')}</td>
+                                    <td style="font-size:0.65rem;color:var(--accent-orange)">${opt.limitation}</td>
+                                    <td style="font-size:0.7rem">${opt.priceRange}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Repurposing Hardware -->
+                <h4 style="margin:20px 0 8px;color:var(--accent-purple)">Repurposing Existing Hardware</h4>
+                <p style="font-size:0.75rem;margin-bottom:12px">${endpoints.repurposingHardware.description}</p>
+                <div class="impl-table-container" style="margin-bottom:12px">
+                    <table class="impl-table">
+                        <thead><tr><th>Solution</th><th>Method</th><th>Hardware</th><th>Cost</th></tr></thead>
+                        <tbody>
+                            ${endpoints.repurposingHardware.options.map(opt => `
+                                <tr>
+                                    <td><strong>${opt.solution}</strong></td>
+                                    <td style="font-size:0.7rem">${opt.method}</td>
+                                    <td style="font-size:0.7rem">${opt.hardware}</td>
+                                    <td style="font-size:0.7rem;color:var(--accent-green)">${opt.cost}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div style="background:var(--bg-secondary);padding:12px;border-radius:6px;margin-bottom:16px">
+                    <strong style="font-size:0.8rem">Cost-Benefit Analysis (100 users)</strong>
+                    <p style="font-size:0.7rem;margin:4px 0"><strong>New Thin Clients:</strong> ${endpoints.repurposingHardware.costBenefit.newThinClients}</p>
+                    <p style="font-size:0.7rem;margin:4px 0"><strong>Repurpose PCs:</strong> ${endpoints.repurposingHardware.costBenefit.repurpose}</p>
+                    <p style="font-size:0.65rem;color:var(--accent-blue)">${endpoints.repurposingHardware.costBenefit.breakeven}</p>
+                </div>
+
+                <!-- Mobile/BYOD -->
+                <h4 style="margin:20px 0 8px;color:var(--accent-orange)">Mobile & BYOD Access</h4>
+                <div class="impl-cards-grid" style="margin-bottom:12px">
+                    ${endpoints.mobileAccess.options.map(opt => `
+                        <div class="impl-policy-card" style="padding:12px">
+                            <strong style="font-size:0.85rem">${opt.type}</strong>
+                            <p style="font-size:0.7rem;margin:4px 0">${opt.description}</p>
+                            <p style="font-size:0.65rem"><strong>Security:</strong> ${opt.security.join(', ')}</p>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="background:rgba(255,100,100,0.1);padding:12px;border-radius:6px;border:1px solid var(--accent-orange);margin-bottom:16px">
+                    <strong style="font-size:0.8rem;color:var(--accent-orange)">BYOD Policy for CUI</strong>
+                    <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                        ${endpoints.mobileAccess.byodPolicy.requirements.map(r => `<li>${r}</li>`).join('')}
+                    </ul>
+                    <p style="font-size:0.65rem;color:var(--accent-orange);margin-top:8px">${endpoints.mobileAccess.byodPolicy.cmmcConsiderations}</p>
+                </div>
+
+                <!-- Endpoint Hardening -->
+                <h4 style="margin:20px 0 8px;color:var(--accent-blue)">Endpoint Security Hardening</h4>
+                <div class="impl-table-container" style="margin-bottom:16px">
+                    <table class="impl-table">
+                        <thead><tr><th>Control</th><th>Description</th><th>CMMC</th></tr></thead>
+                        <tbody>
+                            ${endpoints.endpointHardening.universalControls.map(c => `
+                                <tr>
+                                    <td><strong>${c.control}</strong></td>
+                                    <td style="font-size:0.7rem">${c.description}</td>
+                                    <td style="font-size:0.6rem;color:var(--text-muted)">${c.cmmc}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Management Tools -->
+                <h4 style="margin:16px 0 8px">Endpoint Management Tools</h4>
+                <div class="impl-table-container" style="margin-bottom:12px">
+                    <table class="impl-table">
+                        <thead><tr><th>Platform</th><th>Management Tool</th></tr></thead>
+                        <tbody>
+                            ${Object.entries(endpoints.endpointManagement.toolsByPlatform).map(([platform, tool]) => `
+                                <tr>
+                                    <td><strong>${platform.charAt(0).toUpperCase() + platform.slice(1)}</strong></td>
+                                    <td style="font-size:0.75rem">${tool}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Lifecycle Recommendations -->
+                <div style="background:var(--bg-secondary);padding:12px;border-radius:6px">
+                    <strong style="font-size:0.8rem">Lifecycle Recommendations</strong>
+                    <ul style="font-size:0.7rem;margin:8px 0 0 16px">
+                        ${endpoints.endpointManagement.lifecycleRecommendations.map(r => `<li>${r}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>`;
+        }
+
         return html;
     }
 
