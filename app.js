@@ -1566,7 +1566,27 @@ class AssessmentApp {
                 const view = e.currentTarget.dataset.view;
                 this.implPlannerView = view;
                 localStorage.setItem('impl-planner-view', this.implPlannerView);
-                this.renderImplPlanner();
+                
+                // Hide all views
+                document.getElementById('impl-phases-content').style.display = 'none';
+                document.getElementById('impl-project-plan-content').style.display = 'none';
+                document.getElementById('impl-kanban-content').style.display = 'none';
+                document.getElementById('impl-list-content').style.display = 'none';
+                
+                // Show selected view
+                if (view === 'phases') {
+                    document.getElementById('impl-phases-content').style.display = 'block';
+                } else if (view === 'project-plan') {
+                    document.getElementById('impl-project-plan-content').style.display = 'block';
+                } else if (view === 'kanban') {
+                    document.getElementById('impl-kanban-content').style.display = 'block';
+                } else if (view === 'list') {
+                    document.getElementById('impl-list-content').style.display = 'block';
+                }
+                
+                // Update button states
+                container.querySelectorAll('.impl-view-toggle button').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
             });
         });
         
