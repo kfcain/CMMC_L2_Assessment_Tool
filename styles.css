@@ -4924,6 +4924,12 @@ body {
     padding: 20px 24px;
 }
 
+/* Allow category grid to display without constrained scrolling */
+#impl-guide-view .impl-guide-body:has(.arch-category-grid) {
+    overflow-y: visible;
+    overflow: visible;
+}
+
 /* Disclaimer Banner */
 .disclaimer-banner {
     background: linear-gradient(135deg, #1e3a5f 0%, #0f2942 100%);
