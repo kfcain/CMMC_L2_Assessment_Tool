@@ -555,6 +555,8 @@ class AssessmentApp {
             this.renderImplGuideView();
         } else if (view === 'impl-planner') {
             this.renderImplPlanner();
+        } else if (view === 'osc-inventory') {
+            this.renderOSCInventory();
         }
         
         // Prefetch adjacent views for faster navigation
@@ -563,7 +565,7 @@ class AssessmentApp {
     
     prefetchAdjacentViews(currentView) {
         if (!window.LazyLoader) return;
-        const views = ['dashboard', 'assessment', 'poam', 'impl-planner', 'impl-guide', 'crosswalk'];
+        const views = ['dashboard', 'assessment', 'poam', 'impl-planner', 'impl-guide', 'osc-inventory', 'crosswalk'];
         const currentIdx = views.indexOf(currentView);
         // Prefetch next and previous views
         if (currentIdx > 0) window.LazyLoader.preloadView(views[currentIdx - 1]);
@@ -1139,6 +1141,20 @@ class AssessmentApp {
             }
         }
         return null;
+    }
+    
+    // =============================================
+    // OSC INVENTORY - See js/osc-inventory.js
+    // =============================================
+    renderOSCInventory() {
+        if (typeof OSCInventory !== 'undefined') {
+            OSCInventory.render(this);
+        } else {
+            const container = document.getElementById('osc-inventory-content');
+            if (container) {
+                container.innerHTML = '<p style="padding:40px;text-align:center;color:var(--text-muted)">Loading OSC Inventory...</p>';
+            }
+        }
     }
     
     renderImplGuideView() {
