@@ -2774,6 +2774,618 @@ const ENCLAVE_GUIDANCE = {
   }
 }`
         }
+    },
+
+    // ========================================
+    // AWS GOVCLOUD DEEP DIVE
+    // ========================================
+    
+    awsGovCloudDeepDive: {
+        overview: {
+            description: "AWS GovCloud (US) is an isolated AWS region designed for sensitive workloads requiring FedRAMP High and DoD IL2-5 compliance",
+            regions: ["us-gov-west-1 (Oregon)", "us-gov-east-1 (Ohio)"],
+            fedrampStatus: "FedRAMP High Authorized",
+            consoleUrl: "https://console.amazonaws-us-gov.com",
+            benefits: [
+                "Physically isolated from commercial AWS",
+                "U.S. persons only operation",
+                "ITAR and EAR compliant",
+                "FIPS 140-2 validated endpoints",
+                "FedRAMP High baseline controls"
+            ]
+        },
+        
+        automationTemplates: [
+            {
+                name: "IAM User Provisioning with Approval",
+                category: "Access Control",
+                cmmcControls: ["AC.L2-3.1.1", "AC.L2-3.1.2", "PS.L2-3.9.2"],
+                description: "Automate IAM user creation with manager approval via Step Functions and SNS",
+                awsServices: ["Step Functions", "Lambda", "SNS", "DynamoDB", "IAM"],
+                architecture: "API Gateway → Step Functions → Lambda → IAM",
+                steps: [
+                    "1. Request submitted via API Gateway or ServiceNow integration",
+                    "2. Step Functions workflow starts, stores request in DynamoDB",
+                    "3. SNS sends approval email to manager with approve/deny links",
+                    "4. API Gateway callback updates workflow state",
+                    "5. If approved, Lambda creates IAM user with specified policies",
+                    "6. SNS notifies requestor of completion",
+                    "7. CloudTrail logs all actions for audit"
+                ],
+                stepFunctionsDefinition: `{
+  "StartAt": "StoreRequest",
+  "States": {
+    "StoreRequest": {
+      "Type": "Task",
+      "Resource": "arn:aws-us-gov:lambda:REGION:ACCOUNT:function:StoreUserRequest",
+      "Next": "SendApprovalRequest"
+    },
+    "SendApprovalRequest": {
+      "Type": "Task",
+      "Resource": "arn:aws-us-gov:states:::sns:publish.waitForTaskToken",
+      "Parameters": {
+        "TopicArn": "arn:aws-us-gov:sns:REGION:ACCOUNT:user-approvals",
+        "Message.$": "States.Format('Approve user {}? Token: {}', $.userName, $$.Task.Token)"
+      },
+      "Next": "CheckApproval"
+    },
+    "CheckApproval": {
+      "Type": "Choice",
+      "Choices": [{
+        "Variable": "$.approved",
+        "BooleanEquals": true,
+        "Next": "CreateUser"
+      }],
+      "Default": "RequestDenied"
+    },
+    "CreateUser": {
+      "Type": "Task",
+      "Resource": "arn:aws-us-gov:lambda:REGION:ACCOUNT:function:CreateIAMUser",
+      "End": true
+    },
+    "RequestDenied": {
+      "Type": "Task",
+      "Resource": "arn:aws-us-gov:lambda:REGION:ACCOUNT:function:NotifyDenial",
+      "End": true
+    }
+  }
+}`
+            },
+            {
+                name: "Automated Security Training Tracking",
+                category: "Awareness & Training",
+                cmmcControls: ["AT.L2-3.2.1", "AT.L2-3.2.2", "AT.L2-3.2.3"],
+                description: "Track security training completion and enforce account restrictions for non-compliance",
+                awsServices: ["EventBridge", "Lambda", "DynamoDB", "SES", "IAM"],
+                architecture: "EventBridge Scheduler → Lambda → DynamoDB + SES",
+                steps: [
+                    "1. DynamoDB table tracks user training status and due dates",
+                    "2. EventBridge rule triggers daily Lambda function",
+                    "3. Lambda queries overdue users from DynamoDB",
+                    "4. SES sends reminder emails at 7, 14, 21 days overdue",
+                    "5. At 30 days, Lambda attaches deny policy to IAM user",
+                    "6. Manager notified via SNS of account restriction",
+                    "7. When training completed, webhook updates DynamoDB and removes deny policy"
+                ],
+                lambdaCode: `import boto3
+from datetime import datetime, timedelta
+
+def lambda_handler(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    iam = boto3.client('iam')
+    ses = boto3.client('ses')
+    
+    table = dynamodb.Table('SecurityTrainingStatus')
+    today = datetime.now()
+    
+    # Query overdue users
+    response = table.scan(
+        FilterExpression='DueDate < :today AND #s <> :completed',
+        ExpressionAttributeNames={'#s': 'Status'},
+        ExpressionAttributeValues={
+            ':today': today.isoformat(),
+            ':completed': 'COMPLETED'
+        }
+    )
+    
+    for user in response['Items']:
+        days_overdue = (today - datetime.fromisoformat(user['DueDate'])).days
+        
+        if days_overdue >= 30:
+            # Attach deny policy
+            iam.attach_user_policy(
+                UserName=user['UserName'],
+                PolicyArn='arn:aws-us-gov:iam::ACCOUNT:policy/DenyAllUntilTrainingComplete'
+            )
+        else:
+            # Send reminder email
+            ses.send_email(
+                Source='security@company.com',
+                Destination={'ToAddresses': [user['Email']]},
+                Message={
+                    'Subject': {'Data': f'Security Training Overdue ({days_overdue} days)'},
+                    'Body': {'Text': {'Data': 'Please complete your security training...'}}
+                }
+            )`
+            },
+            {
+                name: "Automated Incident Response",
+                category: "Incident Response",
+                cmmcControls: ["IR.L2-3.6.1", "IR.L2-3.6.2", "AU.L2-3.3.1"],
+                description: "Auto-respond to GuardDuty findings with containment actions",
+                awsServices: ["GuardDuty", "EventBridge", "Step Functions", "Lambda", "SNS"],
+                architecture: "GuardDuty → EventBridge → Step Functions → Lambda + SNS",
+                steps: [
+                    "1. GuardDuty detects threat and creates finding",
+                    "2. EventBridge rule matches high-severity findings",
+                    "3. Step Functions workflow initiates containment",
+                    "4. Lambda isolates compromised instance (modify security group)",
+                    "5. SNS pages security team via PagerDuty integration",
+                    "6. Forensic snapshot created of EBS volumes",
+                    "7. Incident ticket created in ServiceNow/Jira"
+                ],
+                eventBridgeRule: `{
+  "source": ["aws.guardduty"],
+  "detail-type": ["GuardDuty Finding"],
+  "detail": {
+    "severity": [{"numeric": [">=", 7]}]
+  }
+}`
+            },
+            {
+                name: "Privileged Access Just-In-Time",
+                category: "Access Control",
+                cmmcControls: ["AC.L2-3.1.5", "AC.L2-3.1.6", "AU.L2-3.3.1"],
+                description: "Time-limited privileged access via STS AssumeRole with approval",
+                awsServices: ["Step Functions", "Lambda", "STS", "SNS", "CloudWatch Events"],
+                architecture: "API Gateway → Step Functions → STS → CloudWatch Events",
+                steps: [
+                    "1. User requests privileged role via API/Slack bot",
+                    "2. Step Functions requests approval from security team",
+                    "3. If approved, Lambda generates time-limited STS credentials",
+                    "4. CloudWatch Events scheduled to revoke after duration",
+                    "5. All privileged session activity logged to CloudTrail",
+                    "6. Session summary sent to security team"
+                ]
+            },
+            {
+                name: "Quarterly Access Review Automation",
+                category: "Access Control",
+                cmmcControls: ["AC.L2-3.1.1", "AC.L2-3.1.7", "PS.L2-3.9.2"],
+                description: "Automate quarterly access recertification for managers",
+                awsServices: ["EventBridge Scheduler", "Lambda", "DynamoDB", "SES", "IAM"],
+                architecture: "EventBridge Scheduler → Lambda → DynamoDB + SES",
+                steps: [
+                    "1. EventBridge triggers quarterly on first Monday of Q1/Q2/Q3/Q4",
+                    "2. Lambda queries IAM users and their group memberships",
+                    "3. Creates review tasks in DynamoDB for each manager",
+                    "4. SES sends review links to managers",
+                    "5. Manager approves/revokes each user via web form",
+                    "6. Lambda processes decisions and updates IAM",
+                    "7. Compliance report generated in S3"
+                ]
+            },
+            {
+                name: "CUI Data Classification Automation",
+                category: "Data Protection",
+                cmmcControls: ["SC.L2-3.13.16", "MP.L2-3.8.1", "MP.L2-3.8.2"],
+                description: "Auto-tag S3 objects containing CUI using Macie findings",
+                awsServices: ["Macie", "EventBridge", "Lambda", "S3"],
+                architecture: "Macie → EventBridge → Lambda → S3 Tagging",
+                steps: [
+                    "1. Macie scans S3 buckets for sensitive data",
+                    "2. Finding published to EventBridge",
+                    "3. Lambda processes finding and applies CUI tags",
+                    "4. S3 bucket policy restricts CUI-tagged objects",
+                    "5. Monthly report of CUI data locations generated"
+                ]
+            }
+        ],
+        
+        govCloudEndpoints: {
+            description: "AWS GovCloud uses different endpoints than commercial AWS",
+            endpoints: [
+                { service: "IAM", url: "iam.us-gov.amazonaws.com" },
+                { service: "STS", url: "sts.us-gov-west-1.amazonaws.com" },
+                { service: "S3", url: "s3.us-gov-west-1.amazonaws.com" },
+                { service: "EC2", url: "ec2.us-gov-west-1.amazonaws.com" },
+                { service: "Lambda", url: "lambda.us-gov-west-1.amazonaws.com" },
+                { service: "CloudTrail", url: "cloudtrail.us-gov-west-1.amazonaws.com" },
+                { service: "KMS", url: "kms.us-gov-west-1.amazonaws.com" },
+                { service: "Secrets Manager", url: "secretsmanager.us-gov-west-1.amazonaws.com" }
+            ],
+            cliConfiguration: [
+                "# Configure AWS CLI for GovCloud",
+                "aws configure set region us-gov-west-1",
+                "aws configure set output json",
+                "",
+                "# Verify GovCloud access",
+                "aws sts get-caller-identity",
+                "",
+                "# Use named profile for GovCloud",
+                "aws configure --profile govcloud set region us-gov-west-1"
+            ]
+        },
+        
+        complianceAutomation: {
+            securityHub: {
+                name: "Security Hub with NIST 800-171",
+                description: "Enable Security Hub with NIST 800-171 standard for continuous compliance monitoring",
+                setup: [
+                    "aws securityhub enable-security-hub --enable-default-standards",
+                    "aws securityhub batch-enable-standards --standards-subscription-requests StandardsArn=arn:aws-us-gov:securityhub:::ruleset/nist-800-171/v/1.0.0"
+                ],
+                automation: "EventBridge rule triggers Lambda on finding, creates Jira ticket, tracks remediation"
+            },
+            auditManager: {
+                name: "AWS Audit Manager",
+                description: "Automated evidence collection for CMMC assessments",
+                frameworks: ["NIST 800-171", "NIST CSF", "FedRAMP"],
+                setup: [
+                    "aws auditmanager create-assessment --name 'CMMC-L2-Assessment' --framework-id NIST-800-171-R2"
+                ]
+            },
+            configRules: {
+                name: "AWS Config Conformance Packs",
+                description: "Pre-built rule packs for NIST 800-171 compliance",
+                packs: [
+                    { name: "Operational-Best-Practices-for-NIST-800-171", rules: 47 },
+                    { name: "Operational-Best-Practices-for-FedRAMP-Moderate", rules: 52 }
+                ],
+                deployCommand: "aws configservice put-conformance-pack --conformance-pack-name NIST-800-171 --template-s3-uri s3://bucket/conformance-pack.yaml"
+            }
+        },
+        
+        incidentResponseResources: {
+            description: "AWS resources for DFARS 7012 incident reporting",
+            contacts: [
+                { name: "AWS Artifact", purpose: "Access compliance reports and agreements", url: "https://console.amazonaws-us-gov.com/artifact" },
+                { name: "AWS Support", purpose: "Open security case for incidents", access: "Business or Enterprise Support required" }
+            ],
+            automatedForensics: {
+                description: "Automated forensic data collection for incidents",
+                steps: [
+                    "1. Isolate instance by modifying security group",
+                    "2. Create EBS snapshots of all volumes",
+                    "3. Capture memory dump via SSM Run Command",
+                    "4. Export CloudTrail logs to forensic S3 bucket",
+                    "5. Capture VPC Flow Logs for network analysis",
+                    "6. Generate forensic timeline using Athena"
+                ],
+                lambdaForensics: `def isolate_instance(instance_id):
+    ec2 = boto3.client('ec2')
+    
+    # Create isolation security group
+    isolation_sg = ec2.create_security_group(
+        GroupName=f'isolation-{instance_id}',
+        Description='Forensic isolation - no ingress/egress'
+    )
+    
+    # Replace all security groups with isolation SG
+    ec2.modify_instance_attribute(
+        InstanceId=instance_id,
+        Groups=[isolation_sg['GroupId']]
+    )
+    
+    # Create snapshots
+    volumes = ec2.describe_volumes(
+        Filters=[{'Name': 'attachment.instance-id', 'Values': [instance_id]}]
+    )
+    
+    for vol in volumes['Volumes']:
+        ec2.create_snapshot(
+            VolumeId=vol['VolumeId'],
+            Description=f'Forensic snapshot for incident',
+            TagSpecifications=[{
+                'ResourceType': 'snapshot',
+                'Tags': [{'Key': 'Purpose', 'Value': 'Forensics'}]
+            }]
+        )`
+            }
+        }
+    },
+
+    // ========================================
+    // GCP ASSURED WORKLOADS DEEP DIVE
+    // ========================================
+    
+    gcpAssuredWorkloadsDeepDive: {
+        overview: {
+            description: "GCP Assured Workloads provides compliance controls for FedRAMP, IL4, and CJIS workloads on Google Cloud",
+            complianceRegimes: ["FedRAMP High", "FedRAMP Moderate", "IL4", "CJIS", "ITAR"],
+            consoleUrl: "https://console.cloud.google.com/assured-workloads",
+            benefits: [
+                "Data residency controls (US only)",
+                "Personnel access controls (US persons)",
+                "Support access controls",
+                "Encryption with CMEK",
+                "Audit logging with assured access"
+            ]
+        },
+        
+        automationTemplates: [
+            {
+                name: "IAM User Provisioning with Approval",
+                category: "Access Control",
+                cmmcControls: ["AC.L2-3.1.1", "AC.L2-3.1.2", "PS.L2-3.9.2"],
+                description: "Automate Cloud Identity user creation with approval via Cloud Workflows",
+                gcpServices: ["Cloud Workflows", "Cloud Functions", "Pub/Sub", "Firestore", "Cloud Identity"],
+                architecture: "Cloud Functions (API) → Cloud Workflows → Cloud Identity Admin SDK",
+                steps: [
+                    "1. Request submitted via Cloud Functions HTTP endpoint",
+                    "2. Cloud Workflows orchestrates approval process",
+                    "3. Pub/Sub sends notification to approver",
+                    "4. Approval callback updates workflow state in Firestore",
+                    "5. Cloud Function creates user via Admin SDK",
+                    "6. User added to appropriate IAM groups",
+                    "7. Audit log captures all actions"
+                ],
+                workflowYaml: `main:
+  params: [input]
+  steps:
+    - storeRequest:
+        call: googleapis.firestore.v1.projects.databases.documents.createDocument
+        args:
+          parent: projects/PROJECT_ID/databases/(default)/documents
+          collectionId: userRequests
+          body:
+            fields:
+              userName: {stringValue: \${input.userName}}
+              status: {stringValue: "PENDING"}
+        result: requestDoc
+    
+    - sendApproval:
+        call: googleapis.pubsub.v1.projects.topics.publish
+        args:
+          topic: projects/PROJECT_ID/topics/approval-requests
+          body:
+            messages:
+              - data: \${base64.encode(json.encode(input))}
+    
+    - waitForApproval:
+        call: http.get
+        args:
+          url: https://REGION-PROJECT_ID.cloudfunctions.net/checkApproval
+          query:
+            requestId: \${requestDoc.name}
+          timeout: 86400
+        result: approvalResult
+    
+    - checkDecision:
+        switch:
+          - condition: \${approvalResult.body.approved}
+            next: createUser
+        next: requestDenied
+    
+    - createUser:
+        call: http.post
+        args:
+          url: https://admin.googleapis.com/admin/directory/v1/users
+          auth:
+            type: OAuth2
+          body:
+            primaryEmail: \${input.email}
+            name:
+              givenName: \${input.firstName}
+              familyName: \${input.lastName}
+    
+    - requestDenied:
+        return: {status: "DENIED"}`
+            },
+            {
+                name: "Security Training Compliance Tracker",
+                category: "Awareness & Training",
+                cmmcControls: ["AT.L2-3.2.1", "AT.L2-3.2.2", "AT.L2-3.2.3"],
+                description: "Track and enforce security training completion",
+                gcpServices: ["Cloud Scheduler", "Cloud Functions", "Firestore", "SendGrid", "Cloud Identity"],
+                architecture: "Cloud Scheduler → Cloud Functions → Firestore + SendGrid",
+                steps: [
+                    "1. Firestore stores training status for each user",
+                    "2. Cloud Scheduler triggers daily check function",
+                    "3. Cloud Function queries overdue users",
+                    "4. SendGrid sends reminder emails",
+                    "5. At 30 days overdue, user suspended via Admin SDK",
+                    "6. Manager notified via Pub/Sub → email"
+                ]
+            },
+            {
+                name: "Automated Threat Response",
+                category: "Incident Response",
+                cmmcControls: ["IR.L2-3.6.1", "IR.L2-3.6.2", "AU.L2-3.3.1"],
+                description: "Auto-respond to Security Command Center findings",
+                gcpServices: ["Security Command Center", "Pub/Sub", "Cloud Functions", "VPC"],
+                architecture: "SCC → Pub/Sub → Cloud Functions → VPC Firewall",
+                steps: [
+                    "1. Security Command Center detects threat",
+                    "2. Finding published to Pub/Sub topic",
+                    "3. Cloud Function processes finding severity",
+                    "4. High severity: Apply deny-all firewall rule to instance",
+                    "5. Create snapshot for forensics",
+                    "6. PagerDuty notification to security team",
+                    "7. Incident logged in Firestore"
+                ],
+                cloudFunction: `from google.cloud import compute_v1
+from google.cloud import securitycenter
+
+def handle_scc_finding(event, context):
+    import base64
+    import json
+    
+    finding = json.loads(base64.b64decode(event['data']))
+    
+    if finding['severity'] in ['HIGH', 'CRITICAL']:
+        # Get affected resource
+        resource = finding['resourceName']
+        
+        # Apply isolation firewall rule
+        firewall_client = compute_v1.FirewallsClient()
+        
+        isolation_rule = compute_v1.Firewall()
+        isolation_rule.name = f"isolate-{finding['findingId'][:8]}"
+        isolation_rule.network = "projects/PROJECT/global/networks/VPC_NAME"
+        isolation_rule.priority = 100  # High priority
+        isolation_rule.direction = "INGRESS"
+        isolation_rule.denied = [{"IPProtocol": "all"}]
+        isolation_rule.target_tags = [f"incident-{finding['findingId'][:8]}"]
+        
+        firewall_client.insert(project="PROJECT_ID", firewall_resource=isolation_rule)
+        
+        # Tag the instance for isolation
+        # ... additional isolation logic`
+            },
+            {
+                name: "Quarterly Access Recertification",
+                category: "Access Control",
+                cmmcControls: ["AC.L2-3.1.1", "AC.L2-3.1.7", "PS.L2-3.9.2"],
+                description: "Automated access review workflow for managers",
+                gcpServices: ["Cloud Scheduler", "Cloud Workflows", "Firestore", "Cloud Identity", "SendGrid"],
+                architecture: "Cloud Scheduler → Cloud Workflows → Admin SDK + Firestore",
+                steps: [
+                    "1. Quarterly trigger starts workflow",
+                    "2. Query all users and their IAM bindings",
+                    "3. Group users by manager",
+                    "4. Create review tasks in Firestore",
+                    "5. Email managers with review links",
+                    "6. Process approvals/revocations",
+                    "7. Generate compliance report in GCS"
+                ]
+            },
+            {
+                name: "CUI Data Discovery and Tagging",
+                category: "Data Protection",
+                cmmcControls: ["SC.L2-3.13.16", "MP.L2-3.8.1", "MP.L2-3.8.2"],
+                description: "Discover and label CUI using Cloud DLP",
+                gcpServices: ["Cloud DLP", "Cloud Storage", "BigQuery", "Data Catalog"],
+                architecture: "Cloud DLP → Pub/Sub → Cloud Functions → Data Catalog",
+                steps: [
+                    "1. Cloud DLP inspects GCS buckets and BigQuery tables",
+                    "2. Findings published to Pub/Sub",
+                    "3. Cloud Function applies Data Catalog tags",
+                    "4. Policy tags restrict access to tagged data",
+                    "5. Monthly CUI data location report generated"
+                ]
+            }
+        ],
+        
+        assuredWorkloadsSetup: {
+            description: "Steps to create an Assured Workloads environment for CMMC",
+            prerequisites: [
+                "Organization resource in GCP",
+                "Billing account with sufficient quota",
+                "Organization Admin or Assured Workloads Admin role"
+            ],
+            steps: [
+                "1. Navigate to Assured Workloads in Cloud Console",
+                "2. Click 'Create' and select compliance regime (FedRAMP High)",
+                "3. Choose 'US' for data residency",
+                "4. Select resource location (us-central1, us-east4, etc.)",
+                "5. Configure folder name and parent organization",
+                "6. Review and create the environment",
+                "7. Deploy resources only within the assured folder"
+            ],
+            gcloudCommands: [
+                "# Create Assured Workloads folder",
+                "gcloud assured workloads create \\",
+                "  --organization=ORGANIZATION_ID \\",
+                "  --location=us \\",
+                "  --display-name='CMMC-CUI-Environment' \\",
+                "  --compliance-regime=FEDRAMP_HIGH \\",
+                "  --billing-account=BILLING_ACCOUNT_ID",
+                "",
+                "# List assured workloads",
+                "gcloud assured workloads list --organization=ORGANIZATION_ID --location=us"
+            ],
+            restrictions: [
+                "Only FedRAMP authorized services available",
+                "Data must remain in US regions",
+                "Support access limited to US-based personnel",
+                "Some services may have reduced features"
+            ]
+        },
+        
+        securityCommandCenter: {
+            description: "GCP's native SIEM and security monitoring platform",
+            tiers: [
+                { name: "Standard", cost: "Free", features: ["Asset inventory", "Security Health Analytics"] },
+                { name: "Premium", cost: "Pay per asset", features: ["Threat detection", "Container security", "VM Manager integration", "Compliance monitoring"] }
+            ],
+            complianceStandards: ["CIS Benchmarks", "NIST 800-53", "PCI DSS", "ISO 27001"],
+            setup: [
+                "gcloud scc settings enable --organization=ORGANIZATION_ID",
+                "gcloud scc settings update --organization=ORGANIZATION_ID --enable-asset-discovery"
+            ],
+            automation: "Export findings to Pub/Sub for automated remediation via Cloud Functions"
+        },
+        
+        encryptionConfiguration: {
+            cmek: {
+                name: "Customer-Managed Encryption Keys",
+                description: "Use Cloud KMS to manage your own encryption keys",
+                steps: [
+                    "1. Create Cloud KMS keyring in supported region",
+                    "2. Create symmetric encryption key",
+                    "3. Grant GCP service accounts encrypter/decrypter role",
+                    "4. Configure resources to use CMEK"
+                ],
+                gcloudCommands: [
+                    "# Create keyring",
+                    "gcloud kms keyrings create cui-keyring --location=us-central1",
+                    "",
+                    "# Create key",
+                    "gcloud kms keys create cui-data-key \\",
+                    "  --keyring=cui-keyring \\",
+                    "  --location=us-central1 \\",
+                    "  --purpose=encryption \\",
+                    "  --rotation-period=90d",
+                    "",
+                    "# Create GCS bucket with CMEK",
+                    "gcloud storage buckets create gs://cui-bucket \\",
+                    "  --location=us-central1 \\",
+                    "  --default-encryption-key=projects/PROJECT/locations/us-central1/keyRings/cui-keyring/cryptoKeys/cui-data-key"
+                ]
+            },
+            ekm: {
+                name: "External Key Manager",
+                description: "Hold keys outside of Google infrastructure for maximum control",
+                providers: ["Thales", "Fortanix", "Futurex"],
+                useCase: "Organizations requiring keys to never reside in cloud infrastructure"
+            }
+        },
+        
+        vpcServiceControls: {
+            description: "Create security perimeters around GCP resources to prevent data exfiltration",
+            components: [
+                { name: "Service Perimeter", purpose: "Define boundaries around projects and services" },
+                { name: "Access Levels", purpose: "Define conditions for access (IP, device, identity)" },
+                { name: "Ingress/Egress Rules", purpose: "Control data flow across perimeter" }
+            ],
+            setup: [
+                "1. Create Access Context Manager policy",
+                "2. Define access levels (e.g., corporate network only)",
+                "3. Create service perimeter with CUI projects",
+                "4. Add restricted services to perimeter",
+                "5. Configure ingress/egress rules for approved flows"
+            ],
+            gcloudCommands: [
+                "# Create access policy",
+                "gcloud access-context-manager policies create \\",
+                "  --organization=ORGANIZATION_ID \\",
+                "  --title='CUI Access Policy'",
+                "",
+                "# Create access level for corporate network",
+                "gcloud access-context-manager levels create corporate-network \\",
+                "  --policy=POLICY_ID \\",
+                "  --title='Corporate Network' \\",
+                "  --basic-level-spec=ip_subnetworks=['203.0.113.0/24']",
+                "",
+                "# Create service perimeter",
+                "gcloud access-context-manager perimeters create cui-perimeter \\",
+                "  --policy=POLICY_ID \\",
+                "  --title='CUI Data Perimeter' \\",
+                "  --resources='projects/CUI_PROJECT_NUMBER' \\",
+                "  --restricted-services='storage.googleapis.com,bigquery.googleapis.com'"
+            ]
+        }
     }
 };
 

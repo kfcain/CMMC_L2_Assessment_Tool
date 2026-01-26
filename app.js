@@ -1411,6 +1411,41 @@ class AssessmentApp {
                 this.renderImplGuideView();
             });
         });
+        
+        // Extras navigation buttons (scroll to section)
+        container.querySelectorAll('.extras-nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.dataset.scrollTo;
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Open the details if it's collapsed
+                    const details = target.querySelector('details.extras-details');
+                    if (details && !details.open) details.open = true;
+                }
+            });
+        });
+        
+        // Extras search functionality
+        const extrasSearch = container.querySelector('#extras-search-input');
+        if (extrasSearch) {
+            extrasSearch.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                container.querySelectorAll('.extras-collapsible').forEach(section => {
+                    const text = section.textContent.toLowerCase();
+                    if (query && !text.includes(query)) {
+                        section.style.display = 'none';
+                    } else {
+                        section.style.display = '';
+                        // Open matching sections
+                        if (query) {
+                            const details = section.querySelector('details.extras-details');
+                            if (details) details.open = true;
+                        }
+                    }
+                });
+            });
+        }
     }
 
     renderControls() {
@@ -5070,7 +5105,141 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     }
 
     renderImplExtras(guide) {
-        let html = '';
+        const currentCloud = this.implGuideCloud || 'azure';
+        const enclaveGuidance = typeof ENCLAVE_GUIDANCE !== 'undefined' ? ENCLAVE_GUIDANCE : null;
+        
+        // Build subsection navigation based on available content
+        const subsections = [];
+        if (currentCloud === 'azure') {
+            if (enclaveGuidance?.powerAutomateGuidance) subsections.push({ id: 'power-automate', name: 'Power Automate Workflows', icon: '⚡' });
+            if (guide.systemUseBanner) subsections.push({ id: 'system-banner', name: 'System Use Banner', icon: '📋' });
+            if (guide.raciMatrix) subsections.push({ id: 'raci-matrix', name: 'RACI Matrix', icon: '👥' });
+            if (guide.azureGovEndpoints) subsections.push({ id: 'azure-endpoints', name: 'Azure Gov Endpoints', icon: '🔗' });
+            if (guide.cuiRegexPatterns) subsections.push({ id: 'cui-patterns', name: 'CUI Regex Patterns', icon: '🔍' });
+            if (guide.purviewLabelConfigs) subsections.push({ id: 'purview-labels', name: 'Purview Sensitivity Labels', icon: '🏷️' });
+            if (guide.dfars7012Resources) subsections.push({ id: 'dfars-7012', name: 'DFARS 7012 Incident Reporting', icon: '⚠️' });
+            if (guide.tabletopExercises) subsections.push({ id: 'tabletop', name: 'Tabletop Exercises', icon: '🎯' });
+            if (guide.lessonsLearnedTemplate) subsections.push({ id: 'lessons-learned', name: 'Lessons Learned Template', icon: '📖' });
+        } else if (currentCloud === 'aws') {
+            if (guide.scpExamples) subsections.push({ id: 'scp-examples', name: 'Service Control Policies', icon: '🛡️' });
+            subsections.push({ id: 'aws-deep-dive', name: 'GovCloud Deep Dive', icon: '🔧' });
+        } else if (currentCloud === 'gcp') {
+            if (guide.orgPolicyExamples) subsections.push({ id: 'org-policies', name: 'Organization Policies', icon: '📜' });
+            if (guide.assuredWorkloads) subsections.push({ id: 'assured-workloads', name: 'Assured Workloads', icon: '✅' });
+            subsections.push({ id: 'gcp-deep-dive', name: 'GCP Deep Dive', icon: '🔧' });
+        }
+        
+        // Subsection navigation and search
+        let html = `
+            <div class="extras-nav-container">
+                <div class="extras-search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="extras-search-input" placeholder="Search in Extras..." class="extras-search-input">
+                </div>
+                <div class="extras-subsection-nav">
+                    ${subsections.map(s => `<button class="extras-nav-btn" data-scroll-to="${s.id}"><span class="extras-nav-icon">${s.icon}</span>${s.name}</button>`).join('')}
+                </div>
+            </div>
+        `;
+        
+        // Power Automate Guidance (Azure)
+        if (currentCloud === 'azure' && enclaveGuidance?.powerAutomateGuidance) {
+            const pa = enclaveGuidance.powerAutomateGuidance;
+            
+            const templateCards = pa.automationTemplates.map(t => `
+                <details class="pa-template-card">
+                    <summary class="pa-template-header">
+                        <span class="pa-template-category">${t.category}</span>
+                        <span class="pa-template-name">${t.name}</span>
+                        <span class="pa-template-controls">${t.cmmcControls.join(', ')}</span>
+                    </summary>
+                    <div class="pa-template-body">
+                        <p class="pa-template-desc">${t.description}</p>
+                        <div class="pa-template-trigger"><strong>Trigger:</strong> ${t.trigger}</div>
+                        
+                        <details class="pa-inner-details">
+                            <summary>Workflow Steps (${t.steps.length})</summary>
+                            <ol class="pa-steps">${t.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+                        </details>
+                        
+                        <details class="pa-inner-details">
+                            <summary>Required Connectors (${t.connectors.length})</summary>
+                            <div class="pa-connectors">${t.connectors.map(c => `<span class="pa-connector-badge">${c}</span>`).join('')}</div>
+                        </details>
+                        
+                        <details class="pa-inner-details">
+                            <summary>SharePoint List Columns (${t.sharePointColumns.length})</summary>
+                            <table class="impl-table compact">
+                                <thead><tr><th>Column Name</th><th>Type</th></tr></thead>
+                                <tbody>${t.sharePointColumns.map(c => `<tr><td><code>${c.name}</code></td><td>${c.type}</td></tr>`).join('')}</tbody>
+                            </table>
+                        </details>
+                        
+                        ${t.sampleJson ? `
+                            <details class="pa-inner-details">
+                                <summary>Sample Flow JSON</summary>
+                                <pre class="pa-sample-json">${t.sampleJson}</pre>
+                            </details>
+                        ` : ''}
+                    </div>
+                </details>
+            `).join('');
+            
+            html += `
+                <div class="impl-section extras-collapsible" id="power-automate">
+                    <details class="extras-details" open>
+                        <summary class="impl-section-title extras-summary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0078d4" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            Power Automate Compliance Workflows
+                        </summary>
+                        <div class="extras-content">
+                            <p class="extras-desc">${pa.overview.description}</p>
+                            <div class="pa-benefits">
+                                <strong>Benefits:</strong>
+                                <ul>${pa.overview.benefits.map(b => `<li>${b}</li>`).join('')}</ul>
+                            </div>
+                            <p class="pa-console-link"><strong>GCC High Console:</strong> <a href="${pa.overview.consoleUrl}" target="_blank" rel="noopener">${pa.overview.consoleUrl}</a></p>
+                            
+                            <h4 class="pa-templates-header">Automation Templates (${pa.automationTemplates.length})</h4>
+                            <div class="pa-templates-grid">${templateCards}</div>
+                            
+                            <details class="pa-section-details">
+                                <summary class="pa-section-summary">Implementation Guide</summary>
+                                <div class="pa-impl-guide">
+                                    <div class="pa-prereqs">
+                                        <h5>Prerequisites</h5>
+                                        <ul>${pa.implementationGuide.prerequisites.map(p => `<li>${p}</li>`).join('')}</ul>
+                                    </div>
+                                    <div class="pa-best-practices">
+                                        <h5>Best Practices</h5>
+                                        <ul>${pa.implementationGuide.bestPractices.map(p => `<li>${p}</li>`).join('')}</ul>
+                                    </div>
+                                    <div class="pa-security">
+                                        <h5>Security Considerations</h5>
+                                        <ul>${pa.implementationGuide.securityConsiderations.map(p => `<li>${p}</li>`).join('')}</ul>
+                                    </div>
+                                </div>
+                            </details>
+                            
+                            <details class="pa-section-details">
+                                <summary class="pa-section-summary">Quick Start Steps</summary>
+                                <ol class="pa-quickstart">${pa.quickStartSteps.map(s => `<li>${s}</li>`).join('')}</ol>
+                            </details>
+                            
+                            <details class="pa-section-details">
+                                <summary class="pa-section-summary">Graph API Setup for User Provisioning</summary>
+                                <div class="pa-graph-setup">
+                                    <p>${pa.graphApiSetup.description}</p>
+                                    <ol>${pa.graphApiSetup.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+                                    <h5>Sample HTTP Action</h5>
+                                    <pre class="pa-sample-json">${pa.graphApiSetup.sampleHttpAction}</pre>
+                                </div>
+                            </details>
+                        </div>
+                    </details>
+                </div>
+            `;
+        }
         
         // System Use Banner (Azure)
         if (guide.systemUseBanner) {
@@ -5127,9 +5296,119 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 </div>
             `).join('');
             html += `
-                <div class="impl-section">
+                <div class="impl-section extras-collapsible" id="scp-examples">
                     <div class="impl-section-title">Service Control Policy (SCP) Examples</div>
                     ${items}
+                </div>
+            `;
+        }
+        
+        // AWS GovCloud Deep Dive
+        if (currentCloud === 'aws' && enclaveGuidance?.awsGovCloudDeepDive) {
+            const awsDD = enclaveGuidance.awsGovCloudDeepDive;
+            
+            const templateCards = awsDD.automationTemplates.map(t => `
+                <details class="pa-template-card">
+                    <summary class="pa-template-header">
+                        <span class="pa-template-category">${t.category}</span>
+                        <span class="pa-template-name">${t.name}</span>
+                        <span class="pa-template-controls">${t.cmmcControls.join(', ')}</span>
+                    </summary>
+                    <div class="pa-template-body">
+                        <p class="pa-template-desc">${t.description}</p>
+                        <div class="pa-template-trigger"><strong>Architecture:</strong> ${t.architecture}</div>
+                        <div class="pa-connectors" style="margin:12px 0">${t.awsServices.map(s => `<span class="pa-connector-badge">${s}</span>`).join('')}</div>
+                        
+                        <details class="pa-inner-details">
+                            <summary>Workflow Steps (${t.steps.length})</summary>
+                            <ol class="pa-steps">${t.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+                        </details>
+                        
+                        ${t.stepFunctionsDefinition ? `
+                            <details class="pa-inner-details">
+                                <summary>Step Functions Definition</summary>
+                                <pre class="pa-sample-json">${t.stepFunctionsDefinition}</pre>
+                            </details>
+                        ` : ''}
+                        
+                        ${t.lambdaCode ? `
+                            <details class="pa-inner-details">
+                                <summary>Lambda Code (Python)</summary>
+                                <pre class="pa-sample-json">${t.lambdaCode}</pre>
+                            </details>
+                        ` : ''}
+                        
+                        ${t.eventBridgeRule ? `
+                            <details class="pa-inner-details">
+                                <summary>EventBridge Rule</summary>
+                                <pre class="pa-sample-json">${t.eventBridgeRule}</pre>
+                            </details>
+                        ` : ''}
+                    </div>
+                </details>
+            `).join('');
+            
+            html += `
+                <div class="impl-section extras-collapsible" id="aws-deep-dive">
+                    <details class="extras-details" open>
+                        <summary class="impl-section-title extras-summary">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="#ff9900"><path d="M18.75 11.35a4.32 4.32 0 0 1-.79-.08l-.17-.04h-.12q-.15 0-.15.21v.33q0 .38.97.45a4.38 4.38 0 0 0 1 .12 3 3 0 0 0 1-.15 2 2 0 0 0 .72-.4 1.62 1.62 0 0 0 .42-.59 1.83 1.83 0 0 0 .14-.72 1.46 1.46 0 0 0-.36-1z"/></svg>
+                            AWS GovCloud Automation & Deep Dive
+                        </summary>
+                        <div class="extras-content">
+                            <p class="extras-desc">${awsDD.overview.description}</p>
+                            <div class="pa-benefits">
+                                <strong>Benefits:</strong>
+                                <ul>${awsDD.overview.benefits.map(b => `<li>${b}</li>`).join('')}</ul>
+                            </div>
+                            <p class="pa-console-link"><strong>Console:</strong> <a href="${awsDD.overview.consoleUrl}" target="_blank" rel="noopener">${awsDD.overview.consoleUrl}</a></p>
+                            
+                            <h4 class="pa-templates-header">Automation Templates (${awsDD.automationTemplates.length})</h4>
+                            <div class="pa-templates-grid">${templateCards}</div>
+                            
+                            <details class="pa-section-details">
+                                <summary class="pa-section-summary">GovCloud Endpoints</summary>
+                                <div style="padding:16px">
+                                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">${awsDD.govCloudEndpoints.description}</p>
+                                    <table class="impl-table compact">
+                                        <thead><tr><th>Service</th><th>Endpoint</th></tr></thead>
+                                        <tbody>${awsDD.govCloudEndpoints.endpoints.map(e => `<tr><td>${e.service}</td><td><code>${e.url}</code></td></tr>`).join('')}</tbody>
+                                    </table>
+                                    <h5 style="margin:16px 0 8px 0;font-size:0.8rem">CLI Configuration</h5>
+                                    <pre class="pa-sample-json">${awsDD.govCloudEndpoints.cliConfiguration.join('\n')}</pre>
+                                </div>
+                            </details>
+                            
+                            <details class="pa-section-details">
+                                <summary class="pa-section-summary">Compliance Automation</summary>
+                                <div style="padding:16px">
+                                    <h5 style="margin:0 0 8px 0">${awsDD.complianceAutomation.securityHub.name}</h5>
+                                    <p style="font-size:0.75rem;color:var(--text-muted)">${awsDD.complianceAutomation.securityHub.description}</p>
+                                    <pre class="pa-sample-json">${awsDD.complianceAutomation.securityHub.setup.join('\n')}</pre>
+                                    
+                                    <h5 style="margin:16px 0 8px 0">${awsDD.complianceAutomation.auditManager.name}</h5>
+                                    <p style="font-size:0.75rem;color:var(--text-muted)">${awsDD.complianceAutomation.auditManager.description}</p>
+                                    <p style="font-size:0.7rem"><strong>Frameworks:</strong> ${awsDD.complianceAutomation.auditManager.frameworks.join(', ')}</p>
+                                    
+                                    <h5 style="margin:16px 0 8px 0">${awsDD.complianceAutomation.configRules.name}</h5>
+                                    <p style="font-size:0.75rem;color:var(--text-muted)">${awsDD.complianceAutomation.configRules.description}</p>
+                                </div>
+                            </details>
+                            
+                            <details class="pa-section-details">
+                                <summary class="pa-section-summary">Incident Response & Forensics</summary>
+                                <div style="padding:16px">
+                                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">${awsDD.incidentResponseResources.description}</p>
+                                    <h5 style="margin:0 0 8px 0">Automated Forensics Steps</h5>
+                                    <ol style="font-size:0.75rem;color:var(--text-secondary);padding-left:20px">
+                                        ${awsDD.incidentResponseResources.automatedForensics.steps.map(s => `<li>${s}</li>`).join('')}
+                                    </ol>
+                                    <h5 style="margin:16px 0 8px 0">Lambda Forensics Code</h5>
+                                    <pre class="pa-sample-json">${awsDD.incidentResponseResources.automatedForensics.lambdaForensics}</pre>
+                                </div>
+                            </details>
+                        </div>
+                    </details>
                 </div>
             `;
         }
@@ -5159,7 +5438,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (guide.assuredWorkloads) {
             const aw = guide.assuredWorkloads;
             html += `
-                <div class="impl-section">
+                <div class="impl-section extras-collapsible" id="assured-workloads">
                     <div class="impl-section-title">Assured Workloads (GCP)</div>
                     <div class="impl-policy-card">
                         <div class="impl-policy-header">
@@ -5178,6 +5457,127 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                             <p style="font-size:0.7rem;color:#f59e0b;margin-top:12px"><strong>Note:</strong> ${aw.note}</p>
                         </div>
                     </div>
+                </div>
+            `;
+        }
+        
+        // GCP Assured Workloads Deep Dive
+        if (currentCloud === 'gcp' && enclaveGuidance?.gcpAssuredWorkloadsDeepDive) {
+            const gcpDD = enclaveGuidance.gcpAssuredWorkloadsDeepDive;
+            
+            const templateCards = gcpDD.automationTemplates.map(t => `
+                <details class="pa-template-card">
+                    <summary class="pa-template-header">
+                        <span class="pa-template-category">${t.category}</span>
+                        <span class="pa-template-name">${t.name}</span>
+                        <span class="pa-template-controls">${t.cmmcControls.join(', ')}</span>
+                    </summary>
+                    <div class="pa-template-body">
+                        <p class="pa-template-desc">${t.description}</p>
+                        <div class="pa-template-trigger"><strong>Architecture:</strong> ${t.architecture}</div>
+                        <div class="pa-connectors" style="margin:12px 0">${t.gcpServices.map(s => `<span class="pa-connector-badge">${s}</span>`).join('')}</div>
+                        
+                        <details class="pa-inner-details">
+                            <summary>Workflow Steps (${t.steps.length})</summary>
+                            <ol class="pa-steps">${t.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+                        </details>
+                        
+                        ${t.workflowYaml ? `
+                            <details class="pa-inner-details">
+                                <summary>Cloud Workflows YAML</summary>
+                                <pre class="pa-sample-json">${t.workflowYaml}</pre>
+                            </details>
+                        ` : ''}
+                        
+                        ${t.cloudFunction ? `
+                            <details class="pa-inner-details">
+                                <summary>Cloud Function (Python)</summary>
+                                <pre class="pa-sample-json">${t.cloudFunction}</pre>
+                            </details>
+                        ` : ''}
+                    </div>
+                </details>
+            `).join('');
+            
+            html += `
+                <div class="impl-section extras-collapsible" id="gcp-deep-dive">
+                    <details class="extras-details" open>
+                        <summary class="impl-section-title extras-summary">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="#4285f4"><path d="M12.19 2.38a9.34 9.34 0 0 0-9.23 6.89c.05-.02-.06.01 0 0-3.88 2.55-3.92 8.11-.25 10.94a6.72 6.72 0 0 0 4.08 1.36h5.17l.03.03h5.19c6.69.05 9.38-8.61 3.84-12.35a9.37 9.37 0 0 0-8.83-6.89z"/></svg>
+                            GCP Assured Workloads Automation & Deep Dive
+                        </summary>
+                        <div class="extras-content">
+                            <p class="extras-desc">${gcpDD.overview.description}</p>
+                            <div class="pa-benefits">
+                                <strong>Compliance Regimes:</strong>
+                                <ul>${gcpDD.overview.complianceRegimes.map(r => `<li>${r}</li>`).join('')}</ul>
+                            </div>
+                            <div class="pa-benefits">
+                                <strong>Benefits:</strong>
+                                <ul>${gcpDD.overview.benefits.map(b => `<li>${b}</li>`).join('')}</ul>
+                            </div>
+                            <p class="pa-console-link"><strong>Console:</strong> <a href="${gcpDD.overview.consoleUrl}" target="_blank" rel="noopener">${gcpDD.overview.consoleUrl}</a></p>
+                            
+                            <h4 class="pa-templates-header">Automation Templates (${gcpDD.automationTemplates.length})</h4>
+                            <div class="pa-templates-grid">${templateCards}</div>
+                            
+                            <details class="pa-section-details">
+                                <summary class="pa-section-summary">Assured Workloads Setup</summary>
+                                <div style="padding:16px">
+                                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">${gcpDD.assuredWorkloadsSetup.description}</p>
+                                    <h5 style="margin:0 0 8px 0">Prerequisites</h5>
+                                    <ul style="font-size:0.75rem;color:var(--text-secondary);padding-left:20px;margin-bottom:12px">
+                                        ${gcpDD.assuredWorkloadsSetup.prerequisites.map(p => `<li>${p}</li>`).join('')}
+                                    </ul>
+                                    <h5 style="margin:0 0 8px 0">Setup Steps</h5>
+                                    <ol style="font-size:0.75rem;color:var(--text-secondary);padding-left:20px;margin-bottom:12px">
+                                        ${gcpDD.assuredWorkloadsSetup.steps.map(s => `<li>${s}</li>`).join('')}
+                                    </ol>
+                                    <h5 style="margin:12px 0 8px 0">gcloud Commands</h5>
+                                    <pre class="pa-sample-json">${gcpDD.assuredWorkloadsSetup.gcloudCommands.join('\n')}</pre>
+                                </div>
+                            </details>
+                            
+                            <details class="pa-section-details">
+                                <summary class="pa-section-summary">Security Command Center</summary>
+                                <div style="padding:16px">
+                                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">${gcpDD.securityCommandCenter.description}</p>
+                                    <table class="impl-table compact">
+                                        <thead><tr><th>Tier</th><th>Cost</th><th>Features</th></tr></thead>
+                                        <tbody>${gcpDD.securityCommandCenter.tiers.map(t => `<tr><td>${t.name}</td><td>${t.cost}</td><td>${t.features.join(', ')}</td></tr>`).join('')}</tbody>
+                                    </table>
+                                    <h5 style="margin:12px 0 8px 0">Setup Commands</h5>
+                                    <pre class="pa-sample-json">${gcpDD.securityCommandCenter.setup.join('\n')}</pre>
+                                </div>
+                            </details>
+                            
+                            <details class="pa-section-details">
+                                <summary class="pa-section-summary">Encryption (CMEK/EKM)</summary>
+                                <div style="padding:16px">
+                                    <h5 style="margin:0 0 8px 0">${gcpDD.encryptionConfiguration.cmek.name}</h5>
+                                    <p style="font-size:0.75rem;color:var(--text-muted)">${gcpDD.encryptionConfiguration.cmek.description}</p>
+                                    <pre class="pa-sample-json">${gcpDD.encryptionConfiguration.cmek.gcloudCommands.join('\n')}</pre>
+                                    
+                                    <h5 style="margin:16px 0 8px 0">${gcpDD.encryptionConfiguration.ekm.name}</h5>
+                                    <p style="font-size:0.75rem;color:var(--text-muted)">${gcpDD.encryptionConfiguration.ekm.description}</p>
+                                    <p style="font-size:0.7rem"><strong>Providers:</strong> ${gcpDD.encryptionConfiguration.ekm.providers.join(', ')}</p>
+                                </div>
+                            </details>
+                            
+                            <details class="pa-section-details">
+                                <summary class="pa-section-summary">VPC Service Controls</summary>
+                                <div style="padding:16px">
+                                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">${gcpDD.vpcServiceControls.description}</p>
+                                    <table class="impl-table compact">
+                                        <thead><tr><th>Component</th><th>Purpose</th></tr></thead>
+                                        <tbody>${gcpDD.vpcServiceControls.components.map(c => `<tr><td>${c.name}</td><td>${c.purpose}</td></tr>`).join('')}</tbody>
+                                    </table>
+                                    <h5 style="margin:12px 0 8px 0">gcloud Commands</h5>
+                                    <pre class="pa-sample-json">${gcpDD.vpcServiceControls.gcloudCommands.join('\n')}</pre>
+                                </div>
+                            </details>
+                        </div>
+                    </details>
                 </div>
             `;
         }
