@@ -978,26 +978,9 @@ class AssessmentApp {
                 </div>
             </div>
             
-            <!-- View Controls -->
-            <div class="impl-view-controls">
-                <div class="impl-view-toggle">
-                    <button class="${this.implPlannerView === 'phases' ? 'active' : ''}" data-view="phases">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
-                        Project Plan
-                    </button>
-                    <button class="${this.implPlannerView === 'kanban' ? 'active' : ''}" data-view="kanban">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6" height="16"/><rect x="14" y="4" width="6" height="10"/></svg>
-                        Kanban
-                    </button>
-                    <button class="${this.implPlannerView === 'list' ? 'active' : ''}" data-view="list">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                        List
-                    </button>
-                </div>
-            </div>
-            
+                        
             <!-- Phase Timeline (for phases view) -->
-            <div class="impl-phase-timeline" style="${this.implPlannerView !== 'phases' ? 'display:none' : ''}">
+            <div class="impl-phase-timeline">
                 ${planner.phases.map((phase, idx) => `
                     <div class="impl-phase-tab ${phase.id === this.implPlannerCurrentPhase ? 'active' : ''}" data-phase="${phase.id}" style="border-left:3px solid ${phase.color}">
                         <div class="phase-tab-number">Phase ${idx + 1}</div>
@@ -1007,19 +990,9 @@ class AssessmentApp {
                 `).join('')}
             </div>
             
-            <!-- Phases View Content -->
-            <div id="impl-phases-content" style="${this.implPlannerView !== 'phases' ? 'display:none' : ''}">
+            <!-- Project Plan Content -->
+            <div id="impl-phases-content">
                 ${this.renderPlannerPhaseContent(currentPhase, phaseProgress)}
-            </div>
-            
-            <!-- Kanban View -->
-            <div class="impl-kanban-container" id="impl-kanban-content" style="${this.implPlannerView !== 'kanban' ? 'display:none' : ''}">
-                ${this.renderPlannerKanban(planner, allTasks)}
-            </div>
-            
-            <!-- List View -->
-            <div class="impl-list-container" id="impl-list-content" style="${this.implPlannerView !== 'list' ? 'display:none' : ''}">
-                ${this.renderPlannerList(planner, allTasks)}
             </div>
         `;
         
@@ -1322,92 +1295,6 @@ class AssessmentApp {
         return html || '<p style="font-size:0.75rem;color:var(--text-muted)">No additional details available.</p>';
     }
     
-    renderPlannerKanban(planner, allTasks) {
-        const todo = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority === 'critical');
-        const inProgress = allTasks.filter(t => !this.implPlannerProgress[t.id] && t.priority !== 'critical');
-        const done = allTasks.filter(t => this.implPlannerProgress[t.id]);
-        
-        return `
-            <div class="impl-kanban-column">
-                <div class="impl-kanban-header">
-                    <h3>Critical</h3>
-                    <span class="impl-kanban-count">${todo.length}</span>
-                </div>
-                <div class="impl-kanban-tasks">
-                    ${todo.map(t => this.renderKanbanCard(t)).join('')}
-                </div>
-            </div>
-            <div class="impl-kanban-column">
-                <div class="impl-kanban-header">
-                    <h3>To Do</h3>
-                    <span class="impl-kanban-count">${inProgress.length}</span>
-                </div>
-                <div class="impl-kanban-tasks">
-                    ${inProgress.map(t => this.renderKanbanCard(t)).join('')}
-                </div>
-            </div>
-            <div class="impl-kanban-column">
-                <div class="impl-kanban-header" style="background:rgba(152,195,121,0.1)">
-                    <h3 style="color:var(--status-met)">Done</h3>
-                    <span class="impl-kanban-count">${done.length}</span>
-                </div>
-                <div class="impl-kanban-tasks">
-                    ${done.map(t => this.renderKanbanCard(t)).join('')}
-                </div>
-            </div>
-        `;
-    }
-    
-    renderKanbanCard(task) {
-        return `
-            <div class="impl-kanban-task" data-task="${task.id}" style="border-left:3px solid ${task.phaseColor || 'var(--border-color)'}">
-                <div class="impl-kanban-task-title">${task.name}</div>
-                <div class="impl-kanban-task-meta">
-                    <span class="impl-kanban-task-phase">${task.phaseName || ''}</span>
-                    <span class="impl-task-priority ${task.priority}" style="font-size:0.6rem">${task.priority}</span>
-                </div>
-                <div class="impl-kanban-task-desc">${task.description}</div>
-            </div>
-        `;
-    }
-    
-    renderPlannerList(planner, allTasks) {
-        return `
-            <div class="impl-list-container">
-                <table class="impl-list-table">
-                    <thead>
-                        <tr>
-                            <th style="width:40px"></th>
-                            <th>Task</th>
-                            <th>Phase</th>
-                            <th>Priority</th>
-                            <th>Controls</th>
-                            <th>Effort</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${allTasks.map(t => `
-                            <tr data-task="${t.id}">
-                                <td>
-                                    <div class="impl-task-checkbox ${this.implPlannerProgress[t.id] ? 'completed' : ''}" data-task-id="${t.id}" style="width:18px;height:18px">
-                                        ${this.implPlannerProgress[t.id] ? '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="font-weight:500;${this.implPlannerProgress[t.id] ? 'text-decoration:line-through;opacity:0.6' : ''}">${t.name}</div>
-                                    <div style="font-size:0.7rem;color:var(--text-muted)">${t.description}</div>
-                                </td>
-                                <td><span style="font-size:0.7rem;padding:2px 6px;background:var(--bg-tertiary);border-radius:4px">${t.phaseName}</span></td>
-                                <td><span class="impl-task-priority ${t.priority}">${t.priority}</span></td>
-                                <td>${t.controls ? t.controls.map(c => `<button class="impl-task-control" data-control="${c}" style="margin:1px">${c}</button>`).join('') : '-'}</td>
-                                <td style="font-size:0.75rem;color:var(--text-secondary)">${t.effort || '-'}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
-    }
     
     getPhaseIcon(iconName) {
         const icons = {
@@ -1431,41 +1318,6 @@ class AssessmentApp {
                 this.implPlannerCurrentPhase = phaseId;
                 localStorage.setItem('impl-planner-phase', phaseId);
                 this.renderImplPlanner();
-                
-                // Ensure phase timeline stays visible after re-render
-                if (this.implPlannerView === 'phases') {
-                    document.querySelector('.impl-phase-timeline').style.display = 'flex';
-                }
-            });
-        });
-        
-        // View toggle
-        container.querySelectorAll('.impl-view-toggle button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const view = e.currentTarget.dataset.view;
-                console.log('View toggle clicked:', view);
-                this.implPlannerView = view;
-                localStorage.setItem('impl-planner-view', this.implPlannerView);
-                
-                // Hide all views
-                document.getElementById('impl-phases-content').style.display = 'none';
-                document.getElementById('impl-kanban-content').style.display = 'none';
-                document.getElementById('impl-list-content').style.display = 'none';
-                document.querySelector('.impl-phase-timeline').style.display = 'none';
-                
-                // Show selected view
-                if (view === 'phases') {
-                    document.getElementById('impl-phases-content').style.display = 'block';
-                    document.querySelector('.impl-phase-timeline').style.display = 'flex';
-                } else if (view === 'kanban') {
-                    document.getElementById('impl-kanban-content').style.display = 'block';
-                } else if (view === 'list') {
-                    document.getElementById('impl-list-content').style.display = 'block';
-                }
-                
-                // Update button states
-                container.querySelectorAll('.impl-view-toggle button').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
             });
         });
         
