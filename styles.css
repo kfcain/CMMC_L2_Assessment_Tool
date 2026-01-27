@@ -2241,278 +2241,7 @@ body {
     }
 }
 
-/* Related Objectives Styles */
-.related-objectives-section {
-    margin-top: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--bg-secondary);
-    overflow: hidden;
-}
-
-.related-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 10px 14px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-primary);
-    transition: background 0.2s;
-}
-
-.related-toggle:hover {
-    background: var(--bg-tertiary);
-}
-
-.related-toggle svg:first-child {
-    color: #0ea5e9;
-}
-
-.related-chevron {
-    margin-left: auto;
-    transition: transform 0.2s;
-}
-
-.related-objectives-section.expanded .related-chevron {
-    transform: rotate(180deg);
-}
-
-.related-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-}
-
-.related-objectives-section.expanded .related-content {
-    max-height: 600px;
-    padding: 0 14px 14px;
-}
-
-.related-group {
-    margin-top: 12px;
-    padding: 12px;
-    background: var(--bg-tertiary);
-    border-radius: 6px;
-    border-left: 3px solid #0ea5e9;
-}
-
-.related-group-header {
-    margin-bottom: 6px;
-}
-
-.related-group-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.related-group-desc {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-bottom: 10px;
-    line-height: 1.4;
-}
-
-.related-controls {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 10px;
-}
-
-.related-controls-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.related-control-link {
-    display: inline-block;
-    padding: 3px 8px;
-    background: #0ea5e9;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 500;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background 0.2s;
-}
-
-.related-control-link:hover {
-    background: #0284c7;
-    text-decoration: none;
-}
-
-.related-evidence {
-    margin-top: 8px;
-}
-
-.related-evidence-label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin-bottom: 6px;
-}
-
-.related-evidence-list {
-    list-style: disc;
-    padding-left: 18px;
-    margin: 0;
-}
-
-.related-evidence-list li {
-    font-size: 12px;
-    color: var(--text-secondary);
-    line-height: 1.4;
-    margin-bottom: 3px;
-}
-
-/* ITAR Guidance Styles */
-.itar-guidance-section {
-    margin-top: 12px;
-    border: 2px solid #dc2626;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #fef2f2 0%, #fff 100%);
-    overflow: hidden;
-}
-
-.itar-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    background: linear-gradient(90deg, #dc2626 0%, #b91c1c 100%);
-    color: #fff;
-}
-
-.itar-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.itar-badge svg {
-    stroke: #fff;
-}
-
-.itar-severity {
-    font-size: 12px;
-    font-weight: 500;
-    opacity: 0.95;
-}
-
-.itar-content {
-    padding: 14px;
-}
-
-.itar-subsection {
-    margin-bottom: 12px;
-}
-
-.itar-subsection:last-child {
-    margin-bottom: 0;
-}
-
-.itar-subtitle {
-    font-size: 11px;
-    font-weight: 700;
-    color: #dc2626;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.itar-subtitle::before {
-    content: '';
-    display: inline-block;
-    width: 3px;
-    height: 12px;
-    background: #dc2626;
-    border-radius: 2px;
-}
-
-.itar-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.itar-list li {
-    position: relative;
-    padding-left: 20px;
-    font-size: 13px;
-    color: #7f1d1d;
-    line-height: 1.5;
-    margin-bottom: 6px;
-}
-
-.itar-list li::before {
-    content: '⚠';
-    position: absolute;
-    left: 0;
-    font-size: 11px;
-}
-
-.itar-implementation {
-    font-size: 13px;
-    color: #374151;
-    line-height: 1.5;
-    margin: 0;
-    padding: 10px;
-    background: #fff;
-    border-radius: 4px;
-    border-left: 3px solid #dc2626;
-}
-
-/* Dark mode ITAR styles */
-@media (prefers-color-scheme: dark) {
-    .itar-guidance-section {
-        background: linear-gradient(135deg, #1f1315 0%, var(--bg-secondary) 100%);
-        border-color: #ef4444;
-    }
-    
-    .itar-header {
-        background: linear-gradient(90deg, #b91c1c 0%, #991b1b 100%);
-    }
-    
-    .itar-list li {
-        color: #fca5a5;
-    }
-    
-    .itar-implementation {
-        background: rgba(220, 38, 38, 0.1);
-        color: var(--text-primary);
-    }
-    
-    .itar-subtitle {
-        color: #f87171;
-    }
-    
-    .itar-subtitle::before {
-        background: #ef4444;
-    }
-}
+/* Legacy styles removed - Now using unified details/summary pattern in "Unified Assessment Objective Dropdowns" section */
 
 /* Cmd+K Search Modal Styles */
 .search-modal {
@@ -5295,78 +5024,7 @@ table td {
     border-color: var(--accent-blue);
 }
 
-/* Dashboard Hero Title */
-.dashboard-hero {
-    text-align: center;
-    padding: 24px 24px 16px;
-    margin-bottom: 4px;
-}
-
-.hero-badge {
-    display: inline-block;
-    padding: 5px 12px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    border-radius: 6px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-}
-
-.hero-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -1px;
-    margin-bottom: 4px;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-blue) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.hero-subtitle {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    font-weight: 400;
-}
-
-/* Site Title Bar (non-dashboard views) */
-.site-title-bar {
-    display: none;
-}
-
-.site-title-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    border-radius: 4px;
-}
-
-.site-title-text {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-/* Show title bar when not on dashboard, but hide for Architecture Guide */
-.main-content:has(#dashboard-view:not(.active)) .site-title-bar {
-    display: flex;
-}
-
-.main-content:has(#impl-guide-view.active) .site-title-bar,
-.main-content:has(#osc-inventory-view.active) .site-title-bar,
-.main-content:has(#rev3-crosswalk-view.active) .site-title-bar {
-    display: none;
-}
+/* Dashboard Hero and Site Title Bar styles removed - title now only in main header */
 
 /* VDI Tech Details Expandable Section */
 .impl-tech-details {
@@ -6072,6 +5730,285 @@ table td {
     line-height: 1.5;
 }
 
+/* ==================== Unified Assessment Objective Dropdowns ==================== */
+/* Details/Summary pattern for ITAR, Related, Cloud, Cheat Sheet across all levels */
+
+.impl-details {
+    margin-top: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    overflow: visible;
+}
+
+.impl-details > .impl-summary {
+    padding: 12px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    list-style: none;
+    transition: background 0.15s;
+}
+
+.impl-details > .impl-summary::-webkit-details-marker {
+    display: none;
+}
+
+.impl-details > .impl-summary::after {
+    content: '';
+    margin-left: auto;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--text-muted);
+    transition: transform 0.2s;
+}
+
+.impl-details[open] > .impl-summary::after {
+    transform: rotate(180deg);
+}
+
+.impl-details > .impl-summary:hover {
+    background: var(--bg-tertiary);
+}
+
+.impl-details[open] > .impl-summary {
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ITAR Dropdown */
+.impl-summary.impl-itar {
+    color: #ef4444;
+}
+
+.impl-summary.impl-itar .itar-badge {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.impl-summary.impl-itar .itar-severity-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.itar-content {
+    padding: 14px;
+}
+
+.itar-subsection {
+    margin-bottom: 14px;
+}
+
+.itar-subsection:last-child {
+    margin-bottom: 0;
+}
+
+.itar-subtitle {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.itar-list {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.itar-list li {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+.itar-guidance-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Related Objectives Dropdown */
+.impl-summary.impl-related {
+    color: var(--primary);
+}
+
+.related-content {
+    padding: 14px;
+}
+
+.related-group {
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.related-group:last-child {
+    margin-bottom: 0;
+}
+
+.related-group-header {
+    margin-bottom: 8px;
+}
+
+.related-group-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.related-group-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.related-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.related-controls-label,
+.related-evidence-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.related-control-link {
+    background: var(--bg-secondary);
+    color: var(--primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.related-control-link:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+.related-evidence-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.related-evidence-list li {
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+}
+
+/* Cloud Implementation Dropdown */
+.impl-summary.impl-cloud {
+    color: #06b6d4;
+}
+
+.cloud-details .cloud-guidance-section {
+    margin: 0;
+}
+
+.cloud-provider-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+.cloud-select-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-right: 4px;
+}
+
+.cloud-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.cloud-btn:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+}
+
+.cloud-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.cloud-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.cloud-guidance-content {
+    padding: 0;
+}
+
+.cloud-select-prompt {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 32px 16px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+    background: var(--bg-primary);
+}
+
+.cloud-guidance-panel {
+    display: none;
+}
+
+.cloud-guidance-panel.active {
+    display: block;
+}
+
 /* L3 Assessment Objective Styles */
 .l3-objective .impl-details {
     margin-bottom: 8px;
@@ -6305,4 +6242,63 @@ table td {
 
 .screenshare-section .cheat-sheet-subtitle {
     color: var(--primary);
+}
+
+/* ==================== Responsive Styles for Assessment Dropdowns ==================== */
+@media (max-width: 768px) {
+    .impl-details > .impl-summary {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .cloud-provider-toggle {
+        padding: 10px 12px;
+        gap: 6px;
+    }
+    
+    .cloud-btn {
+        padding: 6px 10px;
+        font-size: 0.7rem;
+    }
+    
+    .cloud-btn span {
+        display: none;
+    }
+    
+    .cloud-select-label {
+        display: none;
+    }
+    
+    .itar-content,
+    .related-content {
+        padding: 12px;
+    }
+    
+    .related-group {
+        padding: 10px;
+    }
+    
+    .objective-details {
+        padding: 0 12px 12px 12px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .impl-details {
+        margin-top: 8px;
+        border-radius: 6px;
+    }
+    
+    .impl-details > .impl-summary {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+    
+    .cloud-btn {
+        padding: 6px 8px;
+    }
+    
+    .cloud-guidance-content {
+        font-size: 0.8rem;
+    }
 }
