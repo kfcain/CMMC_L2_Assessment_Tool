@@ -1,22 +1,29 @@
 // Service Worker for CMMC Assessment Tool
 // Provides offline caching and faster repeat visits
 
-const CACHE_NAME = 'cmmc-tool-v1';
+const CACHE_NAME = 'cmmc-tool-v2';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Core files that should always be cached
 const CORE_ASSETS = [
     '/',
     '/index.html',
-    '/app.js',
+    '/app-main.js',
     '/styles.css',
     '/css/impl-planner.css',
     '/css/evidence.css',
     '/css/theme-picker.css',
     '/css/crosswalk.css',
+    '/css/osc-inventory.css',
+    '/css/arch-guide.css',
+    '/css/enhanced-features.css',
     '/js/lazy-loader.js',
     '/js/security.js',
     '/js/theme-picker.js',
+    '/js/report-generator.js',
+    '/js/inherited-controls.js',
+    '/js/portfolio-dashboard.js',
+    '/js/evidence-builder.js',
     '/data/families-ac-at-au.js',
     '/data/families-cm-ia.js',
     '/data/families-ir-ma-mp-ps-pe.js',
@@ -24,6 +31,8 @@ const CORE_ASSETS = [
     '/data/sprs-scoring.js',
     '/data/ctrl-xref.js',
     '/data/loader.js',
+    '/data/nist-800-172a.js',
+    '/data/nist-800-171a-r3.js',
     '/favicon.svg'
 ];
 
