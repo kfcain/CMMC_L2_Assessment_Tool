@@ -1988,15 +1988,15 @@ class AssessmentApp {
                         <p style="margin: 4px 0 8px; color: var(--text-secondary); font-size: 0.8rem;">Controls related to APT protection and advanced threat mitigation</p>
                         <div class="related-controls" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
                             <span style="color: var(--text-secondary); font-size: 0.75rem;">Related:</span>
-                            <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">${control.baseControl || control.id}</code>
-                            <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">3.14.6</code>
-                            <code style="background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;">3.14.7</code>
+                            <code class="related-control-link">${control.baseControl || control.id}</code>
+                            <code class="related-control-link">3.14.6</code>
+                            <code class="related-control-link">3.14.7</code>
                         </div>
                         <div class="shared-evidence" style="display: flex; gap: 6px; flex-wrap: wrap;">
                             <span style="color: var(--text-secondary); font-size: 0.75rem;">Shared Evidence:</span>
-                            <span style="background: var(--status-partial); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">Threat detection configs</span>
-                            <span style="background: var(--status-partial); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">IR procedures</span>
-                            <span style="background: var(--status-partial); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">ConMon logs</span>
+                            <span class="evidence-tag">Threat detection configs</span>
+                            <span class="evidence-tag">IR procedures</span>
+                            <span class="evidence-tag">ConMon logs</span>
                         </div>
                     </div>
                 </div>

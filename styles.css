@@ -5896,19 +5896,40 @@ table td {
 }
 
 .related-control-link {
-    background: var(--bg-secondary);
+    background: rgba(59, 130, 246, 0.15);
     color: var(--primary);
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
     font-size: 0.75rem;
     font-family: var(--font-mono);
     text-decoration: none;
-    transition: background 0.15s;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
+    transition: all 0.2s ease;
 }
 
 .related-control-link:hover {
-    background: var(--primary);
-    color: #fff;
+    background: rgba(59, 130, 246, 0.25);
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+    color: #60a5fa;
+}
+
+.evidence-tag {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+    transition: all 0.2s ease;
+}
+
+.evidence-tag:hover {
+    background: rgba(16, 185, 129, 0.25);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
 .related-evidence-list {
@@ -5921,11 +5942,20 @@ table td {
 }
 
 .related-evidence-list li {
-    background: rgba(var(--primary-rgb), 0.1);
-    color: var(--primary);
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
     padding: 4px 10px;
-    border-radius: 12px;
+    border-radius: 6px;
     font-size: 0.7rem;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+    transition: all 0.2s ease;
+}
+
+.related-evidence-list li:hover {
+    background: rgba(16, 185, 129, 0.25);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
 /* Cloud Implementation Dropdown */
