@@ -1,7 +1,7 @@
 // Service Worker for CMMC Assessment Tool
 // Provides offline caching and faster repeat visits
 
-const CACHE_NAME = 'cmmc-tool-v2';
+const CACHE_NAME = 'cmmc-tool-v3';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Core files that should always be cached
@@ -17,6 +17,7 @@ const CORE_ASSETS = [
     '/css/osc-inventory.css',
     '/css/arch-guide.css',
     '/css/enhanced-features.css',
+    '/css/msp-portal.css',
     '/js/lazy-loader.js',
     '/js/security.js',
     '/js/theme-picker.js',
@@ -24,6 +25,10 @@ const CORE_ASSETS = [
     '/js/inherited-controls.js',
     '/js/portfolio-dashboard.js',
     '/js/evidence-builder.js',
+    '/js/msp-portal.js',
+    '/js/msp-portal-views.js',
+    '/js/rev3-crosswalk.js',
+    '/js/cmmc-l3-assessment.js',
     '/data/families-ac-at-au.js',
     '/data/families-cm-ia.js',
     '/data/families-ir-ma-mp-ps-pe.js',
