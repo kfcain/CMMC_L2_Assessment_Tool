@@ -23,6 +23,10 @@ const MSPPortal = {
         { id: 'vdi', name: 'VDI Solutions', icon: 'monitor', section: 'infrastructure' },
         { id: 'siem', name: 'SIEM/MSSP Operations', icon: 'activity', section: 'security' },
         { id: 'automation', name: 'Automation & Compliance', icon: 'cpu', section: 'security' },
+        { id: 'automation-platforms', name: 'RMM & Automation Tools', icon: 'settings', section: 'tools' },
+        { id: 'cloud-templates', name: 'Cloud Templates', icon: 'database', section: 'tools' },
+        { id: 'evidence-lists', name: 'Evidence Collection Lists', icon: 'list', section: 'tools' },
+        { id: 'data-protection', name: 'Data Protection Guide', icon: 'shield', section: 'tools' },
         { id: 'documentation', name: 'Best Practices', icon: 'book', section: 'resources' }
     ],
 
@@ -116,7 +120,7 @@ const MSPPortal = {
     },
 
     renderSidebar: function() {
-        const sections = { main: { label: 'Management', items: [] }, infrastructure: { label: 'Infrastructure', items: [] }, security: { label: 'Security Ops', items: [] }, resources: { label: 'Resources', items: [] } };
+        const sections = { main: { label: 'Management', items: [] }, infrastructure: { label: 'Infrastructure', items: [] }, security: { label: 'Security Ops', items: [] }, tools: { label: 'Tools & Data', items: [] }, resources: { label: 'Resources', items: [] } };
         this.navigation.forEach(n => sections[n.section].items.push(n));
         return `
         <div class="msp-sidebar-header">
@@ -151,6 +155,89 @@ const MSPPortal = {
         document.querySelectorAll('.msp-nav-btn').forEach(btn => {
             btn.addEventListener('click', () => this.switchView(btn.dataset.view));
         });
+        this.attachDataViewEvents();
+    },
+
+    attachDataViewEvents: function() {
+        // Data view tabs (automation platforms, cloud templates, data protection)
+        // Use setTimeout to ensure DOM is fully rendered
+        setTimeout(() => {
+            document.querySelectorAll('.msp-data-tab').forEach(tab => {
+                // Remove existing listeners by cloning
+                const newTab = tab.cloneNode(true);
+                tab.parentNode.replaceChild(newTab, tab);
+                
+                newTab.addEventListener('click', (e) => {
+                    const section = e.target.dataset.section;
+                    const container = e.target.closest('.msp-data-view');
+                    if (!container) return;
+                    
+                    // Update active tab
+                    container.querySelectorAll('.msp-data-tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    // Render content based on view type - check by content ID
+                    const contentEl = container.querySelector('.msp-data-content');
+                    if (!contentEl) return;
+                    
+                    const contentId = contentEl.id;
+                    if (contentId === 'automation-platforms-content') {
+                        const data = typeof MSP_AUTOMATION_PLATFORMS !== 'undefined' ? MSP_AUTOMATION_PLATFORMS : null;
+                        if (data) contentEl.innerHTML = MSPPortalViews.renderAutomationPlatformsSection(data, section);
+                    } else if (contentId === 'cloud-templates-content') {
+                        const data = typeof MSP_CLOUD_TEMPLATES !== 'undefined' ? MSP_CLOUD_TEMPLATES : null;
+                        if (data) contentEl.innerHTML = MSPPortalViews.renderCloudTemplatesSection(data, section);
+                    } else if (contentId === 'data-protection-content') {
+                        const data = typeof MSP_DATA_PROTECTION !== 'undefined' ? MSP_DATA_PROTECTION : null;
+                        if (data) contentEl.innerHTML = MSPPortalViews.renderDataProtectionSection(data, section);
+                    }
+                });
+            });
+
+            // Evidence family navigation
+            document.querySelectorAll('.family-nav-btn').forEach(btn => {
+                // Remove existing listeners by cloning
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                newBtn.addEventListener('click', (e) => {
+                    const familyKey = e.target.dataset.family;
+                    const data = typeof MSP_EVIDENCE_LISTS !== 'undefined' ? MSP_EVIDENCE_LISTS : null;
+                    if (!data) return;
+                    
+                    // Update active button
+                    document.querySelectorAll('.family-nav-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    // Build family object from key (must match keys in msp-evidence-lists.js)
+                    const familyMap = {
+                        accessControl: { id: 'AC', name: 'Access Control' },
+                        awarenessTraining: { id: 'AT', name: 'Awareness & Training' },
+                        auditAccountability: { id: 'AU', name: 'Audit & Accountability' },
+                        configurationManagement: { id: 'CM', name: 'Configuration Management' },
+                        identificationAuthentication: { id: 'IA', name: 'Identification & Authentication' },
+                        incidentResponse: { id: 'IR', name: 'Incident Response' },
+                        maintenance: { id: 'MA', name: 'Maintenance' },
+                        mediaProtection: { id: 'MP', name: 'Media Protection' },
+                        personnelSecurity: { id: 'PS', name: 'Personnel Security' },
+                        physicalProtection: { id: 'PE', name: 'Physical Protection' },
+                        riskAssessment: { id: 'RA', name: 'Risk Assessment' },
+                        securityAssessment: { id: 'CA', name: 'Security Assessment' },
+                        systemCommunicationsProtection: { id: 'SC', name: 'System & Communications' },
+                        systemInformationIntegrity: { id: 'SI', name: 'System & Information Integrity' }
+                    };
+                    
+                    const familyInfo = familyMap[familyKey];
+                    if (familyInfo && data[familyKey]) {
+                        const family = { key: familyKey, ...familyInfo, data: data[familyKey] };
+                        const contentEl = document.getElementById('evidence-lists-content');
+                        if (contentEl) {
+                            contentEl.innerHTML = MSPPortalViews.renderEvidenceFamily(family);
+                        }
+                    }
+                });
+            });
+        }, 0);
     },
 
     switchView: function(viewId) {

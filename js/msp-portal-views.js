@@ -762,6 +762,387 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
     // Default dashboard passthrough
     dashboard: function(portal) {
         return portal.renderDashboard();
+    },
+
+    // ==================== AUTOMATION PLATFORMS VIEW ====================
+    'automation-platforms': function(portal) {
+        const data = typeof MSP_AUTOMATION_PLATFORMS !== 'undefined' ? MSP_AUTOMATION_PLATFORMS : null;
+        if (!data) return '<div class="msp-empty-state"><p>Automation platforms data not loaded</p></div>';
+        
+        return `
+        <div class="msp-data-view">
+            <div class="msp-intro-banner"><div class="banner-content"><h2>RMM & Automation Tools</h2><p>FedRAMP-authorized platforms for managing client environments securely</p></div></div>
+            <div class="msp-data-tabs">
+                <button class="msp-data-tab active" data-section="remoteManagement">RMM Platforms</button>
+                <button class="msp-data-tab" data-section="passwordManagement">Password Management</button>
+                <button class="msp-data-tab" data-section="workflowAutomation">Workflow Automation</button>
+                <button class="msp-data-tab" data-section="mdmSolutions">MDM Solutions</button>
+            </div>
+            <div class="msp-data-content" id="automation-platforms-content">
+                ${this.renderAutomationPlatformsSection(data, 'remoteManagement')}
+            </div>
+        </div>`;
+    },
+
+    renderAutomationPlatformsSection: function(data, sectionKey) {
+        const section = data[sectionKey];
+        if (!section) return '<p>Section not found</p>';
+        
+        const platforms = section.platforms || [];
+        return `
+        <div class="data-section">
+            <h3>${section.title || sectionKey}</h3>
+            <p class="section-desc">${section.description || ''}</p>
+            <div class="platforms-grid">
+                ${platforms.map(p => this.renderPlatformCard(p)).join('')}
+            </div>
+        </div>`;
+    },
+
+    renderPlatformCard: function(platform) {
+        const fedrampClass = platform.fedrampStatus?.includes('Authorized') ? 'authorized' : 
+                            platform.fedrampStatus?.includes('In Process') ? 'in-process' : 'pending';
+        return `
+        <div class="platform-card">
+            <div class="platform-header">
+                <h4>${platform.name}</h4>
+                <span class="fedramp-badge ${fedrampClass}">${platform.fedrampStatus || 'Unknown'}</span>
+            </div>
+            ${platform.url ? `<a href="${platform.url}" target="_blank" class="platform-link">Documentation ↗</a>` : ''}
+            ${platform.encryptionMethod ? `<div class="platform-meta"><strong>Encryption:</strong> ${platform.encryptionMethod}</div>` : ''}
+            ${platform.features ? `
+                <div class="platform-features">
+                    <strong>Features:</strong>
+                    <ul>${platform.features.map(f => `<li>${f}</li>`).join('')}</ul>
+                </div>` : ''}
+            ${platform.cmmcAlignment ? `
+                <div class="cmmc-alignment">
+                    <strong>CMMC Controls:</strong>
+                    <div class="control-tags">${platform.cmmcAlignment.map(c => `<span class="control-tag">${c}</span>`).join('')}</div>
+                </div>` : ''}
+            ${platform.bestPractices ? `
+                <div class="best-practices">
+                    <strong>Best Practices:</strong>
+                    <ul>${platform.bestPractices.map(bp => `<li>${bp}</li>`).join('')}</ul>
+                </div>` : ''}
+        </div>`;
+    },
+
+    // ==================== CLOUD TEMPLATES VIEW ====================
+    'cloud-templates': function(portal) {
+        const data = typeof MSP_CLOUD_TEMPLATES !== 'undefined' ? MSP_CLOUD_TEMPLATES : null;
+        if (!data) return '<div class="msp-empty-state"><p>Cloud templates data not loaded</p></div>';
+        
+        return `
+        <div class="msp-data-view">
+            <div class="msp-intro-banner"><div class="banner-content"><h2>Cloud Deployment Templates</h2><p>Infrastructure-as-Code templates for CMMC-compliant cloud environments</p></div></div>
+            <div class="msp-data-tabs">
+                <button class="msp-data-tab active" data-section="azure">Azure GCC High</button>
+                ${data.aws ? '<button class="msp-data-tab" data-section="aws">AWS GovCloud</button>' : ''}
+                ${data.gcp ? '<button class="msp-data-tab" data-section="gcp">GCP Assured Workloads</button>' : ''}
+            </div>
+            <div class="msp-data-content" id="cloud-templates-content">
+                ${this.renderCloudTemplatesSection(data, 'azure')}
+            </div>
+        </div>`;
+    },
+
+    renderCloudTemplatesSection: function(data, provider) {
+        const section = data[provider];
+        if (!section) return '<p>No templates available for this provider</p>';
+        
+        let html = `<div class="data-section"><h3>${section.title || provider.toUpperCase()}</h3>`;
+        if (section.consoleUrl) {
+            html += `<p><a href="${section.consoleUrl}" target="_blank" class="platform-link">Open Console ↗</a></p>`;
+        }
+        
+        // Iterate through all keys in the section that are objects (templates)
+        Object.keys(section).forEach(key => {
+            if (typeof section[key] === 'object' && section[key] !== null && key !== 'consoleUrl') {
+                const template = section[key];
+                if (template.title || template.terraformTemplate || template.description) {
+                    html += this.renderCloudTemplate(template, key);
+                }
+            }
+        });
+        
+        html += '</div>';
+        return html;
+    },
+
+    renderCloudTemplate: function(template, type) {
+        if (!template) return '';
+        const title = template.title || type.charAt(0).toUpperCase() + type.slice(1);
+        
+        // Collect all code templates (terraformTemplate, windowsServerTemplate, linuxServerTemplate, etc.)
+        const codeTemplates = [];
+        Object.keys(template).forEach(key => {
+            if (key.toLowerCase().includes('template') && typeof template[key] === 'string') {
+                const label = key.replace(/([A-Z])/g, ' $1').replace('Template', '').trim();
+                codeTemplates.push({ label, code: template[key] });
+            }
+        });
+        
+        return `
+        <div class="template-card">
+            <div class="template-header">
+                <h4>${title}</h4>
+            </div>
+            ${template.description ? `<p class="template-desc">${template.description}</p>` : ''}
+            ${template.securityBaseline?.settings ? `
+                <div class="best-practices" style="margin-bottom:16px;">
+                    <strong>${template.securityBaseline.title || 'Security Baseline'}:</strong>
+                    <table class="msp-table" style="margin-top:8px;font-size:0.85rem;">
+                        <thead><tr><th>Setting</th><th>Value</th><th>Control</th></tr></thead>
+                        <tbody>${template.securityBaseline.settings.map(s => `<tr><td>${s.setting}</td><td>${s.value}</td><td><code>${s.control}</code></td></tr>`).join('')}</tbody>
+                    </table>
+                </div>` : ''}
+            ${codeTemplates.map(t => `
+                <div class="code-section" style="margin-bottom:16px;">
+                    <strong>${t.label}:</strong>
+                    <pre class="code-block" style="max-height:300px;overflow:auto;"><code>${this.escapeHtml(t.code.substring(0, 2500))}${t.code.length > 2500 ? '\n\n... (truncated)' : ''}</code></pre>
+                </div>`).join('')}
+        </div>`;
+    },
+
+    // ==================== EVIDENCE LISTS VIEW ====================
+    'evidence-lists': function(portal) {
+        const data = typeof MSP_EVIDENCE_LISTS !== 'undefined' ? MSP_EVIDENCE_LISTS : null;
+        if (!data) return '<div class="msp-empty-state"><p>Evidence lists data not loaded</p></div>';
+        
+        // Build families from actual data keys (must match keys in msp-evidence-lists.js)
+        const familyMap = {
+            accessControl: { id: 'AC', name: 'Access Control' },
+            awarenessTraining: { id: 'AT', name: 'Awareness & Training' },
+            auditAccountability: { id: 'AU', name: 'Audit & Accountability' },
+            configurationManagement: { id: 'CM', name: 'Configuration Management' },
+            identificationAuthentication: { id: 'IA', name: 'Identification & Authentication' },
+            incidentResponse: { id: 'IR', name: 'Incident Response' },
+            maintenance: { id: 'MA', name: 'Maintenance' },
+            mediaProtection: { id: 'MP', name: 'Media Protection' },
+            personnelSecurity: { id: 'PS', name: 'Personnel Security' },
+            physicalProtection: { id: 'PE', name: 'Physical Protection' },
+            riskAssessment: { id: 'RA', name: 'Risk Assessment' },
+            securityAssessment: { id: 'CA', name: 'Security Assessment' },
+            systemCommunicationsProtection: { id: 'SC', name: 'System & Communications' },
+            systemInformationIntegrity: { id: 'SI', name: 'System & Information Integrity' }
+        };
+        
+        const families = Object.entries(familyMap)
+            .filter(([key]) => data[key])
+            .map(([key, info]) => ({ key, ...info, data: data[key] }));
+        
+        return `
+        <div class="msp-data-view">
+            <div class="msp-intro-banner"><div class="banner-content"><h2>Evidence Collection Lists</h2><p>Comprehensive evidence requirements for all 14 CMMC control families</p></div></div>
+            <div class="evidence-family-nav">
+                ${families.map((f, i) => `<button class="family-nav-btn ${i === 0 ? 'active' : ''}" data-family="${f.key}">${f.id}</button>`).join('')}
+            </div>
+            <div class="msp-data-content" id="evidence-lists-content">
+                ${families.length > 0 ? this.renderEvidenceFamily(families[0]) : '<p>No evidence lists available</p>'}
+            </div>
+        </div>`;
+    },
+
+    renderEvidenceFamily: function(family) {
+        if (!family || !family.data) return '<p>Family not found</p>';
+        
+        const familyData = family.data;
+        const controls = familyData.controls || [];
+        return `
+        <div class="evidence-family">
+            <div class="family-header">
+                <h3>${family.id} - ${familyData.familyName || family.name}</h3>
+                <p>${familyData.description || ''}</p>
+            </div>
+            <div class="evidence-controls">
+                ${controls.map(c => this.renderEvidenceControl(c)).join('')}
+            </div>
+        </div>`;
+    },
+
+    renderEvidenceControl: function(control) {
+        const evidenceItems = control.evidenceItems || control.evidence || [];
+        const autoCollection = control.automatedCollection;
+        return `
+        <div class="evidence-control-card">
+            <div class="control-header">
+                <span class="control-id">${control.controlId || control.id}</span>
+                <span class="control-name">${control.title || control.name || ''}</span>
+            </div>
+            <div class="evidence-items">
+                <strong>Required Evidence:</strong>
+                <ul class="evidence-list">
+                    ${evidenceItems.map(e => `
+                        <li class="evidence-item">
+                            <span class="evidence-name">${typeof e === 'string' ? e : e.name || e.item}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            ${autoCollection ? `
+                <div class="auto-collection">
+                    <strong>Automated Collection:</strong>
+                    <pre class="code-block"><code>${this.escapeHtml(typeof autoCollection === 'object' ? 
+                        Object.entries(autoCollection).map(([k,v]) => `# ${k}\n${v}`).join('\n\n') : 
+                        autoCollection)}</code></pre>
+                </div>` : ''}
+        </div>`;
+    },
+
+    // ==================== DATA PROTECTION VIEW ====================
+    'data-protection': function(portal) {
+        const data = typeof MSP_DATA_PROTECTION !== 'undefined' ? MSP_DATA_PROTECTION : null;
+        if (!data) return '<div class="msp-empty-state"><p>Data protection data not loaded</p></div>';
+        
+        // Data is nested under 'purview'
+        const purview = data.purview;
+        if (!purview) return '<div class="msp-empty-state"><p>Purview data not found</p></div>';
+        
+        // Build available tabs based on what exists
+        const availableTabs = [];
+        if (purview.sensitivityLabels) availableTabs.push({ key: 'sensitivityLabels', label: 'Sensitivity Labels' });
+        if (purview.sensitiveInfoTypes) availableTabs.push({ key: 'sensitiveInfoTypes', label: 'Sensitive Info Types' });
+        if (purview.dlpPolicies) availableTabs.push({ key: 'dlpPolicies', label: 'DLP Policies' });
+        if (purview.aipScanner) availableTabs.push({ key: 'aipScanner', label: 'AIP Scanner' });
+        if (purview.endpointDLP) availableTabs.push({ key: 'endpointDLP', label: 'Endpoint DLP' });
+        
+        return `
+        <div class="msp-data-view">
+            <div class="msp-intro-banner"><div class="banner-content"><h2>Data Protection Guide</h2><p>Microsoft Purview, sensitivity labels, and DLP configuration for CUI protection</p></div></div>
+            <div class="msp-data-tabs">
+                ${availableTabs.map((t, i) => `<button class="msp-data-tab ${i === 0 ? 'active' : ''}" data-section="${t.key}">${t.label}</button>`).join('')}
+            </div>
+            <div class="msp-data-content" id="data-protection-content">
+                ${availableTabs.length > 0 ? this.renderDataProtectionSection(data, availableTabs[0].key) : '<p>No data protection content available</p>'}
+            </div>
+        </div>`;
+    },
+
+    renderDataProtectionSection: function(data, sectionKey) {
+        const purview = data.purview;
+        if (!purview) return '<p>Purview data not found</p>';
+        
+        const section = purview[sectionKey];
+        if (!section) return '<p>Section not found: ' + sectionKey + '</p>';
+        
+        // Handle different section structures
+        if (sectionKey === 'sensitivityLabels') {
+            return this.renderSensitivityLabels(section);
+        } else if (sectionKey === 'sensitiveInfoTypes') {
+            return this.renderSensitiveInfoTypes(section);
+        } else if (sectionKey === 'dlpPolicies') {
+            return this.renderDLPPolicies(section);
+        } else {
+            return this.renderGenericDataSection(section);
+        }
+    },
+
+    renderSensitivityLabels: function(section) {
+        const labels = section.labelHierarchy || [];
+        return `
+        <div class="data-section">
+            <h3>${section.title || 'Sensitivity Labels'}</h3>
+            <p class="section-desc">${section.description || ''}</p>
+            ${section.deploymentScript ? `
+                <div class="code-section" style="margin-bottom:20px;">
+                    <strong>PowerShell Deployment Script:</strong>
+                    <pre class="code-block" style="max-height:300px;overflow:auto;"><code>${this.escapeHtml(section.deploymentScript.substring(0, 2000))}${section.deploymentScript.length > 2000 ? '\n... (truncated)' : ''}</code></pre>
+                </div>` : ''}
+            <div class="labels-hierarchy">
+                ${labels.map(label => `
+                    <div class="label-card" style="border-left: 4px solid ${label.color || '#666'}">
+                        <div class="label-header">
+                            <span class="label-name">${label.displayName || label.name}</span>
+                            <span class="label-priority">Priority: ${label.priority ?? 'N/A'}</span>
+                        </div>
+                        <p class="label-desc">${label.tooltip || ''}</p>
+                        ${label.settings ? `
+                            <div class="label-protections">
+                                <strong>Settings:</strong>
+                                <ul>
+                                    <li>Encryption: ${label.settings.encryption ? 'Yes' : 'No'}</li>
+                                    ${label.settings.contentMarking && typeof label.settings.contentMarking === 'object' ? `<li>Header: ${label.settings.contentMarking.header || 'N/A'}</li>` : ''}
+                                    ${label.settings.protectionActions ? `<li>Actions: ${label.settings.protectionActions}</li>` : ''}
+                                </ul>
+                            </div>` : ''}
+                        ${label.sublabels && label.sublabels.length > 0 ? `
+                            <div class="sublabels">
+                                <strong>Sub-labels (${label.sublabels.length}):</strong>
+                                ${label.sublabels.map(sub => `<span class="sublabel">${sub.displayName || sub.name}</span>`).join('')}
+                            </div>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+
+    renderSensitiveInfoTypes: function(section) {
+        const types = section.customTypes || [];
+        return `
+        <div class="data-section">
+            <h3>${section.title || 'Sensitive Information Types'}</h3>
+            <p class="section-desc">${section.description || ''}</p>
+            <div class="info-types-grid">
+                ${types.map(type => `
+                    <div class="info-type-card">
+                        <h4>${type.name}</h4>
+                        <p>${type.description || ''}</p>
+                        ${type.patterns && type.patterns.length > 0 ? `
+                            <div class="type-pattern">
+                                <strong>Patterns:</strong>
+                                ${type.patterns.map(p => `<div style="margin:4px 0;"><code style="font-size:0.75rem;word-break:break-all;">${this.escapeHtml(p.regex || p.pattern || '')}</code><br><small>${p.description || ''}</small></div>`).join('')}
+                            </div>` : ''}
+                        ${type.keywords ? `<div class="type-keywords"><strong>Keywords:</strong> ${type.keywords.slice(0,8).join(', ')}${type.keywords.length > 8 ? '...' : ''}</div>` : ''}
+                        ${type.confidence ? `<div class="type-confidence"><strong>Confidence:</strong> Low: ${type.confidence.low}%, Med: ${type.confidence.medium}%, High: ${type.confidence.high}%</div>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+
+    renderDLPPolicies: function(section) {
+        const policies = section.recommendedPolicies || section.policies || [];
+        return `
+        <div class="data-section">
+            <h3>${section.title || 'DLP Policies'}</h3>
+            <p class="section-desc">${section.description || ''}</p>
+            <div class="policies-grid">
+                ${policies.length > 0 ? policies.map(policy => `
+                    <div class="policy-card">
+                        <h4>${policy.name}</h4>
+                        <p>${policy.description || ''}</p>
+                        ${policy.locations ? `<div class="policy-meta"><strong>Locations:</strong> ${Array.isArray(policy.locations) ? policy.locations.join(', ') : policy.locations}</div>` : ''}
+                    </div>
+                `).join('') : '<p>No DLP policies defined yet</p>'}
+            </div>
+        </div>`;
+    },
+
+    renderGenericDataSection: function(section) {
+        return `
+        <div class="data-section">
+            <h3>${section.title || 'Configuration'}</h3>
+            <p class="section-desc">${section.description || ''}</p>
+            ${section.configuration ? `<pre class="code-block"><code>${this.escapeHtml(JSON.stringify(section.configuration, null, 2))}</code></pre>` : ''}
+            ${section.steps ? `
+                <div class="steps-list">
+                    <strong>Setup Steps:</strong>
+                    <ol>${section.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+                </div>` : ''}
+            ${section.bestPractices ? `
+                <div class="best-practices">
+                    <strong>Best Practices:</strong>
+                    <ul>${section.bestPractices.map(bp => `<li>${bp}</li>`).join('')}</ul>
+                </div>` : ''}
+        </div>`;
+    },
+
+    escapeHtml: function(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 };
 
