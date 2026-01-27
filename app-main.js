@@ -1,6 +1,6 @@
 // NIST 800-171A / CMMC L2 Assessment Tool
 // Main App Controller
-console.log('app.js loaded v73');
+console.log('app-main.js loaded - Project Plan removed');
 
 class AssessmentApp {
     constructor() {
@@ -982,8 +982,8 @@ class AssessmentApp {
             <div class="impl-view-controls">
                 <div class="impl-view-toggle">
                     <button class="${this.implPlannerView === 'phases' ? 'active' : ''}" data-view="phases">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                        Phases
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
+                        Project Plan
                     </button>
                     <button class="${this.implPlannerView === 'kanban' ? 'active' : ''}" data-view="kanban">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6" height="16"/><rect x="14" y="4" width="6" height="10"/></svg>
@@ -1009,7 +1009,7 @@ class AssessmentApp {
             
             <!-- Phases View Content -->
             <div id="impl-phases-content" style="${this.implPlannerView !== 'phases' ? 'display:none' : ''}">
-                ${this.renderPlannerPhaseContent(currentPhase, phaseProgress, planner)}
+                ${this.renderPlannerPhaseContent(currentPhase, phaseProgress)}
             </div>
             
             <!-- Kanban View -->
@@ -1048,35 +1048,28 @@ class AssessmentApp {
         return tasks;
     }
     
-    renderPlannerPhaseContent(phase, phaseProgress, planner) {
+    renderPlannerPhaseContent(phase, phaseProgress) {
         const phaseIcon = this.getPhaseIcon(phase.icon);
-        // Build project plan tasks for this phase (fallback if integration missing)
+        
+        // Build project plan tasks for this phase
         let planTasks = [];
-        if (typeof ProjectPlanIntegration !== 'undefined' && planner) {
-            const plan = ProjectPlanIntegration.generateProjectPlan(planner) || [];
-            planTasks = plan.filter(t => t.phaseId === phase.id);
-        }
-        // Fallback: derive minimal plan tasks from phase tasks if none found or integration missing
-        if ((!planTasks || planTasks.length === 0) && phase && phase.milestones) {
-            planTasks = [];
-            phase.milestones.forEach(milestone => {
-                (milestone.tasks || []).forEach(task => {
-                    const meta = task.projectPlan || {};
-                    planTasks.push({
-                        phaseId: phase.id,
-                        implTaskId: task.id,
-                        taskId: meta.taskId || `${phase.id}-${task.id}`,
-                        task: task.name,
-                        week: meta.week || 1,
-                        owner: meta.owner || 'Owner TBD',
-                        accountable: meta.accountable || 'Accountable TBD',
-                        deliverable: meta.deliverable || 'Deliverable TBD',
-                        controls: task.controls,
-                        priority: task.priority || 'medium'
-                    });
+        phase.milestones.forEach(milestone => {
+            (milestone.tasks || []).forEach(task => {
+                const meta = task.projectPlan || {};
+                planTasks.push({
+                    phaseId: phase.id,
+                    implTaskId: task.id,
+                    taskId: meta.taskId || `${phase.id}-${task.id}`,
+                    task: task.name,
+                    week: meta.week || 1,
+                    owner: meta.owner || 'TBD',
+                    accountable: meta.accountable || 'TBD',
+                    deliverable: meta.deliverable || 'TBD',
+                    controls: task.controls,
+                    priority: task.priority || 'medium'
                 });
             });
-        }
+        });
 
         return `
             <div class="impl-phase-content">
@@ -1102,61 +1095,39 @@ class AssessmentApp {
                 <div class="impl-milestones">
                     ${phase.milestones.map(milestone => this.renderPlannerMilestone(milestone, phase)).join('')}
                 </div>
-
+                
                 ${planTasks.length ? `
-                <div class="impl-phase-project-plan">
-                    <div class="phase-header">
-                        <h3>Project Plan Tasks</h3>
-                        <div class="category-stats">
-                            <span class="stat-item">
-                                <strong>${planTasks.length}</strong> tasks
-                            </span>
-                            <span class="stat-item">
-                                <strong>${planTasks.filter(t => this.implPlannerProgress[t.implTaskId]).length}</strong> complete
-                            </span>
-                        </div>
-                    </div>
-                    <div class="project-plan-table-wrapper">
-                        <table class="project-plan-table">
+                <div class="impl-phase-project-plan" style="margin-top:24px;padding:16px;background:var(--bg-secondary);border-radius:8px;">
+                    <h3 style="margin:0 0 12px 0;font-size:1rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
+                        Project Plan Tasks
+                        <span style="font-size:0.75rem;color:var(--text-muted);font-weight:normal;">(${planTasks.filter(t => this.implPlannerProgress[t.implTaskId]).length}/${planTasks.length} complete)</span>
+                    </h3>
+                    <div style="overflow-x:auto;">
+                        <table class="project-plan-table" style="width:100%;border-collapse:collapse;font-size:0.8rem;">
                             <thead>
-                                <tr>
-                                    <th>Week</th>
-                                    <th>Task ID</th>
-                                    <th>Task</th>
-                                    <th>Owner</th>
-                                    <th>Accountable</th>
-                                    <th>Deliverable</th>
-                                    <th>Priority</th>
-                                    <th>Status</th>
+                                <tr style="background:var(--bg-tertiary);">
+                                    <th style="padding:8px;text-align:left;border-bottom:1px solid var(--border-color);">Week</th>
+                                    <th style="padding:8px;text-align:left;border-bottom:1px solid var(--border-color);">Task</th>
+                                    <th style="padding:8px;text-align:left;border-bottom:1px solid var(--border-color);">Owner</th>
+                                    <th style="padding:8px;text-align:left;border-bottom:1px solid var(--border-color);">Deliverable</th>
+                                    <th style="padding:8px;text-align:left;border-bottom:1px solid var(--border-color);">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${planTasks.map(task => `
-                                    <tr class="${this.implPlannerProgress[task.implTaskId] ? 'completed' : ''}">
-                                        <td><span class="week-badge">Week ${task.week}</span></td>
-                                        <td><code>${task.taskId}</code></td>
-                                        <td>
-                                            <div class="task-name">${task.task}</div>
-                                            <div class="task-controls">
-                                                ${task.controls ? task.controls.map(c => `<span class="control-tag">${c}</span>`).join(' ') : ''}
-                                            </div>
+                                    <tr style="${this.implPlannerProgress[task.implTaskId] ? 'opacity:0.6;' : ''}">
+                                        <td style="padding:8px;border-bottom:1px solid var(--border-color);"><span style="background:var(--accent-blue);color:white;padding:2px 8px;border-radius:12px;font-size:0.7rem;">Week ${task.week}</span></td>
+                                        <td style="padding:8px;border-bottom:1px solid var(--border-color);">
+                                            <div>${task.task}</div>
+                                            ${task.controls ? `<div style="margin-top:4px;">${task.controls.map(c => `<span style="background:var(--bg-tertiary);padding:1px 6px;border-radius:4px;font-size:0.65rem;margin-right:4px;">${c}</span>`).join('')}</div>` : ''}
                                         </td>
-                                        <td>
-                                            <div class="owner-badge" style="background: var(--bg-tertiary); color: var(--text-primary); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">
-                                                ${task.owner}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="accountable-badge" style="background: var(--accent-blue); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">
-                                                ${task.accountable}
-                                            </div>
-                                        </td>
-                                        <td><div class="deliverable" style="font-size: 0.8rem; color: var(--text-secondary);">${task.deliverable}</div></td>
-                                        <td><span class="priority-badge ${task.priority}">${task.priority}</span></td>
-                                        <td>
-                                            <button class="task-status-btn ${this.implPlannerProgress[task.implTaskId] ? 'complete' : ''}" data-task-id="${task.implTaskId}" onclick="app.toggleProjectPlanTask('${task.implTaskId}')">
-                                                ${this.implPlannerProgress[task.implTaskId] ? '✓ Complete' : '○ Pending'}
-                                            </button>
+                                        <td style="padding:8px;border-bottom:1px solid var(--border-color);"><span style="background:var(--bg-tertiary);padding:2px 8px;border-radius:12px;font-size:0.7rem;">${task.owner}</span></td>
+                                        <td style="padding:8px;border-bottom:1px solid var(--border-color);font-size:0.75rem;color:var(--text-secondary);">${task.deliverable}</td>
+                                        <td style="padding:8px;border-bottom:1px solid var(--border-color);">
+                                            <span style="color:${this.implPlannerProgress[task.implTaskId] ? 'var(--status-met)' : 'var(--text-muted)'};">
+                                                ${this.implPlannerProgress[task.implTaskId] ? '✓ Done' : '○ Pending'}
+                                            </span>
                                         </td>
                                     </tr>
                                 `).join('')}
@@ -1452,198 +1423,6 @@ class AssessmentApp {
         return icons[iconName] || icons.foundation;
     }
     
-    renderProjectPlanView(planner, allTasks) {
-        console.log('=== renderProjectPlanView called ===');
-        console.log('Planner phases:', planner.phases.length);
-        console.log('All tasks:', allTasks.length);
-        
-        // Check if ProjectPlanIntegration is available
-        if (typeof ProjectPlanIntegration === 'undefined') {
-            console.log('ProjectPlanIntegration not available');
-            return '<div style="padding:40px;text-align:center;color:var(--text-muted)">Project Plan Integration not available. Please ensure implementation-planner.js is loaded.</div>';
-        }
-        
-        // Generate project plan data
-        const projectPlan = ProjectPlanIntegration.generateProjectPlan(planner);
-        const raciMatrix = ProjectPlanIntegration.generateRACIMatrix(planner);
-        const timeline = ProjectPlanIntegration.generateTimeline(planner);
-        
-        // Group tasks by phase
-        const tasksByPhase = {};
-        projectPlan.forEach(task => {
-            if (!tasksByPhase[task.phaseId]) {
-                tasksByPhase[task.phaseId] = [];
-            }
-            tasksByPhase[task.phaseId].push(task);
-        });
-        
-        // Debug: Log what we have
-        console.log('Project Plan tasks:', projectPlan.length);
-        console.log('Tasks by phase:', Object.keys(tasksByPhase));
-        Object.keys(tasksByPhase).forEach(phaseId => {
-            console.log(`Phase ${phaseId}: ${tasksByPhase[phaseId].length} tasks`);
-        });
-        
-        return `
-            <div class="project-plan-wrapper">
-                <!-- Project Plan Header -->
-                <div class="project-plan-header">
-                    <h2>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6M4 4l5 5"/></svg>
-                        Project Plan View
-                    </h2>
-                    <p>Implementation tasks organized by project plan categories with RACI assignments and timeline</p>
-                </div>
-                
-                <!-- Phase Tabs -->
-                <div class="project-plan-tabs">
-                    ${planner.phases.map(phase => `
-                        <button class="project-plan-tab ${phase.id === 'phase-1' ? 'active' : ''}" data-phase="${phase.id}">
-                            ${phase.name}
-                            <span class="task-count">${tasksByPhase[phase.id] ? tasksByPhase[phase.id].length : 0}</span>
-                        </button>
-                    `).join('')}
-                </div>
-                
-                <!-- Phase Content -->
-                <div class="project-plan-content">
-                    ${planner.phases.map(phase => `
-                        <div class="project-plan-phase ${phase.id === 'phase-1' ? 'active' : ''}" data-phase="${phase.id}">
-                            <div class="phase-header">
-                                <h3>${phase.name}</h3>
-                                <div class="category-stats">
-                                    <span class="stat-item">
-                                        <strong>${tasksByPhase[phase.id] ? tasksByPhase[phase.id].length : 0}</strong> tasks
-                                    </span>
-                                    <span class="stat-item">
-                                        <strong>${tasksByPhase[phase.id] ? tasksByPhase[phase.id].filter(task => this.implPlannerProgress[task.implTaskId]).length : 0}</strong> complete
-                                    </span>
-                                </div>
-                            </div>
-                            
-                            <div class="project-plan-table-wrapper">
-                                <table class="project-plan-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Week</th>
-                                            <th>Task ID</th>
-                                            <th>Task</th>
-                                            <th>Owner</th>
-                                            <th>Accountable</th>
-                                            <th>Deliverable</th>
-                                            <th>Priority</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${(tasksByPhase[phase.id] || []).map(task => `
-                                            <tr class="${this.implPlannerProgress[task.implTaskId] ? 'completed' : ''}">
-                                                <td><span class="week-badge">Week ${task.week}</span></td>
-                                                <td><code>${task.taskId}</code></td>
-                                                <td>
-                                                    <div class="task-name">${task.task}</div>
-                                                    <div class="task-controls">
-                                                        ${task.controls ? task.controls.map(c => `<span class="control-tag">${c}</span>`).join(' ') : ''}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="owner-badge" style="background: var(--bg-tertiary); color: var(--text-primary); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">
-                                                        ${task.owner}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="accountable-badge" style="background: var(--accent-blue); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">
-                                                        ${task.accountable}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="deliverable" style="font-size: 0.8rem; color: var(--text-secondary);">
-                                                        ${task.deliverable}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <span class="priority-badge ${task.priority}">${task.priority}</span>
-                                                </td>
-                                                <td>
-                                                    <button class="task-status-btn ${this.implPlannerProgress[task.implTaskId] ? 'complete' : ''}" 
-                                                    data-task-id="${task.implTaskId}"
-                                                    onclick="app.toggleProjectPlanTask('${task.implTaskId}')">
-                                                    ${this.implPlannerProgress[task.implTaskId] ? '✓ Complete' : '○ Pending'}
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-                
-                <!-- RACI Matrix Section -->
-                <div class="raci-section">
-                    <h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                        RACI Matrix
-                    </h3>
-                    <div class="raci-table-wrapper">
-                        <table class="raci-table">
-                            <thead>
-                                <tr>
-                                    <th>Category</th>
-                                    <th>Action</th>
-                                    ${raciMatrix.roles.map(role => `<th>${role}</th>`).join('')}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${raciMatrix.tasks.map(task => `
-                                    <tr>
-                                        <td><span class="category-tag">${task.category}</span></td>
-                                        <td>${task.action}</td>
-                                        ${task.raci.map((role, idx) => `
-                                            <td class="raci-cell ${role}">
-                                                ${role}
-                                            </td>
-                                        `).join('')}
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Timeline Section -->
-                <div class="timeline-section">
-                    <h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        Implementation Timeline
-                    </h3>
-                    <div class="timeline-wrapper">
-                        ${timeline.map(item => `
-                            <div class="timeline-item ${this.implPlannerProgress[item.taskId] ? 'complete' : ''}">
-                                <div class="timeline-week">Week ${item.week}</div>
-                                <div class="timeline-content">
-                                    <div class="timeline-task">${item.task}</div>
-                                    <div class="timeline-meta">
-                                        <span class="timeline-phase">${item.phase}</span>
-                                        <span class="timeline-owner">${item.owner}</span>
-                                        <span class="timeline-priority ${item.priority}">${item.priority}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    toggleProjectPlanTask(taskId) {
-        this.implPlannerProgress[taskId] = !this.implPlannerProgress[taskId];
-        localStorage.setItem('impl-planner-progress', JSON.stringify(this.implPlannerProgress));
-        this.renderImplPlanner();
-    }
-    
     bindImplPlannerEvents(container, planner, phaseProgress) {
         // Phase tab clicks
         container.querySelectorAll('.impl-phase-tab').forEach(tab => {
@@ -1670,7 +1449,6 @@ class AssessmentApp {
                 
                 // Hide all views
                 document.getElementById('impl-phases-content').style.display = 'none';
-                document.getElementById('impl-project-plan-content').style.display = 'none';
                 document.getElementById('impl-kanban-content').style.display = 'none';
                 document.getElementById('impl-list-content').style.display = 'none';
                 document.querySelector('.impl-phase-timeline').style.display = 'none';
@@ -1679,8 +1457,6 @@ class AssessmentApp {
                 if (view === 'phases') {
                     document.getElementById('impl-phases-content').style.display = 'block';
                     document.querySelector('.impl-phase-timeline').style.display = 'flex';
-                } else if (view === 'project-plan') {
-                    document.getElementById('impl-project-plan-content').style.display = 'block';
                 } else if (view === 'kanban') {
                     document.getElementById('impl-kanban-content').style.display = 'block';
                 } else if (view === 'list') {
@@ -1711,25 +1487,6 @@ class AssessmentApp {
                     localStorage.setItem('impl-planner-progress', JSON.stringify(this.implPlannerProgress));
                     this.renderImplPlanner();
                 }
-            });
-        });
-        
-        // Project Plan phase tabs
-        container.querySelectorAll('.project-plan-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                const phase = e.currentTarget.dataset.phase;
-                
-                // Update active tab
-                container.querySelectorAll('.project-plan-tab').forEach(t => t.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                
-                // Update active content
-                container.querySelectorAll('.project-plan-phase').forEach(phaseDiv => {
-                    phaseDiv.classList.remove('active');
-                    if (phaseDiv.dataset.phase === phase) {
-                        phaseDiv.classList.add('active');
-                    }
-                });
             });
         });
         

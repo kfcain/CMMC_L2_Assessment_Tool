@@ -953,6 +953,15 @@
     display: block;
 }
 
+/* Phase-based project plan view */
+.project-plan-phase {
+    display: none;
+}
+
+.project-plan-phase.active {
+    display: block;
+}
+
 .category-header {
     display: flex;
     justify-content: space-between;

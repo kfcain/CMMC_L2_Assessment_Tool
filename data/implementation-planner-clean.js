@@ -2518,28 +2518,30 @@ const ProjectPlanIntegration = {
     generateProjectPlan: function(planner) {
         const projectPlan = [];
         let weekCounter = 1;
+        const phaseCategories = planner.projectPlanMapping?.phaseCategories || {};
         
         planner.phases.forEach(phase => {
             phase.milestones.forEach(milestone => {
                 milestone.tasks.forEach(task => {
-                    if (task.projectPlan) {
-                        projectPlan.push({
-                            category: task.projectPlan.category,
-                            week: task.projectPlan.week || weekCounter,
-                            taskId: task.projectPlan.taskId || `${phase.id}-${task.id}`,
-                            task: task.name,
-                            owner: task.projectPlan.owner,
-                            accountable: task.projectPlan.accountable,
-                            deliverable: task.projectPlan.deliverable,
-                            // Link back to implementation planner
-                            phaseId: phase.id,
-                            implTaskId: task.id,
-                            controls: task.controls,
-                            priority: task.priority,
-                            effort: task.effort,
-                            duration: phase.duration
-                        });
-                    }
+                    // Include tasks even if projectPlan metadata is missing
+                    const projectPlanMeta = task.projectPlan || {};
+                    const category = projectPlanMeta.category || phaseCategories[phase.id] || "Foundation";
+                    projectPlan.push({
+                        category,
+                        week: projectPlanMeta.week || weekCounter,
+                        taskId: projectPlanMeta.taskId || `${phase.id}-${task.id}`,
+                        task: task.name,
+                        owner: projectPlanMeta.owner || "Owner TBD",
+                        accountable: projectPlanMeta.accountable || "Accountable TBD",
+                        deliverable: projectPlanMeta.deliverable || "Deliverable TBD",
+                        // Link back to implementation planner
+                        phaseId: phase.id,
+                        implTaskId: task.id,
+                        controls: task.controls,
+                        priority: task.priority,
+                        effort: task.effort,
+                        duration: phase.duration
+                    });
                 });
             });
             // Increment week based on phase duration (rough estimate)
