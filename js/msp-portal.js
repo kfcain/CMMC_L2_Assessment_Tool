@@ -107,7 +107,13 @@ const MSPPortal = {
         this.attachEvents();
     },
 
-    closePortal: function() { document.getElementById('msp-portal')?.remove(); },
+    closePortal: function() {
+        document.getElementById('msp-portal')?.remove();
+        // Return to the main dashboard without page refresh
+        if (typeof window.app !== 'undefined' && window.app.switchView) {
+            window.app.switchView('dashboard');
+        }
+    },
 
     renderSidebar: function() {
         const sections = { main: { label: 'Management', items: [] }, infrastructure: { label: 'Infrastructure', items: [] }, security: { label: 'Security Ops', items: [] }, resources: { label: 'Resources', items: [] } };
@@ -208,9 +214,108 @@ const MSPPortal = {
     },
 
     showAddClientModal: function() {
-        if (typeof PortfolioDashboard !== 'undefined') {
+        // Try PortfolioDashboard first, otherwise show our own modal
+        if (typeof PortfolioDashboard !== 'undefined' && PortfolioDashboard.showAddClientModal) {
             PortfolioDashboard.showAddClientModal();
+            return;
         }
+        
+        // Show MSP Portal's own add client modal
+        const modalHtml = `
+        <div class="msp-modal-overlay" id="msp-add-client-modal">
+            <div class="msp-modal">
+                <div class="msp-modal-header">
+                    <h3>${this.getIcon('user-plus')} Add New Client</h3>
+                    <button class="msp-modal-close" onclick="MSPPortal.closeAddClientModal()">${this.getIcon('x')}</button>
+                </div>
+                <div class="msp-modal-body">
+                    <form id="msp-add-client-form">
+                        <div class="msp-form-group">
+                            <label for="client-name">Organization Name *</label>
+                            <input type="text" id="client-name" name="name" required placeholder="Enter organization name">
+                        </div>
+                        <div class="msp-form-row">
+                            <div class="msp-form-group">
+                                <label for="client-level">CMMC Level *</label>
+                                <select id="client-level" name="assessmentLevel" required>
+                                    <option value="1">Level 1 (FCI)</option>
+                                    <option value="2" selected>Level 2 (CUI)</option>
+                                    <option value="3">Level 3 (Enhanced)</option>
+                                </select>
+                            </div>
+                            <div class="msp-form-group">
+                                <label for="client-industry">Industry</label>
+                                <select id="client-industry" name="industry">
+                                    <option value="Defense">Defense Contractor</option>
+                                    <option value="Aerospace">Aerospace</option>
+                                    <option value="Manufacturing">Manufacturing</option>
+                                    <option value="IT Services">IT Services</option>
+                                    <option value="Research">Research</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="msp-form-row">
+                            <div class="msp-form-group">
+                                <label for="client-sprs">Current SPRS Score</label>
+                                <input type="number" id="client-sprs" name="sprsScore" min="-203" max="110" placeholder="e.g., 75">
+                            </div>
+                            <div class="msp-form-group">
+                                <label for="client-assessment-date">Target Assessment Date</label>
+                                <input type="date" id="client-assessment-date" name="nextAssessment">
+                            </div>
+                        </div>
+                        <div class="msp-form-group">
+                            <label for="client-contact">Primary Contact</label>
+                            <input type="text" id="client-contact" name="contact" placeholder="Contact name">
+                        </div>
+                        <div class="msp-form-group">
+                            <label for="client-email">Contact Email</label>
+                            <input type="email" id="client-email" name="email" placeholder="contact@company.com">
+                        </div>
+                        <div class="msp-form-group">
+                            <label for="client-notes">Notes</label>
+                            <textarea id="client-notes" name="notes" rows="3" placeholder="Additional notes about this client..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="msp-modal-footer">
+                    <button class="msp-btn-secondary" onclick="MSPPortal.closeAddClientModal()">Cancel</button>
+                    <button class="msp-btn-primary" onclick="MSPPortal.submitAddClient()">${this.getIcon('check-circle')} Add Client</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    },
+
+    closeAddClientModal: function() {
+        document.getElementById('msp-add-client-modal')?.remove();
+    },
+
+    submitAddClient: function() {
+        const form = document.getElementById('msp-add-client-form');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        const formData = new FormData(form);
+        const clientData = {
+            name: formData.get('name'),
+            assessmentLevel: formData.get('assessmentLevel'),
+            industry: formData.get('industry'),
+            sprsScore: formData.get('sprsScore') ? parseInt(formData.get('sprsScore')) : null,
+            nextAssessment: formData.get('nextAssessment') || null,
+            contact: formData.get('contact'),
+            email: formData.get('email'),
+            notes: formData.get('notes'),
+            completionPercent: 0,
+            poamCount: 0
+        };
+        
+        this.addClient(clientData);
+        this.closeAddClientModal();
+        this.switchView('clients');
     },
 
     addClient: function(data) {

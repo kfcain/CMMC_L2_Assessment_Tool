@@ -366,16 +366,20 @@ body {
 
 .family-controls {
     display: none;
+    flex-direction: column;
     padding: 0;
 }
 
 .family-controls.expanded {
-    display: block;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Control Item */
 .control-item {
     border-top: 1px solid var(--border-color);
+    width: 100%;
+    display: block;
 }
 
 .control-header {
@@ -396,9 +400,14 @@ body {
 }
 
 .control-id {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
     font-weight: 600;
     color: var(--accent-blue);
     margin-bottom: 4px;
+    line-height: 1.4;
 }
 
 .control-name {
@@ -460,21 +469,14 @@ body {
 }
 
 .objective-details {
-    display: grid;
-    grid-template-rows: 0fr;
+    display: none;
     padding: 0 20px 0 40px;
-    background: var(--bg-tertiary);
-    border-top: 1px dashed var(--border-color);
-    transition: grid-template-rows 0.25s ease-out, padding 0.25s ease-out;
-    overflow: hidden;
-}
-
-.objective-details > * {
-    overflow: hidden;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
 }
 
 .objective-item.expanded .objective-details {
-    grid-template-rows: 1fr;
+    display: block;
     padding: 0 20px 16px 40px;
 }
 
@@ -726,7 +728,8 @@ body {
 }
 
 .dashboard-card {
-    background-color: var(--bg-secondary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 14px;
 }
@@ -804,7 +807,8 @@ body {
 .summary-stat {
     text-align: center;
     padding: 12px 8px;
-    background-color: var(--bg-tertiary);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
 }
 
@@ -1305,13 +1309,13 @@ body {
 
 /* SPRS Scoring Badges */
 .sprs-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     padding: 2px 8px;
     border-radius: 4px;
+    flex-shrink: 0;
     font-size: 11px;
     font-weight: 600;
-    margin-left: 8px;
-    vertical-align: middle;
 }
 
 .sprs-badge.low {
@@ -1331,23 +1335,25 @@ body {
 
 /* POA&M Warnings on Controls */
 .poam-warning {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     padding: 2px 8px;
     border-radius: 4px;
+    flex-shrink: 0;
     font-size: 11px;
     font-weight: 600;
-    margin-left: 8px;
     background-color: rgba(239, 68, 68, 0.2);
     color: #ef4444;
 }
 
 .poam-caution {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     padding: 2px 8px;
+    flex-shrink: 0;
     border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
-    margin-left: 8px;
     background-color: rgba(245, 158, 11, 0.2);
     color: #f59e0b;
 }
@@ -2055,7 +2061,6 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     background: var(--bg-secondary);
-    overflow: hidden;
 }
 
 .cheat-sheet-toggle {
@@ -2091,13 +2096,11 @@ body {
 }
 
 .cheat-sheet-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
+    display: none;
 }
 
 .assessor-cheat-sheet.expanded .cheat-sheet-content {
-    max-height: 800px;
+    display: block;
     padding: 0 14px 14px;
 }
 
@@ -3544,7 +3547,8 @@ body {
     position: fixed;
     top: 52px;
     left: 0;
-    min-width: 220px;
+    min-width: 240px;
+    max-height: calc(100vh - 60px);
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -3553,7 +3557,8 @@ body {
     visibility: hidden;
     transform: translateY(-8px);
     transition: all 0.2s ease;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .hamburger-dropdown.active {
@@ -5358,7 +5363,8 @@ table td {
 }
 
 .main-content:has(#impl-guide-view.active) .site-title-bar,
-.main-content:has(#osc-inventory-view.active) .site-title-bar {
+.main-content:has(#osc-inventory-view.active) .site-title-bar,
+.main-content:has(#rev3-crosswalk-view.active) .site-title-bar {
     display: none;
 }
 
@@ -5744,4 +5750,559 @@ table td {
         gap: 12px;
         flex-wrap: wrap;
     }
+}
+
+/* ==================== CMMC L3 Assessment Styles ==================== */
+.l3-info-banner {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(97, 175, 239, 0.1) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-left: 4px solid #8b5cf6;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.l3-banner-content {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.l3-banner-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: rgba(139, 92, 246, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #a78bfa;
+}
+
+.l3-banner-text strong {
+    display: block;
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.l3-banner-text p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.l3-family .family-id.l3 {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    color: white;
+}
+
+.l3-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 8px;
+}
+
+.l3-enhanced-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+    border-radius: 4px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.l3-control .control-header {
+    border-left: 3px solid rgba(139, 92, 246, 0.5);
+}
+
+.l3-control .control-header.expanded {
+    border-left-color: #8b5cf6;
+}
+
+.l3-discussion {
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.l3-discussion h4 {
+    margin: 0 0 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.l3-discussion p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.l3-guidance {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.l3-guidance h4 {
+    margin: 0 0 12px;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+}
+
+.l3-guidance .guidance-tabs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.l3-guidance .guidance-section {
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.l3-guidance .guidance-section h5 {
+    margin: 0 0 8px;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+}
+
+.l3-guidance .guidance-section ul {
+    margin: 0;
+    padding-left: 16px;
+}
+
+.l3-guidance .guidance-section li {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.l3-evidence {
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.l3-evidence h4 {
+    margin: 0 0 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.l3-evidence ul {
+    margin: 0;
+    padding-left: 16px;
+}
+
+.l3-evidence li {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.l3-objective {
+    border-left: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+.l3-objective .objective-id {
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+}
+
+.l3-status-buttons .status-btn {
+    font-size: 0.7rem;
+    padding: 6px 10px;
+}
+
+/* L3 Quick Access and Implementation Guide Styles */
+.l3-objective .quick-access-section {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.l3-objective .quick-access-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.l3-objective .quick-access-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.l3-objective .quick-access-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--accent-blue);
+    font-size: 0.75rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.l3-objective .quick-access-link:hover {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+.l3-objective .guidance-steps {
+    margin-bottom: 16px;
+}
+
+.l3-objective .guidance-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.l3-objective .guidance-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.l3-objective .guidance-list li {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    line-height: 1.5;
+}
+
+.impl-guide-collapsible {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 16px;
+}
+
+.impl-guide-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-tertiary);
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+}
+
+.impl-guide-toggle:hover {
+    background: rgba(139, 92, 246, 0.1);
+}
+
+.impl-guide-toggle svg {
+    color: var(--accent-blue);
+}
+
+.impl-guide-content {
+    display: none;
+    padding: 16px;
+}
+
+.impl-guide-collapsible.expanded .impl-guide-content {
+    display: block;
+}
+
+.impl-section {
+    margin-bottom: 16px;
+}
+
+.impl-section:last-child {
+    margin-bottom: 0;
+}
+
+.impl-section h5 {
+    margin: 0 0 8px;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.impl-section ol,
+.impl-section ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.impl-section li {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    line-height: 1.5;
+}
+
+/* L3 Assessment Objective Styles */
+.l3-objective .impl-details {
+    margin-bottom: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+}
+
+.l3-objective .impl-details > .impl-summary {
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.l3-objective .impl-details[open] > .impl-summary {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.l3-objective .impl-details > div,
+.l3-objective .impl-details > .itar-content,
+.l3-objective .impl-details > .related-content,
+.l3-objective .impl-details > .cheat-sheet-content {
+    padding: 12px;
+}
+
+.l3-objective .impl-summary.impl-itar {
+    color: var(--status-not-met);
+}
+
+.l3-objective .impl-summary.impl-related {
+    color: var(--primary);
+}
+
+.l3-objective .impl-summary.impl-cheatsheet {
+    color: var(--status-met);
+}
+
+.l3-objective .itar-badge {
+    background: var(--status-not-met);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.l3-objective .itar-section,
+.l3-objective .cheat-section {
+    margin-bottom: 12px;
+}
+
+.l3-objective .itar-section:last-child,
+.l3-objective .cheat-section:last-child {
+    margin-bottom: 0;
+}
+
+.l3-objective .itar-section strong,
+.l3-objective .cheat-section strong {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.l3-objective .itar-section p,
+.l3-objective .cheat-section p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* L3 Cloud Section */
+.l3-cloud-section {
+    margin-top: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    overflow: hidden;
+}
+
+.l3-cloud-section .arch-cloud-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+.l3-cloud-section .cloud-select-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-right: 4px;
+}
+
+.l3-cloud-section .cloud-guidance-content {
+    padding: 0;
+}
+
+.l3-cloud-section .cloud-select-prompt {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.l3-cloud-section .cloud-guidance-panel {
+    display: none;
+}
+
+.l3-cloud-section .cloud-guidance-panel.active {
+    display: block;
+}
+
+.l3-cloud-section .cloud-guidance-panel.active ~ .cloud-select-prompt,
+.l3-cloud-section .arch-cloud-btn.active ~ .cloud-guidance-content .cloud-select-prompt {
+    display: none;
+}
+
+.l3-cloud-section .impl-notes-section {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+}
+
+/* CCA Interview Questions Styles */
+.interview-section {
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    padding: 12px;
+    overflow: visible;
+}
+
+.interview-responsible {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    padding: 6px 10px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    border-left: 3px solid var(--primary);
+}
+
+.interview-category {
+    margin-bottom: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    overflow: visible;
+}
+
+.interview-category-header {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+}
+
+.interview-category-header::-webkit-details-marker {
+    display: none;
+}
+
+.interview-category-header::before {
+    content: '▶';
+    font-size: 0.6rem;
+    transition: transform 0.2s;
+}
+
+.interview-category[open] > .interview-category-header::before {
+    transform: rotate(90deg);
+}
+
+.interview-questions-list {
+    list-style: none;
+    padding: 0 12px 12px;
+    margin: 0;
+    overflow: visible;
+}
+
+.interview-question {
+    padding: 10px;
+    margin-bottom: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    border-left: 3px solid var(--primary);
+    overflow: visible;
+}
+
+.interview-question:last-child {
+    margin-bottom: 0;
+}
+
+.question-text {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+.question-followup {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+    padding-left: 12px;
+}
+
+.screenshare-section {
+    background: rgba(var(--primary-rgb), 0.1);
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+}
+
+.screenshare-section .cheat-sheet-subtitle {
+    color: var(--primary);
 }

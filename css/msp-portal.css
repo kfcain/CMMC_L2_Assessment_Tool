@@ -1,4 +1,4 @@
-/* MSP Portal - Professional Styling */
+/* MSP Portal - Dark Theme Styling (Matches Main App) */
 
 /* ==================== Portal Overlay ==================== */
 .msp-portal-overlay {
@@ -7,7 +7,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: var(--ef-bg, #f8fafc);
+    background: var(--bg-primary);
     z-index: 100000;
     display: flex;
     animation: mspFadeIn 0.2s ease;
@@ -27,10 +27,10 @@
 /* ==================== Sidebar ==================== */
 .msp-portal-sidebar {
     width: 260px;
-    background: linear-gradient(180deg, #1e3a5f 0%, #0f2744 100%);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    color: white;
     flex-shrink: 0;
 }
 
@@ -39,13 +39,13 @@
     align-items: center;
     gap: 12px;
     padding: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .msp-logo {
     width: 40px;
     height: 40px;
-    background: rgba(255,255,255,0.1);
+    background: var(--bg-tertiary);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -55,19 +55,20 @@
 .msp-logo svg {
     width: 24px;
     height: 24px;
-    stroke: #60a5fa;
+    stroke: var(--accent-blue);
 }
 
 .msp-brand-name {
     display: block;
     font-weight: 600;
     font-size: 15px;
+    color: var(--text-primary);
 }
 
 .msp-brand-tag {
     display: block;
     font-size: 11px;
-    color: rgba(255,255,255,0.6);
+    color: var(--text-muted);
 }
 
 .msp-sidebar-nav {
@@ -85,7 +86,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: rgba(255,255,255,0.4);
+    color: var(--text-muted);
     padding: 12px 20px 8px;
 }
 
@@ -97,22 +98,48 @@
     padding: 10px 20px;
     background: transparent;
     border: none;
-    color: rgba(255,255,255,0.8);
+    color: var(--text-secondary);
     font-size: 13px;
     cursor: pointer;
     transition: all 0.2s;
     text-align: left;
 }
 
+.env-tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: none;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.env-tab-icon {
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.env-tab.active .env-tab-icon {
+    opacity: 1;
+}
+
 .msp-nav-btn:hover {
-    background: rgba(255,255,255,0.1);
-    color: white;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
 }
 
 .msp-nav-btn.active {
-    background: rgba(96, 165, 250, 0.2);
-    color: #60a5fa;
-    border-left: 3px solid #60a5fa;
+    background: rgba(97, 175, 239, 0.15);
+    color: var(--accent-blue);
+    border-left: 3px solid var(--accent-blue);
 }
 
 .msp-nav-btn svg {
@@ -123,7 +150,7 @@
 
 .msp-sidebar-footer {
     padding: 16px;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid var(--border-color);
 }
 
 .msp-close-btn {
@@ -133,17 +160,17 @@
     gap: 8px;
     width: 100%;
     padding: 10px;
-    background: rgba(239, 68, 68, 0.2);
+    background: rgba(224, 108, 117, 0.15);
     border: none;
     border-radius: 8px;
-    color: #fca5a5;
+    color: var(--status-not-met);
     font-size: 13px;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .msp-close-btn:hover {
-    background: rgba(239, 68, 68, 0.3);
+    background: rgba(224, 108, 117, 0.25);
 }
 
 /* ==================== Main Content ==================== */
@@ -152,6 +179,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: var(--bg-primary);
 }
 
 .msp-portal-header {
@@ -159,15 +187,15 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 24px;
-    background: white;
-    border-bottom: 1px solid #e2e8f0;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .msp-header-title {
     margin: 0;
     font-size: 22px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .msp-header-right {
@@ -189,35 +217,36 @@
     display: block;
     font-size: 20px;
     font-weight: 700;
-    color: #1e40af;
+    color: var(--accent-blue);
 }
 
 .msp-stat-mini .stat-label {
     font-size: 10px;
-    color: #64748b;
+    color: var(--text-muted);
     text-transform: uppercase;
 }
 
 .msp-header-btn {
-    background: #f1f5f9;
-    border: none;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
     padding: 8px;
     border-radius: 8px;
     cursor: pointer;
-    color: #64748b;
+    color: var(--text-secondary);
     transition: all 0.2s;
 }
 
 .msp-header-btn:hover {
-    background: #e2e8f0;
-    color: #1e40af;
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
 }
 
 .msp-portal-content {
     flex: 1;
     overflow-y: auto;
     padding: 24px;
-    background: #f8fafc;
+    background: var(--bg-primary);
 }
 
 /* ==================== Dashboard ==================== */
@@ -229,19 +258,19 @@
 }
 
 .msp-stat-card {
-    background: white;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 20px;
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, border-color 0.2s;
 }
 
 .msp-stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: var(--accent-blue);
 }
 
 .msp-stat-card .stat-icon {
@@ -253,20 +282,20 @@
     justify-content: center;
 }
 
-.msp-stat-card.primary .stat-icon { background: #dbeafe; color: #1e40af; }
-.msp-stat-card.success .stat-icon { background: #d1fae5; color: #059669; }
-.msp-stat-card.warning .stat-icon { background: #fef3c7; color: #d97706; }
-.msp-stat-card.danger .stat-icon { background: #fee2e2; color: #dc2626; }
+.msp-stat-card.primary .stat-icon { background: rgba(97, 175, 239, 0.15); color: var(--accent-blue); }
+.msp-stat-card.success .stat-icon { background: rgba(152, 195, 121, 0.15); color: var(--status-met); }
+.msp-stat-card.warning .stat-icon { background: rgba(229, 192, 123, 0.15); color: var(--status-partial); }
+.msp-stat-card.danger .stat-icon { background: rgba(224, 108, 117, 0.15); color: var(--status-not-met); }
 
 .msp-stat-card .stat-content .stat-value {
     font-size: 28px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .msp-stat-card .stat-content .stat-label {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .msp-dashboard-grid {
@@ -277,9 +306,9 @@
 
 /* ==================== Cards ==================== */
 .msp-card {
-    background: white;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     overflow: hidden;
 }
 
@@ -292,14 +321,15 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 20px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
 }
 
 .msp-card-header h3 {
     margin: 0;
     font-size: 15px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .msp-card-body {
@@ -318,18 +348,18 @@
     align-items: center;
     gap: 10px;
     padding: 14px 16px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s;
     font-size: 13px;
-    color: #334155;
+    color: var(--text-secondary);
 }
 
 .msp-action-btn:hover {
-    background: #1e40af;
-    border-color: #1e40af;
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
     color: white;
 }
 
@@ -348,26 +378,26 @@
 .msp-table td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .msp-table th {
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    color: #64748b;
-    background: #f8fafc;
+    color: var(--text-muted);
+    background: var(--bg-tertiary);
 }
 
 .msp-table td {
     font-size: 13px;
-    color: #334155;
+    color: var(--text-primary);
 }
 
 .level-badge {
     display: inline-block;
     padding: 3px 10px;
-    background: #1e40af;
+    background: var(--accent-blue);
     color: white;
     border-radius: 12px;
     font-size: 11px;
@@ -387,18 +417,18 @@
     font-weight: 500;
 }
 
-.status-badge.success { background: #d1fae5; color: #059669; }
-.status-badge.warning { background: #fef3c7; color: #d97706; }
-.status-badge.danger { background: #fee2e2; color: #dc2626; }
+.status-badge.success { background: rgba(152, 195, 121, 0.2); color: var(--status-met); }
+.status-badge.warning { background: rgba(229, 192, 123, 0.2); color: var(--status-partial); }
+.status-badge.danger { background: rgba(224, 108, 117, 0.2); color: var(--status-not-met); }
 
-.sprs-good { color: #059669; font-weight: 600; }
-.sprs-warning { color: #d97706; font-weight: 600; }
-.sprs-critical { color: #dc2626; font-weight: 600; }
+.sprs-good { color: var(--status-met); font-weight: 600; }
+.sprs-warning { color: var(--status-partial); font-weight: 600; }
+.sprs-critical { color: var(--status-not-met); font-weight: 600; }
 
 .progress-bar-mini {
     width: 80px;
     height: 6px;
-    background: #e2e8f0;
+    background: var(--bg-tertiary);
     border-radius: 3px;
     overflow: hidden;
     display: inline-block;
@@ -408,7 +438,7 @@
 
 .progress-bar-mini .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #1e40af, #3b82f6);
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-hover));
     border-radius: 3px;
 }
 
@@ -418,7 +448,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    background: var(--accent-blue);
     color: white;
     border: none;
     border-radius: 8px;
@@ -429,8 +459,8 @@
 }
 
 .msp-btn-primary:hover {
+    background: var(--accent-blue-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
 }
 
 .msp-btn-secondary {
@@ -438,9 +468,9 @@
     align-items: center;
     gap: 6px;
     padding: 8px 14px;
-    background: white;
-    color: #334155;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 12px;
     cursor: pointer;
@@ -448,14 +478,14 @@
 }
 
 .msp-btn-secondary:hover {
-    border-color: #1e40af;
-    color: #1e40af;
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
 }
 
 .msp-btn-text {
     background: none;
     border: none;
-    color: #1e40af;
+    color: var(--accent-blue);
     font-size: 13px;
     cursor: pointer;
     padding: 4px 8px;
@@ -470,20 +500,20 @@
     border: none;
     padding: 6px;
     cursor: pointer;
-    color: #64748b;
+    color: var(--text-muted);
     border-radius: 6px;
 }
 
 .msp-btn-icon:hover {
-    background: #f1f5f9;
-    color: #1e40af;
+    background: var(--bg-tertiary);
+    color: var(--accent-blue);
 }
 
 /* ==================== Empty States ==================== */
 .msp-empty-state {
     text-align: center;
     padding: 40px 20px;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .msp-empty-state.full-width {
@@ -497,7 +527,7 @@
 
 .msp-empty-state h3 {
     margin: 0 0 8px;
-    color: #334155;
+    color: var(--text-primary);
 }
 
 .msp-empty-state p {
@@ -506,25 +536,32 @@
 
 /* ==================== Intro Banners ==================== */
 .msp-intro-banner {
-    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-    color: white;
-    padding: 32px;
-    border-radius: 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--accent-blue);
+    color: var(--text-primary);
+    padding: 24px;
+    border-radius: 8px;
     margin-bottom: 24px;
 }
 
 .msp-intro-banner.security {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-left-color: var(--status-met);
+}
+
+.msp-intro-banner.warning {
+    border-left-color: var(--status-partial);
 }
 
 .msp-intro-banner h2 {
     margin: 0 0 8px;
-    font-size: 24px;
+    font-size: 20px;
+    color: var(--text-primary);
 }
 
 .msp-intro-banner p {
     margin: 0;
-    opacity: 0.9;
+    color: var(--text-secondary);
     font-size: 14px;
 }
 
@@ -540,39 +577,42 @@
     align-items: center;
     gap: 8px;
     padding: 12px 20px;
-    background: white;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    color: var(--text-secondary);
 }
 
 .env-tab:hover {
-    border-color: #1e40af;
+    border-color: var(--accent-blue);
+    color: var(--text-primary);
 }
 
 .env-tab.active {
-    background: #1e40af;
-    border-color: #1e40af;
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
     color: white;
 }
 
 .env-provider-content {
-    background: white;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 24px;
 }
 
 .env-section h3 {
     margin: 0 0 8px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .env-section p {
     margin: 0 0 24px;
-    color: #64748b;
+    color: var(--text-secondary);
 }
 
 .env-requirements h4,
@@ -580,7 +620,7 @@
 .env-checklist h4 {
     margin: 0 0 16px;
     font-size: 14px;
-    color: #334155;
+    color: var(--text-primary);
 }
 
 .requirement-list {
@@ -593,7 +633,7 @@
     display: flex;
     gap: 12px;
     padding: 12px;
-    background: #f8fafc;
+    background: var(--bg-tertiary);
     border-radius: 8px;
     margin-bottom: 8px;
 }
@@ -601,8 +641,8 @@
 .req-check {
     width: 24px;
     height: 24px;
-    background: #d1fae5;
-    color: #059669;
+    background: rgba(152, 195, 121, 0.2);
+    color: var(--status-met);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -613,46 +653,46 @@
 
 .req-item strong {
     display: block;
-    color: #1e293b;
+    color: var(--text-primary);
     font-size: 14px;
 }
 
 .req-item p {
     margin: 4px 0 0;
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
 }
 
 /* Architecture Diagram */
 .arch-diagram {
-    background: #f8fafc;
+    background: var(--bg-tertiary);
     border-radius: 12px;
     padding: 24px;
     margin-bottom: 24px;
 }
 
 .arch-layer {
-    background: white;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 16px;
     text-align: center;
 }
 
 .arch-layer.msp-layer {
-    border-color: #1e40af;
-    background: #eff6ff;
+    border-color: var(--accent-blue);
+    background: rgba(97, 175, 239, 0.1);
 }
 
 .arch-layer.client-layer {
-    border-color: #059669;
-    background: #f0fdf4;
+    border-color: var(--status-met);
+    background: rgba(152, 195, 121, 0.1);
 }
 
 .layer-label {
     display: block;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--text-primary);
     margin-bottom: 12px;
 }
 
@@ -664,17 +704,18 @@
 }
 
 .arch-components span {
-    background: white;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
     padding: 6px 12px;
     border-radius: 6px;
     font-size: 12px;
+    color: var(--text-secondary);
 }
 
 .arch-connector {
     text-align: center;
     padding: 12px;
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 12px;
 }
 
@@ -690,17 +731,18 @@
     align-items: flex-start;
     gap: 10px;
     padding: 10px 12px;
-    background: #f8fafc;
+    background: var(--bg-tertiary);
     border-radius: 8px;
     border-left: 3px solid transparent;
 }
 
 .checklist-item.critical {
-    border-left-color: #ef4444;
+    border-left-color: var(--status-not-met);
 }
 
 .checklist-item input[type="checkbox"] {
     margin-top: 2px;
+    accent-color: var(--accent-blue);
 }
 
 .checklist-item label {
@@ -711,20 +753,20 @@
 .check-cat {
     display: block;
     font-size: 10px;
-    color: #64748b;
+    color: var(--text-muted);
     text-transform: uppercase;
 }
 
 .check-task {
     display: block;
     font-size: 13px;
-    color: #334155;
+    color: var(--text-primary);
 }
 
 .critical-badge {
     display: inline-block;
-    background: #fee2e2;
-    color: #dc2626;
+    background: rgba(224, 108, 117, 0.2);
+    color: var(--status-not-met);
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 9px;
@@ -740,15 +782,15 @@
 }
 
 .msp-client-card {
-    background: white;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     overflow: hidden;
     transition: all 0.2s;
 }
 
 .msp-client-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: var(--accent-blue);
     transform: translateY(-2px);
 }
 
@@ -757,19 +799,19 @@
     justify-content: space-between;
     align-items: flex-start;
     padding: 16px;
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .client-info h4 {
     margin: 0 0 4px;
     font-size: 16px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .client-industry {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .client-card-metrics {
@@ -787,15 +829,15 @@
     display: block;
     font-size: 20px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
-.client-card-metrics .metric-value.good { color: #059669; }
-.client-card-metrics .metric-value.warning { color: #d97706; }
+.client-card-metrics .metric-value.good { color: var(--status-met); }
+.client-card-metrics .metric-value.warning { color: var(--status-partial); }
 
 .client-card-metrics .metric-label {
     font-size: 10px;
-    color: #64748b;
+    color: var(--text-muted);
     text-transform: uppercase;
 }
 
@@ -805,14 +847,14 @@
 
 .progress-bar {
     height: 8px;
-    background: #e2e8f0;
+    background: var(--bg-tertiary);
     border-radius: 4px;
     overflow: hidden;
 }
 
 .progress-bar .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #1e40af, #3b82f6);
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-hover));
     border-radius: 4px;
     transition: width 0.3s;
 }
@@ -821,8 +863,8 @@
     display: flex;
     gap: 8px;
     padding: 12px 16px;
-    background: #f8fafc;
-    border-top: 1px solid #e2e8f0;
+    background: var(--bg-tertiary);
+    border-top: 1px solid var(--border-color);
 }
 
 /* ==================== Project Cards ==================== */
@@ -833,10 +875,10 @@
 }
 
 .project-card {
-    background: white;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .project-header {
@@ -848,19 +890,19 @@
 
 .project-info h4 {
     margin: 0 0 4px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .project-info span {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .project-progress-ring {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: conic-gradient(#1e40af calc(var(--progress) * 3.6deg), #e2e8f0 0deg);
+    background: conic-gradient(var(--accent-blue) calc(var(--progress) * 3.6deg), var(--bg-tertiary) 0deg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -872,7 +914,7 @@
     position: absolute;
     width: 38px;
     height: 38px;
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 50%;
 }
 
@@ -880,7 +922,7 @@
     position: relative;
     font-size: 11px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .project-timeline {
@@ -889,7 +931,7 @@
 
 .timeline-bar {
     height: 6px;
-    background: #e2e8f0;
+    background: var(--bg-tertiary);
     border-radius: 3px;
     overflow: hidden;
     margin-bottom: 8px;
@@ -897,14 +939,14 @@
 
 .timeline-progress {
     height: 100%;
-    background: linear-gradient(90deg, #1e40af, #3b82f6);
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-hover));
 }
 
 .timeline-labels {
     display: flex;
     justify-content: space-between;
     font-size: 11px;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .project-actions {
@@ -920,19 +962,18 @@
 }
 
 .report-card {
-    background: white;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 24px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
-    border: 2px solid transparent;
 }
 
 .report-card:hover {
-    border-color: #1e40af;
+    border-color: var(--accent-blue);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .report-card .report-icon {
@@ -942,19 +983,19 @@
 .report-card .report-icon svg {
     width: 32px;
     height: 32px;
-    color: #1e40af;
+    color: var(--accent-blue);
 }
 
 .report-card h4 {
     margin: 0 0 8px;
-    color: #1e293b;
+    color: var(--text-primary);
     font-size: 15px;
 }
 
 .report-card p {
     margin: 0;
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 /* ==================== SIEM Styles ==================== */
@@ -969,19 +1010,24 @@
 }
 
 .mssp-tier {
-    background: #f8fafc;
+    background: var(--bg-tertiary);
     border-radius: 10px;
     padding: 16px;
     margin-bottom: 8px;
 }
 
 .mssp-tier.central {
-    background: #1e40af;
+    background: var(--accent-blue);
     color: white;
 }
 
 .mssp-tier h4 {
     margin: 0 0 12px;
+    color: var(--text-primary);
+}
+
+.mssp-tier.central h4 {
+    color: white;
 }
 
 .mssp-tier ul {
@@ -1026,16 +1072,17 @@
 }
 
 .client-sources span {
-    background: white;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     padding: 4px 10px;
     border-radius: 4px;
     font-size: 11px;
+    color: var(--text-secondary);
 }
 
 .mssp-connectors {
     padding: 8px;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .msp-comparison-table {
@@ -1047,17 +1094,18 @@
 .msp-comparison-table th,
 .msp-comparison-table td {
     padding: 10px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
     text-align: center;
+    color: var(--text-primary);
 }
 
 .msp-comparison-table th {
-    background: #f8fafc;
+    background: var(--bg-tertiary);
     font-weight: 600;
 }
 
-.msp-comparison-table .good { color: #059669; }
-.msp-comparison-table .moderate { color: #d97706; }
+.msp-comparison-table .good { color: var(--status-met); }
+.msp-comparison-table .moderate { color: var(--status-partial); }
 
 .logging-requirements {
     display: grid;
@@ -1066,7 +1114,7 @@
 }
 
 .logging-req-card {
-    background: #f8fafc;
+    background: var(--bg-tertiary);
     border-radius: 8px;
     padding: 12px;
 }
@@ -1079,7 +1127,7 @@
 }
 
 .req-control {
-    background: #1e40af;
+    background: var(--accent-blue);
     color: white;
     padding: 2px 8px;
     border-radius: 4px;
@@ -1089,7 +1137,7 @@
 
 .req-title {
     font-size: 13px;
-    color: #334155;
+    color: var(--text-primary);
 }
 
 .req-logs {
@@ -1099,12 +1147,12 @@
 }
 
 .log-tag {
-    background: white;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     padding: 3px 8px;
     border-radius: 4px;
     font-size: 11px;
-    color: #64748b;
+    color: var(--text-secondary);
 }
 
 .backend-ops-grid {
@@ -1116,7 +1164,7 @@
 .ops-category h4 {
     margin: 0 0 12px;
     font-size: 14px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .ops-category ul {
@@ -1128,8 +1176,8 @@
 .ops-category li {
     padding: 6px 0;
     font-size: 13px;
-    color: #475569;
-    border-bottom: 1px solid #f1f5f9;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
 }
 
 /* ==================== VDI Styles ==================== */
@@ -1141,26 +1189,26 @@
 }
 
 .vdi-option-card {
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 12px;
     padding: 20px;
-    border: 2px solid #e2e8f0;
+    border: 1px solid var(--border-color);
     transition: all 0.2s;
 }
 
 .vdi-option-card:hover {
-    border-color: #1e40af;
+    border-color: var(--accent-blue);
 }
 
 .vdi-option-card h4 {
     margin: 0 0 4px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .vdi-rec {
     display: block;
     font-size: 11px;
-    color: #059669;
+    color: var(--status-met);
     margin-bottom: 12px;
 }
 
@@ -1173,7 +1221,7 @@
 .vdi-option-card li {
     padding: 4px 0;
     font-size: 13px;
-    color: #64748b;
+    color: var(--text-secondary);
 }
 
 .security-reqs-grid {
@@ -1193,7 +1241,7 @@
 
 .sec-req h5 {
     margin: 0 0 8px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .sec-req ul {
@@ -1206,7 +1254,7 @@
 .sec-req li {
     padding: 4px 0;
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
 }
 
 .vdi-arch-diagram {
@@ -1214,19 +1262,19 @@
 }
 
 .vdi-layer {
-    background: #f8fafc;
+    background: var(--bg-tertiary);
     border-radius: 10px;
     padding: 16px;
     margin-bottom: 4px;
 }
 
-.vdi-layer.gateway { background: #dbeafe; }
-.vdi-layer.hosts { background: #fef3c7; }
-.vdi-layer.backend { background: #d1fae5; }
+.vdi-layer.gateway { background: rgba(97, 175, 239, 0.15); }
+.vdi-layer.hosts { background: rgba(229, 192, 123, 0.15); }
+.vdi-layer.backend { background: rgba(152, 195, 121, 0.15); }
 
 .layer-title {
     font-weight: 600;
-    color: #1e293b;
+    color: var(--text-primary);
     margin-bottom: 8px;
 }
 
@@ -1238,15 +1286,17 @@
 }
 
 .layer-items span {
-    background: white;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     padding: 4px 10px;
     border-radius: 4px;
     font-size: 12px;
+    color: var(--text-secondary);
 }
 
 .vdi-connector {
     padding: 8px;
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 12px;
 }
 
@@ -1259,7 +1309,8 @@
 }
 
 .principle-card {
-    background: white;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 20px;
     text-align: center;
@@ -1272,13 +1323,13 @@
 
 .principle-card h4 {
     margin: 0 0 8px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .principle-card p {
     margin: 0;
     font-size: 13px;
-    color: #64748b;
+    color: var(--text-secondary);
 }
 
 .reference-arch {
@@ -1291,25 +1342,27 @@
 
 .arch-box {
     display: inline-block;
-    background: white;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 16px 24px;
     margin: 0 8px;
 }
 
 .arch-box.msp-tenant {
-    border-color: #1e40af;
-    background: #eff6ff;
+    border-color: var(--accent-blue);
+    background: rgba(97, 175, 239, 0.1);
 }
 
 .arch-box.client-tenant {
-    border-color: #059669;
+    border-color: var(--status-met);
+    background: rgba(152, 195, 121, 0.1);
 }
 
 .arch-box h4 {
     margin: 0 0 12px;
     font-size: 14px;
+    color: var(--text-primary);
 }
 
 .arch-services {
@@ -1320,16 +1373,17 @@
 }
 
 .arch-services span {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 11px;
+    color: var(--text-secondary);
 }
 
 .arch-connections {
     padding: 12px;
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 12px;
 }
 
@@ -1342,9 +1396,9 @@
     display: flex;
     gap: 12px;
     padding: 16px;
-    background: #fef2f2;
+    background: rgba(224, 108, 117, 0.1);
     border-radius: 8px;
-    border-left: 4px solid #ef4444;
+    border-left: 4px solid var(--status-not-met);
 }
 
 .anti-icon {
@@ -1353,13 +1407,13 @@
 
 .anti-pattern h5 {
     margin: 0 0 4px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .anti-pattern p {
     margin: 0;
     font-size: 13px;
-    color: #64748b;
+    color: var(--text-secondary);
 }
 
 /* ==================== Enclave Styles ==================== */
@@ -1371,19 +1425,20 @@
 }
 
 .enclave-card {
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 12px;
     padding: 20px;
-    border: 2px solid #e2e8f0;
+    border: 1px solid var(--border-color);
 }
 
 .enclave-card h4 {
     margin: 0 0 8px;
+    color: var(--text-primary);
 }
 
 .enclave-card p {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     margin-bottom: 12px;
 }
 
@@ -1396,7 +1451,7 @@
 .enclave-card li {
     padding: 4px 0;
     font-size: 13px;
-    color: #475569;
+    color: var(--text-secondary);
 }
 
 .enclave-controls-grid {
@@ -1407,6 +1462,7 @@
 
 .control-section h4 {
     margin: 0 0 12px;
+    color: var(--text-primary);
 }
 
 .control-section ul {
@@ -1418,8 +1474,8 @@
 .control-section li {
     padding: 6px 0;
     font-size: 13px;
-    color: #475569;
-    border-bottom: 1px solid #f1f5f9;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
 }
 
 /* ==================== Automation Styles ==================== */
@@ -1430,30 +1486,31 @@
 }
 
 .tool-card {
-    background: #f8fafc;
+    background: var(--bg-tertiary);
     border-radius: 8px;
     padding: 16px;
 }
 
 .tool-card h4 {
     margin: 0 0 4px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .tool-card p {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     margin: 0 0 8px;
 }
 
 .tool-card code {
     display: block;
-    background: #1e293b;
-    color: #a5f3fc;
+    background: var(--bg-primary);
+    color: var(--accent-blue);
     padding: 8px;
     border-radius: 4px;
     font-size: 11px;
     overflow-x: auto;
+    border: 1px solid var(--border-color);
 }
 
 .monitoring-list {
@@ -1464,8 +1521,9 @@
 
 .monitoring-list li {
     padding: 8px 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border-color);
     font-size: 13px;
+    color: var(--text-secondary);
 }
 
 .scripts-grid {
@@ -1474,28 +1532,29 @@
 }
 
 .script-card {
-    background: #f8fafc;
+    background: var(--bg-tertiary);
     border-radius: 8px;
     padding: 16px;
 }
 
 .script-card h5 {
     margin: 0 0 12px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .script-card pre {
-    background: #1e293b;
-    color: #e2e8f0;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     padding: 12px;
     border-radius: 6px;
     overflow-x: auto;
     font-size: 12px;
     margin: 0;
+    border: 1px solid var(--border-color);
 }
 
 .script-card code {
-    color: #a5f3fc;
+    color: var(--accent-blue);
 }
 
 /* ==================== Documentation View ==================== */
@@ -1506,7 +1565,8 @@
 }
 
 .doc-section {
-    background: white;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 20px;
 }
@@ -1514,7 +1574,7 @@
 .doc-section h3 {
     margin: 0 0 16px;
     font-size: 16px;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .doc-list {
@@ -1524,20 +1584,20 @@
 }
 
 .doc-list li {
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .doc-list a {
     display: block;
     padding: 10px 0;
-    color: #1e40af;
+    color: var(--accent-blue);
     text-decoration: none;
     font-size: 14px;
     transition: color 0.2s;
 }
 
 .doc-list a:hover {
-    color: #3b82f6;
+    color: var(--accent-blue-hover);
 }
 
 /* ==================== Search ==================== */
@@ -1550,16 +1610,18 @@
 
 .msp-search-input {
     padding: 10px 16px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 14px;
     width: 250px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
 }
 
 .msp-search-input:focus {
     outline: none;
-    border-color: #1e40af;
-    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(97, 175, 239, 0.2);
 }
 
 .msp-tabs {
@@ -1569,21 +1631,225 @@
 
 .msp-tab {
     padding: 8px 16px;
-    background: #f1f5f9;
-    border: none;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 13px;
     cursor: pointer;
     transition: all 0.2s;
+    color: var(--text-secondary);
 }
 
 .msp-tab:hover {
-    background: #e2e8f0;
+    border-color: var(--accent-blue);
+    color: var(--text-primary);
 }
 
 .msp-tab.active {
-    background: #1e40af;
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
     color: white;
+}
+
+/* ==================== Enhanced Environment Setup ==================== */
+.env-key-points {
+    margin: 16px 0;
+    padding: 12px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+}
+
+.key-point {
+    padding: 4px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.env-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.env-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    background: var(--accent-blue);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+.env-link:hover {
+    background: var(--accent-blue-hover);
+}
+
+.licensing-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.license-item {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    border-left: 3px solid var(--border-color);
+    position: relative;
+}
+
+.license-item.required {
+    border-left-color: var(--accent-blue);
+}
+
+.license-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.license-notes {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.req-badge, .opt-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.req-badge {
+    background: rgba(97, 175, 239, 0.2);
+    color: var(--accent-blue);
+}
+
+.opt-badge {
+    background: var(--bg-primary);
+    color: var(--text-muted);
+}
+
+.arch-note {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.checklist-category {
+    margin-bottom: 24px;
+}
+
+.checklist-category h4 {
+    margin: 0 0 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.check-effort {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 6px;
+    background: var(--bg-primary);
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* Landing Zone Diagram */
+.landing-zone-diagram {
+    text-align: center;
+    padding: 16px;
+}
+
+.lz-account {
+    display: inline-block;
+    padding: 16px 24px;
+    margin: 8px;
+    border-radius: 8px;
+    min-width: 150px;
+}
+
+.lz-account.management {
+    background: rgba(97, 175, 239, 0.15);
+    border: 1px solid var(--accent-blue);
+}
+
+.lz-account.security {
+    background: rgba(152, 195, 121, 0.15);
+    border: 1px solid var(--status-met);
+}
+
+.lz-account.shared {
+    background: rgba(229, 192, 123, 0.15);
+    border: 1px solid var(--status-partial);
+}
+
+.lz-account.workload {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+}
+
+.lz-label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.lz-services {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.lz-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.lz-connector {
+    padding: 12px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Code Blocks */
+.code-block {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 0;
+}
+
+.code-block code {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--accent-blue);
+    white-space: pre;
+}
+
+.code-note {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
 }
 
 /* ==================== Responsive ==================== */
@@ -1608,4 +1874,155 @@
 @media (max-width: 768px) {
     .msp-portal-sidebar { display: none; }
     .msp-dashboard-stats { grid-template-columns: 1fr; }
+}
+
+/* ==================== Add Client Modal ==================== */
+.msp-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 200000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: mspFadeIn 0.2s ease;
+}
+
+.msp-modal {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    width: 90%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.msp-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+
+.msp-modal-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.msp-modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.15s;
+}
+
+.msp-modal-close:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.msp-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.msp-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+
+/* ==================== Form Styles ==================== */
+.msp-form-group {
+    margin-bottom: 16px;
+}
+
+.msp-form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.msp-form-group input,
+.msp-form-group select,
+.msp-form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    transition: border-color 0.15s;
+}
+
+.msp-form-group input:focus,
+.msp-form-group select:focus,
+.msp-form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.msp-form-group input::placeholder,
+.msp-form-group textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.msp-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* ==================== In-App Tools Grid ==================== */
+.in-app-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.msp-tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.msp-tool-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.msp-tool-btn svg {
+    flex-shrink: 0;
 }

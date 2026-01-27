@@ -1,5 +1,710 @@
 /* Crosswalk Visualizer Styles */
 
+/* ==================== Rev3 Crosswalk Modal ==================== */
+.crosswalk-modal.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.crosswalk-modal .modal-content {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    max-width: 1400px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.crosswalk-modal .modal-content.modal-fullscreen {
+    max-width: 95vw;
+    max-height: 95vh;
+}
+
+.crosswalk-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.crosswalk-modal .modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.crosswalk-modal .modal-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: block;
+}
+
+.crosswalk-modal .modal-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.crosswalk-modal .modal-close:hover {
+    background: var(--status-not-met);
+    color: white;
+}
+
+.crosswalk-modal .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+/* Crosswalk Container */
+.crosswalk-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Summary Stats */
+.crosswalk-summary {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.crosswalk-summary .summary-stat {
+    flex: 1;
+    min-width: 120px;
+    padding: 16px 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.crosswalk-summary .summary-stat.unchanged {
+    border-left: 3px solid var(--status-met);
+}
+
+.crosswalk-summary .summary-stat.modified {
+    border-left: 3px solid var(--status-partial);
+}
+
+.crosswalk-summary .summary-stat.new {
+    border-left: 3px solid var(--accent-blue);
+}
+
+.crosswalk-summary .stat-value {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.crosswalk-summary .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Rev3 Crosswalk View Container */
+.rev3-crosswalk-container {
+    padding: 20px 24px;
+    overflow-y: auto;
+    height: calc(100vh - 120px);
+}
+
+.rev3-xwalk-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 4px;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+}
+
+/* Crosswalk Tabs */
+.crosswalk-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 4px;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.xwalk-tab {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.xwalk-tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+}
+
+.xwalk-tab.active {
+    background: var(--accent-blue);
+    color: white;
+}
+
+/* Mapping Filters */
+.mapping-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.mapping-filters select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    min-width: 140px;
+}
+
+.mapping-filters select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+/* Mapping Table Container */
+.mapping-table-container {
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.crosswalk-table code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    color: var(--accent-blue);
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.status-badge.status-unchanged {
+    background: rgba(152, 195, 121, 0.15);
+    color: var(--status-met);
+}
+
+.status-badge.status-modified {
+    background: rgba(229, 192, 123, 0.15);
+    color: var(--status-partial);
+}
+
+.status-badge.success {
+    background: rgba(152, 195, 121, 0.15);
+    color: var(--status-met);
+}
+
+.status-badge.warning {
+    background: rgba(229, 192, 123, 0.15);
+    color: var(--status-partial);
+}
+
+.status-badge.danger {
+    background: rgba(224, 108, 117, 0.15);
+    color: var(--status-not-met);
+}
+
+/* ODP Tags */
+.odp-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(97, 175, 239, 0.15);
+    color: var(--accent-blue);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    margin: 2px;
+}
+
+.odp-cell {
+    max-width: 200px;
+}
+
+.change-desc {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* ODPs Container */
+.odps-container {
+    padding: 16px 0;
+}
+
+.odps-intro {
+    margin-bottom: 24px;
+}
+
+.odps-intro h3 {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+}
+
+.odps-intro p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.odps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 16px;
+}
+
+.odp-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.odp-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.odp-header code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+.odp-name,
+.odp-title {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.odp-source {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 8px;
+}
+
+.odp-related {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.related-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.related-ctrl {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    background: rgba(139, 92, 246, 0.15);
+    border-radius: 4px;
+    color: #a78bfa;
+}
+
+.odp-values {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.odp-value-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+    padding: 10px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    font-size: 0.8rem;
+}
+
+.odp-id {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    background: var(--bg-primary);
+    border-radius: 4px;
+    color: var(--accent-blue);
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+}
+
+.odp-param {
+    color: var(--text-primary);
+    font-weight: 500;
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.odp-val {
+    color: var(--text-secondary);
+    grid-column: 1 / -1;
+    padding-left: 8px;
+    border-left: 2px solid var(--accent-blue);
+    margin-top: 4px;
+}
+
+.odp-value {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    padding: 12px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+}
+
+/* New Controls Container */
+.new-controls-container {
+    padding: 16px 0;
+}
+
+.new-controls-intro {
+    margin-bottom: 24px;
+}
+
+.new-controls-intro h3 {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+}
+
+.new-controls-intro p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.new-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.new-control-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--accent-blue);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.new-control-card .control-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.new-control-card .control-header code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+.new-control-card .control-family {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    background: rgba(97, 175, 239, 0.15);
+    color: var(--accent-blue);
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.new-control-card h4 {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.new-control-card p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* 800-53 to 171 Mapping Styles */
+.sp53-mapping-container {
+    padding: 16px 0;
+}
+
+.sp53-intro {
+    margin-bottom: 24px;
+}
+
+.sp53-intro h3 {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+}
+
+.sp53-intro p {
+    margin: 0 0 4px;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.sp53-source {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.sp53-filter {
+    margin-bottom: 20px;
+}
+
+.sp53-filter select {
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    min-width: 200px;
+}
+
+.sp53-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.sp53-family-group {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.sp53-family-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sp53-family-header code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.875rem;
+    padding: 4px 10px;
+    background: var(--accent-blue);
+    color: white;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.sp53-family-header span {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.sp53-count {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 400 !important;
+}
+
+.sp53-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 12px;
+    padding: 16px;
+}
+
+.sp53-control-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px;
+}
+
+.sp53-control-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.sp53-ids {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sp53-ids svg {
+    color: var(--text-muted);
+}
+
+.sp53-ids .ctrl-53 {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    padding: 3px 8px;
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.sp53-ids .ctrl-171 {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    padding: 3px 8px;
+    background: rgba(97, 175, 239, 0.15);
+    color: var(--accent-blue);
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.tailoring-badge {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tailoring-cui {
+    background: rgba(152, 195, 121, 0.15);
+    color: var(--status-met);
+}
+
+.tailoring-nco,
+.tailoring-nfo,
+.tailoring-fed {
+    background: rgba(224, 108, 117, 0.15);
+    color: var(--status-not-met);
+}
+
+.sp53-titles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    font-size: 0.8rem;
+}
+
+.title-53 {
+    color: var(--text-secondary);
+}
+
+.title-171 {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.sp53-notes {
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: rgba(229, 192, 123, 0.1);
+    border-left: 2px solid var(--status-partial);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.sp53-subcontrols {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.sp53-subcontrol {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 0.75rem;
+}
+
+.sp53-subcontrol .sub-id {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    background: rgba(139, 92, 246, 0.1);
+    color: #a78bfa;
+    border-radius: 3px;
+}
+
+.sp53-subcontrol .sub-title {
+    color: var(--text-secondary);
+}
+
+.sp53-subcontrol .sub-171 {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    background: rgba(97, 175, 239, 0.1);
+    color: var(--accent-blue);
+    border-radius: 3px;
+}
+
 /* View Toggle */
 .crosswalk-view-toggle {
     display: flex;

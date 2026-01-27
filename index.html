@@ -75,35 +75,10 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
                     MSP Portal
                 </button>
-                <button class="hamburger-nav-btn" id="open-portfolio-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                    Client Portfolio
-                </button>
-                <button class="hamburger-nav-btn" id="open-evidence-builder-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
-                    Evidence Builder
-                </button>
-                <div class="hamburger-section-label">Reports</div>
-                <button class="hamburger-nav-btn" id="generate-exec-summary-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
-                    Executive Summary
-                </button>
-                <button class="hamburger-nav-btn" id="generate-gap-analysis-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                    Gap Analysis
-                </button>
-                <button class="hamburger-nav-btn" id="generate-c3pao-report-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
-                    C3PAO Readiness
-                </button>
                 <div class="hamburger-section-label">Advanced</div>
                 <button class="hamburger-nav-btn" id="open-rev3-crosswalk-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7"/><path d="M3 3l7 7"/><path d="M21 21l-7-7"/><path d="M3 21l7-7"/><path d="M16 21h5v-5"/><path d="M8 21H3v-5"/></svg>
                     Rev2→Rev3 Crosswalk
-                </button>
-                <button class="hamburger-nav-btn" id="show-l3-assessment-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-                    CMMC L3 (800-172A)
                 </button>
             </nav>
             <div class="hamburger-divider"></div>
@@ -176,6 +151,7 @@
                         <select id="assessment-level-select" class="filter-select level-select">
                             <option value="2">CMMC Level 2</option>
                             <option value="1">CMMC Level 1</option>
+                            <option value="3">CMMC Level 3</option>
                         </select>
                         <button class="search-box search-trigger" id="search-trigger" title="Search (⌘K)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -287,6 +263,27 @@
             <div id="osc-inventory-view" class="view">
                 <div id="osc-inventory-content" class="osc-inventory-container">
                     <!-- Content rendered by app.js -->
+                </div>
+            </div>
+
+            <!-- Rev2 to Rev3 Crosswalk View -->
+            <div id="rev3-crosswalk-view" class="view">
+                <header class="view-header">
+                    <div class="header-left">
+                        <h2>NIST 800-171A Rev2 → Rev3 Crosswalk</h2>
+                        <p class="subtitle">Control mapping with DoD-Defined ODPs (2025)</p>
+                    </div>
+                    <div class="header-right">
+                        <div class="rev3-xwalk-tabs">
+                            <button class="xwalk-tab active" data-tab="mapping" onclick="Rev3Crosswalk.switchTab('mapping')">Rev2→Rev3</button>
+                            <button class="xwalk-tab" data-tab="sp53" onclick="Rev3Crosswalk.switchTab('sp53')">800-53→171</button>
+                            <button class="xwalk-tab" data-tab="odps" onclick="Rev3Crosswalk.switchTab('odps')">DoD ODPs</button>
+                            <button class="xwalk-tab" data-tab="new" onclick="Rev3Crosswalk.switchTab('new')">New Controls</button>
+                        </div>
+                    </div>
+                </header>
+                <div id="rev3-crosswalk-content" class="rev3-crosswalk-container">
+                    <!-- Content rendered by Rev3Crosswalk.renderView() -->
                 </div>
             </div>
 
@@ -593,6 +590,11 @@
     <!-- NIST 800-172A (CMMC L3) and Rev 3 Migration -->
     <script src="data/nist-800-172a.js?v=1"></script>
     <script src="data/nist-800-171a-r3.js?v=1"></script>
+    <script src="data/nist-800-53-to-171-mapping.js?v=1"></script>
+    <script src="data/cca-interview-questions.js?v=1"></script>
+    
+    <!-- MSP Portal Data -->
+    <script src="data/msp-portal-data.js?v=1"></script>
     
     <!-- Lazy-loaded scripts - loaded on demand by LazyLoader -->
     <!-- implementation-planner.js, gcc-high-*.js, aws-*.js, gcp-*.js, 

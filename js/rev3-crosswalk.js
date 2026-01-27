@@ -6,45 +6,163 @@ const Rev3Crosswalk = {
         version: "1.0.0"
     },
 
-    // DoD-defined Organization-Defined Parameters (ODPs) - Released 2025
+    // DoD-defined Organization-Defined Parameters (ODPs) - Official NIST SP 800-171 Rev 3 Values
+    // Source: DoD CUI ODP Attachment A (2025)
     DOD_ODPS: {
-        '3.1.1': { odp: 'system access frequency', value: 'At least annually or upon significant change' },
-        '3.1.2': { odp: 'transaction types requiring function separation', value: 'All privileged functions including system configuration, user management, and audit log access' },
-        '3.1.5': { odp: 'unsuccessful login attempts', value: '3 consecutive failed attempts' },
-        '3.1.5b': { odp: 'time period for lockout', value: 'Minimum 15 minutes or until released by administrator' },
-        '3.1.6': { odp: 'time period of inactivity', value: '15 minutes' },
-        '3.1.7': { odp: 'cryptographic mechanisms', value: 'FIPS 140-2/140-3 validated cryptographic modules' },
-        '3.1.8': { odp: 'unsuccessful remote access attempts', value: '3 consecutive failed attempts within 15 minutes' },
-        '3.1.12': { odp: 'remote access session types', value: 'All remote access sessions including VPN, VDI, and remote desktop' },
-        '3.1.20': { odp: 'external system connections', value: 'All connections to systems not under organizational control' },
-        '3.3.1': { odp: 'auditable events', value: 'Successful and unsuccessful account logon events, account management events, object access, policy change, privilege use, system events, and application events' },
-        '3.3.2': { odp: 'audit record content', value: 'User identity, event type, date/time, success/failure, origination, and affected objects' },
-        '3.3.8': { odp: 'audit information protection', value: 'Cryptographic protection and access limited to authorized personnel' },
-        '3.4.1': { odp: 'baseline configuration documentation', value: 'Hardware, software, firmware versions, and network topology' },
-        '3.4.2': { odp: 'configuration change conditions', value: 'Prior to implementation in production environment' },
-        '3.4.5': { odp: 'physical and logical access restrictions', value: 'Role-based access with principle of least privilege' },
-        '3.4.6': { odp: 'essential capabilities', value: 'Mission-critical functions as defined in system security plan' },
-        '3.4.8': { odp: 'software blacklist/allowlist', value: 'Deny-by-default with approved software allowlist' },
-        '3.5.3': { odp: 'MFA types', value: 'Something you know + something you have (hardware token or FIDO2)' },
-        '3.5.7': { odp: 'password complexity', value: 'Minimum 14 characters, complexity enabled, 60-day maximum age' },
-        '3.5.8': { odp: 'password reuse', value: 'Cannot reuse last 24 passwords' },
-        '3.6.1': { odp: 'incident handling timeframes', value: 'Detection within 1 hour, containment within 4 hours, reporting within 72 hours' },
-        '3.6.2': { odp: 'incident tracking content', value: 'Incident type, date/time, systems affected, actions taken, resolution' },
-        '3.7.2': { odp: 'maintenance tools', value: 'Approved maintenance tools list maintained and reviewed quarterly' },
-        '3.8.1': { odp: 'media types requiring protection', value: 'All digital and non-digital media containing CUI' },
-        '3.8.9': { odp: 'cryptographic mechanisms for media', value: 'FIPS 140-2/140-3 validated AES-256 or equivalent' },
-        '3.10.1': { odp: 'physical access devices', value: 'Keys, badges, smart cards, and biometric readers' },
-        '3.11.1': { odp: 'risk assessment frequency', value: 'At least annually and upon significant system changes' },
-        '3.11.2': { odp: 'vulnerability scanning frequency', value: 'At least monthly for network and quarterly for applications' },
-        '3.12.1': { odp: 'security assessment frequency', value: 'At least annually' },
-        '3.12.3': { odp: 'continuous monitoring strategy', value: 'Automated continuous monitoring with manual review monthly' },
-        '3.13.1': { odp: 'boundary protection devices', value: 'Firewalls, intrusion detection/prevention systems, and proxies at all network boundaries' },
-        '3.13.8': { odp: 'mobile code restrictions', value: 'Block unsigned or untrusted mobile code' },
-        '3.13.11': { odp: 'cryptographic algorithms', value: 'AES-256, RSA-2048+, SHA-256+, TLS 1.2+' },
-        '3.14.1': { odp: 'flaw remediation timeframes', value: 'Critical: 15 days, High: 30 days, Medium: 90 days, Low: 180 days' },
-        '3.14.3': { odp: 'security alert sources', value: 'CISA, vendor notifications, NIST NVD, and US-CERT' },
-        '3.14.6': { odp: 'malicious code protection locations', value: 'Endpoints, servers, network boundaries, email gateways' },
-        '3.14.7': { odp: 'malicious code protection updates', value: 'Signature updates at least daily, scans at least weekly' }
+        // 03.01.01 System Account Management
+        '03.01.01': {
+            title: 'System Account Management',
+            relatedControls: ['AC-02', 'AC-02(03)', 'AC-02(05)', 'AC-02(13)'],
+            odps: [
+                { id: '03.01.01.f.02', param: 'inactive account time period', value: 'At most 90 days' },
+                { id: '03.01.01.g.01', param: 'notify when accounts no longer required', value: '24 hours' },
+                { id: '03.01.01.g.02', param: 'notify when users terminated/transferred', value: '24 hours' },
+                { id: '03.01.01.g.03', param: 'notify when need-to-know changes', value: '24 hours' },
+                { id: '03.01.01.h.01', param: 'logout after inactivity', value: 'At most 24 hours' },
+                { id: '03.01.01.h.02', param: 'logout circumstances', value: 'Work period ends; for privileged users at minimum 4 hours' }
+            ]
+        },
+        // 03.01.05 System Access Authorization
+        '03.01.05': {
+            title: 'System Access Authorization',
+            relatedControls: ['AC-06', 'AC-06(01)', 'AC-06(07)', 'AU-09(04)'],
+            odps: [
+                { id: '03.01.05.b.01', param: 'security functions', value: 'Establishing system accounts and assigning privileges, configuring access authorizations, configuring settings for events to be audited, establishing vulnerability scanning parameters, establishing intrusion detection parameters, and managing audit information' },
+                { id: '03.01.05.b.02', param: 'security-relevant information', value: 'As defined by organizational policy' },
+                { id: '03.01.05.c', param: 'privilege review frequency', value: 'At least annually' }
+            ]
+        },
+        // 03.01.06 Least Privilege
+        '03.01.06': {
+            title: 'Least Privilege',
+            relatedControls: ['AC-06', 'AC-06(01)', 'AC-06(02)', 'AC-06(05)', 'AC-06(09)', 'AC-06(10)'],
+            odps: [
+                { id: '03.01.06.a', param: 'least privilege principle', value: 'Only authorized access necessary to accomplish assigned tasks' }
+            ]
+        },
+        // 03.01.07 Unsuccessful Logon Attempts
+        '03.01.07': {
+            title: 'Unsuccessful Logon Attempts',
+            relatedControls: ['AC-07'],
+            odps: [
+                { id: '03.01.07.a', param: 'consecutive invalid attempts', value: '3 consecutive failed attempts' },
+                { id: '03.01.07.b', param: 'lockout duration', value: 'Minimum 15 minutes or until released by administrator' }
+            ]
+        },
+        // 03.01.10 Session Lock
+        '03.01.10': {
+            title: 'Session Lock',
+            relatedControls: ['AC-11', 'AC-11(01)'],
+            odps: [
+                { id: '03.01.10.a', param: 'inactivity period', value: '15 minutes' }
+            ]
+        },
+        // 03.03.01 Event Logging
+        '03.03.01': {
+            title: 'Event Logging',
+            relatedControls: ['AU-02', 'AU-03', 'AU-03(01)', 'AU-12'],
+            odps: [
+                { id: '03.03.01.a', param: 'auditable events', value: 'Successful and unsuccessful account logon events, account management events, object access, policy change, privilege use, system events, and application events' }
+            ]
+        },
+        // 03.03.02 Audit Record Content
+        '03.03.02': {
+            title: 'Audit Record Content',
+            relatedControls: ['AU-03', 'AU-03(01)'],
+            odps: [
+                { id: '03.03.02.a', param: 'audit record content', value: 'User identity, event type, date/time, success/failure, origination, and identity of affected objects' }
+            ]
+        },
+        // 03.04.01 Baseline Configuration
+        '03.04.01': {
+            title: 'Baseline Configuration',
+            relatedControls: ['CM-02', 'CM-02(07)', 'CM-06'],
+            odps: [
+                { id: '03.04.01.a', param: 'baseline components', value: 'Hardware, software, firmware versions, and network topology' }
+            ]
+        },
+        // 03.04.06 Least Functionality
+        '03.04.06': {
+            title: 'Least Functionality',
+            relatedControls: ['CM-07', 'CM-07(01)', 'CM-07(02)'],
+            odps: [
+                { id: '03.04.06.a', param: 'essential capabilities', value: 'Mission-critical functions as defined in system security plan' },
+                { id: '03.04.06.b', param: 'prohibited software', value: 'Deny-by-default with approved software allowlist' }
+            ]
+        },
+        // 03.05.03 Authenticator Management
+        '03.05.03': {
+            title: 'Authenticator Management',
+            relatedControls: ['IA-05', 'IA-05(01)', 'IA-05(02)', 'IA-05(06)'],
+            odps: [
+                { id: '03.05.03.a', param: 'password complexity', value: 'Minimum 14 characters with complexity requirements' },
+                { id: '03.05.03.b', param: 'password lifetime', value: 'Maximum 60 days' },
+                { id: '03.05.03.c', param: 'password reuse', value: 'Cannot reuse last 24 passwords' }
+            ]
+        },
+        // 03.05.04 Multi-Factor Authentication
+        '03.05.04': {
+            title: 'Multi-Factor Authentication',
+            relatedControls: ['IA-02(01)', 'IA-02(02)', 'IA-02(06)', 'IA-02(08)'],
+            odps: [
+                { id: '03.05.04.a', param: 'MFA types', value: 'Something you know + something you have (hardware token, PIV, or FIDO2)' }
+            ]
+        },
+        // 03.06.01 Incident Handling
+        '03.06.01': {
+            title: 'Incident Handling',
+            relatedControls: ['IR-04', 'IR-04(01)', 'IR-05', 'IR-06'],
+            odps: [
+                { id: '03.06.01.a', param: 'detection timeframe', value: 'Within 1 hour of occurrence' },
+                { id: '03.06.01.b', param: 'containment timeframe', value: 'Within 4 hours of detection' },
+                { id: '03.06.01.c', param: 'reporting timeframe', value: 'Within 72 hours to DIBCAC' }
+            ]
+        },
+        // 03.11.02 Vulnerability Monitoring and Scanning
+        '03.11.02': {
+            title: 'Vulnerability Monitoring and Scanning',
+            relatedControls: ['RA-05', 'RA-05(02)', 'RA-05(05)', 'RA-05(11)'],
+            odps: [
+                { id: '03.11.02.a', param: 'network scan frequency', value: 'At least monthly' },
+                { id: '03.11.02.b', param: 'application scan frequency', value: 'At least quarterly' }
+            ]
+        },
+        // 03.12.01 Security Assessment
+        '03.12.01': {
+            title: 'Security Assessment',
+            relatedControls: ['CA-02', 'CA-02(01)', 'CA-05', 'CA-07'],
+            odps: [
+                { id: '03.12.01.a', param: 'assessment frequency', value: 'At least annually' }
+            ]
+        },
+        // 03.13.11 CUI Encryption
+        '03.13.11': {
+            title: 'CUI Encryption',
+            relatedControls: ['SC-08', 'SC-08(01)', 'SC-13'],
+            odps: [
+                { id: '03.13.11.a', param: 'cryptographic algorithms', value: 'AES-256, RSA-2048+, SHA-256+, TLS 1.2+ (FIPS 140-2/140-3 validated)' }
+            ]
+        },
+        // 03.14.01 Flaw Remediation
+        '03.14.01': {
+            title: 'Flaw Remediation',
+            relatedControls: ['SI-02', 'SI-02(02)'],
+            odps: [
+                { id: '03.14.01.a', param: 'critical remediation', value: '15 calendar days' },
+                { id: '03.14.01.b', param: 'high remediation', value: '30 calendar days' },
+                { id: '03.14.01.c', param: 'medium remediation', value: '90 calendar days' },
+                { id: '03.14.01.d', param: 'low remediation', value: '180 calendar days' }
+            ]
+        },
+        // 03.14.06 Malicious Code Protection
+        '03.14.06': {
+            title: 'Malicious Code Protection',
+            relatedControls: ['SI-03', 'SI-03(01)', 'SI-03(02)'],
+            odps: [
+                { id: '03.14.06.a', param: 'signature update frequency', value: 'At least daily' },
+                { id: '03.14.06.b', param: 'scan frequency', value: 'At least weekly full scan' }
+            ]
+        }
     },
 
     // Rev2 to Rev3 Control Mapping
@@ -181,29 +299,50 @@ const Rev3Crosswalk = {
     bindEvents: function() {
         document.addEventListener('click', (e) => {
             if (e.target.closest('#open-rev3-crosswalk-btn')) {
-                this.showCrosswalkView();
+                this.showView();
             }
         });
     },
 
-    showCrosswalkView: function() {
-        const html = `
-        <div class="modal-overlay crosswalk-modal" id="rev3-crosswalk-modal">
-            <div class="modal-content modal-fullscreen">
-                <div class="modal-header">
-                    <div>
-                        <h2>NIST 800-171A Rev2 → Rev3 Crosswalk</h2>
-                        <span class="modal-subtitle">With DoD-Defined ODPs (2025)</span>
-                    </div>
-                    <button class="modal-close" onclick="document.getElementById('rev3-crosswalk-modal').remove()">×</button>
-                </div>
-                <div class="modal-body">
-                    ${this.renderCrosswalkContent()}
-                </div>
+    showView: function() {
+        // Switch to the rev3-crosswalk-view using the app's view switching mechanism
+        if (typeof window.app !== 'undefined' && window.app.switchView) {
+            window.app.switchView('rev3-crosswalk');
+        } else {
+            // Fallback: manually switch views
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            const view = document.getElementById('rev3-crosswalk-view');
+            if (view) view.classList.add('active');
+        }
+        // Render the content
+        this.renderView();
+        // Close hamburger menu if open
+        const hamburger = document.querySelector('.hamburger-dropdown');
+        if (hamburger) hamburger.classList.remove('active');
+    },
+
+    renderView: function() {
+        const container = document.getElementById('rev3-crosswalk-content');
+        if (!container) return;
+        
+        const stats = this.calculateStats();
+        
+        container.innerHTML = `
+            <div class="crosswalk-summary">
+                <div class="summary-stat"><span class="stat-value">${stats.total}</span><span class="stat-label">Total Controls</span></div>
+                <div class="summary-stat unchanged"><span class="stat-value">${stats.unchanged}</span><span class="stat-label">Unchanged</span></div>
+                <div class="summary-stat modified"><span class="stat-value">${stats.modified}</span><span class="stat-label">Modified</span></div>
+                <div class="summary-stat new"><span class="stat-value">${this.NEW_CONTROLS_REV3.length}</span><span class="stat-label">New in Rev3</span></div>
             </div>
-        </div>`;
-        document.body.insertAdjacentHTML('beforeend', html);
-        this.attachCrosswalkEvents();
+            <div class="crosswalk-content" id="crosswalk-tab-content">
+                ${this.renderMappingTable()}
+            </div>
+        `;
+        
+        // Reset tab state
+        document.querySelectorAll('.rev3-xwalk-tabs .xwalk-tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.tab === 'mapping');
+        });
     },
 
     renderCrosswalkContent: function() {
@@ -218,13 +357,7 @@ const Rev3Crosswalk = {
                 <div class="summary-stat new"><span class="stat-value">${this.NEW_CONTROLS_REV3.length}</span><span class="stat-label">New in Rev3</span></div>
             </div>
 
-            <div class="crosswalk-tabs">
-                <button class="xwalk-tab active" data-tab="mapping" onclick="Rev3Crosswalk.switchTab('mapping')">Control Mapping</button>
-                <button class="xwalk-tab" data-tab="odps" onclick="Rev3Crosswalk.switchTab('odps')">DoD ODPs</button>
-                <button class="xwalk-tab" data-tab="new" onclick="Rev3Crosswalk.switchTab('new')">New Controls</button>
-            </div>
-
-            <div class="crosswalk-content" id="crosswalk-content">
+            <div class="crosswalk-content" id="crosswalk-tab-content">
                 ${this.renderMappingTable()}
             </div>
         </div>`;
@@ -238,9 +371,13 @@ const Rev3Crosswalk = {
     },
 
     switchTab: function(tab) {
-        document.querySelectorAll('.xwalk-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-        const content = document.getElementById('crosswalk-content');
+        // Update tab active states in header
+        document.querySelectorAll('.rev3-xwalk-tabs .xwalk-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+        // Update content
+        const content = document.getElementById('crosswalk-tab-content');
+        if (!content) return;
         if (tab === 'mapping') content.innerHTML = this.renderMappingTable();
+        else if (tab === 'sp53') content.innerHTML = this.render53To171Mapping();
         else if (tab === 'odps') content.innerHTML = this.renderODPsTable();
         else if (tab === 'new') content.innerHTML = this.renderNewControls();
     },
@@ -327,15 +464,28 @@ const Rev3Crosswalk = {
             <div class="odps-intro">
                 <h3>DoD-Defined Organization-Defined Parameters (ODPs)</h3>
                 <p>These parameters were defined by the DoD in 2025 to provide specific values for CMMC compliance. Organizations must implement these exact values unless a deviation is documented and approved.</p>
+                <p class="odp-source">Source: DoD CUI ODP Attachment A - NIST SP 800-171 Revision 3</p>
             </div>
             <div class="odps-grid">
                 ${Object.entries(this.DOD_ODPS).map(([ctrl, data]) => `
                     <div class="odp-card">
                         <div class="odp-header">
                             <code>${ctrl}</code>
-                            <span class="odp-name">${data.odp}</span>
+                            <span class="odp-title">${data.title}</span>
                         </div>
-                        <div class="odp-value">${data.value}</div>
+                        <div class="odp-related">
+                            <span class="related-label">800-53 Rev5:</span>
+                            ${data.relatedControls.map(rc => `<code class="related-ctrl">${rc}</code>`).join('')}
+                        </div>
+                        <div class="odp-values">
+                            ${data.odps.map(odp => `
+                                <div class="odp-value-row">
+                                    <code class="odp-id">${odp.id}</code>
+                                    <span class="odp-param">${odp.param}</span>
+                                    <span class="odp-val">${odp.value}</span>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
                 `).join('')}
             </div>
@@ -362,6 +512,110 @@ const Rev3Crosswalk = {
                 `).join('')}
             </div>
         </div>`;
+    },
+
+    render53To171Mapping: function() {
+        // Check if the NIST_800_53_TO_171_MAPPING data is available
+        if (typeof NIST_800_53_TO_171_MAPPING === 'undefined') {
+            return `<div class="error-message">800-53 to 171 mapping data not loaded.</div>`;
+        }
+        
+        const families = {
+            'AC': 'Access Control',
+            'AT': 'Awareness and Training',
+            'AU': 'Audit and Accountability',
+            'CM': 'Configuration Management',
+            'IA': 'Identification and Authentication',
+            'IR': 'Incident Response',
+            'MA': 'Maintenance',
+            'MP': 'Media Protection',
+            'PE': 'Physical and Environmental Protection',
+            'RA': 'Risk Assessment',
+            'CA': 'Security Assessment',
+            'SC': 'System and Communications Protection',
+            'SI': 'System and Information Integrity'
+        };
+        
+        // Group controls by family
+        const groupedControls = {};
+        for (const [ctrl, data] of Object.entries(NIST_800_53_TO_171_MAPPING)) {
+            const family = ctrl.split('-')[0];
+            if (!groupedControls[family]) groupedControls[family] = [];
+            groupedControls[family].push({ control: ctrl, ...data });
+        }
+        
+        return `
+        <div class="sp53-mapping-container">
+            <div class="sp53-intro">
+                <h3>NIST SP 800-53 Rev 5 → SP 800-171 Rev 3 Mapping</h3>
+                <p>Official mapping showing how NIST SP 800-53 Rev 5 controls are tailored into SP 800-171 Rev 3 security requirements for protecting CUI in non-federal systems.</p>
+                <p class="sp53-source">Source: NIST SP 800-171r3 IPD CUI Overlay</p>
+            </div>
+            <div class="sp53-filter">
+                <select id="sp53-family-filter" onchange="Rev3Crosswalk.filter53Family(this.value)">
+                    <option value="all">All Families</option>
+                    ${Object.entries(families).map(([code, name]) => 
+                        `<option value="${code}">${code} - ${name}</option>`
+                    ).join('')}
+                </select>
+            </div>
+            <div class="sp53-grid" id="sp53-grid">
+                ${Object.entries(groupedControls).map(([family, controls]) => `
+                    <div class="sp53-family-group" data-family="${family}">
+                        <div class="sp53-family-header">
+                            <code>${family}</code>
+                            <span>${families[family] || family}</span>
+                            <span class="sp53-count">${controls.length} controls</span>
+                        </div>
+                        <div class="sp53-controls">
+                            ${controls.map(c => this.render53ControlCard(c)).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+    
+    render53ControlCard: function(ctrl) {
+        const subControlsHtml = ctrl.subControls ? `
+            <div class="sp53-subcontrols">
+                ${Object.entries(ctrl.subControls).map(([subId, subData]) => `
+                    <div class="sp53-subcontrol">
+                        <code class="sub-id">${subId}</code>
+                        <span class="sub-title">${subData.title}</span>
+                        <code class="sub-171">${subData['171Rev3']}</code>
+                    </div>
+                `).join('')}
+            </div>
+        ` : '';
+        
+        const notesHtml = ctrl.notes ? `<div class="sp53-notes">${ctrl.notes}</div>` : '';
+        
+        return `
+        <div class="sp53-control-card">
+            <div class="sp53-control-header">
+                <div class="sp53-ids">
+                    <code class="ctrl-53">${ctrl.control}</code>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    <code class="ctrl-171">${ctrl['171Rev3']}</code>
+                </div>
+                <span class="tailoring-badge tailoring-${ctrl.tailoring.toLowerCase()}">${ctrl.tailoring}</span>
+            </div>
+            <div class="sp53-titles">
+                <div class="title-53">${ctrl.title}</div>
+                <div class="title-171">${ctrl['171Title']}</div>
+            </div>
+            ${notesHtml}
+            ${subControlsHtml}
+        </div>`;
+    },
+    
+    filter53Family: function(family) {
+        const groups = document.querySelectorAll('.sp53-family-group');
+        groups.forEach(g => {
+            if (family === 'all') g.style.display = '';
+            else g.style.display = g.dataset.family === family ? '' : 'none';
+        });
     },
 
     attachCrosswalkEvents: function() {

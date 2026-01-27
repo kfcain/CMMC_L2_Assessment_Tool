@@ -91,13 +91,26 @@ const MSPPortalViews = {
 
     // ==================== ENVIRONMENT SETUP VIEW ====================
     'env-setup': function(portal) {
+        const data = typeof MSP_PORTAL_DATA !== 'undefined' ? MSP_PORTAL_DATA : null;
         return `
         <div class="msp-env-setup">
-            <div class="msp-intro-banner"><div class="banner-content"><h2>Cloud Environment Setup</h2><p>Configure compliant cloud environments for CMMC clients across Azure Government, AWS GovCloud, and Google Cloud.</p></div></div>
+            <div class="msp-intro-banner">
+                <h2>Cloud Environment Setup for CMMC</h2>
+                <p>Configure FedRAMP High-authorized cloud environments for CMMC Level 2/3 compliance. Each provider requires specific configurations for CUI handling.</p>
+            </div>
             <div class="msp-env-tabs">
-                <button class="env-tab active" data-provider="azure" onclick="MSPPortalViews.switchEnvTab('azure')">🔷 Azure GCC High</button>
-                <button class="env-tab" data-provider="aws" onclick="MSPPortalViews.switchEnvTab('aws')">🟠 AWS GovCloud</button>
-                <button class="env-tab" data-provider="gcp" onclick="MSPPortalViews.switchEnvTab('gcp')">🔵 Google Cloud</button>
+                <button class="env-tab active" data-provider="azure" onclick="MSPPortalViews.switchEnvTab('azure')">
+                    <svg class="env-tab-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    <span>Azure GCC High</span>
+                </button>
+                <button class="env-tab" data-provider="aws" onclick="MSPPortalViews.switchEnvTab('aws')">
+                    <svg class="env-tab-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <span>AWS GovCloud</span>
+                </button>
+                <button class="env-tab" data-provider="gcp" onclick="MSPPortalViews.switchEnvTab('gcp')">
+                    <svg class="env-tab-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    <span>GCP Assured Workloads</span>
+                </button>
             </div>
             <div class="msp-env-content" id="env-content">${this.renderAzureSetup()}</div>
         </div>`;
@@ -112,137 +125,355 @@ const MSPPortalViews = {
     },
 
     renderAzureSetup: function() {
+        const data = typeof MSP_PORTAL_DATA !== 'undefined' ? MSP_PORTAL_DATA.azure : null;
+        const overview = data?.overview || {};
+        const licensing = data?.licensing || {};
+        const checklist = data?.checklist || {};
+        
         return `
         <div class="env-provider-content">
-            <div class="env-section"><h3>Azure Government / GCC High Setup</h3><p>Configure Microsoft Azure Government for CMMC compliance with FedRAMP High authorization.</p></div>
-            <div class="env-requirements">
-                <h4>Prerequisites</h4>
-                <ul class="requirement-list">
-                    <li class="req-item"><span class="req-check">✓</span><div><strong>Microsoft 365 GCC High Licensing</strong><p>E3/E5 GCC High licenses for all users handling CUI</p></div></li>
-                    <li class="req-item"><span class="req-check">✓</span><div><strong>Azure Government Subscription</strong><p>Separate subscription at portal.azure.us</p></div></li>
-                    <li class="req-item"><span class="req-check">✓</span><div><strong>Entra ID P2 (Azure AD Premium P2)</strong><p>Required for Conditional Access, PIM, Identity Protection</p></div></li>
-                </ul>
-            </div>
-            <div class="env-architecture">
-                <h4>Multi-Tenant Architecture for MSPs</h4>
-                <div class="arch-diagram">
-                    <div class="arch-layer msp-layer"><span class="layer-label">MSP Management Tenant</span><div class="arch-components"><span>Azure Lighthouse</span><span>Sentinel (MSSP)</span><span>Defender for Cloud</span></div></div>
-                    <div class="arch-connector">↓ Delegated Access ↓</div>
-                    <div class="arch-layer client-layer"><span class="layer-label">Client Tenants</span><div class="arch-components"><span>Client A</span><span>Client B</span><span>Client C</span></div></div>
+            <div class="env-section">
+                <h3>${overview.title || 'Azure Government / GCC High'}</h3>
+                <p>${overview.description || 'Configure Microsoft Azure Government for CMMC compliance.'}</p>
+                <div class="env-key-points">
+                    ${(overview.keyPoints || []).map(p => `<div class="key-point">• ${p}</div>`).join('')}
+                </div>
+                <div class="env-links">
+                    <a href="${overview.portalUrl || 'https://portal.azure.us'}" target="_blank" class="env-link">Azure Gov Portal ↗</a>
+                    <a href="${overview.entraUrl || 'https://entra.microsoft.us'}" target="_blank" class="env-link">Entra Admin Center ↗</a>
                 </div>
             </div>
-            <div class="env-checklist">
-                <h4>Implementation Checklist</h4>
-                <div class="checklist-grid">
-                    ${this.renderAzureChecklist()}
+            
+            <div class="msp-card">
+                <div class="msp-card-header"><h3>Required Licensing</h3></div>
+                <div class="msp-card-body">
+                    <div class="licensing-grid">
+                        ${(licensing.tiers || [
+                            { name: 'M365 GCC High E5', required: true, notes: 'Recommended for full security stack' },
+                            { name: 'Entra ID P2', required: true, notes: 'Conditional Access, PIM, Identity Protection' },
+                            { name: 'Defender for Endpoint P2', required: true, notes: 'EDR for CMMC SI controls' },
+                            { name: 'Microsoft Purview', required: true, notes: 'DLP, sensitivity labels, eDiscovery' }
+                        ]).map(t => `
+                            <div class="license-item ${t.required ? 'required' : ''}">
+                                <div class="license-name">${t.name}</div>
+                                <div class="license-notes">${t.notes}</div>
+                                ${t.required ? '<span class="req-badge">Required</span>' : '<span class="opt-badge">Optional</span>'}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="msp-card">
+                <div class="msp-card-header"><h3>MSP Multi-Tenant Architecture (Azure Lighthouse)</h3></div>
+                <div class="msp-card-body">
+                    <div class="arch-diagram">
+                        <div class="arch-layer msp-layer">
+                            <span class="layer-label">MSP Management Tenant</span>
+                            <div class="arch-components">
+                                <span>Azure Lighthouse</span><span>Sentinel MSSP</span><span>Defender for Cloud</span><span>Intune Multi-tenant</span>
+                            </div>
+                        </div>
+                        <div class="arch-connector">↓ Delegated Resource Management (No credentials stored) ↓</div>
+                        <div class="arch-layer client-layer">
+                            <span class="layer-label">Client GCC High Tenants</span>
+                            <div class="arch-components">
+                                <span>Client A (M365 + Azure)</span><span>Client B (M365 + Azure)</span><span>Client C (M365 only)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="arch-note"><strong>Key Benefits:</strong> Manage client resources without storing credentials in client tenants. All MSP actions are audited in client's Azure Activity Log.</p>
+                </div>
+            </div>
+            
+            <div class="msp-card full-width">
+                <div class="msp-card-header"><h3>Implementation Checklist</h3></div>
+                <div class="msp-card-body">
+                    ${this.renderChecklistFromData(checklist.categories || this.getDefaultAzureChecklist())}
                 </div>
             </div>
         </div>`;
     },
 
-    renderAzureChecklist: function() {
-        const items = [
-            { cat: 'Identity', task: 'Configure Entra ID with US-only data residency', critical: true },
-            { cat: 'Identity', task: 'Enable MFA for all users (FIDO2 recommended)', critical: true },
-            { cat: 'Identity', task: 'Configure Conditional Access policies', critical: true },
-            { cat: 'Identity', task: 'Enable Privileged Identity Management (PIM)', critical: false },
-            { cat: 'Network', task: 'Deploy Azure Virtual WAN or Hub-Spoke', critical: false },
-            { cat: 'Network', task: 'Configure Azure Firewall with threat intel', critical: true },
-            { cat: 'Network', task: 'Enable NSG flow logs to Log Analytics', critical: false },
-            { cat: 'Security', task: 'Enable Microsoft Defender for Cloud', critical: true },
-            { cat: 'Security', task: 'Configure Microsoft Sentinel workspace', critical: true },
-            { cat: 'Security', task: 'Enable Defender for Endpoint on all VMs', critical: true },
-            { cat: 'Data', task: 'Configure Azure Information Protection labels', critical: true },
-            { cat: 'Data', task: 'Enable encryption at rest (customer-managed keys)', critical: false },
-            { cat: 'Monitoring', task: 'Configure diagnostic settings for all resources', critical: true },
-            { cat: 'Monitoring', task: 'Set up Azure Monitor alerts for security events', critical: false }
+    getDefaultAzureChecklist: function() {
+        return [
+            { name: 'Identity Foundation', items: [
+                { task: 'Provision M365 GCC High tenant', critical: true, effort: '1-2 weeks' },
+                { task: 'Configure Entra ID with US-only data residency', critical: true, effort: '1 day' },
+                { task: 'Enable MFA for all users (FIDO2 security keys preferred)', critical: true, effort: '1-2 days' },
+                { task: 'Configure Conditional Access baseline policies', critical: true, effort: '1 day' },
+                { task: 'Enable Privileged Identity Management (PIM) for all admin roles', critical: true, effort: '4-8 hours' },
+                { task: 'Configure Identity Protection risk-based policies', critical: true, effort: '2-4 hours' }
+            ]},
+            { name: 'Network Security', items: [
+                { task: 'Deploy Hub-Spoke or Virtual WAN topology', critical: true, effort: '1-2 days' },
+                { task: 'Configure Azure Firewall Premium with threat intelligence', critical: true, effort: '4-8 hours' },
+                { task: 'Enable DDoS Protection Standard on hub VNet', critical: false, effort: '1 hour' },
+                { task: 'Configure NSGs with deny-by-default rules', critical: true, effort: '2-4 hours' },
+                { task: 'Enable NSG flow logs to Log Analytics', critical: true, effort: '2-4 hours' },
+                { task: 'Deploy Azure Bastion for secure VM access', critical: true, effort: '2-4 hours' }
+            ]},
+            { name: 'Security & Monitoring', items: [
+                { task: 'Enable all Defender for Cloud plans', critical: true, effort: '2-4 hours' },
+                { task: 'Deploy Microsoft Sentinel workspace', critical: true, effort: '4-8 hours' },
+                { task: 'Connect all data sources to Sentinel', critical: true, effort: '1 day' },
+                { task: 'Enable CMMC analytics rules from Content Hub', critical: true, effort: '2-4 hours' },
+                { task: 'Configure diagnostic settings for all resources', critical: true, effort: '4-8 hours' },
+                { task: 'Deploy Defender for Endpoint on all endpoints', critical: true, effort: '1 day' }
+            ]},
+            { name: 'Data Protection', items: [
+                { task: 'Configure sensitivity labels in Microsoft Purview', critical: true, effort: '1 day' },
+                { task: 'Deploy DLP policies for CUI protection', critical: true, effort: '1-2 days' },
+                { task: 'Configure Azure Information Protection scanner', critical: false, effort: '4-8 hours' },
+                { task: 'Enable customer-managed keys for storage', critical: false, effort: '4-8 hours' },
+                { task: 'Configure Key Vault with soft delete and purge protection', critical: true, effort: '2-4 hours' }
+            ]}
         ];
-        return items.map(i => `<div class="checklist-item ${i.critical ? 'critical' : ''}"><input type="checkbox"><label><span class="check-cat">${i.cat}</span><span class="check-task">${i.task}</span>${i.critical ? '<span class="critical-badge">Critical</span>' : ''}</label></div>`).join('');
+    },
+
+    renderChecklistFromData: function(categories) {
+        return categories.map(cat => `
+            <div class="checklist-category">
+                <h4>${cat.name}</h4>
+                <div class="checklist-grid">
+                    ${cat.items.map(i => `
+                        <div class="checklist-item ${i.critical ? 'critical' : ''}">
+                            <input type="checkbox" id="chk-${i.task.replace(/[^a-z0-9]/gi, '')}">
+                            <label for="chk-${i.task.replace(/[^a-z0-9]/gi, '')}">
+                                <span class="check-task">${i.task}</span>
+                                ${i.effort ? `<span class="check-effort">${i.effort}</span>` : ''}
+                                ${i.critical ? '<span class="critical-badge">Critical</span>' : ''}
+                            </label>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
     },
 
     renderAWSSetup: function() {
+        const data = typeof MSP_PORTAL_DATA !== 'undefined' ? MSP_PORTAL_DATA.aws : null;
+        const overview = data?.overview || {};
+        const landingZone = data?.landingZone || {};
+        const checklist = data?.checklist || {};
+        
         return `
         <div class="env-provider-content">
-            <div class="env-section"><h3>AWS GovCloud Setup</h3><p>Configure AWS GovCloud (US) for CMMC compliance with FedRAMP High and DoD IL4/IL5 workloads.</p></div>
-            <div class="env-requirements">
-                <h4>Prerequisites</h4>
-                <ul class="requirement-list">
-                    <li class="req-item"><span class="req-check">✓</span><div><strong>GovCloud Account</strong><p>Separate AWS GovCloud (US) account via commercial AWS</p></div></li>
-                    <li class="req-item"><span class="req-check">✓</span><div><strong>US Person Verification</strong><p>Account administrators must be US persons</p></div></li>
-                    <li class="req-item"><span class="req-check">✓</span><div><strong>AWS Organizations</strong><p>Multi-account strategy with SCPs</p></div></li>
-                </ul>
-            </div>
-            <div class="env-architecture">
-                <h4>Landing Zone Architecture</h4>
-                <div class="arch-diagram">
-                    <div class="arch-layer msp-layer"><span class="layer-label">Management Account</span><div class="arch-components"><span>AWS Organizations</span><span>Security Hub</span><span>CloudTrail Org Trail</span></div></div>
-                    <div class="arch-connector">↓ SCPs & Guardrails ↓</div>
-                    <div class="arch-layer client-layer"><span class="layer-label">Client OUs</span><div class="arch-components"><span>Client A OU</span><span>Client B OU</span><span>Shared Services</span></div></div>
+            <div class="env-section">
+                <h3>${overview.title || 'AWS GovCloud (US)'}</h3>
+                <p>${overview.description || 'Configure AWS GovCloud for CMMC compliance with FedRAMP High authorization.'}</p>
+                <div class="env-key-points">
+                    ${(overview.keyPoints || [
+                        'Isolated regions: us-gov-west-1 (Oregon), us-gov-east-1 (Ohio)',
+                        'US persons only for root account access',
+                        'Separate AWS partition (aws-us-gov)',
+                        'Linked to commercial AWS for billing'
+                    ]).map(p => `<div class="key-point">• ${p}</div>`).join('')}
+                </div>
+                <div class="env-links">
+                    <a href="${overview.consoleUrl || 'https://console.amazonaws-us-gov.com'}" target="_blank" class="env-link">GovCloud Console ↗</a>
                 </div>
             </div>
-            <div class="env-checklist">
-                <h4>Implementation Checklist</h4>
-                <div class="checklist-grid">
-                    ${this.renderAWSChecklist()}
+            
+            <div class="msp-card">
+                <div class="msp-card-header"><h3>Landing Zone Architecture</h3></div>
+                <div class="msp-card-body">
+                    <div class="landing-zone-diagram">
+                        <div class="lz-account management">
+                            <span class="lz-label">Management Account</span>
+                            <div class="lz-services">Organizations • Billing • SCPs</div>
+                        </div>
+                        <div class="lz-row">
+                            <div class="lz-account security">
+                                <span class="lz-label">Log Archive</span>
+                                <div class="lz-services">CloudTrail • Config Logs</div>
+                            </div>
+                            <div class="lz-account security">
+                                <span class="lz-label">Security Tooling</span>
+                                <div class="lz-services">Security Hub • GuardDuty</div>
+                            </div>
+                            <div class="lz-account shared">
+                                <span class="lz-label">Shared Services</span>
+                                <div class="lz-services">Transit GW • Directory</div>
+                            </div>
+                        </div>
+                        <div class="lz-connector">↓ SCPs & Guardrails ↓</div>
+                        <div class="lz-row">
+                            <div class="lz-account workload">
+                                <span class="lz-label">Client A OU</span>
+                                <div class="lz-services">Prod • Dev • Sandbox</div>
+                            </div>
+                            <div class="lz-account workload">
+                                <span class="lz-label">Client B OU</span>
+                                <div class="lz-services">Prod • Dev • Sandbox</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="msp-card">
+                <div class="msp-card-header"><h3>Service Control Policy Example</h3></div>
+                <div class="msp-card-body">
+                    <pre class="code-block"><code>{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "DenyNonGovCloudRegions",
+    "Effect": "Deny",
+    "Action": "*",
+    "Resource": "*",
+    "Condition": {
+      "StringNotEquals": {
+        "aws:RequestedRegion": ["us-gov-west-1", "us-gov-east-1"]
+      }
+    }
+  }]
+}</code></pre>
+                    <p class="code-note">This SCP prevents resources from being created outside GovCloud regions.</p>
+                </div>
+            </div>
+            
+            <div class="msp-card full-width">
+                <div class="msp-card-header"><h3>Implementation Checklist</h3></div>
+                <div class="msp-card-body">
+                    ${this.renderChecklistFromData(checklist.categories || this.getDefaultAWSChecklist())}
                 </div>
             </div>
         </div>`;
     },
 
-    renderAWSChecklist: function() {
-        const items = [
-            { cat: 'Identity', task: 'Enable AWS IAM Identity Center (SSO)', critical: true },
-            { cat: 'Identity', task: 'Configure MFA for all IAM users', critical: true },
-            { cat: 'Identity', task: 'Implement least-privilege IAM policies', critical: true },
-            { cat: 'Network', task: 'Deploy Transit Gateway for multi-VPC', critical: false },
-            { cat: 'Network', task: 'Configure AWS Network Firewall', critical: true },
-            { cat: 'Network', task: 'Enable VPC Flow Logs', critical: true },
-            { cat: 'Security', task: 'Enable AWS Security Hub', critical: true },
-            { cat: 'Security', task: 'Configure GuardDuty for threat detection', critical: true },
-            { cat: 'Security', task: 'Enable AWS Config with conformance packs', critical: true },
-            { cat: 'Data', task: 'Enable S3 default encryption (SSE-KMS)', critical: true },
-            { cat: 'Data', task: 'Configure Macie for CUI classification', critical: false },
-            { cat: 'Logging', task: 'Enable CloudTrail in all regions', critical: true },
-            { cat: 'Logging', task: 'Configure CloudWatch Logs retention', critical: true }
+    getDefaultAWSChecklist: function() {
+        return [
+            { name: 'Account Setup', items: [
+                { task: 'Create GovCloud account via commercial AWS', critical: true, effort: '1-2 days' },
+                { task: 'Complete US person verification', critical: true, effort: '1 week' },
+                { task: 'Enable AWS Organizations', critical: true, effort: '1 day' },
+                { task: 'Create organizational units (Security, Workloads)', critical: true, effort: '2-4 hours' },
+                { task: 'Deploy service control policies (SCPs)', critical: true, effort: '4-8 hours' }
+            ]},
+            { name: 'Identity Foundation', items: [
+                { task: 'Enable IAM Identity Center', critical: true, effort: '4-8 hours' },
+                { task: 'Integrate with external IdP (Okta, Azure AD)', critical: true, effort: '1 day' },
+                { task: 'Configure MFA for all users', critical: true, effort: '2-4 hours' },
+                { task: 'Create permission sets with least privilege', critical: true, effort: '1 day' },
+                { task: 'Enable IAM Access Analyzer', critical: false, effort: '1 hour' }
+            ]},
+            { name: 'Security Services', items: [
+                { task: 'Enable Security Hub with NIST 800-171 standard', critical: true, effort: '2-4 hours' },
+                { task: 'Enable GuardDuty in all accounts', critical: true, effort: '2-4 hours' },
+                { task: 'Configure AWS Config with conformance packs', critical: true, effort: '4-8 hours' },
+                { task: 'Deploy AWS Network Firewall', critical: true, effort: '1 day' },
+                { task: 'Create organization CloudTrail', critical: true, effort: '2-4 hours' }
+            ]},
+            { name: 'Data Protection', items: [
+                { task: 'Enable default S3 encryption (SSE-KMS)', critical: true, effort: '2-4 hours' },
+                { task: 'Create KMS keys per data classification', critical: true, effort: '2-4 hours' },
+                { task: 'Enable S3 Block Public Access at account level', critical: true, effort: '1 hour' },
+                { task: 'Enable EBS encryption by default', critical: true, effort: '1 hour' }
+            ]}
         ];
-        return items.map(i => `<div class="checklist-item ${i.critical ? 'critical' : ''}"><input type="checkbox"><label><span class="check-cat">${i.cat}</span><span class="check-task">${i.task}</span>${i.critical ? '<span class="critical-badge">Critical</span>' : ''}</label></div>`).join('');
     },
 
     renderGCPSetup: function() {
+        const data = typeof MSP_PORTAL_DATA !== 'undefined' ? MSP_PORTAL_DATA.gcp : null;
+        const overview = data?.overview || {};
+        const checklist = data?.checklist || {};
+        
         return `
         <div class="env-provider-content">
-            <div class="env-section"><h3>Google Cloud Setup</h3><p>Configure Google Cloud with Assured Workloads for CMMC compliance (FedRAMP Moderate/High).</p></div>
-            <div class="env-requirements">
-                <h4>Prerequisites</h4>
-                <ul class="requirement-list">
-                    <li class="req-item"><span class="req-check">✓</span><div><strong>Assured Workloads</strong><p>FedRAMP High or IL4 compliance regime</p></div></li>
-                    <li class="req-item"><span class="req-check">✓</span><div><strong>Organization Resource</strong><p>GCP Organization with Cloud Identity</p></div></li>
-                    <li class="req-item"><span class="req-check">✓</span><div><strong>US Region Restriction</strong><p>Resource location policy for US-only</p></div></li>
-                </ul>
+            <div class="env-section">
+                <h3>${overview.title || 'Google Cloud - Assured Workloads'}</h3>
+                <p>${overview.description || 'Configure Google Cloud with Assured Workloads for CMMC compliance.'}</p>
+                <div class="env-key-points">
+                    ${(overview.keyPoints || [
+                        'Assured Workloads enforces compliance controls at folder level',
+                        'US-only data residency via organization policies',
+                        'FedRAMP Moderate, High, and IL4 regimes available',
+                        'Premium support tier required for compliance'
+                    ]).map(p => `<div class="key-point">• ${p}</div>`).join('')}
+                </div>
+                <div class="env-links">
+                    <a href="https://console.cloud.google.com" target="_blank" class="env-link">GCP Console ↗</a>
+                </div>
             </div>
-            <div class="env-checklist">
-                <h4>Implementation Checklist</h4>
-                <div class="checklist-grid">
-                    ${this.renderGCPChecklist()}
+            
+            <div class="msp-card">
+                <div class="msp-card-header"><h3>Assured Workloads Compliance Regimes</h3></div>
+                <div class="msp-card-body">
+                    <table class="msp-table">
+                        <thead>
+                            <tr><th>Regime</th><th>Services Available</th><th>Restrictions</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="status-badge success">FedRAMP Moderate</span></td>
+                                <td>Most GCP services</td>
+                                <td>US regions, access transparency</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status-badge warning">FedRAMP High</span></td>
+                                <td>Subset of services</td>
+                                <td>US regions, personnel controls, CMEK required</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status-badge danger">IL4</span></td>
+                                <td>Limited (Compute, GKE, Storage, BigQuery)</td>
+                                <td>Strictest controls, dedicated infrastructure</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="msp-card">
+                <div class="msp-card-header"><h3>Create Assured Workloads Folder</h3></div>
+                <div class="msp-card-body">
+                    <pre class="code-block"><code># Create Assured Workloads folder for FedRAMP High
+gcloud assured workloads create \\
+  --organization=ORGANIZATION_ID \\
+  --location=us \\
+  --display-name="CUI-Workloads" \\
+  --compliance-regime=FEDRAMP_HIGH \\
+  --billing-account=BILLING_ACCOUNT_ID</code></pre>
+                </div>
+            </div>
+            
+            <div class="msp-card full-width">
+                <div class="msp-card-header"><h3>Implementation Checklist</h3></div>
+                <div class="msp-card-body">
+                    ${this.renderChecklistFromData(checklist.categories || this.getDefaultGCPChecklist())}
                 </div>
             </div>
         </div>`;
     },
 
-    renderGCPChecklist: function() {
-        const items = [
-            { cat: 'Identity', task: 'Configure Cloud Identity with 2-Step Verification', critical: true },
-            { cat: 'Identity', task: 'Implement BeyondCorp Enterprise', critical: false },
-            { cat: 'Security', task: 'Enable Security Command Center Premium', critical: true },
-            { cat: 'Security', task: 'Configure Chronicle SIEM/SOAR', critical: false },
-            { cat: 'Network', task: 'Deploy VPC Service Controls', critical: true },
-            { cat: 'Network', task: 'Configure Cloud Armor WAF', critical: true },
-            { cat: 'Data', task: 'Enable CMEK for all storage', critical: true },
-            { cat: 'Data', task: 'Configure DLP API for CUI scanning', critical: false },
-            { cat: 'Logging', task: 'Enable Cloud Audit Logs', critical: true },
-            { cat: 'Logging', task: 'Configure log sinks to BigQuery', critical: false }
+    getDefaultGCPChecklist: function() {
+        return [
+            { name: 'Organization Setup', items: [
+                { task: 'Create GCP Organization with Cloud Identity', critical: true, effort: '1 day' },
+                { task: 'Enable Assured Workloads for organization', critical: true, effort: '1 day' },
+                { task: 'Create Assured Workloads folder (FedRAMP High)', critical: true, effort: '2-4 hours' },
+                { task: 'Configure resource location restriction (US only)', critical: true, effort: '1 hour' }
+            ]},
+            { name: 'Identity & Access', items: [
+                { task: 'Enable 2-Step Verification for all users', critical: true, effort: '2-4 hours' },
+                { task: 'Require security keys for admin accounts', critical: true, effort: '4-8 hours' },
+                { task: 'Configure IAM roles with least privilege', critical: true, effort: '1 day' },
+                { task: 'Set up BeyondCorp Enterprise (if applicable)', critical: false, effort: '1-2 days' }
+            ]},
+            { name: 'Security & Monitoring', items: [
+                { task: 'Enable Security Command Center Premium', critical: true, effort: '2-4 hours' },
+                { task: 'Configure Cloud Audit Logs', critical: true, effort: '2-4 hours' },
+                { task: 'Set up log sinks to BigQuery/Cloud Storage', critical: true, effort: '4-8 hours' },
+                { task: 'Enable VPC Service Controls', critical: true, effort: '4-8 hours' },
+                { task: 'Configure Cloud Armor WAF', critical: true, effort: '4-8 hours' }
+            ]},
+            { name: 'Data Protection', items: [
+                { task: 'Enable CMEK for all storage services', critical: true, effort: '4-8 hours' },
+                { task: 'Configure DLP API for data scanning', critical: false, effort: '1 day' },
+                { task: 'Enable VPC Flow Logs', critical: true, effort: '2-4 hours' }
+            ]}
         ];
-        return items.map(i => `<div class="checklist-item ${i.critical ? 'critical' : ''}"><input type="checkbox"><label><span class="check-cat">${i.cat}</span><span class="check-task">${i.task}</span>${i.critical ? '<span class="critical-badge">Critical</span>' : ''}</label></div>`).join('');
     },
 
     // ==================== ARCHITECTURE VIEW ====================
@@ -463,18 +694,67 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
         <div class="msp-documentation-view">
             <div class="msp-intro-banner"><div class="banner-content"><h2>Best Practices & Documentation</h2><p>Reference guides, templates, and procedures for CMMC compliance management.</p></div></div>
             <div class="docs-grid">
-                <div class="doc-section"><h3>📋 Policy Templates</h3><ul class="doc-list">
-                    <li><a href="#">Access Control Policy</a></li><li><a href="#">Incident Response Plan</a></li><li><a href="#">System Security Plan (SSP)</a></li><li><a href="#">Configuration Management Policy</a></li><li><a href="#">Risk Assessment Procedures</a></li>
+                <div class="doc-section"><h3>📋 Official CMMC Resources</h3><ul class="doc-list">
+                    <li><a href="https://dodcio.defense.gov/CMMC/" target="_blank" rel="noopener">CMMC Model Overview ↗</a></li>
+                    <li><a href="https://cyberab.org/" target="_blank" rel="noopener">Cyber AB (Accreditation Body) ↗</a></li>
+                    <li><a href="https://cyberab.org/Marketplace" target="_blank" rel="noopener">CMMC Marketplace ↗</a></li>
+                    <li><a href="https://www.acq.osd.mil/cmmc/" target="_blank" rel="noopener">DoD CMMC Program Office ↗</a></li>
+                    <li><a href="https://sam.gov" target="_blank" rel="noopener">SAM.gov Registration ↗</a></li>
                 </ul></div>
-                <div class="doc-section"><h3>🔧 Technical Guides</h3><ul class="doc-list">
-                    <li><a href="#">Azure GCC High Onboarding</a></li><li><a href="#">AWS GovCloud Landing Zone</a></li><li><a href="#">Sentinel CMMC Workbook Setup</a></li><li><a href="#">Conditional Access Policies</a></li><li><a href="#">FIDO2 Key Deployment</a></li>
+                <div class="doc-section"><h3>📚 NIST Publications</h3><ul class="doc-list">
+                    <li><a href="https://csrc.nist.gov/publications/detail/sp/800-171/rev-2/final" target="_blank" rel="noopener">NIST SP 800-171 Rev 2 ↗</a></li>
+                    <li><a href="https://csrc.nist.gov/publications/detail/sp/800-171a/final" target="_blank" rel="noopener">NIST SP 800-171A (Assessment) ↗</a></li>
+                    <li><a href="https://csrc.nist.gov/publications/detail/sp/800-172/final" target="_blank" rel="noopener">NIST SP 800-172 (Enhanced) ↗</a></li>
+                    <li><a href="https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final" target="_blank" rel="noopener">NIST SP 800-53 Rev 5 ↗</a></li>
+                    <li><a href="https://www.nist.gov/cyberframework" target="_blank" rel="noopener">NIST Cybersecurity Framework ↗</a></li>
                 </ul></div>
-                <div class="doc-section"><h3>📊 Reporting Templates</h3><ul class="doc-list">
-                    <li><a href="#">Monthly Compliance Report</a></li><li><a href="#">Executive Dashboard</a></li><li><a href="#">POA&M Template</a></li><li><a href="#">Evidence Collection Checklist</a></li><li><a href="#">C3PAO Preparation Guide</a></li>
+                <div class="doc-section"><h3>☁️ Cloud Provider Resources</h3><ul class="doc-list">
+                    <li><a href="https://portal.azure.us" target="_blank" rel="noopener">Azure Government Portal ↗</a></li>
+                    <li><a href="https://learn.microsoft.com/en-us/azure/compliance/offerings/offering-cmmc" target="_blank" rel="noopener">Azure CMMC Documentation ↗</a></li>
+                    <li><a href="https://console.amazonaws-us-gov.com" target="_blank" rel="noopener">AWS GovCloud Console ↗</a></li>
+                    <li><a href="https://aws.amazon.com/compliance/cmmc/" target="_blank" rel="noopener">AWS CMMC Compliance ↗</a></li>
+                    <li><a href="https://cloud.google.com/security/compliance/fedramp" target="_blank" rel="noopener">GCP FedRAMP Compliance ↗</a></li>
                 </ul></div>
-                <div class="doc-section"><h3>🎓 Training Resources</h3><ul class="doc-list">
-                    <li><a href="#">CMMC Overview for Staff</a></li><li><a href="#">Security Awareness Training</a></li><li><a href="#">Phishing Simulation Guide</a></li><li><a href="#">Incident Reporting Procedures</a></li><li><a href="#">CUI Handling Guidelines</a></li>
+                <div class="doc-section"><h3>🛡️ FedRAMP & DoD Resources</h3><ul class="doc-list">
+                    <li><a href="https://marketplace.fedramp.gov/" target="_blank" rel="noopener">FedRAMP Marketplace ↗</a></li>
+                    <li><a href="https://www.fedramp.gov/baselines/" target="_blank" rel="noopener">FedRAMP Baselines ↗</a></li>
+                    <li><a href="https://public.cyber.mil/dccs/" target="_blank" rel="noopener">DoD Cloud Computing SRG ↗</a></li>
+                    <li><a href="https://public.cyber.mil/stigs/" target="_blank" rel="noopener">DISA STIGs ↗</a></li>
+                    <li><a href="https://www.cisa.gov/resources-tools/resources/cisa-zero-trust-maturity-model" target="_blank" rel="noopener">CISA Zero Trust Model ↗</a></li>
                 </ul></div>
+                <div class="doc-section"><h3>� Technical Guides</h3><ul class="doc-list">
+                    <li><a href="https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-get-started-connect-with-portal" target="_blank" rel="noopener">Azure Gov Getting Started ↗</a></li>
+                    <li><a href="https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/getting-started.html" target="_blank" rel="noopener">AWS GovCloud Getting Started ↗</a></li>
+                    <li><a href="https://cloud.google.com/assured-workloads/docs" target="_blank" rel="noopener">GCP Assured Workloads Docs ↗</a></li>
+                    <li><a href="https://learn.microsoft.com/en-us/azure/sentinel/cmmc-guide" target="_blank" rel="noopener">Sentinel CMMC Workbook ↗</a></li>
+                    <li><a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview" target="_blank" rel="noopener">Conditional Access Overview ↗</a></li>
+                </ul></div>
+                <div class="doc-section"><h3>🎓 Training & Certification</h3><ul class="doc-list">
+                    <li><a href="https://cyberab.org/Training" target="_blank" rel="noopener">Cyber AB Training Programs ↗</a></li>
+                    <li><a href="https://www.comptia.org/certifications/security" target="_blank" rel="noopener">CompTIA Security+ ↗</a></li>
+                    <li><a href="https://www.isc2.org/Certifications/CISSP" target="_blank" rel="noopener">ISC2 CISSP ↗</a></li>
+                    <li><a href="https://csrc.nist.gov/projects/olir" target="_blank" rel="noopener">NIST OLIR Training ↗</a></li>
+                    <li><a href="https://niccs.cisa.gov/" target="_blank" rel="noopener">NICCS Training Catalog ↗</a></li>
+                </ul></div>
+            </div>
+            <div class="msp-card full-width" style="margin-top: 20px;">
+                <div class="msp-card-header"><h3>📥 In-App Tools</h3></div>
+                <div class="msp-card-body">
+                    <div class="in-app-tools-grid">
+                        <button class="msp-tool-btn" onclick="MSPPortal.closePortal(); window.app.switchView('sprs');">
+                            ${portal.getIcon('bar-chart')}<span>SPRS Calculator</span>
+                        </button>
+                        <button class="msp-tool-btn" onclick="MSPPortal.closePortal(); window.app.switchView('crosswalk');">
+                            ${portal.getIcon('layers')}<span>Framework Crosswalk</span>
+                        </button>
+                        <button class="msp-tool-btn" onclick="MSPPortal.closePortal(); window.app.switchView('impl-planner');">
+                            ${portal.getIcon('calendar')}<span>Implementation Planner</span>
+                        </button>
+                        <button class="msp-tool-btn" onclick="MSPPortal.switchView('reports');">
+                            ${portal.getIcon('file-text')}<span>Generate Reports</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>`;
     },
