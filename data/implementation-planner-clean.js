@@ -47,7 +47,8 @@ const IMPLEMENTATION_PLANNER = {
                 "Network Infrastructure",
                 "Data Protection",
                 "Remote Access & VDI",
-                "Maintenance"
+                "Maintenance",
+                "Secure Development"
             ],
             "People": [
                 "Personnel Security",
@@ -2502,6 +2503,162 @@ const IMPLEMENTATION_PLANNER = {
                                     "Store backups in secure, separate location"
                                 ],
                                 artifacts: ["Backup Configuration", "Restore Test Results", "Backup Inventory"]
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m5-3",
+                    name: "Secure Software Development (SSDF)",
+                    description: "Implement NIST SP 800-218 SSDF for organizations developing software",
+                    tasks: [
+                        {
+                            id: "t5-3-1",
+                            name: "Establish Secure SDLC Policy",
+                            description: "Create policy aligned with NIST SP 800-218 SSDF practices",
+                            controls: ["3.13.2[a-f]"],
+                            priority: "critical",
+                            effort: "high",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Secure Development",
+                                week: 6,
+                                taskId: "T-SSDF.1",
+                                owner: "Dev Lead",
+                                accountable: "CMMC Lead",
+                                deliverable: "Secure SDLC Policy"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Create Secure Software Development Policy aligned with NIST SP 800-218",
+                                    "Define SSDF Practice PO: Prepare Organization (roles, toolchains, standards)",
+                                    "Define SSDF Practice PS: Protect Software (source control, dependencies)",
+                                    "Define SSDF Practice PW: Produce Well-Secured Software (design, code, test)",
+                                    "Define SSDF Practice RV: Respond to Vulnerabilities",
+                                    "Establish Security Champion role for each team",
+                                    "Create secure coding standards (OWASP, CERT)"
+                                ],
+                                templates: ["Secure SDLC Policy.docx", "Secure Coding Standards.docx", "Code Review Security Checklist.xlsx"],
+                                storage: "SharePoint > Development > Security",
+                                approval: "CISO + Dev Director"
+                            }
+                        },
+                        {
+                            id: "t5-3-2",
+                            name: "Implement CI/CD Security Gates",
+                            description: "Integrate SAST, SCA, and secrets scanning into pipelines",
+                            controls: ["3.13.2[b]", "3.13.2[e]"],
+                            priority: "critical",
+                            effort: "high",
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "Secure Development",
+                                week: 7,
+                                taskId: "T-SSDF.2",
+                                owner: "DevOps",
+                                accountable: "Dev Lead",
+                                deliverable: "Secured CI/CD Pipeline"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Implement pre-commit hooks for secrets scanning (gitleaks)",
+                                    "Configure SAST in pipeline (SonarQube, CodeQL, Semgrep)",
+                                    "Enable SCA scanning (Snyk, OWASP Dependency-Check)",
+                                    "Add container scanning if applicable (Trivy)",
+                                    "Configure pipeline to fail on high/critical findings",
+                                    "Implement branch protection (required reviews, signed commits)"
+                                ],
+                                toolchain: {
+                                    sast: ["SonarQube", "Semgrep", "CodeQL"],
+                                    sca: ["Snyk", "OWASP Dependency-Check", "Dependabot"],
+                                    secrets: ["gitleaks", "git-secrets"],
+                                    container: ["Trivy", "Grype"]
+                                },
+                                artifacts: ["Pipeline Config", "Security Gate Documentation"]
+                            }
+                        },
+                        {
+                            id: "t5-3-3",
+                            name: "Implement SBOM Generation",
+                            description: "Generate Software Bill of Materials for releases",
+                            controls: ["3.13.2[b]", "3.4.1[a-f]"],
+                            priority: "high",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Secure Development",
+                                week: 8,
+                                taskId: "T-SSDF.3",
+                                owner: "DevOps",
+                                accountable: "Dev Lead",
+                                deliverable: "SBOM Generation Process"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Select SBOM format (CycloneDX or SPDX)",
+                                    "Integrate SBOM generation into build (Syft)",
+                                    "Include all dependencies (direct and transitive)",
+                                    "Store SBOMs with release artifacts",
+                                    "Establish SBOM review for vulnerability monitoring"
+                                ],
+                                tools: ["Syft", "CycloneDX CLI", "SPDX Tools"],
+                                artifacts: ["SBOM Policy", "Sample SBOM"]
+                            }
+                        },
+                        {
+                            id: "t5-3-4",
+                            name: "Establish Threat Modeling Process",
+                            description: "Implement STRIDE threat modeling for features",
+                            controls: ["3.13.2[a]", "3.13.2[d]"],
+                            priority: "high",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Secure Development",
+                                week: 7,
+                                taskId: "T-SSDF.4",
+                                owner: "Security",
+                                accountable: "Dev Lead",
+                                deliverable: "Threat Modeling Process"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Adopt STRIDE methodology for threat modeling",
+                                    "Create threat model template",
+                                    "Define when threat modeling required",
+                                    "Train Security Champions",
+                                    "Track threats through remediation"
+                                ],
+                                templates: ["Threat Model Template.docx"],
+                                artifacts: ["Threat Model Examples", "Training Records"]
+                            }
+                        },
+                        {
+                            id: "t5-3-5",
+                            name: "Configure Artifact Signing",
+                            description: "Sign releases and container images",
+                            controls: ["3.13.2[b]", "3.4.1[a-f]"],
+                            priority: "high",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "Secure Development",
+                                week: 9,
+                                taskId: "T-SSDF.5",
+                                owner: "DevOps",
+                                accountable: "Dev Lead",
+                                deliverable: "Artifact Signing Process"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Select signing tool (cosign, GPG, Sigstore)",
+                                    "Generate and secure signing keys",
+                                    "Integrate signing into release pipeline",
+                                    "Verify signatures before deployment",
+                                    "Document key management procedures"
+                                ],
+                                tools: ["cosign", "Sigstore", "GPG", "Notary"],
+                                artifacts: ["Signing Policy", "Key Management Procedure"]
                             }
                         }
                     ]

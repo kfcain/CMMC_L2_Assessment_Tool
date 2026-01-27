@@ -1983,6 +1983,240 @@ const IMPL_NOTES = {
             evidenceArtifact: "GCP_SecurityArchitecture.pdf"
         }
     },
+    "3.13.2[b]": {
+        // NIST SP 800-218 SSDF Alignment - Secure Software Development Techniques
+        general: {
+            steps: [
+                "1. Adopt NIST SP 800-218 Secure Software Development Framework (SSDF)",
+                "2. Implement SSDF Practice PO (Prepare Organization): Define security requirements, roles, toolchains, coding standards",
+                "3. Implement SSDF Practice PS (Protect Software): Protect source code, verify third-party components, archive releases",
+                "4. Implement SSDF Practice PW (Produce Well-Secured Software): Threat modeling, secure coding, code review, security testing",
+                "5. Implement SSDF Practice RV (Respond to Vulnerabilities): Identify, assess, remediate vulnerabilities continuously"
+            ],
+            quickWin: "Implement pre-commit hooks with secrets scanning (gitleaks) and SAST integration",
+            evidenceArtifact: "SecureSoftwareDevelopment_Policy.pdf",
+            ssdfMapping: {
+                "PO.1": "Define security requirements for software development",
+                "PO.2": "Implement roles (Security Champion per team)",
+                "PO.3": "Automate toolchain (SAST, DAST, SCA, secrets scanning)",
+                "PO.4": "Define secure coding standards (OWASP, CERT, language-specific)",
+                "PO.5": "Secure development environments (hardened CI/CD)",
+                "PS.1": "Protect source code (branch protection, signed commits, access controls)",
+                "PS.2": "Verify third-party components (SBOM, SCA scanning, license compliance)",
+                "PS.3": "Archive and protect releases (immutable artifacts, signing)",
+                "PW.1": "Design software to meet security requirements",
+                "PW.2": "Review design for security compliance (threat modeling)",
+                "PW.4": "Reuse existing secure code/modules",
+                "PW.5": "Create source code following secure coding practices",
+                "PW.6": "Configure compilation/build for security (compiler flags, hardening)",
+                "PW.7": "Review/analyze code for vulnerabilities (SAST, code review)",
+                "PW.8": "Test executable code (DAST, penetration testing)",
+                "PW.9": "Configure software with secure defaults",
+                "RV.1": "Identify and confirm vulnerabilities continuously",
+                "RV.2": "Assess and prioritize vulnerabilities (CVSS, exploitability)",
+                "RV.3": "Remediate vulnerabilities (patch, mitigate, accept with risk)"
+            },
+            humanInTheLoop: [
+                "Security Champion reviews code changes for security impact",
+                "Development lead approves threat models before implementation",
+                "Security team approves exceptions to secure coding standards",
+                "Release manager verifies security gates before deployment"
+            ],
+            policyEvidence: [
+                "Secure Software Development Policy (SSDF-aligned)",
+                "Secure Coding Standards (language-specific)",
+                "Code Review Security Checklist",
+                "Threat Modeling Procedure",
+                "SBOM Generation and Management Policy"
+            ],
+            toolchain: {
+                sast: ["SonarQube", "Semgrep", "CodeQL", "Checkmarx", "Fortify"],
+                sca: ["Snyk", "OWASP Dependency-Check", "Dependabot", "WhiteSource/Mend"],
+                secrets: ["git-secrets", "gitleaks", "TruffleHog", "detect-secrets"],
+                container: ["Trivy", "Grype", "Anchore", "Clair"],
+                dast: ["OWASP ZAP", "Burp Suite", "Nuclei"],
+                sbom: ["Syft", "CycloneDX", "SPDX Tools"],
+                signing: ["cosign", "Sigstore", "GPG", "Notary"]
+            }
+        },
+        azure: {
+            steps: [
+                "1. Enable GitHub Advanced Security or Azure DevOps Advanced Security",
+                "2. Configure CodeQL for SAST in CI/CD pipelines",
+                "3. Enable Dependabot for SCA and automated dependency updates",
+                "4. Implement branch protection with required reviews and signed commits",
+                "5. Use Azure Key Vault for secrets management (not hardcoded)",
+                "6. Enable Microsoft Defender for DevOps for unified security posture",
+                "7. Generate SBOM using Syft in build pipeline",
+                "8. Sign container images with Notary/cosign"
+            ],
+            quickWin: "Enable GitHub Advanced Security with CodeQL and Dependabot on all repos",
+            evidenceArtifact: "AzureDevOps_SecurityConfig.pdf",
+            pipelineExample: `
+# Azure DevOps Pipeline Security Gates
+stages:
+- stage: SecurityScan
+  jobs:
+  - job: SAST
+    steps:
+    - task: AdvancedSecurity-CodeQL@1
+  - job: SCA
+    steps:
+    - task: AdvancedSecurity-Dependency-Scanning@1
+  - job: Secrets
+    steps:
+    - script: gitleaks detect --source . --verbose
+  - job: SBOM
+    steps:
+    - script: syft . -o cyclonedx-json > sbom.json
+`
+        },
+        aws: {
+            steps: [
+                "1. Enable Amazon CodeGuru Reviewer for SAST",
+                "2. Use AWS CodePipeline with security gates",
+                "3. Implement Amazon Inspector for container scanning",
+                "4. Use AWS Secrets Manager for secrets (not hardcoded)",
+                "5. Enable CodeArtifact for dependency management",
+                "6. Sign artifacts using AWS Signer",
+                "7. Generate SBOM in CodeBuild"
+            ],
+            quickWin: "Enable CodeGuru Reviewer on repositories with CUI-related code",
+            evidenceArtifact: "AWS_SecurePipeline.pdf"
+        },
+        gcp: {
+            steps: [
+                "1. Enable Cloud Build with security scanning",
+                "2. Use Artifact Registry with vulnerability scanning",
+                "3. Implement Binary Authorization for deployment gates",
+                "4. Use Secret Manager for secrets (not hardcoded)",
+                "5. Enable Container Analysis for SBOM generation",
+                "6. Sign images with Binary Authorization attestations"
+            ],
+            quickWin: "Enable Artifact Registry vulnerability scanning and Binary Authorization",
+            evidenceArtifact: "GCP_SecurePipeline.pdf"
+        }
+    },
+    "3.13.2[c]": {
+        general: {
+            steps: [
+                "1. Document systems engineering principles promoting security",
+                "2. Implement security-by-design and privacy-by-design principles",
+                "3. Apply least privilege in system design",
+                "4. Design for fail-secure (deny by default)",
+                "5. Implement separation of duties in system architecture",
+                "6. Design for auditability and non-repudiation",
+                "7. Apply defense-in-depth at system level"
+            ],
+            quickWin: "Create Security Architecture Review checklist for all new systems",
+            evidenceArtifact: "SystemsEngineering_SecurityPrinciples.pdf",
+            principles: [
+                "Least Privilege: Components operate with minimum necessary permissions",
+                "Separation of Duties: Critical functions require multiple parties",
+                "Defense in Depth: Multiple layers of security controls",
+                "Fail Secure: System defaults to secure state on failure",
+                "Economy of Mechanism: Keep security mechanisms simple",
+                "Complete Mediation: Every access request is checked",
+                "Open Design: Security doesn't depend on secrecy of design",
+                "Psychological Acceptability: Security mechanisms are usable"
+            ],
+            humanInTheLoop: [
+                "Systems architect documents security principles for each design",
+                "Security reviews architecture for principle compliance",
+                "Change Control Board approves architectural changes"
+            ],
+            policyEvidence: [
+                "Systems Engineering Security Standards",
+                "Security Architecture Review Procedure",
+                "Secure Design Principles Document"
+            ]
+        }
+    },
+    "3.13.2[d]": {
+        general: {
+            steps: [
+                "1. Verify architectural designs from 3.13.2[a] are implemented",
+                "2. Conduct architecture reviews to validate implementation",
+                "3. Perform configuration audits against design documents",
+                "4. Document deviations and obtain approval",
+                "5. Update architecture documentation as systems change"
+            ],
+            quickWin: "Schedule quarterly architecture compliance reviews",
+            evidenceArtifact: "ArchitectureCompliance_Audit.pdf",
+            humanInTheLoop: [
+                "Architecture team validates implementation matches design",
+                "Security validates security controls are implemented as designed",
+                "Configuration management tracks architecture changes"
+            ],
+            policyEvidence: [
+                "Architecture Compliance Review Procedure",
+                "Design-to-Implementation Traceability Matrix"
+            ]
+        }
+    },
+    "3.13.2[e]": {
+        // Critical for Software Development Shops - SSDF Implementation Evidence
+        general: {
+            steps: [
+                "1. Verify SSDF practices from 3.13.2[b] are implemented in SDLC",
+                "2. Collect evidence of secure coding practices (code review logs, SAST reports)",
+                "3. Validate CI/CD pipeline includes all security gates",
+                "4. Review SBOM generation for each release",
+                "5. Verify vulnerability remediation within defined SLAs",
+                "6. Audit code review records for security focus",
+                "7. Review penetration test results and remediation"
+            ],
+            quickWin: "Export SAST/SCA scan history and code review logs as compliance evidence",
+            evidenceArtifact: "SSDF_ImplementationEvidence.zip",
+            evidenceChecklist: [
+                "SAST scan reports for each release (SonarQube, CodeQL)",
+                "SCA/dependency scan reports (Snyk, OWASP DC)",
+                "SBOM for each deployed release (CycloneDX format)",
+                "Code review records with security checklist completion",
+                "Threat model documents for major features",
+                "Penetration test reports (annual minimum)",
+                "Vulnerability tracking and remediation records",
+                "Security training completion records for developers",
+                "Secure coding standard acknowledgment forms",
+                "Branch protection configuration screenshots",
+                "Signed commit/artifact evidence"
+            ],
+            humanInTheLoop: [
+                "Development leads certify secure coding practices are followed",
+                "Security team validates pipeline security gates are enforced",
+                "Release manager verifies all security gates passed before deployment",
+                "CMMC Lead collects and organizes SSDF evidence for assessment"
+            ],
+            policyEvidence: [
+                "SDLC Security Integration Procedure",
+                "Security Gate Requirements Document",
+                "Developer Security Training Program"
+            ]
+        }
+    },
+    "3.13.2[f]": {
+        general: {
+            steps: [
+                "1. Verify systems engineering principles from 3.13.2[c] are implemented",
+                "2. Conduct security architecture reviews",
+                "3. Validate least privilege implementation across systems",
+                "4. Test fail-secure behavior",
+                "5. Audit separation of duties controls",
+                "6. Review audit trail completeness"
+            ],
+            quickWin: "Create traceability matrix: Security Principles → Implementation Evidence",
+            evidenceArtifact: "SecurityPrinciples_Implementation.pdf",
+            humanInTheLoop: [
+                "Systems engineer validates principle implementation",
+                "Security conducts architecture security assessment",
+                "Operations validates fail-secure behavior in testing"
+            ],
+            policyEvidence: [
+                "Security Principles Implementation Checklist",
+                "Architecture Security Assessment Report"
+            ]
+        }
+    },
     "3.13.5[b]": {
         azure: {
             steps: ["1. Deploy Azure Firewall or NVA in hub VNet", "2. Configure DMZ subnet for public-facing systems", "3. Implement subnet isolation with NSGs", "4. Route all traffic through firewall", "5. Document DMZ architecture"],
