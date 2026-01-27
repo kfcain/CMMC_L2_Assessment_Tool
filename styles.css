@@ -4986,7 +4986,44 @@ table td {
     border-color: var(--accent-blue);
 }
 
-/* Dashboard Hero and Site Title Bar styles removed - title now only in main header */
+/* Dashboard Hero Title */
+.dashboard-hero {
+    text-align: center;
+    padding: 24px 24px 16px;
+    margin-bottom: 4px;
+}
+
+.hero-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.hero-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
 
 /* VDI Tech Details Expandable Section */
 .impl-tech-details {
