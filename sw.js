@@ -1,7 +1,7 @@
 // Service Worker for CMMC Assessment Tool
 // Provides offline caching and faster repeat visits
 
-const CACHE_NAME = 'cmmc-tool-v20';
+const CACHE_NAME = 'cmmc-tool-v21';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Core files that should always be cached
@@ -39,6 +39,10 @@ const CORE_ASSETS = [
     '/data/nist-800-172a.js',
     '/data/nist-800-171a-r3.js',
     '/data/msp-portal-data.js',
+    '/data/msp-automation-platforms.js',
+    '/data/msp-cloud-templates.js',
+    '/data/msp-evidence-lists.js',
+    '/data/msp-data-protection.js',
     '/favicon.svg'
 ];
 
