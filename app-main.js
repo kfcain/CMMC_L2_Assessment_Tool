@@ -1902,17 +1902,6 @@ class AssessmentApp {
 
     renderL3Objectives(control, container) {
         container.innerHTML = '';
-        
-        // Add discussion section
-        if (control.discussion) {
-            const discussionDiv = document.createElement('div');
-            discussionDiv.className = 'l3-discussion';
-            discussionDiv.innerHTML = `
-                <h4>Discussion</h4>
-                <p>${control.discussion}</p>
-            `;
-            container.appendChild(discussionDiv);
-        }
 
         // Render each objective
         control.objectives.forEach(objective => {
