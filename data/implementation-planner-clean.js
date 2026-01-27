@@ -12,6 +12,7 @@ const IMPLEMENTATION_PLANNER = {
     projectPlanMapping: {
         // Map phases to implementation guide categories
         phaseCategories: {
+            "phase-0": "Governance",           // Pre-Project Planning & Executive Alignment
             "phase-1": "Foundation",           // Foundation & Assessment
             "phase-1b": "Foundation",          // Policy Development 
             "phase-2": "Foundation",           // Identity & Access
@@ -27,6 +28,17 @@ const IMPLEMENTATION_PLANNER = {
         
         // Map subcategories for detailed task organization
         subcategories: {
+            "Governance": [
+                "Program Management",
+                "Executive Alignment",
+                "Monitoring & Logging",
+                "Documentation & SSP",
+                "POA&M Management",
+                "Change Management",
+                "Incident Response",
+                "Configuration Management",
+                "Supply Chain"
+            ],
             "Foundation": [
                 "CUI Scoping & Asset Inventory",
                 "Policy Development", 
@@ -34,24 +46,19 @@ const IMPLEMENTATION_PLANNER = {
                 "Endpoint Security",
                 "Network Infrastructure",
                 "Data Protection",
-                "Remote Access & VDI"
+                "Remote Access & VDI",
+                "Maintenance"
             ],
             "People": [
                 "Personnel Security",
                 "Training & Awareness",
                 "Physical Security"
             ],
-            "Governance": [
-                "Monitoring & Logging",
-                "Documentation & SSP",
-                "POA&M Management",
-                "Change Management",
-                "Incident Response"
-            ],
             "Audit Prep": [
                 "Evidence Collection",
                 "Assessment Readiness",
-                "Compliance Validation"
+                "Compliance Validation",
+                "C3PAO Engagement"
             ]
         },
         
@@ -69,6 +76,285 @@ const IMPLEMENTATION_PLANNER = {
     
     // Project Phases
     phases: [
+        {
+            id: "phase-0",
+            name: "Pre-Project Planning & Executive Alignment",
+            description: "Secure executive sponsorship, establish budget, define timeline, and build the CMMC program foundation",
+            duration: "2-3 weeks",
+            icon: "foundation",
+            color: "#ff6b6b",
+            milestones: [
+                {
+                    id: "m0-1",
+                    name: "Executive Sponsorship Secured",
+                    description: "Obtain executive buy-in and establish governance structure",
+                    tasks: [
+                        {
+                            id: "t0-1-1",
+                            name: "Conduct executive briefing on CMMC requirements",
+                            description: "Brief leadership on CMMC 2.0, timeline, costs, and business impact",
+                            controls: [],
+                            priority: "critical",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Program Management",
+                                week: 1,
+                                taskId: "T-0.1",
+                                owner: "CMMC Lead",
+                                accountable: "Exec Sponsor",
+                                deliverable: "Executive Briefing Presentation"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Prepare CMMC overview presentation for executives",
+                                    "Explain difference between CMMC L1 and L2 requirements",
+                                    "Present timeline: typically 9-18 months for greenfield",
+                                    "Discuss budget requirements ($150K-$500K+ depending on scope)",
+                                    "Explain C3PAO assessment process and costs ($50K-$150K)",
+                                    "Highlight business impact: contract eligibility, competitive advantage",
+                                    "Obtain formal executive sponsorship and commitment"
+                                ],
+                                artifacts: ["Executive Briefing Deck", "CMMC ROI Analysis", "Executive Sponsorship Memo"]
+                            }
+                        },
+                        {
+                            id: "t0-1-2",
+                            name: "Establish CMMC Steering Committee",
+                            description: "Form cross-functional governance body for CMMC program",
+                            controls: ["3.12.4[a]"],
+                            priority: "critical",
+                            effort: "low",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Program Management",
+                                week: 1,
+                                taskId: "T-0.2",
+                                owner: "Exec Sponsor",
+                                accountable: "Exec Sponsor",
+                                deliverable: "Steering Committee Charter"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Identify steering committee members (CEO/COO, CISO, IT Director, FSO, HR, Legal, Contracts)",
+                                    "Define meeting cadence (bi-weekly during implementation, monthly during steady-state)",
+                                    "Create committee charter with roles and decision authority",
+                                    "Establish escalation procedures for blockers",
+                                    "Document communication plan for organization"
+                                ],
+                                artifacts: ["Steering Committee Charter", "Meeting Schedule", "Communication Plan"]
+                            }
+                        },
+                        {
+                            id: "t0-1-3",
+                            name: "Appoint CMMC Program Lead",
+                            description: "Designate dedicated resource to lead CMMC implementation",
+                            controls: ["3.12.4[a]"],
+                            priority: "critical",
+                            effort: "low",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Program Management",
+                                week: 1,
+                                taskId: "T-0.3",
+                                owner: "Exec Sponsor",
+                                accountable: "Exec Sponsor",
+                                deliverable: "CMMC Lead Appointment Letter"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Identify qualified candidate (security background preferred)",
+                                    "Define role responsibilities and time allocation (50-100% during implementation)",
+                                    "Provide authority to coordinate across departments",
+                                    "Consider external consultant/vCISO if no internal candidate",
+                                    "Document appointment and communicate to organization"
+                                ],
+                                artifacts: ["Appointment Letter", "Role Description", "Authority Matrix"]
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m0-2",
+                    name: "Budget & Timeline Established",
+                    description: "Define project budget, timeline, and resource allocation",
+                    tasks: [
+                        {
+                            id: "t0-2-1",
+                            name: "Develop CMMC implementation budget",
+                            description: "Create comprehensive budget covering all implementation costs",
+                            controls: [],
+                            priority: "critical",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Program Management",
+                                week: 1,
+                                taskId: "T-0.4",
+                                owner: "CMMC Lead",
+                                accountable: "Exec Sponsor",
+                                deliverable: "CMMC Budget Document"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Estimate technology costs (M365 GCC High, security tools, VDI if needed)",
+                                    "Calculate labor costs (internal staff time, contractors, consultants)",
+                                    "Include C3PAO assessment costs ($50K-$150K for L2)",
+                                    "Budget for training and awareness programs",
+                                    "Include contingency (15-20% recommended)",
+                                    "Present budget for executive approval",
+                                    "Establish cost tracking mechanism"
+                                ],
+                                budgetCategories: [
+                                    { category: "Cloud Infrastructure", range: "$50K-$200K/year", notes: "M365 GCC High, Azure Government" },
+                                    { category: "Security Tools", range: "$25K-$100K/year", notes: "SIEM, EDR, vulnerability scanning" },
+                                    { category: "Consulting/vCISO", range: "$50K-$200K", notes: "Gap assessment, implementation support" },
+                                    { category: "C3PAO Assessment", range: "$50K-$150K", notes: "Formal CMMC Level 2 assessment" },
+                                    { category: "Training", range: "$10K-$30K", notes: "Security awareness, CUI handling" },
+                                    { category: "Internal Labor", range: "500-2000 hours", notes: "Staff time for implementation" }
+                                ],
+                                artifacts: ["Budget Spreadsheet", "Cost Breakdown", "Executive Approval"]
+                            }
+                        },
+                        {
+                            id: "t0-2-2",
+                            name: "Create implementation timeline",
+                            description: "Develop realistic project schedule with milestones",
+                            controls: [],
+                            priority: "critical",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Program Management",
+                                week: 2,
+                                taskId: "T-0.5",
+                                owner: "CMMC Lead",
+                                accountable: "Exec Sponsor",
+                                deliverable: "Project Timeline/Gantt Chart"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Map out all implementation phases (9-18 months typical)",
+                                    "Identify dependencies between phases",
+                                    "Account for resource availability and constraints",
+                                    "Build in buffer for unexpected delays",
+                                    "Set milestone dates for steering committee reviews",
+                                    "Align with contract requirements if applicable",
+                                    "Create Gantt chart or project schedule"
+                                ],
+                                artifacts: ["Project Timeline", "Gantt Chart", "Milestone Schedule"]
+                            }
+                        },
+                        {
+                            id: "t0-2-3",
+                            name: "Identify and allocate resources",
+                            description: "Assign internal staff and identify external support needs",
+                            controls: [],
+                            priority: "high",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Program Management",
+                                week: 2,
+                                taskId: "T-0.6",
+                                owner: "CMMC Lead",
+                                accountable: "Exec Sponsor",
+                                deliverable: "Resource Allocation Matrix"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Identify required skill sets (security, IT, compliance, HR)",
+                                    "Assess internal resource availability and gaps",
+                                    "Determine external support needs (consultants, MSP)",
+                                    "Negotiate time allocation with department managers",
+                                    "Create RACI matrix for key activities",
+                                    "Document resource commitments"
+                                ],
+                                artifacts: ["Resource Matrix", "RACI Chart", "Skills Gap Analysis"]
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m0-3",
+                    name: "Contract & Scope Analysis",
+                    description: "Analyze DoD contracts and determine CUI scope",
+                    tasks: [
+                        {
+                            id: "t0-3-1",
+                            name: "Review DoD contracts for CMMC requirements",
+                            description: "Analyze all contracts for DFARS 7012, 7019, 7020, 7021 clauses",
+                            controls: ["3.1.3[c]"],
+                            priority: "critical",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Program Management",
+                                week: 2,
+                                taskId: "T-0.7",
+                                owner: "Contracts",
+                                accountable: "CMMC Lead",
+                                deliverable: "Contract Analysis Report"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Gather all current DoD contracts and subcontracts",
+                                    "Identify DFARS 252.204-7012 (Safeguarding CDI) clauses",
+                                    "Identify DFARS 252.204-7019/7020/7021 (CMMC) clauses",
+                                    "Determine required CMMC level per contract",
+                                    "Identify CUI categories (CTI, ITAR, etc.)",
+                                    "Note any flow-down requirements to subcontractors",
+                                    "Create contract requirements matrix"
+                                ],
+                                artifacts: ["Contract Analysis Matrix", "CUI Categories List", "Flow-Down Requirements"]
+                            }
+                        },
+                        {
+                            id: "t0-3-2",
+                            name: "Determine assessment scope strategy",
+                            description: "Decide on enclave approach vs. enterprise-wide scope",
+                            controls: ["3.12.4[b]"],
+                            priority: "critical",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "CUI Scoping & Asset Inventory",
+                                week: 2,
+                                taskId: "T-0.8",
+                                owner: "CMMC Lead",
+                                accountable: "Exec Sponsor",
+                                deliverable: "Scope Strategy Document"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Evaluate enclave approach (isolated CUI environment) vs. enterprise-wide",
+                                    "Consider cost/benefit of each approach",
+                                    "Assess impact on business operations",
+                                    "Evaluate technical feasibility of enclave isolation",
+                                    "Document scope decision and rationale",
+                                    "Identify systems and personnel in scope"
+                                ],
+                                scopeOptions: [
+                                    {
+                                        name: "Enclave Approach",
+                                        pros: ["Smaller scope", "Lower cost", "Faster implementation"],
+                                        cons: ["Operational friction", "Limited CUI access", "User workflow changes"],
+                                        bestFor: "Organizations with limited CUI volume"
+                                    },
+                                    {
+                                        name: "Enterprise-Wide",
+                                        pros: ["No workflow changes", "All users CUI-capable", "Simpler operations"],
+                                        cons: ["Higher cost", "Longer implementation", "More systems in scope"],
+                                        bestFor: "Organizations with CUI throughout operations"
+                                    }
+                                ],
+                                artifacts: ["Scope Strategy Document", "Scope Decision Matrix", "In-Scope Systems List"]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
         {
             id: "phase-1",
             name: "Foundation & Assessment",
@@ -406,16 +692,181 @@ const IMPLEMENTATION_PLANNER = {
                                     "Establish communication protocols",
                                     "Define evidence preservation procedures",
                                     "Create post-incident review process",
-                                    "Document coordination with external parties"
+                                    "Document coordination with external parties",
+                                    "Document DIBNet reporting requirements (72-hour rule)",
+                                    "Create DC3/CISA notification procedures"
                                 ],
                                 templates: [
                                     "Incident Response Plan.docx",
                                     "Incident Report Form.docx",
                                     "IRT Contact List.xlsx",
-                                    "Incident Classification Guide.docx"
+                                    "Incident Classification Guide.docx",
+                                    "DIBNet Reporting Checklist.docx"
                                 ],
                                 storage: "SharePoint > Policies > Incident Response",
                                 approval: "CISO + Legal + PR"
+                            }
+                        },
+                        {
+                            id: "t1b-1-6",
+                            name: "Create Incident Response Playbooks",
+                            description: "Develop detailed playbooks for common incident types",
+                            controls: ["3.6.1", "3.6.2"],
+                            priority: "high",
+                            effort: "high",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Incident Response",
+                                week: 6,
+                                taskId: "T-IR.2",
+                                owner: "SecOps",
+                                accountable: "CMMC Lead",
+                                deliverable: "Incident Response Playbooks"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Create playbook for malware/ransomware incidents",
+                                    "Create playbook for phishing/social engineering",
+                                    "Create playbook for data breach/CUI spillage",
+                                    "Create playbook for unauthorized access",
+                                    "Create playbook for insider threat incidents",
+                                    "Create playbook for denial of service",
+                                    "Define escalation criteria for each playbook",
+                                    "Include evidence collection steps in each playbook"
+                                ],
+                                playbooks: [
+                                    { name: "Malware/Ransomware", priority: "Critical", responseTime: "1 hour" },
+                                    { name: "Phishing Attack", priority: "High", responseTime: "4 hours" },
+                                    { name: "CUI Spillage", priority: "Critical", responseTime: "1 hour" },
+                                    { name: "Unauthorized Access", priority: "Critical", responseTime: "1 hour" },
+                                    { name: "Insider Threat", priority: "High", responseTime: "4 hours" },
+                                    { name: "Account Compromise", priority: "Critical", responseTime: "1 hour" }
+                                ],
+                                templates: [
+                                    "Incident Playbook Template.docx",
+                                    "Evidence Collection Checklist.docx",
+                                    "Containment Procedures.docx"
+                                ],
+                                storage: "SharePoint > Operations > Incident Response",
+                                approval: "CISO + Legal"
+                            }
+                        },
+                        {
+                            id: "t1b-1-7",
+                            name: "Schedule Tabletop Exercises",
+                            description: "Plan and conduct incident response tabletop exercises",
+                            controls: ["3.6.3[a-b]"],
+                            priority: "high",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Incident Response",
+                                week: 20,
+                                taskId: "T-IR.3",
+                                owner: "CMMC Lead",
+                                accountable: "Exec Sponsor",
+                                deliverable: "Tabletop Exercise Report"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Schedule annual tabletop exercise (minimum)",
+                                    "Develop realistic scenario (ransomware, data breach, etc.)",
+                                    "Include all incident response team members",
+                                    "Invite executive sponsor to observe",
+                                    "Document decisions and response times",
+                                    "Identify gaps in procedures or training",
+                                    "Create after-action report with improvements",
+                                    "Update IRP based on lessons learned"
+                                ],
+                                scenarios: [
+                                    { name: "Ransomware Attack", description: "Critical systems encrypted, ransom demanded" },
+                                    { name: "CUI Data Breach", description: "CUI exfiltrated to unknown external party" },
+                                    { name: "Insider Threat", description: "Employee downloading CUI before resignation" },
+                                    { name: "Supply Chain Compromise", description: "Vendor software contains malware" }
+                                ],
+                                templates: [
+                                    "Tabletop Exercise Scenario.docx",
+                                    "Exercise Attendance Sheet.xlsx",
+                                    "After-Action Report Template.docx"
+                                ],
+                                storage: "SharePoint > Governance > Incident Response Exercises",
+                                approval: "CISO + Exec Sponsor",
+                                notes: "Conduct at least annually; more frequently during implementation"
+                            }
+                        },
+                        {
+                            id: "t1b-1-8",
+                            name: "Develop Configuration Management Policy",
+                            description: "Create comprehensive configuration management procedures",
+                            controls: ["3.4.1[a-f]", "3.4.2[a-b]", "3.4.3[a-c]"],
+                            priority: "critical",
+                            effort: "high",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Configuration Management",
+                                week: 5,
+                                taskId: "T-CM.1",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                deliverable: "Configuration Management Policy"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Create Configuration Management Policy",
+                                    "Define baseline configuration requirements per 3.4.1",
+                                    "Establish configuration change control process per 3.4.3",
+                                    "Create Change Control Board (CCB) charter",
+                                    "Define CCB membership and meeting schedule",
+                                    "Establish change request and approval workflow",
+                                    "Create emergency change procedures",
+                                    "Document configuration documentation requirements"
+                                ],
+                                templates: [
+                                    "Configuration Management Policy.docx",
+                                    "Change Control Board Charter.docx",
+                                    "Change Request Form.docx",
+                                    "Emergency Change Procedure.docx",
+                                    "Baseline Configuration Template.xlsx"
+                                ],
+                                storage: "SharePoint > Governance > Configuration Management",
+                                approval: "IT Director + CISO + Change Control Board"
+                            }
+                        },
+                        {
+                            id: "t1b-1-9",
+                            name: "Establish Change Control Board (CCB)",
+                            description: "Form CCB to review and approve system changes",
+                            controls: ["3.4.3[a-c]", "3.4.5[a-c]"],
+                            priority: "critical",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Configuration Management",
+                                week: 6,
+                                taskId: "T-CM.2",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                deliverable: "CCB Charter and Procedures"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Identify CCB members (IT, Security, Business, Management)",
+                                    "Create CCB charter with authority and scope",
+                                    "Define meeting schedule (weekly recommended)",
+                                    "Create change categorization (standard, normal, emergency)",
+                                    "Establish change review criteria and approval workflow",
+                                    "Document rollback procedures for failed changes",
+                                    "Create change calendar and freeze periods",
+                                    "Establish security impact analysis requirements per 3.4.5"
+                                ],
+                                templates: [
+                                    "CCB Charter.docx",
+                                    "CCB Meeting Agenda Template.docx",
+                                    "Change Impact Assessment Form.docx",
+                                    "Change Calendar.xlsx"
+                                ],
+                                storage: "SharePoint > Governance > Change Control Board",
+                                approval: "IT Director + CISO + Exec Sponsor"
                             }
                         }
                     ]
@@ -923,6 +1374,239 @@ const IMPLEMENTATION_PLANNER = {
                 },
                 {
                     id: "m1b-7",
+                    name: "Supply Chain Risk Management",
+                    description: "Establish SCRM program for vendors, subcontractors, and service providers",
+                    tasks: [
+                        {
+                            id: "t1b-7-0a",
+                            name: "Develop Supply Chain Risk Management Policy",
+                            description: "Create comprehensive SCRM policy and procedures",
+                            controls: ["3.4.1[d]", "3.13.1"],
+                            priority: "critical",
+                            effort: "high",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Supply Chain",
+                                week: 4,
+                                taskId: "T-SCRM.1",
+                                owner: "CMMC Lead",
+                                accountable: "Exec Sponsor",
+                                deliverable: "SCRM Policy"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Create Supply Chain Risk Management Policy",
+                                    "Define vendor/supplier security requirements",
+                                    "Establish vendor risk assessment process",
+                                    "Create vendor security questionnaire",
+                                    "Define approved vendor/product list process",
+                                    "Establish ongoing vendor monitoring procedures",
+                                    "Create vendor incident notification requirements",
+                                    "Document counterfeit parts prevention (if applicable)"
+                                ],
+                                templates: [
+                                    "SCRM Policy.docx",
+                                    "Vendor Security Questionnaire.xlsx",
+                                    "Vendor Risk Assessment Form.docx",
+                                    "Approved Vendor List.xlsx"
+                                ],
+                                storage: "SharePoint > Governance > Supply Chain",
+                                approval: "CISO + Procurement + Legal"
+                            }
+                        },
+                        {
+                            id: "t1b-7-0b",
+                            name: "Implement Subcontractor Flow-Down Requirements",
+                            description: "Ensure CMMC requirements flow to all subcontractors handling CUI",
+                            controls: ["3.1.3[c]", "3.13.1"],
+                            priority: "critical",
+                            effort: "high",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Supply Chain",
+                                week: 4,
+                                taskId: "T-SCRM.2",
+                                owner: "Contracts",
+                                accountable: "CMMC Lead",
+                                deliverable: "Flow-Down Clause Templates"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Inventory all subcontractors handling CUI",
+                                    "Determine required CMMC level for each subcontractor",
+                                    "Create flow-down clause templates for contracts",
+                                    "Update existing contracts with flow-down requirements",
+                                    "Establish subcontractor compliance verification process",
+                                    "Create subcontractor security assessment checklist",
+                                    "Document coordination procedures for CUI sharing",
+                                    "Establish incident notification requirements"
+                                ],
+                                templates: [
+                                    "Flow-Down Clause Template.docx",
+                                    "Subcontractor Inventory.xlsx",
+                                    "Subcontractor Security Assessment.docx",
+                                    "CUI Sharing Agreement.docx"
+                                ],
+                                storage: "SharePoint > Contracts > Subcontractors",
+                                approval: "Legal + Contracts + CMMC Lead",
+                                notes: "DFARS 252.204-7012 requires flow-down to subcontractors"
+                            }
+                        },
+                        {
+                            id: "t1b-7-0c",
+                            name: "Establish Cloud Service Provider (CSP) Oversight",
+                            description: "Document and monitor all cloud providers for FedRAMP compliance",
+                            controls: ["3.13.1", "3.13.2"],
+                            priority: "critical",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Governance",
+                                subcategory: "Supply Chain",
+                                week: 5,
+                                taskId: "T-SCRM.3",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                deliverable: "CSP Inventory & Authorization Status"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Inventory all cloud service providers (IaaS, PaaS, SaaS)",
+                                    "Verify FedRAMP authorization status (marketplace.fedramp.gov)",
+                                    "Obtain Customer Responsibility Matrix (CRM) from each CSP",
+                                    "Document inherited controls vs. customer responsibility",
+                                    "Establish CSP monitoring and review schedule",
+                                    "Create CSP incident coordination procedures",
+                                    "Document data location and sovereignty requirements",
+                                    "Verify CSP meets DFARS 7012 requirements"
+                                ],
+                                templates: [
+                                    "CSP Inventory.xlsx",
+                                    "FedRAMP Status Tracker.xlsx",
+                                    "Customer Responsibility Matrix.xlsx",
+                                    "CSP Review Checklist.docx"
+                                ],
+                                storage: "SharePoint > Governance > Cloud Providers",
+                                approval: "CISO + IT Director + Procurement"
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m1b-8",
+                    name: "Maintenance Procedures",
+                    description: "Establish system maintenance policies and procedures (NIST 3.7 family)",
+                    tasks: [
+                        {
+                            id: "t1b-8-1",
+                            name: "Develop System Maintenance Policy",
+                            description: "Create comprehensive maintenance policies and procedures",
+                            controls: ["3.7.1[a-c]", "3.7.2[a-d]"],
+                            priority: "critical",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "Maintenance",
+                                week: 5,
+                                taskId: "T-MA.1",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                deliverable: "Maintenance Policy"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Create System Maintenance Policy per 3.7.1",
+                                    "Define scheduled maintenance windows",
+                                    "Establish emergency maintenance procedures",
+                                    "Document maintenance approval process",
+                                    "Create maintenance logging requirements",
+                                    "Define maintenance tool controls per 3.7.2",
+                                    "Establish maintenance personnel authorization",
+                                    "Create post-maintenance verification procedures"
+                                ],
+                                templates: [
+                                    "System Maintenance Policy.docx",
+                                    "Maintenance Schedule Template.xlsx",
+                                    "Maintenance Request Form.docx",
+                                    "Maintenance Log Template.xlsx"
+                                ],
+                                storage: "SharePoint > Operations > Maintenance",
+                                approval: "IT Director + CISO"
+                            }
+                        },
+                        {
+                            id: "t1b-8-2",
+                            name: "Implement Remote Maintenance Controls",
+                            description: "Establish controls for remote maintenance and diagnostics",
+                            controls: ["3.7.5[a-c]", "3.7.6[a-b]"],
+                            priority: "high",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "Maintenance",
+                                week: 5,
+                                taskId: "T-MA.2",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                deliverable: "Remote Maintenance Procedures"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Define approved remote maintenance methods per 3.7.5",
+                                    "Require MFA for all remote maintenance sessions",
+                                    "Implement session recording for remote maintenance",
+                                    "Establish approval process for remote maintenance",
+                                    "Create termination procedures for remote sessions per 3.7.6",
+                                    "Document vendor remote access requirements",
+                                    "Establish monitoring for remote maintenance activities"
+                                ],
+                                templates: [
+                                    "Remote Maintenance Policy.docx",
+                                    "Remote Access Request Form.docx",
+                                    "Vendor Remote Access Agreement.docx"
+                                ],
+                                storage: "SharePoint > Operations > Remote Maintenance",
+                                approval: "IT Director + CISO"
+                            }
+                        },
+                        {
+                            id: "t1b-8-3",
+                            name: "Establish Maintenance Personnel Controls",
+                            description: "Control and monitor maintenance personnel access",
+                            controls: ["3.7.3[a-b]", "3.7.4[a-b]"],
+                            priority: "high",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "Maintenance",
+                                week: 6,
+                                taskId: "T-MA.3",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                deliverable: "Maintenance Personnel Procedures"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Create list of authorized maintenance personnel per 3.7.3",
+                                    "Establish escort procedures for non-authorized personnel per 3.7.4",
+                                    "Document supervision requirements for maintenance activities",
+                                    "Create maintenance personnel background check requirements",
+                                    "Establish access controls for maintenance areas",
+                                    "Create maintenance personnel training requirements",
+                                    "Document maintenance tool custody procedures"
+                                ],
+                                templates: [
+                                    "Authorized Maintenance Personnel List.xlsx",
+                                    "Escort Log Template.xlsx",
+                                    "Maintenance Personnel Training Record.docx"
+                                ],
+                                storage: "SharePoint > Operations > Maintenance Personnel",
+                                approval: "IT Director + Security Manager"
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: "m1b-9",
                     name: "Communications & Data Protection",
                     description: "Establish communications policies and data protection",
                     tasks: [
@@ -1311,6 +1995,115 @@ const IMPLEMENTATION_PLANNER = {
                                     "Deploy to Tier 0/1 admins"
                                 ],
                                 artifacts: ["PAW Build Documentation", "Hardening Checklist", "Network ACLs"]
+                            }
+                        },
+                        {
+                            id: "t2-2-3",
+                            name: "Implement service account management",
+                            description: "Secure and manage all service accounts and non-human identities",
+                            controls: ["3.5.1[a-c]", "3.5.2[a-c]", "3.1.5"],
+                            priority: "critical",
+                            effort: "high",
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "Identity & Access Management",
+                                week: 8,
+                                taskId: "T-IAM.5",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                deliverable: "Service Account Inventory"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Inventory all service accounts across systems",
+                                    "Document purpose and owner for each service account",
+                                    "Implement strong passwords (25+ characters) for service accounts",
+                                    "Enable managed service accounts (gMSA) where possible",
+                                    "Disable interactive logon for service accounts",
+                                    "Implement credential rotation schedule (90 days or less)",
+                                    "Create service account naming convention",
+                                    "Document dependencies for each service account"
+                                ],
+                                templates: [
+                                    "Service Account Inventory.xlsx",
+                                    "Service Account Request Form.docx",
+                                    "Service Account Policy.docx"
+                                ],
+                                storage: "SharePoint > Operations > Identity Management",
+                                approval: "IT Director + CISO"
+                            }
+                        },
+                        {
+                            id: "t2-2-4",
+                            name: "Create break-glass emergency access procedures",
+                            description: "Establish emergency access procedures for system recovery",
+                            controls: ["3.1.1[a-f]", "3.1.5", "3.5.1[a-c]"],
+                            priority: "critical",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "Identity & Access Management",
+                                week: 8,
+                                taskId: "T-IAM.6",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                deliverable: "Break-Glass Procedures"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Create break-glass accounts (minimum 2) with global admin rights",
+                                    "Generate strong, unique passwords (25+ characters)",
+                                    "Store credentials in secure location (safe, HSM, or sealed envelopes)",
+                                    "Document break-glass usage procedures",
+                                    "Define scenarios requiring break-glass access",
+                                    "Establish break-glass account monitoring and alerting",
+                                    "Create post-use review and password rotation process",
+                                    "Test break-glass procedures quarterly"
+                                ],
+                                templates: [
+                                    "Break-Glass Procedure.docx",
+                                    "Break-Glass Account Log.xlsx",
+                                    "Emergency Access Request Form.docx"
+                                ],
+                                storage: "SharePoint > Operations > Emergency Access (Restricted)",
+                                approval: "CISO + Exec Sponsor",
+                                notes: "Break-glass accounts should be excluded from MFA but heavily monitored"
+                            }
+                        },
+                        {
+                            id: "t2-2-5",
+                            name: "Implement access reviews and recertification",
+                            description: "Establish periodic access reviews for all privileged access",
+                            controls: ["3.1.1[a-f]", "3.1.7[a-c]"],
+                            priority: "critical",
+                            effort: "medium",
+                            projectPlan: {
+                                category: "Foundation",
+                                subcategory: "Identity & Access Management",
+                                week: 9,
+                                taskId: "T-IAM.7",
+                                owner: "IT Admin",
+                                accountable: "CMMC Lead",
+                                deliverable: "Access Review Schedule"
+                            },
+                            guidance: {
+                                steps: [
+                                    "Define access review schedule (quarterly for privileged, annual for standard)",
+                                    "Identify access reviewers (managers, system owners)",
+                                    "Configure automated access reviews in IdP (Entra ID Access Reviews)",
+                                    "Create review notification and reminder process",
+                                    "Establish remediation workflow for expired/revoked access",
+                                    "Document access review decisions and approvals",
+                                    "Create access review reports for compliance",
+                                    "Establish escalation for overdue reviews"
+                                ],
+                                templates: [
+                                    "Access Review Policy.docx",
+                                    "Access Review Schedule.xlsx",
+                                    "Access Review Report Template.xlsx"
+                                ],
+                                storage: "SharePoint > Governance > Access Reviews",
+                                approval: "CISO + HR Director"
                             }
                         }
                     ]
