@@ -3109,18 +3109,17 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         }
 
         return `
-            <div class="assessor-cheat-sheet">
-                <button class="cheat-sheet-toggle">
+            <details class="impl-details cheatsheet-details">
+                <summary class="impl-summary impl-cheatsheet">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                    <span>Assessor Cheat Sheet</span>
-                    <svg class="cheat-sheet-chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
+                    Assessor Cheat Sheet
+                </summary>
                 <div class="cheat-sheet-content">
                     ${pitfallHtml}
                     ${questionsHtml}
                     ${servicesHtml}
                 </div>
-            </div>
+            </details>
         `;
     }
 

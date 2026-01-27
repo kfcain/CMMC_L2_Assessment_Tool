@@ -2055,54 +2055,16 @@ body {
     }
 }
 
-/* Assessor Cheat Sheet Styles */
-.assessor-cheat-sheet {
-    margin-top: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--bg-secondary);
-}
-
-.cheat-sheet-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 10px 14px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-primary);
-    transition: background 0.2s;
-}
-
-.cheat-sheet-toggle:hover {
-    background: var(--bg-tertiary);
-}
-
-.cheat-sheet-toggle svg:first-child {
+/* Assessor Cheat Sheet Styles - Now uses details/summary pattern */
+.impl-summary.impl-cheatsheet {
     color: #8b5cf6;
 }
 
-.cheat-sheet-chevron {
-    margin-left: auto;
-    transition: transform 0.2s;
+.cheatsheet-details .cheat-sheet-content {
+    padding: 14px;
 }
 
-.assessor-cheat-sheet.expanded .cheat-sheet-chevron {
-    transform: rotate(180deg);
-}
-
-.cheat-sheet-content {
-    display: none;
-}
-
-.assessor-cheat-sheet.expanded .cheat-sheet-content {
-    display: block;
-    padding: 0 14px 14px;
-}
+/* Legacy toggle styles removed - now using unified details/summary pattern */
 
 .cheat-sheet-subsection {
     margin-top: 12px;
