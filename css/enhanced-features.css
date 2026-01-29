@@ -1037,7 +1037,8 @@
     border-bottom: 1px solid var(--ef-border);
 }
 
-.family-controls {
+.ef-matrix .family-controls,
+.enhanced-view .family-controls {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
