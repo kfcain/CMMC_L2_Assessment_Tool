@@ -459,15 +459,27 @@ const CMMCL3Assessment = {
     renderAllFamilies: function() {
         return Object.entries(this.ENHANCED_CONTROLS).map(([id, family]) => `
             <div class="l3-family-section" id="family-${id}">
-                <div class="family-header">
+                <div class="family-header" onclick="CMMCL3Assessment.toggleFamily('${id}')">
                     <h3><span class="family-id">${id}</span>${family.name}</h3>
-                    <span class="control-count">${family.controls.length} Enhanced Controls</span>
+                    <div class="family-header-right">
+                        <span class="control-count">${family.controls.length} Enhanced Controls</span>
+                        <svg class="family-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
                 </div>
-                <div class="family-controls">
+                <div class="family-controls" id="family-controls-${id}">
                     ${family.controls.map(ctrl => this.renderControl(ctrl)).join('')}
                 </div>
             </div>
         `).join('');
+    },
+
+    toggleFamily: function(familyId) {
+        const header = document.querySelector(`#family-${familyId} .family-header`);
+        const controls = document.getElementById(`family-controls-${familyId}`);
+        if (header && controls) {
+            header.classList.toggle('expanded');
+            controls.classList.toggle('expanded');
+        }
     },
 
     renderControl: function(control) {
