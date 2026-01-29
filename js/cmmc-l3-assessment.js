@@ -490,41 +490,49 @@ const CMMCL3Assessment = {
                     <code class="control-id">${control.id}</code>
                     <h4 class="control-title">${control.title}</h4>
                 </div>
-                <button class="expand-btn" onclick="CMMCL3Assessment.toggleControl(this)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
             </div>
-            <div class="control-details collapsed">
-                <div class="detail-section objectives">
-                    <h5>Assessment Objectives</h5>
-                    <ul class="objectives-list">
-                        ${control.objectives.map((obj, i) => `<li><span class="obj-marker">${control.id}[${String.fromCharCode(97+i)}]</span>${obj}</li>`).join('')}
-                    </ul>
+            <div class="control-objectives-list">
+                ${control.objectives.map((obj, i) => this.renderObjective(control, obj, i)).join('')}
+            </div>
+        </div>`;
+    },
+
+    renderObjective: function(control, objective, index) {
+        const objId = `${control.id}[${String.fromCharCode(97 + index)}]`;
+        return `
+        <div class="l3-objective-item" data-objective="${objId}">
+            <div class="objective-header" onclick="CMMCL3Assessment.toggleObjective(this)">
+                <div class="objective-info">
+                    <span class="obj-marker">${objId}</span>
+                    <span class="objective-text">${objective}</span>
                 </div>
-                <div class="detail-section technologies">
-                    <h5>Technology Solutions</h5>
+                <svg class="objective-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="objective-guidance collapsed">
+                <div class="guidance-section technologies">
+                    <h6>Technology Solutions</h6>
                     <div class="tech-grid">
                         <div class="tech-provider azure"><div class="provider-label">🔷 Azure</div><ul>${control.technologies.azure.map(t => `<li>${t}</li>`).join('')}</ul></div>
                         <div class="tech-provider aws"><div class="provider-label">🟠 AWS</div><ul>${control.technologies.aws.map(t => `<li>${t}</li>`).join('')}</ul></div>
                         <div class="tech-provider gcp"><div class="provider-label">🔵 GCP</div><ul>${control.technologies.gcp.map(t => `<li>${t}</li>`).join('')}</ul></div>
                     </div>
                 </div>
-                <div class="detail-section automation">
-                    <h5>Automation Mechanisms</h5>
+                <div class="guidance-section automation">
+                    <h6>Automation Mechanisms</h6>
                     <div class="automation-tags">${control.automation.map(a => `<span class="auto-tag">${a}</span>`).join('')}</div>
                 </div>
-                <div class="detail-section evidence">
-                    <h5>Evidence Requirements</h5>
+                <div class="guidance-section evidence">
+                    <h6>Evidence Requirements</h6>
                     <div class="evidence-tags">${control.evidence.map(e => `<span class="evidence-tag">${e}</span>`).join('')}</div>
                 </div>
             </div>
         </div>`;
     },
 
-    toggleControl: function(btn) {
-        const details = btn.closest('.l3-control-card').querySelector('.control-details');
-        details.classList.toggle('collapsed');
-        btn.classList.toggle('expanded');
+    toggleObjective: function(header) {
+        const guidance = header.nextElementSibling;
+        header.classList.toggle('expanded');
+        guidance.classList.toggle('collapsed');
     },
 
     scrollToFamily: function(familyId) {
