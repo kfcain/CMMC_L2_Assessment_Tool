@@ -18,6 +18,7 @@ class AssessmentApp {
     init() {
         this.loadSavedData();
         this.populateFamilyFilter();
+        this.restoreFilterState();
         this.renderControls();
         this.updateProgress();
         this.bindEvents();
@@ -156,6 +157,28 @@ class AssessmentApp {
             state.objectives[id] = isExpanded;
         }
         localStorage.setItem('nist-dropdown-state', JSON.stringify(state));
+    }
+
+    getFilterState() {
+        const saved = localStorage.getItem('nist-filter-state');
+        return saved ? JSON.parse(saved) : { status: 'all', family: 'all' };
+    }
+
+    saveFilterState(status, family) {
+        localStorage.setItem('nist-filter-state', JSON.stringify({ status, family }));
+    }
+
+    restoreFilterState() {
+        const state = this.getFilterState();
+        const statusSelect = document.getElementById('filter-status');
+        const familySelect = document.getElementById('filter-family');
+        
+        if (statusSelect && state.status) {
+            statusSelect.value = state.status;
+        }
+        if (familySelect && state.family) {
+            familySelect.value = state.family;
+        }
     }
 
     handleLogoUpload(file, type) {
@@ -3601,6 +3624,9 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         const searchTerm = document.getElementById('search-input').value.toLowerCase();
         const statusFilter = document.getElementById('filter-status').value;
         const familyFilter = document.getElementById('filter-family').value;
+        
+        // Save filter state to localStorage
+        this.saveFilterState(statusFilter, familyFilter);
 
         document.querySelectorAll('.control-family').forEach(familyEl => {
             const familyId = familyEl.dataset.familyId;
