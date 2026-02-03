@@ -479,7 +479,23 @@ const CMMCL3Assessment = {
         if (header && controls) {
             header.classList.toggle('expanded');
             controls.classList.toggle('expanded');
+            this.saveL3DropdownState('family', familyId, header.classList.contains('expanded'));
         }
+    },
+
+    getL3DropdownState: function() {
+        const saved = localStorage.getItem('nist-l3-dropdown-state');
+        return saved ? JSON.parse(saved) : { families: {}, objectives: {} };
+    },
+
+    saveL3DropdownState: function(type, id, isExpanded) {
+        const state = this.getL3DropdownState();
+        if (type === 'family') {
+            state.families[id] = isExpanded;
+        } else if (type === 'objective') {
+            state.objectives[id] = isExpanded;
+        }
+        localStorage.setItem('nist-l3-dropdown-state', JSON.stringify(state));
     },
 
     renderControl: function(control) {
@@ -531,8 +547,13 @@ const CMMCL3Assessment = {
 
     toggleObjective: function(header) {
         const guidance = header.nextElementSibling;
+        const objectiveItem = header.closest('.l3-objective-item');
+        const objId = objectiveItem?.dataset.objective;
         header.classList.toggle('expanded');
         guidance.classList.toggle('collapsed');
+        if (objId) {
+            this.saveL3DropdownState('objective', objId, header.classList.contains('expanded'));
+        }
     },
 
     scrollToFamily: function(familyId) {

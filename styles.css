@@ -1138,6 +1138,54 @@ body {
         flex-wrap: wrap;
     }
     
+    /* Dashboard Cards */
+    .dashboard-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .family-card {
+        padding: 16px;
+    }
+    
+    /* Modals */
+    .modal-content {
+        width: 95%;
+        max-width: 95%;
+        margin: 20px auto;
+        max-height: 90vh;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-group {
+        width: 100%;
+    }
+    
+    /* Action Buttons */
+    .action-btn {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+    }
+    
+    .action-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    /* Tables */
+    .poam-table th,
+    .poam-table td {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+    
+    /* Hamburger Menu */
+    .hamburger-dropdown {
+        width: 280px;
+    }
+    
     .status-btn {
         flex: 1;
         min-width: 60px;

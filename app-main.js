@@ -141,6 +141,23 @@ class AssessmentApp {
         localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
     }
 
+    getDropdownState() {
+        const saved = localStorage.getItem('nist-dropdown-state');
+        return saved ? JSON.parse(saved) : { families: {}, controls: {}, objectives: {} };
+    }
+
+    saveDropdownState(type, id, isExpanded) {
+        const state = this.getDropdownState();
+        if (type === 'family') {
+            state.families[id] = isExpanded;
+        } else if (type === 'control') {
+            state.controls[id] = isExpanded;
+        } else if (type === 'objective') {
+            state.objectives[id] = isExpanded;
+        }
+        localStorage.setItem('nist-dropdown-state', JSON.stringify(state));
+    }
+
     handleLogoUpload(file, type) {
         if (!file || !file.type.startsWith('image/')) return;
         
@@ -2480,9 +2497,17 @@ gcloud assured workloads list --location=us-central1`
         const header = familyDiv.querySelector('.family-header');
         const controlsContainer = familyDiv.querySelector('.family-controls');
 
+        // Restore expanded state from localStorage
+        const dropdownState = this.getDropdownState();
+        if (dropdownState.families && dropdownState.families[family.id]) {
+            header.classList.add('expanded');
+            controlsContainer.classList.add('expanded');
+        }
+
         header.addEventListener('click', () => {
             header.classList.toggle('expanded');
             controlsContainer.classList.toggle('expanded');
+            this.saveDropdownState('family', family.id, header.classList.contains('expanded'));
         });
 
         family.controls.forEach(control => {
@@ -2529,9 +2554,17 @@ gcloud assured workloads list --location=us-central1`
         const header = controlDiv.querySelector('.control-header');
         const objectivesContainer = controlDiv.querySelector('.control-objectives');
 
+        // Restore expanded state from localStorage
+        const dropdownState = this.getDropdownState();
+        if (dropdownState.controls && dropdownState.controls[control.id]) {
+            header.classList.add('expanded');
+            objectivesContainer.classList.add('expanded');
+        }
+
         header.addEventListener('click', () => {
             header.classList.toggle('expanded');
             objectivesContainer.classList.toggle('expanded');
+            this.saveDropdownState('control', control.id, header.classList.contains('expanded'));
         });
 
         control.objectives.forEach(objective => {
@@ -3729,16 +3762,46 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     savePoamEntry(e) {
         e.preventDefault();
         
+        // Form validation
+        const weakness = document.getElementById('poam-weakness').value.trim();
+        const remediation = document.getElementById('poam-remediation').value.trim();
+        const scheduledDate = document.getElementById('poam-date').value;
+        const responsible = document.getElementById('poam-responsible').value.trim();
+        
+        if (!weakness) {
+            this.showToast('Weakness description is required', 'error');
+            document.getElementById('poam-weakness').focus();
+            return;
+        }
+        
+        if (!remediation) {
+            this.showToast('Remediation plan is required', 'error');
+            document.getElementById('poam-remediation').focus();
+            return;
+        }
+        
+        if (!scheduledDate) {
+            this.showToast('Scheduled completion date is required', 'error');
+            document.getElementById('poam-date').focus();
+            return;
+        }
+        
+        if (!responsible) {
+            this.showToast('Responsible party is required', 'error');
+            document.getElementById('poam-responsible').focus();
+            return;
+        }
+        
         const objectiveId = document.getElementById('poam-objective-id').value;
         const isNeverPoam = document.getElementById('poam-form').dataset.isNeverPoam === 'true';
         const controlId = document.getElementById('poam-form').dataset.controlId;
         
         const entryData = {
-            weakness: document.getElementById('poam-weakness').value,
+            weakness: weakness,
             identifyingParty: document.getElementById('poam-identifying-party').value,
-            remediation: document.getElementById('poam-remediation').value,
-            scheduledDate: document.getElementById('poam-date').value,
-            responsible: document.getElementById('poam-responsible').value,
+            remediation: remediation,
+            scheduledDate: scheduledDate,
+            responsible: responsible,
             risk: document.getElementById('poam-risk').value,
             cost: document.getElementById('poam-cost').value,
             notes: document.getElementById('poam-notes').value,
