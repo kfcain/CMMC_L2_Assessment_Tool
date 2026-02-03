@@ -796,8 +796,8 @@ body {
     display: flex;
 }
 
-/* Summary Card */
-.summary-card {
+/* Summary Card - Dashboard */
+.dashboard-content .summary-card {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -3209,7 +3209,7 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
     
-    .summary-card {
+    .dashboard-content .summary-card {
         grid-template-columns: repeat(2, 1fr);
     }
     
