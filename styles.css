@@ -2775,6 +2775,199 @@ body {
     color: var(--status-partial);
 }
 
+/* Assessment Enhancements Styles */
+.impl-status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+    margin-left: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.evidence-count-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: #3b82f6;
+    color: white;
+    margin-left: 8px;
+}
+
+.link-evidence-btn,
+.open-impl-details-btn {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.link-evidence-btn:hover,
+.open-impl-details-btn:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-blue);
+}
+
+.evidence-selection-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.evidence-selection-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.evidence-selection-item:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-blue);
+}
+
+.evidence-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.evidence-item-info {
+    flex: 1;
+}
+
+.evidence-item-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.evidence-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.75rem;
+}
+
+.evidence-type-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+}
+
+.evidence-type-badge.policy { background: #8b5cf6; color: white; }
+.evidence-type-badge.procedure { background: #3b82f6; color: white; }
+.evidence-type-badge.screenshot { background: #10b981; color: white; }
+.evidence-type-badge.config { background: #f59e0b; color: white; }
+.evidence-type-badge.log { background: #6b7280; color: white; }
+.evidence-type-badge.audit { background: #ef4444; color: white; }
+
+.evidence-date {
+    color: var(--text-muted);
+}
+
+.impl-details-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.impl-tab {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.impl-tab:hover {
+    color: var(--text-primary);
+}
+
+.impl-tab.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+}
+
+.impl-tab-content {
+    display: none;
+}
+
+.impl-tab-content.active {
+    display: block;
+}
+
+.impl-notes-textarea,
+.assessor-notes-textarea,
+.impl-notes-modal-textarea,
+.assessor-notes-modal-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+.impl-status-select,
+.impl-status-modal-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.linked-evidence-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+}
+
+.linked-evidence-item {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: var(--bg-secondary);
+}
+
+.impl-meta {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
 /* Skeleton Loader Styles */
 .skeleton-card,
 .skeleton-family,
