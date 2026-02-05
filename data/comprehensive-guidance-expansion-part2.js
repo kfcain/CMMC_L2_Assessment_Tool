@@ -2479,7 +2479,137 @@ module.exports = { checkPermission, requireApproval };`,
             }
         }
         
-        // Continue adding more objectives...
+        ,
+        
+        "AC.L2-3.1.5": {
+            objective: "Employ the principle of least privilege, including for specific security functions and privileged accounts.",
+            summary: "Just-in-time access, minimal permissions, zero standing privileges",
+            
+            cloud: {
+                aws: { services: ["IAM", "SSO", "STS", "Secrets Manager"], implementation: { steps: ["Use IAM roles instead of long-term credentials", "Implement permission boundaries", "Use AWS SSO with time-limited sessions", "Enable MFA for privileged access", "Use STS AssumeRole for temporary credentials", "Implement just-in-time access with approval", "Remove unused permissions with Access Analyzer", "Use service-specific roles (not *:*)"], cost_estimate: "$0-20/month", effort_hours: 12 }},
+                azure: { services: ["Azure AD PIM", "RBAC", "Managed Identities"], implementation: { steps: ["Use Managed Identities for Azure resources", "Implement PIM for just-in-time privileged access", "Use custom RBAC roles with minimal permissions", "Enable MFA for all privileged roles", "Set maximum role assignment duration", "Require approval for privileged role activation", "Use access reviews to remove unused permissions"], cost_estimate: "$6-16/user/month (Azure AD P2)", effort_hours: 12 }},
+                gcp: { services: ["IAM", "Workload Identity", "VPC Service Controls"], implementation: { steps: ["Use Workload Identity for GKE workloads", "Implement custom IAM roles with minimal permissions", "Use IAM Conditions for context-aware access", "Enable just-in-time access with time-based conditions", "Use service accounts with minimal scopes", "Implement IAM recommender to remove excess permissions"], cost_estimate: "$0-15/month", effort_hours: 10 }}
+            },
+            database: {
+                postgresql: { implementation: { steps: ["Grant minimal table/column permissions", "Use row-level security for data filtering", "Revoke PUBLIC schema permissions", "Use SECURITY DEFINER functions sparingly", "Implement connection pooling with role mapping"], effort_hours: 8 }},
+                mysql: { implementation: { steps: ["Grant specific privileges (not ALL)", "Use database/table-level grants", "Revoke unnecessary SUPER privilege", "Limit GRANT OPTION usage", "Use roles for grouped permissions"], effort_hours: 6 }}
+            },
+            small_business: { approach: "Use cloud provider managed identities and built-in least privilege roles", cost_estimate: "$0-10/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.6": {
+            objective: "Use non-privileged accounts or roles when accessing nonsecurity functions.",
+            summary: "Separate admin and user accounts, no daily use of privileged accounts",
+            
+            cloud: {
+                aws: { implementation: { steps: ["Require separate IAM users for admin vs daily work", "Use AWS SSO with separate permission sets", "Disable root account for daily use", "Implement break-glass procedures for emergencies", "Monitor privileged account usage with CloudTrail"], effort_hours: 6 }},
+                azure: { implementation: { steps: ["Require separate accounts for admin tasks", "Use PIM for temporary admin elevation", "Disable global admin for daily use", "Implement Conditional Access for admin accounts", "Monitor admin account sign-ins"], effort_hours: 6 }},
+                gcp: { implementation: { steps: ["Use separate accounts for admin vs user tasks", "Implement organization policies to restrict admin usage", "Monitor admin activity with Cloud Audit Logs", "Use IAM conditions to limit admin access"], effort_hours: 6 }}
+            },
+            application: {
+                general: { implementation: { steps: ["Implement role-based UI (hide admin features from regular users)", "Require re-authentication for privileged operations", "Log all privileged function usage", "Use separate service accounts for different app tiers"], effort_hours: 8 }}
+            },
+            small_business: { approach: "Use separate email accounts for admin access, require MFA for admin accounts", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.7": {
+            objective: "Prevent non-privileged users from executing privileged functions.",
+            summary: "Technical controls to block privilege escalation",
+            
+            cloud: {
+                aws: { implementation: { steps: ["Use SCPs to deny privilege escalation actions", "Implement permission boundaries", "Deny iam:PassRole for non-admin users", "Use AWS Config rules to detect privilege escalation", "Monitor for unauthorized privilege usage"], effort_hours: 10 }},
+                azure: { implementation: { steps: ["Use Azure Policy to deny privileged operations", "Implement RBAC with NotActions for dangerous permissions", "Enable PIM approval workflows", "Monitor for privilege escalation with Sentinel"], effort_hours: 10 }},
+                gcp: { implementation: { steps: ["Use organization policies to restrict privileged actions", "Implement IAM deny policies", "Monitor for setIamPolicy calls", "Use VPC Service Controls to prevent data exfiltration"], effort_hours: 8 }}
+            },
+            operating_system: {
+                linux: { implementation: { steps: ["Remove sudo access for regular users", "Use sudoers with specific command restrictions", "Disable SUID/SGID on unnecessary binaries", "Implement AppArmor/SELinux mandatory access control", "Monitor /var/log/auth.log for sudo usage"], effort_hours: 6 }},
+                windows: { implementation: { steps: ["Remove local admin rights", "Use Windows Defender Application Control", "Implement UAC with admin approval mode", "Disable unnecessary privileged groups", "Monitor Security event log 4672 (privileged logon)"], effort_hours: 6 }}
+            },
+            small_business: { approach: "Remove admin rights from daily user accounts, use separate admin accounts only when needed", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.8": {
+            objective: "Limit unsuccessful logon attempts.",
+            summary: "Account lockout policies to prevent brute force attacks",
+            
+            cloud: {
+                aws: { implementation: { steps: ["Configure AWS Cognito account lockout (5 attempts)", "Use AWS WAF rate limiting for login endpoints", "Implement CloudWatch alarms for failed login attempts", "Use AWS SSO with lockout policies", "Enable MFA to reduce brute force risk"], effort_hours: 6 }},
+                azure: { implementation: { steps: ["Configure Azure AD Smart Lockout (10 attempts, 60s lockout)", "Use Conditional Access to block suspicious sign-ins", "Enable Azure AD Identity Protection risk policies", "Implement MFA to mitigate brute force", "Monitor sign-in logs for failed attempts"], effort_hours: 6 }},
+                gcp: { implementation: { steps: ["Configure Cloud Identity account lockout", "Use Cloud Armor rate limiting for web apps", "Implement reCAPTCHA Enterprise for login forms", "Monitor Cloud Audit Logs for failed authentication"], effort_hours: 6 }}
+            },
+            application: {
+                nodejs: { implementation: { steps: ["Implement express-rate-limit middleware", "Use bcrypt with progressive delays", "Lock accounts after 5 failed attempts", "Implement CAPTCHA after 3 failed attempts", "Log all failed login attempts"], effort_hours: 8 }},
+                database: { implementation: { steps: ["Configure pg_hba.conf connection limits", "Implement failed login tracking table", "Use connection pooler with rate limiting", "Monitor authentication failures"], effort_hours: 6 }}
+            },
+            small_business: { approach: "Enable account lockout in Microsoft 365 (5 attempts, 30 min lockout) and cloud provider settings", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.9": {
+            objective: "Provide privacy and security notices consistent with applicable CUI rules.",
+            summary: "Login banners, consent notices, privacy statements",
+            
+            implementation: {
+                general: {
+                    steps: [
+                        "Display system use notification before login",
+                        "Include consent to monitoring statement",
+                        "Reference applicable CUI rules (32 CFR Part 2002)",
+                        "Display privacy act statement if collecting PII",
+                        "Require acknowledgment before access",
+                        "Include notice in remote access (VPN, RDP)",
+                        "Post physical security notices at entry points",
+                        "Update notices when CUI rules change"
+                    ],
+                    banner_template: "WARNING: This system processes Controlled Unclassified Information (CUI) and is for authorized use only. By accessing this system, you consent to monitoring and recording. Unauthorized access or misuse may result in criminal and/or civil penalties. All activities are logged and monitored. CUI must be handled in accordance with 32 CFR Part 2002 and NIST SP 800-171.",
+                    effort_hours: 4
+                }
+            },
+            
+            cloud: {
+                aws: { implementation: { steps: ["Add login banner to AWS Console via IAM policy", "Configure SSH banner in EC2 instances (/etc/issue.net)", "Display banner in AWS WorkSpaces", "Include notice in AWS SSO login page"], effort_hours: 3 }},
+                azure: { implementation: { steps: ["Configure Azure AD sign-in page branding with notice", "Add banner to Azure Virtual Desktop", "Configure SSH banner in Azure VMs", "Include notice in Azure AD B2C user flows"], effort_hours: 3 }},
+                windows: { implementation: { steps: ["Configure Group Policy: Computer Configuration > Windows Settings > Security Settings > Local Policies > Security Options", "Set 'Interactive logon: Message text for users attempting to log on'", "Set 'Interactive logon: Message title for users attempting to log on'"], effort_hours: 2 }},
+                linux: { implementation: { steps: ["Edit /etc/issue (console login banner)", "Edit /etc/issue.net (SSH login banner)", "Edit /etc/motd (message of the day)", "Configure SSH: Banner /etc/issue.net in /etc/ssh/sshd_config"], effort_hours: 2 }}
+            },
+            
+            small_business: { approach: "Add login banner to Microsoft 365, website login pages, and VPN", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.10": {
+            objective: "Use session lock with pattern-hiding displays to prevent access and viewing of data after a period of inactivity.",
+            summary: "Auto-lock screens after 15 minutes of inactivity",
+            
+            cloud: {
+                aws: { implementation: { steps: ["Configure AWS WorkSpaces session timeout (15 min)", "Set CloudShell timeout", "Configure EC2 instance screen lock via Group Policy/config management", "Use AWS SSO session timeout (12 hours max)"], effort_hours: 4 }},
+                azure: { implementation: { steps: ["Configure Azure Virtual Desktop session timeout (15 min)", "Set Azure AD session timeout (12 hours)", "Configure Intune screen lock policy (15 min)", "Use Conditional Access session controls"], effort_hours: 4 }},
+                gcp: { implementation: { steps: ["Configure Cloud Identity session timeout", "Set Chrome OS screen lock (15 min)", "Configure Compute Engine instance screen lock", "Use Cloud Identity session controls"], effort_hours: 4 }}
+            },
+            
+            operating_system: {
+                windows: { implementation: { steps: ["Group Policy: Computer Configuration > Policies > Windows Settings > Security Settings > Local Policies > Security Options", "Set 'Interactive logon: Machine inactivity limit' to 900 seconds (15 min)", "Enable 'Screen saver timeout' to 900 seconds", "Require password on wake"], effort_hours: 2 }},
+                macos: { implementation: { steps: ["System Preferences > Security & Privacy > General", "Set 'Require password after sleep or screen saver begins' to 'immediately'", "System Preferences > Desktop & Screen Saver", "Set 'Start after' to 15 minutes", "Use MDM to enforce settings"], effort_hours: 2 }},
+                linux: { implementation: { steps: ["Configure GNOME: gsettings set org.gnome.desktop.session idle-delay 900", "Configure screen lock: gsettings set org.gnome.desktop.screensaver lock-enabled true", "Configure lock delay: gsettings set org.gnome.desktop.screensaver lock-delay 0", "For servers: Configure TMOUT=900 in /etc/profile"], effort_hours: 2 }}
+            },
+            
+            mobile: {
+                ios: { implementation: { steps: ["MDM policy: Auto-Lock after 5 minutes", "Require passcode immediately", "Use Intune/Jamf to enforce"], effort_hours: 2 }},
+                android: { implementation: { steps: ["MDM policy: Screen timeout 5 minutes", "Require lock screen security", "Use Intune/Google Workspace to enforce"], effort_hours: 2 }}
+            },
+            
+            small_business: { approach: "Configure Windows/Mac screen lock via local policy, enforce on mobile devices via Microsoft 365/Google Workspace MDM", cost_estimate: "$0", effort_hours: 3 }
+        }
+        
+        // Continue with AC.L2-3.1.11 through 3.1.22 in next batch...
     }
 };
 
