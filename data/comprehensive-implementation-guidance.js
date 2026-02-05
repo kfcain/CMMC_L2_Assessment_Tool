@@ -29,6 +29,10 @@ const COMPREHENSIVE_GUIDANCE = {
             name: "SaaS Applications",
             platforms: ["microsoft365", "google_workspace", "salesforce", "slack", "zoom", "github", "jira", "servicenow"]
         },
+        containers: {
+            name: "Container & Orchestration Platforms",
+            platforms: ["kubernetes", "docker", "openshift", "rancher", "eks", "aks", "gke", "ecs", "fargate", "nomad"]
+        },
         custom_app: {
             name: "Custom Applications",
             stacks: ["nodejs", "python", "java", "dotnet", "php", "ruby", "go", "ios", "android", "electron"]
@@ -561,6 +565,456 @@ def get_cui_data():
                             "Review logs for authentication events"
                         ],
                         effort_hours: 18
+                    }
+                }
+            },
+            
+            // Container & Orchestration Platforms
+            containers: {
+                kubernetes: {
+                    features: ["RBAC", "ServiceAccounts", "NetworkPolicies", "PodSecurityStandards", "Secrets", "OPA/Gatekeeper"],
+                    implementation: {
+                        steps: [
+                            "Enable RBAC (Role-Based Access Control) - enabled by default in modern K8s",
+                            "Create ServiceAccounts for applications instead of using default",
+                            "Implement Roles and RoleBindings for namespace-level permissions",
+                            "Implement ClusterRoles and ClusterRoleBindings for cluster-wide permissions",
+                            "Use Pod Security Standards (restricted profile) to enforce security policies",
+                            "Implement NetworkPolicies to restrict pod-to-pod communication",
+                            "Use external authentication (OIDC) with identity providers",
+                            "Enable audit logging to track API server access",
+                            "Implement admission controllers (PodSecurityPolicy, OPA Gatekeeper)",
+                            "Use Secrets for sensitive data with encryption at rest",
+                            "Implement namespace isolation for multi-tenancy"
+                        ],
+                        yaml_examples: `
+# ServiceAccount for CUI application
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cui-app-sa
+  namespace: cui-workloads
+---
+# Role for CUI data access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cui-data-reader
+  namespace: cui-workloads
+rules:
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list"]
+  resourceNames: ["cui-data-*"]
+---
+# RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cui-app-binding
+  namespace: cui-workloads
+subjects:
+- kind: ServiceAccount
+  name: cui-app-sa
+  namespace: cui-workloads
+roleRef:
+  kind: Role
+  name: cui-data-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+# NetworkPolicy to restrict access
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cui-app-netpol
+  namespace: cui-workloads
+spec:
+  podSelector:
+    matchLabels:
+      app: cui-application
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: authorized-namespace
+    - podSelector:
+        matchLabels:
+          role: authorized-client
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: cui-data-tier
+    ports:
+    - protocol: TCP
+      port: 5432
+---
+# Pod Security Standard (restricted)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cui-workloads
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted`,
+                        kubectl_commands: [
+                            "# Create namespace with pod security",
+                            "kubectl create namespace cui-workloads",
+                            "kubectl label namespace cui-workloads pod-security.kubernetes.io/enforce=restricted",
+                            "",
+                            "# Create RBAC resources",
+                            "kubectl apply -f cui-rbac.yaml",
+                            "",
+                            "# Verify RBAC permissions",
+                            "kubectl auth can-i get secrets --as=system:serviceaccount:cui-workloads:cui-app-sa -n cui-workloads",
+                            "",
+                            "# Enable audit logging (modify kube-apiserver manifest)",
+                            "# Add to /etc/kubernetes/manifests/kube-apiserver.yaml:",
+                            "# --audit-log-path=/var/log/kubernetes/audit.log",
+                            "# --audit-policy-file=/etc/kubernetes/audit-policy.yaml",
+                            "",
+                            "# View audit logs",
+                            "kubectl logs -n kube-system kube-apiserver-<node> | grep audit"
+                        ],
+                        verification: [
+                            "Test ServiceAccount permissions: kubectl auth can-i --list --as=system:serviceaccount:cui-workloads:cui-app-sa",
+                            "Verify NetworkPolicies are enforced: attempt unauthorized pod communication",
+                            "Check Pod Security Standards block non-compliant pods",
+                            "Review audit logs for API access: kubectl logs -n kube-system kube-apiserver-*",
+                            "Verify secrets are encrypted at rest in etcd"
+                        ],
+                        cost_estimate: "Included with Kubernetes (managed K8s adds $70-150/month per cluster)",
+                        effort_hours: 16
+                    }
+                },
+                
+                eks: {
+                    features: ["IAM Roles for ServiceAccounts (IRSA)", "EKS Pod Identity", "AWS Secrets Manager", "CloudWatch"],
+                    implementation: {
+                        steps: [
+                            "Enable OIDC provider for EKS cluster",
+                            "Create IAM roles for ServiceAccounts (IRSA) for fine-grained permissions",
+                            "Use EKS Pod Identity for simplified IAM integration",
+                            "Integrate with AWS Secrets Manager for sensitive data",
+                            "Enable EKS control plane logging to CloudWatch",
+                            "Use AWS Security Groups for pod-level network control",
+                            "Implement Calico or Cilium for advanced NetworkPolicies",
+                            "Enable encryption of Kubernetes secrets using AWS KMS",
+                            "Use AWS IAM Authenticator for kubectl access"
+                        ],
+                        terraform_example: `
+# EKS cluster with IRSA enabled
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 19.0"
+
+  cluster_name    = "cui-cluster"
+  cluster_version = "1.28"
+  
+  enable_irsa = true
+  
+  cluster_encryption_config = {
+    provider_key_arn = aws_kms_key.eks.arn
+    resources        = ["secrets"]
+  }
+  
+  cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+}
+
+# IAM role for ServiceAccount
+module "irsa_cui_app" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name = "cui-app-role"
+  
+  attach_secrets_manager_policy = true
+  secrets_manager_arns = ["arn:aws:secretsmanager:us-east-1:123456789012:secret:cui-data-*"]
+  
+  oidc_providers = {
+    main = {
+      provider_arn = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["cui-workloads:cui-app-sa"]
+    }
+  }
+}`,
+                        verification: [
+                            "Verify IRSA is working: check pod can access AWS resources",
+                            "Review CloudWatch Logs for EKS control plane audit events",
+                            "Verify secrets are encrypted with KMS",
+                            "Test IAM authenticator: aws eks get-token --cluster-name cui-cluster"
+                        ],
+                        cost_estimate: "$73/month (EKS control plane) + worker nodes",
+                        effort_hours: 12
+                    }
+                },
+                
+                aks: {
+                    features: ["Azure AD Integration", "Pod Identity", "Azure Key Vault", "Azure Monitor"],
+                    implementation: {
+                        steps: [
+                            "Enable Azure AD integration for AKS cluster",
+                            "Use Azure AD Pod Identity or Workload Identity for pod-level access",
+                            "Integrate with Azure Key Vault for secrets management",
+                            "Enable Azure Monitor Container Insights for logging",
+                            "Use Azure Policy for Kubernetes to enforce compliance",
+                            "Implement Azure RBAC for Kubernetes authorization",
+                            "Enable encryption at rest using Azure Disk Encryption",
+                            "Use Azure Firewall or Network Security Groups for network control"
+                        ],
+                        azure_cli_example: `
+# Create AKS cluster with Azure AD and monitoring
+az aks create \\
+  --resource-group cui-rg \\
+  --name cui-aks-cluster \\
+  --enable-aad \\
+  --enable-azure-rbac \\
+  --enable-addons monitoring \\
+  --enable-managed-identity \\
+  --enable-workload-identity \\
+  --network-plugin azure \\
+  --network-policy azure
+
+# Enable Key Vault integration
+az aks enable-addons \\
+  --resource-group cui-rg \\
+  --name cui-aks-cluster \\
+  --addons azure-keyvault-secrets-provider
+
+# Create Azure AD group for CUI access
+az ad group create \\
+  --display-name "CUI-AKS-Users" \\
+  --mail-nickname "cui-aks-users"
+
+# Assign Azure RBAC role
+az role assignment create \\
+  --role "Azure Kubernetes Service RBAC Reader" \\
+  --assignee-object-id <group-object-id> \\
+  --scope /subscriptions/<sub-id>/resourceGroups/cui-rg/providers/Microsoft.ContainerService/managedClusters/cui-aks-cluster/namespaces/cui-workloads`,
+                        verification: [
+                            "Verify Azure AD authentication: az aks get-credentials --resource-group cui-rg --name cui-aks-cluster",
+                            "Check Azure Monitor logs for container insights",
+                            "Verify Key Vault integration: check pod can access secrets",
+                            "Review Azure Policy compliance status"
+                        ],
+                        cost_estimate: "$73/month (AKS control plane) + worker nodes + monitoring",
+                        effort_hours: 12
+                    }
+                },
+                
+                gke: {
+                    features: ["Workload Identity", "Binary Authorization", "GKE Audit Logging", "Secret Manager"],
+                    implementation: {
+                        steps: [
+                            "Enable Workload Identity for pod-level IAM",
+                            "Use Binary Authorization to enforce image signing",
+                            "Enable GKE audit logging and send to Cloud Logging",
+                            "Integrate with Secret Manager for sensitive data",
+                            "Use GKE Autopilot for automated security best practices",
+                            "Enable Shielded GKE nodes for node integrity",
+                            "Implement GKE Network Policies",
+                            "Use Private GKE clusters to restrict API access"
+                        ],
+                        gcloud_example: `
+# Create GKE cluster with security features
+gcloud container clusters create cui-gke-cluster \\
+  --region=us-central1 \\
+  --workload-pool=PROJECT_ID.svc.id.goog \\
+  --enable-shielded-nodes \\
+  --enable-ip-alias \\
+  --enable-network-policy \\
+  --enable-autorepair \\
+  --enable-autoupgrade \\
+  --enable-stackdriver-kubernetes \\
+  --database-encryption-key=projects/PROJECT_ID/locations/us-central1/keyRings/gke-ring/cryptoKeys/gke-key \\
+  --enable-binauthz
+
+# Create service account for Workload Identity
+gcloud iam service-accounts create cui-app-sa \\
+  --display-name="CUI Application Service Account"
+
+# Bind IAM policy
+gcloud projects add-iam-policy-binding PROJECT_ID \\
+  --member="serviceAccount:cui-app-sa@PROJECT_ID.iam.gserviceaccount.com" \\
+  --role="roles/secretmanager.secretAccessor"
+
+# Link K8s SA to GCP SA
+gcloud iam service-accounts add-iam-policy-binding cui-app-sa@PROJECT_ID.iam.gserviceaccount.com \\
+  --role roles/iam.workloadIdentityUser \\
+  --member "serviceAccount:PROJECT_ID.svc.id.goog[cui-workloads/cui-app-sa]"`,
+                        verification: [
+                            "Verify Workload Identity: check pod can access GCP resources",
+                            "Review Cloud Logging for GKE audit events",
+                            "Verify Binary Authorization blocks unsigned images",
+                            "Check Shielded nodes integrity monitoring"
+                        ],
+                        cost_estimate: "$73/month (GKE control plane) + worker nodes",
+                        effort_hours: 12
+                    }
+                },
+                
+                openshift: {
+                    features: ["OAuth Server", "Security Context Constraints", "RBAC", "Integrated Registry"],
+                    implementation: {
+                        steps: [
+                            "Configure OAuth server with identity provider (LDAP, OIDC, etc.)",
+                            "Use Security Context Constraints (SCCs) to restrict pod capabilities",
+                            "Implement RBAC with OpenShift-specific roles",
+                            "Use integrated image registry with role-based access",
+                            "Enable audit logging for API server and OAuth",
+                            "Implement network policies using OpenShift SDN or OVN-Kubernetes",
+                            "Use OpenShift secrets with encryption at rest",
+                            "Implement project-level isolation for multi-tenancy"
+                        ],
+                        oc_commands: [
+                            "# Configure OAuth with OIDC",
+                            "oc create secret generic oidc-secret --from-literal=clientSecret=<secret> -n openshift-config",
+                            "oc edit oauth cluster",
+                            "",
+                            "# Create custom SCC for CUI workloads",
+                            "oc create -f cui-scc.yaml",
+                            "",
+                            "# Create project and assign RBAC",
+                            "oc new-project cui-workloads",
+                            "oc adm policy add-role-to-user edit user1 -n cui-workloads",
+                            "",
+                            "# View audit logs",
+                            "oc adm node-logs --role=master --path=openshift-apiserver/audit.log"
+                        ],
+                        scc_example: `
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: cui-restricted
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegedContainer: false
+allowedCapabilities: null
+defaultAddCapabilities: null
+fsGroup:
+  type: MustRunAs
+readOnlyRootFilesystem: true
+requiredDropCapabilities:
+- ALL
+runAsUser:
+  type: MustRunAsNonRoot
+seLinuxContext:
+  type: MustRunAs
+volumes:
+- configMap
+- downwardAPI
+- emptyDir
+- persistentVolumeClaim
+- projected
+- secret`,
+                        verification: [
+                            "Verify OAuth authentication works",
+                            "Test SCC prevents privileged containers",
+                            "Review audit logs: oc adm node-logs",
+                            "Check RBAC permissions: oc auth can-i"
+                        ],
+                        cost_estimate: "$50-100/month per node (OpenShift subscription)",
+                        effort_hours: 14
+                    }
+                },
+                
+                docker: {
+                    features: ["Docker Content Trust", "User Namespaces", "AppArmor/SELinux", "Secrets"],
+                    implementation: {
+                        steps: [
+                            "Enable Docker Content Trust for image signing",
+                            "Use user namespaces to remap container root to non-root host user",
+                            "Implement AppArmor or SELinux profiles for container isolation",
+                            "Use Docker secrets for sensitive data (Swarm mode)",
+                            "Run containers as non-root user",
+                            "Use read-only root filesystem where possible",
+                            "Implement resource limits (CPU, memory)",
+                            "Enable audit logging for Docker daemon",
+                            "Use TLS for Docker daemon API access"
+                        ],
+                        docker_example: `
+# Enable Content Trust
+export DOCKER_CONTENT_TRUST=1
+
+# Run container with security options
+docker run -d \\
+  --name cui-app \\
+  --user 1000:1000 \\
+  --read-only \\
+  --tmpfs /tmp \\
+  --cap-drop ALL \\
+  --cap-add NET_BIND_SERVICE \\
+  --security-opt=no-new-privileges \\
+  --security-opt apparmor=docker-default \\
+  --memory="512m" \\
+  --cpus="1.0" \\
+  --log-driver=syslog \\
+  --log-opt syslog-address=tcp://siem.company.com:514 \\
+  cui-application:latest
+
+# Create Docker secret (Swarm)
+echo "sensitive_data" | docker secret create cui_secret -
+
+# Use secret in service
+docker service create \\
+  --name cui-service \\
+  --secret cui_secret \\
+  cui-application:latest`,
+                        daemon_config: `
+{
+  "userns-remap": "default",
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "live-restore": true,
+  "userland-proxy": false,
+  "no-new-privileges": true,
+  "selinux-enabled": true
+}`,
+                        verification: [
+                            "Verify Content Trust: docker trust inspect image:tag",
+                            "Check user namespace remapping: docker info | grep userns",
+                            "Verify container runs as non-root: docker exec container id",
+                            "Review Docker daemon logs for access events"
+                        ],
+                        cost_estimate: "Free (Docker CE) or $5-7/user/month (Docker Business)",
+                        effort_hours: 8
+                    }
+                },
+                
+                rancher: {
+                    features: ["Rancher Auth", "Project/Namespace Isolation", "Pod Security Policies", "Monitoring"],
+                    implementation: {
+                        steps: [
+                            "Configure Rancher authentication with Active Directory/LDAP/OIDC",
+                            "Use Rancher projects for logical grouping and RBAC",
+                            "Implement Pod Security Policies through Rancher UI",
+                            "Enable Rancher monitoring and alerting",
+                            "Use Rancher secrets management",
+                            "Implement network policies through Rancher",
+                            "Enable audit logging for Rancher API",
+                            "Use Rancher backup for cluster configuration"
+                        ],
+                        verification: [
+                            "Verify authentication provider integration",
+                            "Test project-level RBAC isolation",
+                            "Check Pod Security Policies are enforced",
+                            "Review Rancher audit logs"
+                        ],
+                        cost_estimate: "Free (Rancher is open source)",
+                        effort_hours: 10
                     }
                 }
             },
