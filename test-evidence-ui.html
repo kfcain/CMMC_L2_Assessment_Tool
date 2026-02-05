@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence UI Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            padding: 20px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: var(--bg-secondary);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .test-button {
+            margin: 10px;
+            padding: 10px 20px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            opacity: 0.9;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--status-met);
+        }
+        .status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--status-not-met);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Evidence Collection UI Test</h1>
+        
+        <div class="test-section">
+            <h2>Test 1: Modal Close Buttons</h2>
+            <p>Click each button to test if modals open and close properly with the X button</p>
+            <button class="test-button" onclick="testEvidenceModal()">Test Evidence Modal</button>
+            <button class="test-button" onclick="testManageEvidenceModal()">Test Manage Evidence Modal</button>
+            <button class="test-button" onclick="testDocumentParserModal()">Test Document Parser Modal</button>
+            <div id="modal-test-status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 2: Evidence Collection</h2>
+            <p>Test adding evidence to an assessment objective</p>
+            <button class="test-button link-evidence-btn" data-objective-id="AC.L2-3.1.1">
+                Manage Evidence for AC.L2-3.1.1
+            </button>
+            <div id="evidence-test-status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 3: Evidence Badge Update</h2>
+            <p>Check if evidence badges update correctly</p>
+            <div class="objective-card" data-objective-id="AC.L2-3.1.1">
+                <div class="objective-header">
+                    <span>AC.L2-3.1.1</span>
+                    <span class="evidence-badge" id="test-evidence-badge">0 evidence</span>
+                </div>
+            </div>
+            <button class="test-button" onclick="testEvidenceBadge()">Test Badge Update</button>
+            <div id="badge-test-status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 4: File Upload</h2>
+            <p>Test file upload and document conversion</p>
+            <input type="file" id="test-file-input" accept=".pdf,.txt,.docx">
+            <button class="test-button" onclick="testFileUpload()">Test File Upload</button>
+            <div id="upload-test-status"></div>
+        </div>
+    </div>
+
+    <!-- Load required scripts -->
+    <script src="js/assessment-enhancements.js"></script>
+    <script src="js/document-converter.js"></script>
+    
+    <script>
+        // Initialize
+        if (typeof AssessmentEnhancements !== 'undefined') {
+            AssessmentEnhancements.init();
+        }
+        
+        function testEvidenceModal() {
+            const statusEl = document.getElementById('modal-test-status');
+            statusEl.innerHTML = '<div class="status">Testing evidence modal...</div>';
+            
+            try {
+                // Create a test modal
+                const modal = document.createElement('div');
+                modal.className = 'modal-backdrop active';
+                modal.id = 'test-modal';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Test Modal</h2>
+                            <button class="modal-close" onclick="document.getElementById('test-modal').remove()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>This is a test modal. Click the X button to close.</p>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                statusEl.innerHTML = '<div class="status success">✓ Modal opened. Try clicking the X button to close.</div>';
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error">✗ Error: ${error.message}</div>`;
+            }
+        }
+        
+        function testManageEvidenceModal() {
+            const statusEl = document.getElementById('modal-test-status');
+            
+            if (typeof AssessmentEnhancements === 'undefined') {
+                statusEl.innerHTML = '<div class="status error">✗ AssessmentEnhancements not loaded</div>';
+                return;
+            }
+            
+            try {
+                AssessmentEnhancements.showManageEvidenceModal('AC.L2-3.1.1');
+                statusEl.innerHTML = '<div class="status success">✓ Manage Evidence modal opened. Try clicking the X button to close.</div>';
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error">✗ Error: ${error.message}</div>`;
+            }
+        }
+        
+        function testDocumentParserModal() {
+            const statusEl = document.getElementById('modal-test-status');
+            
+            if (typeof DocumentParser === 'undefined') {
+                statusEl.innerHTML = '<div class="status error">✗ DocumentParser not loaded</div>';
+                return;
+            }
+            
+            try {
+                DocumentParser.showModal();
+                statusEl.innerHTML = '<div class="status success">✓ Document Parser modal opened. Try clicking the X button to close.</div>';
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error">✗ Error: ${error.message}</div>`;
+            }
+        }
+        
+        function testEvidenceBadge() {
+            const statusEl = document.getElementById('badge-test-status');
+            
+            if (typeof AssessmentEnhancements === 'undefined') {
+                statusEl.innerHTML = '<div class="status error">✗ AssessmentEnhancements not loaded</div>';
+                return;
+            }
+            
+            try {
+                // Add test evidence
+                const data = AssessmentEnhancements.getEnhancedData('AC.L2-3.1.1');
+                data.evidence.push({
+                    id: Date.now().toString(),
+                    title: 'Test Evidence',
+                    type: 'document',
+                    description: 'Test evidence item',
+                    dateAdded: Date.now()
+                });
+                AssessmentEnhancements.saveToStorage();
+                
+                // Update badge
+                const badge = document.getElementById('test-evidence-badge');
+                badge.textContent = `${data.evidence.length} evidence`;
+                badge.className = 'evidence-badge has-evidence';
+                
+                statusEl.innerHTML = `<div class="status success">✓ Badge updated to ${data.evidence.length} evidence items</div>`;
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error">✗ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testFileUpload() {
+            const statusEl = document.getElementById('upload-test-status');
+            const fileInput = document.getElementById('test-file-input');
+            
+            if (!fileInput.files[0]) {
+                statusEl.innerHTML = '<div class="status error">✗ Please select a file first</div>';
+                return;
+            }
+            
+            if (typeof DocumentConverter === 'undefined') {
+                statusEl.innerHTML = '<div class="status error">✗ DocumentConverter not loaded</div>';
+                return;
+            }
+            
+            try {
+                statusEl.innerHTML = '<div class="status">Processing file...</div>';
+                const file = fileInput.files[0];
+                const result = await DocumentConverter.processFile(file, 'TEST-OBJ');
+                
+                statusEl.innerHTML = `
+                    <div class="status success">
+                        ✓ File processed successfully<br>
+                        Document ID: ${result.id}<br>
+                        File Type: ${result.fileType}<br>
+                        Conversion Status: ${result.conversionStatus}<br>
+                        ${result.hasMarkdown ? 'Markdown available for AI assessment' : 'No markdown conversion'}
+                    </div>
+                `;
+            } catch (error) {
+                statusEl.innerHTML = `<div class="status error">✗ Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Log when scripts load
+        console.log('Test page loaded');
+        console.log('AssessmentEnhancements:', typeof AssessmentEnhancements !== 'undefined' ? 'Loaded' : 'Not loaded');
+        console.log('DocumentConverter:', typeof DocumentConverter !== 'undefined' ? 'Loaded' : 'Not loaded');
+    </script>
+</body>
+</html>
