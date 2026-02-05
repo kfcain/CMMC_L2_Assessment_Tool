@@ -3090,7 +3090,203 @@ module.exports = { checkPermission, requireApproval };`,
             small_business: { approach: "Remove admin rights from users, use Group Policy to block installations, monitor with Windows Event Logs", cost_estimate: "$0", effort_hours: 6 }
         }
         
-        // Continue with IA.L2-3.5.1 through 3.5.11 in next batch...
+        ,
+        
+        "IA.L2-3.5.1": {
+            objective: "Identify system users, processes acting on behalf of users, and devices.",
+            summary: "Unique identifiers for users, service accounts, and devices",
+            cloud: {
+                aws: { services: ["IAM", "Cognito", "Directory Service"], implementation: { steps: ["Create individual IAM users (no shared accounts)", "Use IAM roles for EC2 instances", "Implement AWS SSO for centralized identity", "Use Cognito for application users", "Tag devices with unique identifiers", "Use AWS Systems Manager for device inventory"], cost_estimate: "$0-50/month", effort_hours: 8 }},
+                azure: { services: ["Azure AD", "Managed Identity"], implementation: { steps: ["Create individual Azure AD accounts", "Use Managed Identities for Azure resources", "Implement Azure AD for centralized identity", "Register devices in Azure AD", "Use Intune for device management", "Tag service principals with descriptions"], cost_estimate: "$0-30/month", effort_hours: 8 }},
+                gcp: { services: ["Cloud Identity", "IAM", "Workload Identity"], implementation: { steps: ["Create individual Google accounts", "Use Workload Identity for GKE", "Implement Cloud Identity", "Register devices in Cloud Identity", "Use service accounts with descriptive names", "Label resources with owner information"], cost_estimate: "$0-40/month", effort_hours: 8 }}
+            },
+            small_business: { approach: "Use individual Microsoft 365/Google Workspace accounts, register devices in MDM, document service accounts", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "IA.L2-3.5.2": {
+            objective: "Authenticate (or verify) the identities of users, processes, or devices, as a prerequisite to allowing access to organizational systems.",
+            summary: "Authentication required before access, no anonymous access",
+            cloud: {
+                aws: { services: ["IAM", "Cognito", "SSO"], implementation: { steps: ["Require IAM authentication for all AWS access", "Use Cognito for application authentication", "Implement AWS SSO with MFA", "Use IAM roles for EC2 instance authentication", "Require certificate-based authentication for devices", "Disable anonymous access to S3/APIs"], cost_estimate: "$0-30/month", effort_hours: 8 }},
+                azure: { services: ["Azure AD", "Conditional Access"], implementation: { steps: ["Require Azure AD authentication for all access", "Implement Conditional Access policies", "Use Managed Identities for resource authentication", "Require device authentication via Intune", "Disable anonymous access to storage/APIs", "Use certificate-based authentication"], cost_estimate: "$0-20/month", effort_hours: 8 }},
+                gcp: { services: ["Cloud Identity", "IAM", "IAP"], implementation: { steps: ["Require Cloud Identity authentication", "Use Workload Identity for service authentication", "Implement IAP for application access", "Require device certificates", "Disable anonymous access to Cloud Storage/APIs", "Use service account keys with rotation"], cost_estimate: "$0-25/month", effort_hours: 8 }}
+            },
+            small_business: { approach: "Require login for all systems, disable guest accounts, use SSO where possible", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "IA.L2-3.5.3": {
+            objective: "Use multifactor authentication for local and network access to privileged accounts and for network access to non-privileged accounts.",
+            summary: "MFA for all remote access and privileged accounts",
+            cloud: {
+                aws: { services: ["IAM", "SSO", "MFA"], implementation: { steps: ["Require MFA for all IAM users", "Use AWS SSO with MFA enforcement", "Require MFA for root account", "Use hardware MFA tokens for privileged accounts", "Implement Cognito MFA for applications", "Monitor MFA compliance with IAM Access Analyzer"], cost_estimate: "$0-100/month (hardware tokens)", effort_hours: 6 }},
+                azure: { services: ["Azure AD", "MFA", "Conditional Access"], implementation: { steps: ["Enable Azure AD MFA for all users", "Require MFA for privileged roles via PIM", "Use Conditional Access to enforce MFA", "Support FIDO2 security keys", "Require MFA for VPN access", "Monitor MFA usage with sign-in logs"], cost_estimate: "$0-2/user/month", effort_hours: 6 }},
+                gcp: { services: ["Cloud Identity", "2-Step Verification"], implementation: { steps: ["Enable 2-Step Verification for all users", "Require security keys for privileged accounts", "Use Cloud Identity MFA enforcement", "Support FIDO2 security keys", "Require MFA for VPN access", "Monitor MFA compliance"], cost_estimate: "$0-50/month", effort_hours: 6 }}
+            },
+            saas: {
+                microsoft365: { implementation: { steps: ["Enable MFA for all users via Azure AD", "Require MFA for admin accounts", "Use Conditional Access to enforce MFA", "Support Microsoft Authenticator app", "Block legacy authentication"], cost_estimate: "$0 (included)", effort_hours: 4 }},
+                google_workspace: { implementation: { steps: ["Enable 2-Step Verification for all users", "Require security keys for admins", "Use Context-Aware Access to enforce MFA", "Support Google Authenticator", "Block less secure apps"], cost_estimate: "$0 (included)", effort_hours: 4 }}
+            },
+            small_business: { approach: "Enable MFA in Microsoft 365/Google Workspace, use authenticator apps, require MFA for VPN", cost_estimate: "$0", effort_hours: 3 }
+        }
+        
+        ,
+        
+        "IA.L2-3.5.4": {
+            objective: "Employ replay-resistant authentication mechanisms for network access to privileged and non-privileged accounts.",
+            summary: "Use Kerberos, TLS, or time-based tokens to prevent replay attacks",
+            cloud: {
+                aws: { implementation: { steps: ["Use AWS SSO with SAML (replay-resistant)", "Implement time-based OTP with MFA", "Use TLS 1.2+ for all connections", "Enable Kerberos authentication for managed AD", "Use STS temporary credentials with expiration", "Implement session tokens with short TTL"], cost_estimate: "$0", effort_hours: 6 }},
+                azure: { implementation: { steps: ["Use Azure AD with Kerberos/SAML", "Implement time-based MFA", "Enforce TLS 1.2+ for all connections", "Use Azure AD token replay detection", "Implement short-lived access tokens", "Enable Conditional Access session controls"], cost_estimate: "$0", effort_hours: 6 }},
+                gcp: { implementation: { steps: ["Use Cloud Identity with SAML", "Implement time-based 2FA", "Enforce TLS 1.2+ for all connections", "Use short-lived service account tokens", "Implement OAuth 2.0 with PKCE", "Enable session timeout controls"], cost_estimate: "$0", effort_hours: 6 }}
+            },
+            network: {
+                general: { implementation: { steps: ["Use Kerberos for Windows authentication", "Implement 802.1X for network access", "Use TLS 1.2+ for VPN connections", "Enable timestamp validation", "Implement nonce-based authentication", "Use certificate-based authentication"], effort_hours: 8 }}
+            },
+            small_business: { approach: "Use modern authentication protocols (OAuth, SAML), enable TLS 1.2+, use time-based MFA", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "IA.L2-3.5.5": {
+            objective: "Prevent reuse of identifiers for a defined period.",
+            summary: "Don't reuse usernames for at least 2 years",
+            implementation: {
+                general: {
+                    steps: [
+                        "Document identifier reuse policy (minimum 2 years)",
+                        "Maintain list of retired identifiers",
+                        "Check against retired list before creating new accounts",
+                        "Archive user accounts instead of deleting",
+                        "Use unique employee IDs as basis for usernames",
+                        "Document exceptions with approval"
+                    ],
+                    effort_hours: 4
+                }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Archive IAM users instead of deleting", "Tag deleted users with retirement date", "Use AWS Organizations to track identifiers across accounts", "Document identifier reuse policy in IAM documentation"], cost_estimate: "$0", effort_hours: 3 }},
+                azure: { implementation: { steps: ["Soft-delete Azure AD users (retained 30 days)", "Maintain deleted users list in Azure AD", "Use Azure AD audit logs to track identifier history", "Document identifier reuse policy"], cost_estimate: "$0", effort_hours: 3 }},
+                gcp: { implementation: { steps: ["Archive Cloud Identity users", "Maintain deleted users list", "Use Cloud Audit Logs to track identifier history", "Document identifier reuse policy"], cost_estimate: "$0", effort_hours: 3 }}
+            },
+            small_business: { approach: "Maintain Excel list of retired usernames with retirement dates, check before creating new accounts", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "IA.L2-3.5.6": {
+            objective: "Disable identifiers after a defined period of inactivity.",
+            summary: "Disable accounts after 90 days of inactivity",
+            cloud: {
+                aws: { services: ["IAM", "Access Analyzer", "Lambda"], implementation: { steps: ["Use IAM Access Analyzer to identify inactive users", "Create Lambda function to disable inactive IAM users (90 days)", "Use AWS Config rule to detect inactive accounts", "Implement CloudWatch Events for automated disabling", "Generate reports of disabled accounts", "Document account disabling policy"], cost_estimate: "$5-20/month", effort_hours: 8 }},
+                azure: { services: ["Azure AD", "Identity Governance"], implementation: { steps: ["Use Azure AD sign-in logs to identify inactive users", "Implement Azure AD access reviews for inactive accounts", "Use Azure Automation to disable inactive users (90 days)", "Configure alerts for inactive accounts", "Generate compliance reports", "Document account disabling policy"], cost_estimate: "$0-30/month", effort_hours: 8 }},
+                gcp: { services: ["Cloud Identity", "Cloud Functions"], implementation: { steps: ["Use Cloud Identity activity reports", "Create Cloud Function to disable inactive users (90 days)", "Use Cloud Scheduler for automated checks", "Configure alerts for inactive accounts", "Generate compliance reports", "Document account disabling policy"], cost_estimate: "$5-15/month", effort_hours: 8 }}
+            },
+            small_business: { approach: "Review user accounts quarterly, manually disable accounts inactive for 90+ days, document in spreadsheet", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "IA.L2-3.5.7": {
+            objective: "Enforce a minimum password complexity and change of characters when new passwords are created.",
+            summary: "Password policy: 14+ chars, complexity requirements, change 8+ characters",
+            cloud: {
+                aws: { services: ["IAM", "Directory Service"], implementation: { steps: ["Configure IAM password policy (14+ chars, complexity)", "Require uppercase, lowercase, numbers, symbols", "Set password expiration (60-90 days)", "Prevent password reuse (24 passwords)", "Use AWS Managed Microsoft AD for advanced policies", "Enforce password change on first login"], cost_estimate: "$0", effort_hours: 3 }},
+                azure: { services: ["Azure AD"], implementation: { steps: ["Configure Azure AD password policy (14+ chars)", "Enable password complexity requirements", "Set password expiration (90 days)", "Prevent password reuse", "Use Azure AD Password Protection (banned passwords)", "Require password change on first login"], cost_estimate: "$0", effort_hours: 3 }},
+                gcp: { services: ["Cloud Identity"], implementation: { steps: ["Configure Cloud Identity password policy (14+ chars)", "Enable password complexity requirements", "Set password expiration (90 days)", "Prevent password reuse", "Require password change on first login", "Use password strength enforcement"], cost_estimate: "$0", effort_hours: 3 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Configure Group Policy password policy", "Set minimum length to 14 characters", "Enable complexity requirements", "Set password age to 90 days", "Enforce password history (24 passwords)", "Use fine-grained password policies for different user groups"], effort_hours: 3 }},
+                linux: { implementation: { steps: ["Configure PAM password policy (pam_pwquality)", "Set minlen=14 in /etc/security/pwquality.conf", "Require complexity (ucredit, lcredit, dcredit, ocredit)", "Set password expiration in /etc/login.defs", "Enforce password history with pam_pwhistory"], effort_hours: 3 }}
+            },
+            small_business: { approach: "Configure password policy in Microsoft 365/Google Workspace (14+ chars, complexity, 90-day expiration)", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "IA.L2-3.5.8": {
+            objective: "Prohibit password reuse for a specified number of generations.",
+            summary: "Remember last 24 passwords",
+            cloud: {
+                aws: { implementation: { steps: ["Configure IAM password policy to remember 24 passwords", "Use AWS Managed Microsoft AD for advanced password history", "Document password reuse policy", "Monitor password policy compliance"], cost_estimate: "$0", effort_hours: 2 }},
+                azure: { implementation: { steps: ["Configure Azure AD to prevent password reuse", "Set password history to 24 passwords", "Document password reuse policy", "Monitor compliance with Azure AD reports"], cost_estimate: "$0", effort_hours: 2 }},
+                gcp: { implementation: { steps: ["Configure Cloud Identity password history", "Set password reuse prevention", "Document password reuse policy", "Monitor compliance"], cost_estimate: "$0", effort_hours: 2 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Set 'Enforce password history' to 24 passwords via GPO", "Configure fine-grained password policies if needed", "Document policy in security baseline"], effort_hours: 1 }},
+                linux: { implementation: { steps: ["Configure pam_pwhistory to remember 24 passwords", "Edit /etc/pam.d/common-password", "Add: password required pam_pwhistory.so remember=24", "Document policy"], effort_hours: 1 }}
+            },
+            small_business: { approach: "Configure password history in Microsoft 365/Google Workspace to prevent reuse of last 24 passwords", cost_estimate: "$0", effort_hours: 1 }
+        }
+        
+        ,
+        
+        "IA.L2-3.5.9": {
+            objective: "Allow temporary password use for system logons with an immediate change to a permanent password.",
+            summary: "Force password change on first login with temporary password",
+            cloud: {
+                aws: { implementation: { steps: ["Enable 'User must create a new password at next sign-in' for IAM users", "Use AWS SSO to force password change on first login", "Configure Cognito to require password change", "Document temporary password procedures", "Set temporary password expiration (24 hours)"], cost_estimate: "$0", effort_hours: 3 }},
+                azure: { implementation: { steps: ["Enable 'User must change password at next sign-in' in Azure AD", "Set temporary password expiration", "Use Azure AD B2C for application password reset flows", "Document temporary password procedures", "Monitor password change compliance"], cost_estimate: "$0", effort_hours: 3 }},
+                gcp: { implementation: { steps: ["Enable 'Change password at next sign-in' in Cloud Identity", "Set temporary password expiration", "Document temporary password procedures", "Monitor password change compliance"], cost_estimate: "$0", effort_hours: 3 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Set 'User must change password at next logon' when creating accounts", "Use PowerShell: Set-ADUser -ChangePasswordAtLogon $true", "Configure temporary password expiration via GPO", "Document procedures"], effort_hours: 2 }},
+                linux: { implementation: { steps: ["Use passwd -e username to expire password immediately", "Use chage -d 0 username to force password change", "Set temporary password expiration", "Document procedures"], effort_hours: 2 }}
+            },
+            small_business: { approach: "Enable 'Require password change on first sign-in' in Microsoft 365/Google Workspace when creating accounts", cost_estimate: "$0", effort_hours: 1 }
+        }
+        
+        ,
+        
+        "IA.L2-3.5.10": {
+            objective: "Store and transmit only cryptographically-protected passwords.",
+            summary: "Hash passwords with bcrypt/PBKDF2, use TLS for transmission",
+            cloud: {
+                aws: { services: ["Cognito", "Secrets Manager", "KMS"], implementation: { steps: ["Use AWS Cognito for password management (automatic hashing)", "Store passwords in Secrets Manager (encrypted at rest)", "Use KMS for encryption keys", "Enforce TLS 1.2+ for all password transmission", "Never log passwords in CloudWatch", "Use IAM roles instead of passwords where possible"], cost_estimate: "$1-10/month", effort_hours: 6 }},
+                azure: { services: ["Azure AD", "Key Vault"], implementation: { steps: ["Use Azure AD for password management (automatic hashing)", "Store application passwords in Key Vault", "Use customer-managed keys for encryption", "Enforce TLS 1.2+ for all password transmission", "Never log passwords in Application Insights", "Use Managed Identities instead of passwords"], cost_estimate: "$1-10/month", effort_hours: 6 }},
+                gcp: { services: ["Cloud Identity", "Secret Manager"], implementation: { steps: ["Use Cloud Identity for password management", "Store application passwords in Secret Manager", "Use customer-managed encryption keys", "Enforce TLS 1.2+ for all password transmission", "Never log passwords in Cloud Logging", "Use Workload Identity instead of passwords"], cost_estimate: "$1-10/month", effort_hours: 6 }}
+            },
+            application: {
+                nodejs: { implementation: { steps: ["Use bcrypt for password hashing (cost factor 12+)", "Never store plaintext passwords", "Use HTTPS for all password transmission", "Implement password reset with secure tokens", "Use environment variables for credentials", "Never log passwords"], effort_hours: 8 }},
+                python: { implementation: { steps: ["Use bcrypt or Argon2 for password hashing", "Never store plaintext passwords", "Use HTTPS for all password transmission", "Implement secure password reset", "Use environment variables for credentials", "Never log passwords"], effort_hours: 8 }}
+            },
+            small_business: { approach: "Use cloud provider password management (automatic hashing), enforce HTTPS for all web applications", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "IA.L2-3.5.11": {
+            objective: "Obscure feedback of authentication information.",
+            summary: "Mask passwords on screen, use generic error messages",
+            implementation: {
+                general: {
+                    steps: [
+                        "Display asterisks or dots for password input",
+                        "Use generic error messages ('Invalid username or password')",
+                        "Don't reveal which field is incorrect",
+                        "Implement rate limiting to prevent enumeration",
+                        "Don't display password hints",
+                        "Mask passwords in logs and error messages",
+                        "Use CAPTCHA after failed attempts"
+                    ],
+                    effort_hours: 6
+                }
+            },
+            application: {
+                web: { implementation: { steps: ["Use input type='password' for password fields", "Implement generic error messages", "Add rate limiting with express-rate-limit", "Use CAPTCHA after 3 failed attempts", "Never log authentication details", "Mask passwords in API responses"], effort_hours: 6 }},
+                mobile: { implementation: { steps: ["Use secure text entry for passwords", "Implement generic error messages", "Add biometric authentication where possible", "Use CAPTCHA after failed attempts", "Never log authentication details"], effort_hours: 6 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Password fields automatically masked", "Configure generic logon error messages via GPO", "Disable display of last logged-on user", "Clear password from memory after authentication"], effort_hours: 2 }},
+                linux: { implementation: { steps: ["Password fields automatically masked in terminal", "Configure generic error messages in PAM", "Disable display of last logged-on user", "Clear password from memory"], effort_hours: 2 }}
+            },
+            small_business: { approach: "Use default password masking in applications, configure generic error messages in custom apps", cost_estimate: "$0", effort_hours: 3 }
+        }
+        
+        // Continue with IR, MA, MP, PE, PS, RE, SA, SC, SI families...
     }
 };
 
