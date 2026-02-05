@@ -849,6 +849,7 @@ class AssessmentApp {
     }
 
     async switchView(view) {
+        console.log('[App] Switching to view:', view);
         this.currentView = view;
         localStorage.setItem('nist-current-view', view);
         
@@ -859,7 +860,11 @@ class AssessmentApp {
         
         // Update views
         document.querySelectorAll('.view').forEach(v => {
-            v.classList.toggle('active', v.id === `${view}-view`);
+            const isActive = v.id === `${view}-view`;
+            v.classList.toggle('active', isActive);
+            if (isActive) {
+                console.log('[App] Activated view:', v.id);
+            }
         });
 
         // Lazy load scripts for view if needed (skip spinner for views with static HTML like crosswalk)
@@ -4109,8 +4114,14 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     }
 
     renderDashboard() {
+        console.log('[App] Rendering dashboard...');
         const container = document.getElementById('dashboard-content');
         const headerScores = document.getElementById('dashboard-header-scores');
+        
+        if (!container) {
+            console.error('[App] Dashboard content container not found');
+            return;
+        }
         
         // Calculate overall stats
         let totalObjectives = 0, totalMet = 0, totalPartial = 0, totalNotMet = 0, totalNotAssessed = 0;
