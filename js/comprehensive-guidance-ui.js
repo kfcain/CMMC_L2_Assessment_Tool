@@ -55,6 +55,13 @@ const ComprehensiveGuidanceUI = {
             return COMPREHENSIVE_GUIDANCE_PART4.objectives[objectiveId];
         }
         
+        // Check Part 5 (comprehensive-guidance-expansion-part5.js)
+        if (typeof COMPREHENSIVE_GUIDANCE_PART5 !== 'undefined' && 
+            COMPREHENSIVE_GUIDANCE_PART5.objectives && 
+            COMPREHENSIVE_GUIDANCE_PART5.objectives[objectiveId]) {
+            return COMPREHENSIVE_GUIDANCE_PART5.objectives[objectiveId];
+        }
+        
         return null;
     },
     
