@@ -16,14 +16,28 @@ class AssessmentApp {
     }
 
     init() {
+        console.log('[App] Starting initialization...');
         this.loadSavedData();
         this.populateFamilyFilter();
         this.restoreFilterState();
         this.renderControls();
         this.updateProgress();
         this.bindEvents();
+        
+        // Ensure dashboard renders on initial load
+        console.log('[App] Current view:', this.currentView);
         this.switchView(this.currentView); // Restore last view
+        
+        // Force dashboard render if it's the current view
+        if (this.currentView === 'dashboard') {
+            console.log('[App] Forcing dashboard render...');
+            setTimeout(() => {
+                this.renderDashboard();
+            }, 100);
+        }
+        
         this.initDataStorageNotice();
+        console.log('[App] Initialization complete');
     }
 
     initDataStorageNotice() {
