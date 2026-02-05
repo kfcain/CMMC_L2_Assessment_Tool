@@ -79,6 +79,26 @@ const SystemInventory = {
                 this.exportInventory();
             }
 
+            // Bulk upload
+            if (e.target.closest('#bulk-upload-btn')) {
+                this.showBulkUploadModal();
+            }
+
+            // Process bulk upload
+            if (e.target.closest('#process-bulk-upload-btn')) {
+                this.processBulkUpload();
+            }
+
+            // Network boundary upload
+            if (e.target.closest('#network-boundary-upload-btn')) {
+                this.showNetworkBoundaryUpload();
+            }
+
+            // Process network boundary
+            if (e.target.closest('#process-network-boundary-btn')) {
+                this.processNetworkBoundary();
+            }
+
             // Filter assets
             if (e.target.closest('.inventory-filter-btn')) {
                 const filter = e.target.closest('.inventory-filter-btn').dataset.filter;
@@ -90,6 +110,16 @@ const SystemInventory = {
         document.addEventListener('input', (e) => {
             if (e.target.id === 'inventory-search-input') {
                 this.searchAssets(e.target.value);
+            }
+        });
+
+        // File upload handlers
+        document.addEventListener('change', (e) => {
+            if (e.target.id === 'bulk-upload-file') {
+                this.handleBulkUploadFile(e.target.files[0]);
+            }
+            if (e.target.id === 'network-boundary-file') {
+                this.handleNetworkBoundaryFile(e.target.files[0]);
             }
         });
     },
@@ -534,6 +564,447 @@ const SystemInventory = {
         URL.revokeObjectURL(url);
 
         this.showToast('Inventory exported successfully', 'success');
+    },
+
+    // Bulk Upload Modal
+    showBulkUploadModal: function() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-backdrop active';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 900px;">
+                <div class="modal-header">
+                    <h2>📤 Bulk Upload System Assets</h2>
+                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="bulk-upload-instructions">
+                        <h3>Upload Methods</h3>
+                        <p>Import multiple assets at once using CSV or JSON format.</p>
+                        
+                        <div class="upload-format-tabs">
+                            <button class="format-tab active" data-format="csv">CSV Format</button>
+                            <button class="format-tab" data-format="json">JSON Format</button>
+                        </div>
+                        
+                        <div class="format-example active" data-format-content="csv">
+                            <h4>CSV Format Example:</h4>
+                            <pre>name,type,ipAddress,boundary,criticality,description,owner,cuiProcessed
+Web Server 01,server,10.0.1.10,inside,high,Production web server,IT Team,yes
+Database 01,database,10.0.1.20,inside,high,Customer database,IT Team,yes
+Workstation 01,workstation,10.0.2.50,inside,medium,Employee workstation,John Doe,no
+Firewall,network,10.0.0.1,dmz,high,Perimeter firewall,Security Team,no</pre>
+                            <p><strong>Required columns:</strong> name, type, boundary</p>
+                            <p><strong>Optional columns:</strong> ipAddress, criticality, description, owner, cuiProcessed, location, os, version</p>
+                        </div>
+                        
+                        <div class="format-example" data-format-content="json">
+                            <h4>JSON Format Example:</h4>
+                            <pre>[
+  {
+    "name": "Web Server 01",
+    "type": "server",
+    "ipAddress": "10.0.1.10",
+    "boundary": "inside",
+    "criticality": "high",
+    "description": "Production web server",
+    "owner": "IT Team",
+    "cuiProcessed": true
+  },
+  {
+    "name": "Database 01",
+    "type": "database",
+    "ipAddress": "10.0.1.20",
+    "boundary": "inside",
+    "criticality": "high",
+    "description": "Customer database",
+    "owner": "IT Team",
+    "cuiProcessed": true
+  }
+]</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="bulk-upload-section">
+                        <h3>Upload File</h3>
+                        <input type="file" id="bulk-upload-file" accept=".csv,.json" class="form-control">
+                        <div id="bulk-upload-preview" class="bulk-upload-preview"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-primary" id="process-bulk-upload-btn" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Import Assets
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Tab switching
+        modal.querySelectorAll('.format-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                modal.querySelectorAll('.format-tab').forEach(t => t.classList.remove('active'));
+                modal.querySelectorAll('.format-example').forEach(e => e.classList.remove('active'));
+                tab.classList.add('active');
+                modal.querySelector(`[data-format-content="${tab.dataset.format}"]`).classList.add('active');
+            });
+        });
+    },
+
+    bulkUploadData: null,
+
+    async handleBulkUploadFile(file) {
+        if (!file) return;
+        
+        const preview = document.getElementById('bulk-upload-preview');
+        const processBtn = document.getElementById('process-bulk-upload-btn');
+        
+        try {
+            const content = await this.readFileAsText(file);
+            let assets = [];
+            
+            if (file.name.endsWith('.csv')) {
+                assets = this.parseCSV(content);
+            } else if (file.name.endsWith('.json')) {
+                assets = JSON.parse(content);
+            }
+            
+            // Validate assets
+            const validAssets = [];
+            const errors = [];
+            
+            assets.forEach((asset, index) => {
+                const validation = this.validateBulkAsset(asset, index + 1);
+                if (validation.valid) {
+                    validAssets.push(asset);
+                } else {
+                    errors.push(validation.error);
+                }
+            });
+            
+            this.bulkUploadData = validAssets;
+            
+            // Show preview
+            preview.innerHTML = `
+                <div class="upload-summary">
+                    <h4>Upload Summary</h4>
+                    <div class="summary-stats">
+                        <div class="stat-item success">
+                            <strong>${validAssets.length}</strong> valid assets
+                        </div>
+                        ${errors.length > 0 ? `<div class="stat-item error"><strong>${errors.length}</strong> errors</div>` : ''}
+                    </div>
+                    ${errors.length > 0 ? `
+                        <div class="upload-errors">
+                            <h5>Errors:</h5>
+                            <ul>
+                                ${errors.map(err => `<li>${err}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    <div class="asset-preview">
+                        <h5>Assets to Import:</h5>
+                        <table class="preview-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Boundary</th>
+                                    <th>Criticality</th>
+                                    <th>CUI</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${validAssets.slice(0, 10).map(asset => `
+                                    <tr>
+                                        <td>${asset.name}</td>
+                                        <td>${asset.type}</td>
+                                        <td>${asset.boundary}</td>
+                                        <td>${asset.criticality || 'N/A'}</td>
+                                        <td>${asset.cuiProcessed ? 'Yes' : 'No'}</td>
+                                    </tr>
+                                `).join('')}
+                                ${validAssets.length > 10 ? `<tr><td colspan="5" style="text-align: center; font-style: italic;">... and ${validAssets.length - 10} more</td></tr>` : ''}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            processBtn.disabled = validAssets.length === 0;
+            
+        } catch (error) {
+            preview.innerHTML = `<div class="error-message">Error reading file: ${error.message}</div>`;
+            processBtn.disabled = true;
+        }
+    },
+
+    parseCSV: function(content) {
+        const lines = content.split('\n').filter(line => line.trim());
+        if (lines.length < 2) return [];
+        
+        const headers = lines[0].split(',').map(h => h.trim());
+        const assets = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',').map(v => v.trim());
+            const asset = {};
+            
+            headers.forEach((header, index) => {
+                if (values[index]) {
+                    if (header === 'cuiProcessed') {
+                        asset[header] = values[index].toLowerCase() === 'yes' || values[index].toLowerCase() === 'true';
+                    } else {
+                        asset[header] = values[index];
+                    }
+                }
+            });
+            
+            if (asset.name) {
+                assets.push(asset);
+            }
+        }
+        
+        return assets;
+    },
+
+    validateBulkAsset: function(asset, rowNumber) {
+        if (!asset.name) {
+            return { valid: false, error: `Row ${rowNumber}: Missing required field 'name'` };
+        }
+        if (!asset.type) {
+            return { valid: false, error: `Row ${rowNumber}: Missing required field 'type'` };
+        }
+        if (!this.config.assetTypes[asset.type]) {
+            return { valid: false, error: `Row ${rowNumber}: Invalid asset type '${asset.type}'` };
+        }
+        if (!asset.boundary) {
+            return { valid: false, error: `Row ${rowNumber}: Missing required field 'boundary'` };
+        }
+        if (!this.config.boundaries[asset.boundary]) {
+            return { valid: false, error: `Row ${rowNumber}: Invalid boundary '${asset.boundary}'` };
+        }
+        
+        return { valid: true };
+    },
+
+    processBulkUpload: function() {
+        if (!this.bulkUploadData || this.bulkUploadData.length === 0) {
+            this.showToast('No valid assets to import', 'error');
+            return;
+        }
+        
+        let imported = 0;
+        this.bulkUploadData.forEach(asset => {
+            const assetId = this.generateId();
+            this.inventory.assets[assetId] = {
+                id: assetId,
+                name: asset.name,
+                type: asset.type,
+                ipAddress: asset.ipAddress || '',
+                boundary: asset.boundary,
+                criticality: asset.criticality || 'medium',
+                description: asset.description || '',
+                owner: asset.owner || '',
+                cuiProcessed: asset.cuiProcessed || false,
+                location: asset.location || '',
+                os: asset.os || '',
+                version: asset.version || '',
+                dateAdded: Date.now(),
+                addedBy: localStorage.getItem('nist-user-name') || 'Bulk Upload'
+            };
+            imported++;
+        });
+        
+        this.saveToStorage();
+        this.bulkUploadData = null;
+        
+        // Close modal
+        document.querySelector('.modal-backdrop').remove();
+        
+        // Refresh dashboard if open
+        if (document.querySelector('.inventory-dashboard')) {
+            this.showInventoryDashboard();
+        }
+        
+        this.showToast(`Successfully imported ${imported} assets`, 'success');
+    },
+
+    // Network Boundary Upload
+    showNetworkBoundaryUpload: function() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-backdrop active';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 900px;">
+                <div class="modal-header">
+                    <h2>🌐 Network Boundary Upload</h2>
+                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="boundary-instructions">
+                        <h3>Network Boundary Configuration</h3>
+                        <p>Upload a CSV or JSON file containing network assets with their boundary classifications.</p>
+                        
+                        <h4>CSV Format Example:</h4>
+                        <pre>name,ipAddress,boundary,type,description
+Web Server 01,10.0.1.10,inside,server,Production web server
+Database Server,10.0.1.20,inside,database,Customer database
+DMZ Firewall,192.168.1.1,dmz,network,Perimeter firewall
+External API,api.example.com,outside,cloud,Third-party API service</pre>
+                        
+                        <h4>Boundary Types:</h4>
+                        <ul>
+                            <li><strong>inside</strong> - Assets within the CUI boundary (processes or stores CUI)</li>
+                            <li><strong>outside</strong> - Assets outside the CUI boundary</li>
+                            <li><strong>dmz</strong> - Assets in the DMZ/perimeter zone</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="boundary-upload-section">
+                        <h3>Upload File</h3>
+                        <input type="file" id="network-boundary-file" accept=".csv,.json" class="form-control">
+                        <div id="network-boundary-preview" class="bulk-upload-preview"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-primary" id="process-network-boundary-btn" disabled>
+                        Import Network Boundary
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    },
+
+    networkBoundaryData: null,
+
+    async handleNetworkBoundaryFile(file) {
+        if (!file) return;
+        
+        const preview = document.getElementById('network-boundary-preview');
+        const processBtn = document.getElementById('process-network-boundary-btn');
+        
+        try {
+            const content = await this.readFileAsText(file);
+            let assets = [];
+            
+            if (file.name.endsWith('.csv')) {
+                assets = this.parseCSV(content);
+            } else if (file.name.endsWith('.json')) {
+                assets = JSON.parse(content);
+            }
+            
+            this.networkBoundaryData = assets;
+            
+            // Group by boundary
+            const byBoundary = {
+                inside: assets.filter(a => a.boundary === 'inside'),
+                outside: assets.filter(a => a.boundary === 'outside'),
+                dmz: assets.filter(a => a.boundary === 'dmz')
+            };
+            
+            preview.innerHTML = `
+                <div class="boundary-summary">
+                    <h4>Network Boundary Summary</h4>
+                    <div class="boundary-stats">
+                        <div class="boundary-stat inside">
+                            <strong>${byBoundary.inside.length}</strong> Inside CUI Boundary
+                        </div>
+                        <div class="boundary-stat dmz">
+                            <strong>${byBoundary.dmz.length}</strong> DMZ/Perimeter
+                        </div>
+                        <div class="boundary-stat outside">
+                            <strong>${byBoundary.outside.length}</strong> Outside Boundary
+                        </div>
+                    </div>
+                    <div class="boundary-preview-list">
+                        ${Object.entries(byBoundary).map(([boundary, items]) => items.length > 0 ? `
+                            <div class="boundary-group">
+                                <h5>${this.config.boundaries[boundary].label}</h5>
+                                <ul>
+                                    ${items.slice(0, 5).map(item => `<li>${item.name} ${item.ipAddress ? `(${item.ipAddress})` : ''}</li>`).join('')}
+                                    ${items.length > 5 ? `<li><em>... and ${items.length - 5} more</em></li>` : ''}
+                                </ul>
+                            </div>
+                        ` : '').join('')}
+                    </div>
+                </div>
+            `;
+            
+            processBtn.disabled = assets.length === 0;
+            
+        } catch (error) {
+            preview.innerHTML = `<div class="error-message">Error reading file: ${error.message}</div>`;
+            processBtn.disabled = true;
+        }
+    },
+
+    processNetworkBoundary: function() {
+        if (!this.networkBoundaryData || this.networkBoundaryData.length === 0) {
+            this.showToast('No assets to import', 'error');
+            return;
+        }
+        
+        let imported = 0;
+        let updated = 0;
+        
+        this.networkBoundaryData.forEach(asset => {
+            // Check if asset already exists by name or IP
+            const existingAsset = Object.values(this.inventory.assets).find(
+                a => a.name === asset.name || (asset.ipAddress && a.ipAddress === asset.ipAddress)
+            );
+            
+            if (existingAsset) {
+                // Update existing asset's boundary
+                existingAsset.boundary = asset.boundary;
+                if (asset.ipAddress) existingAsset.ipAddress = asset.ipAddress;
+                if (asset.description) existingAsset.description = asset.description;
+                updated++;
+            } else {
+                // Create new asset
+                const assetId = this.generateId();
+                this.inventory.assets[assetId] = {
+                    id: assetId,
+                    name: asset.name,
+                    type: asset.type || 'server',
+                    ipAddress: asset.ipAddress || '',
+                    boundary: asset.boundary,
+                    criticality: asset.criticality || 'medium',
+                    description: asset.description || '',
+                    owner: asset.owner || '',
+                    cuiProcessed: asset.boundary === 'inside',
+                    dateAdded: Date.now(),
+                    addedBy: localStorage.getItem('nist-user-name') || 'Network Boundary Upload'
+                };
+                imported++;
+            }
+        });
+        
+        this.saveToStorage();
+        this.networkBoundaryData = null;
+        
+        // Close modal
+        document.querySelector('.modal-backdrop').remove();
+        
+        // Refresh dashboard
+        if (document.querySelector('.inventory-dashboard')) {
+            this.showInventoryDashboard();
+        }
+        
+        this.showToast(`Imported ${imported} new assets, updated ${updated} existing assets`, 'success');
+    },
+
+    readFileAsText: function(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsText(file);
+        });
     },
 
     generateId: function() {
