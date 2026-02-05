@@ -4,10 +4,11 @@
 const SecurityMonitor = {
     config: {
         version: "1.0.0",
-        maxFailedAttempts: 5,
+        maxFailedAttempts: 100, // Relaxed for static site (was 5)
         lockoutDuration: 15 * 60 * 1000, // 15 minutes
-        anomalyThreshold: 10,
+        anomalyThreshold: 50, // Relaxed for static site (was 10)
         monitoringInterval: 60 * 1000, // 1 minute
+        enableLockout: false, // Disabled for static site - no user sessions
     },
 
     metrics: {
@@ -216,6 +217,11 @@ const SecurityMonitor = {
 
     // Check if application should be locked
     checkLockout: function() {
+        // Skip lockout for static site
+        if (!this.config.enableLockout) {
+            return;
+        }
+        
         const recentThreats = this.alerts.filter(alert => 
             Date.now() - alert.timestamp < 60000 // Last minute
         );

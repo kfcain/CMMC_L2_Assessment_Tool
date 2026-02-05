@@ -4,11 +4,13 @@
 const SessionManager = {
     config: {
         version: "1.0.0",
-        sessionTimeout: 15 * 60 * 1000, // 15 minutes inactivity
-        absoluteTimeout: 8 * 60 * 60 * 1000, // 8 hours absolute
+        sessionTimeout: 24 * 60 * 60 * 1000, // 24 hours inactivity (relaxed for static site)
+        absoluteTimeout: 7 * 24 * 60 * 60 * 1000, // 7 days absolute (relaxed for static site)
         fingerprintKey: 'session-fingerprint',
         sessionKey: 'session-data',
         warningTime: 2 * 60 * 1000, // Warn 2 minutes before timeout
+        enableTimeoutWarnings: false, // Disabled for static site
+        enableTimeoutModals: false, // Disabled for static site
     },
 
     session: null,
@@ -178,7 +180,15 @@ const SessionManager = {
 
     // Handle session expiration
     handleSessionExpired: function(reason) {
-        // Show timeout modal
+        // Only log for static site - no intrusive modals
+        if (!this.config.enableTimeoutModals) {
+            this.logSecurityEvent('session_expired_silent', { reason });
+            // Silently create new session instead of showing modal
+            this.createSession();
+            return;
+        }
+        
+        // Show timeout modal (disabled by default for static site)
         const modal = document.createElement('div');
         modal.className = 'modal-backdrop active';
         modal.style.zIndex = '10000';
@@ -204,6 +214,11 @@ const SessionManager = {
 
     // Show timeout warning
     showTimeoutWarning: function() {
+        // Skip warnings for static site
+        if (!this.config.enableTimeoutWarnings) {
+            return;
+        }
+        
         const modal = document.createElement('div');
         modal.className = 'modal-backdrop active';
         modal.id = 'session-warning-modal';
