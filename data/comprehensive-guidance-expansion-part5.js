@@ -257,6 +257,224 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
             small_business: { approach: "Enable BitLocker, enable cloud storage encryption, encrypt databases, encrypt backups", cost_estimate: "$0", effort_hours: 4 }
         }
         
+        ,
+        
+        "SI.L2-3.14.1": {
+            objective: "Identify, report, and correct information and information system flaws in a timely manner.",
+            summary: "Patch management, vulnerability tracking, timely remediation",
+            cloud: {
+                aws: { services: ["Systems Manager", "Inspector"], implementation: { steps: ["Use Systems Manager Patch Manager for automated patching", "Enable Amazon Inspector for vulnerability detection", "Create maintenance windows for patching", "Track vulnerabilities in ticketing system", "Patch critical vulnerabilities within 30 days", "Document patch exceptions in POA&M"], cost_estimate: "$20-100/month", effort_hours: 12 }},
+                azure: { services: ["Update Management", "Defender"], implementation: { steps: ["Use Azure Update Management for patching", "Enable Defender for Cloud vulnerability assessment", "Create maintenance schedules", "Track vulnerabilities in Azure DevOps", "Patch critical vulnerabilities within 30 days", "Document patch exceptions"], cost_estimate: "$20-80/month", effort_hours: 12 }},
+                gcp: { services: ["OS Config", "Security Command Center"], implementation: { steps: ["Use OS Config for patch management", "Enable Security Command Center vulnerability scanning", "Create maintenance windows", "Track vulnerabilities in ticketing system", "Patch critical vulnerabilities within 30 days", "Document patch exceptions"], cost_estimate: "$20-80/month", effort_hours: 12 }}
+            },
+            small_business: { approach: "Enable automatic updates for Windows/cloud systems, manually patch critical vulnerabilities within 30 days, track in Excel", cost_estimate: "$0", effort_hours: 8 }
+        }
+        
+        ,
+        
+        "SI.L2-3.14.2": {
+            objective: "Provide protection from malicious code at designated locations within organizational information systems.",
+            summary: "Antivirus/EDR on all endpoints, email filtering, web filtering",
+            cloud: {
+                aws: { services: ["GuardDuty", "Macie"], implementation: { steps: ["Enable Amazon GuardDuty for threat detection", "Use Amazon Macie for data protection", "Deploy third-party antivirus (CrowdStrike, Trend Micro)", "Scan S3 uploads for malware", "Enable email filtering with WorkMail", "Monitor with Security Hub"], cost_estimate: "$100-500/month", effort_hours: 12 }},
+                azure: { services: ["Defender for Endpoint", "Defender for Cloud"], implementation: { steps: ["Deploy Microsoft Defender for Endpoint", "Enable Defender for Cloud", "Use Defender for Office 365 for email filtering", "Scan storage uploads for malware", "Enable real-time protection", "Monitor with Sentinel"], cost_estimate: "$100-400/month", effort_hours: 12 }},
+                gcp: { services: ["Security Command Center", "Chronicle"], implementation: { steps: ["Enable Security Command Center", "Deploy third-party antivirus", "Scan Cloud Storage uploads for malware", "Use Gmail advanced protection", "Monitor with Chronicle"], cost_estimate: "$100-400/month", effort_hours: 12 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Enable Windows Defender", "Configure real-time protection", "Enable cloud-delivered protection", "Schedule daily scans", "Update virus definitions automatically", "Enable tamper protection"], effort_hours: 4 }},
+                macos: { implementation: { steps: ["Enable XProtect", "Use third-party antivirus (Malwarebytes, Sophos)", "Enable Gatekeeper", "Scan downloads automatically"], effort_hours: 4 }}
+            },
+            small_business: { approach: "Enable Windows Defender on all computers, use Microsoft 365 email filtering, enable automatic updates", cost_estimate: "$0-50/user/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "SI.L2-3.14.3": {
+            objective: "Monitor information system security alerts and advisories and take action in response.",
+            summary: "Subscribe to security alerts, review daily, patch promptly",
+            implementation: {
+                general: { steps: ["Subscribe to US-CERT alerts", "Subscribe to vendor security bulletins (Microsoft, AWS, etc.)", "Review security alerts daily", "Assess impact to organization", "Prioritize response based on risk", "Patch or mitigate within defined timeframes", "Document response actions"], effort_hours: 8 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Subscribe to AWS Security Bulletins", "Enable Security Hub for centralized alerts", "Configure SNS notifications for critical findings", "Review GuardDuty findings daily", "Subscribe to CVE feeds", "Document response actions"], cost_estimate: "$10-50/month", effort_hours: 6 }},
+                azure: { implementation: { steps: ["Subscribe to Azure Security Center alerts", "Enable Defender for Cloud recommendations", "Configure Action Groups for notifications", "Review security alerts daily", "Subscribe to Microsoft Security Response Center", "Document response actions"], cost_estimate: "$10-40/month", effort_hours: 6 }},
+                gcp: { implementation: { steps: ["Subscribe to Google Cloud security bulletins", "Enable Security Command Center notifications", "Configure Pub/Sub for alerts", "Review security findings daily", "Subscribe to CVE feeds", "Document response actions"], cost_estimate: "$10-40/month", effort_hours: 6 }}
+            },
+            small_business: { approach: "Subscribe to US-CERT alerts, review Microsoft/cloud provider security bulletins weekly, patch critical vulnerabilities promptly", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "SI.L2-3.14.4": {
+            objective: "Update malicious code protection mechanisms when new releases are available.",
+            summary: "Automatic antivirus updates, daily signature updates",
+            cloud: {
+                aws: { implementation: { steps: ["Enable automatic updates for GuardDuty threat intelligence", "Update third-party antivirus automatically", "Enable automatic updates for WAF rules", "Monitor update status"], cost_estimate: "$0", effort_hours: 3 }},
+                azure: { implementation: { steps: ["Enable automatic updates for Defender", "Update virus definitions automatically", "Enable automatic updates for WAF rules", "Monitor update status with Policy"], cost_estimate: "$0", effort_hours: 3 }},
+                gcp: { implementation: { steps: ["Enable automatic updates for Security Command Center", "Update third-party antivirus automatically", "Enable automatic updates for Cloud Armor rules", "Monitor update status"], cost_estimate: "$0", effort_hours: 3 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Enable automatic Windows Defender updates", "Configure update schedule (daily)", "Enable cloud-delivered protection", "Monitor update status with Group Policy"], effort_hours: 2 }},
+                linux: { implementation: { steps: ["Enable automatic ClamAV updates", "Configure freshclam for daily updates", "Monitor update status"], effort_hours: 2 }}
+            },
+            small_business: { approach: "Enable automatic antivirus updates on all computers, verify updates are current weekly", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "SI.L2-3.14.5": {
+            objective: "Perform periodic scans of organizational information systems and real-time scans of files from external sources as files are downloaded, opened, or executed.",
+            summary: "Weekly system scans, real-time scanning, scan downloads",
+            cloud: {
+                aws: { implementation: { steps: ["Enable GuardDuty for continuous monitoring", "Use Inspector for weekly vulnerability scans", "Scan S3 uploads in real-time with Lambda", "Enable Macie for data scanning", "Monitor scan results"], cost_estimate: "$50-300/month", effort_hours: 8 }},
+                azure: { implementation: { steps: ["Enable Defender for Endpoint real-time scanning", "Schedule weekly vulnerability scans", "Scan storage uploads with Defender for Storage", "Enable Defender for Cloud Apps", "Monitor scan results"], cost_estimate: "$50-250/month", effort_hours: 8 }},
+                gcp: { implementation: { steps: ["Enable Security Command Center continuous scanning", "Schedule weekly vulnerability scans", "Scan Cloud Storage uploads with Cloud Functions", "Monitor scan results"], cost_estimate: "$50-250/month", effort_hours: 8 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Enable Windows Defender real-time protection", "Schedule weekly full scans", "Scan downloads automatically", "Scan USB drives on insertion", "Review scan results"], effort_hours: 3 }},
+                linux: { implementation: { steps: ["Enable ClamAV real-time scanning", "Schedule weekly full scans with cron", "Scan downloads automatically", "Review scan results"], effort_hours: 3 }}
+            },
+            small_business: { approach: "Enable Windows Defender real-time protection, schedule weekly scans, scan all downloads automatically", cost_estimate: "$0", effort_hours: 3 }
+        }
+        
+        ,
+        
+        "SI.L2-3.14.6": {
+            objective: "Monitor organizational information systems, including inbound and outbound communications traffic, to detect attacks and indicators of potential attacks.",
+            summary: "SIEM, IDS/IPS, network monitoring, log analysis",
+            cloud: {
+                aws: { services: ["GuardDuty", "Security Hub", "VPC Flow Logs"], implementation: { steps: ["Enable GuardDuty for threat detection", "Enable VPC Flow Logs for all VPCs", "Use Security Hub for centralized monitoring", "Deploy AWS Network Firewall with IDS", "Create CloudWatch dashboards", "Set up automated alerts", "Review findings daily"], cost_estimate: "$200-1000/month", effort_hours: 20 }},
+                azure: { services: ["Sentinel", "Defender", "NSG Flow Logs"], implementation: { steps: ["Deploy Microsoft Sentinel as SIEM", "Enable Defender for Cloud", "Enable NSG Flow Logs", "Create analytics rules for threat detection", "Create Azure Monitor dashboards", "Set up automated alerts", "Review findings daily"], cost_estimate: "$300-1500/month", effort_hours: 20 }},
+                gcp: { services: ["Chronicle", "Security Command Center", "VPC Flow Logs"], implementation: { steps: ["Deploy Chronicle SIEM", "Enable Security Command Center Premium", "Enable VPC Flow Logs", "Create detection rules", "Create Cloud Monitoring dashboards", "Set up automated alerts", "Review findings daily"], cost_estimate: "$500-2000/month", effort_hours: 20 }}
+            },
+            small_business: { approach: "Use cloud provider security monitoring, enable logging, review security dashboards weekly, set up email alerts for critical findings", cost_estimate: "$50-300/month", effort_hours: 12 }
+        }
+        
+        ,
+        
+        "SI.L2-3.14.7": {
+            objective: "Identify unauthorized use of organizational information systems.",
+            summary: "User behavior analytics, anomaly detection, audit log review",
+            cloud: {
+                aws: { services: ["GuardDuty", "CloudTrail", "Detective"], implementation: { steps: ["Enable GuardDuty for anomaly detection", "Use CloudTrail for all API activity", "Use Amazon Detective for investigation", "Create CloudWatch alarms for suspicious activity", "Monitor for unauthorized access attempts", "Review CloudTrail logs weekly", "Investigate anomalies"], cost_estimate: "$100-500/month", effort_hours: 12 }},
+                azure: { services: ["Sentinel", "Azure AD Identity Protection"], implementation: { steps: ["Deploy Sentinel with UEBA", "Enable Azure AD Identity Protection", "Monitor Activity Logs for suspicious activity", "Create analytics rules for unauthorized use", "Review sign-in logs daily", "Investigate anomalies"], cost_estimate: "$200-800/month", effort_hours: 12 }},
+                gcp: { services: ["Chronicle", "Cloud Audit Logs"], implementation: { steps: ["Deploy Chronicle with threat detection", "Enable Cloud Audit Logs for all services", "Monitor for suspicious activity", "Create detection rules for unauthorized use", "Review audit logs weekly", "Investigate anomalies"], cost_estimate: "$200-800/month", effort_hours: 12 }}
+            },
+            small_business: { approach: "Review cloud provider audit logs weekly, monitor for failed login attempts, investigate suspicious activity", cost_estimate: "$0-100/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "SA.L2-3.14.1": {
+            objective: "Require that developers and integrators of organizational information systems, system components, or information system services create and implement a security assessment plan.",
+            summary: "Security assessment plan for custom applications, security testing",
+            implementation: {
+                general: { steps: ["Create security assessment plan template", "Require security assessment for all custom development", "Include security requirements in RFP", "Conduct security code review", "Perform penetration testing", "Document security test results", "Require remediation of findings before deployment"], effort_hours: 16 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use AWS CodeGuru for code security review", "Implement security testing in CI/CD pipeline", "Use AWS Inspector for application scanning", "Document security assessment plan", "Require security sign-off before production deployment"], cost_estimate: "$50-300/month", effort_hours: 12 }},
+                azure: { implementation: { steps: ["Use Azure DevOps security scanning", "Implement security testing in CI/CD pipeline", "Use Defender for DevOps", "Document security assessment plan", "Require security sign-off before production deployment"], cost_estimate: "$50-250/month", effort_hours: 12 }},
+                gcp: { implementation: { steps: ["Use Cloud Build with security scanning", "Implement security testing in CI/CD pipeline", "Use Container Analysis for image scanning", "Document security assessment plan", "Require security sign-off before production deployment"], cost_estimate: "$50-250/month", effort_hours: 12 }}
+            },
+            small_business: { approach: "Create security requirements document, conduct security testing before deployment, document test results", cost_estimate: "$0-5000 (consultant)", effort_hours: 12 }
+        }
+        
+        ,
+        
+        "SA.L2-3.14.2": {
+            objective: "Require that developers and integrators of organizational information systems, system components, or information system services employ a system development life cycle process that incorporates information security considerations.",
+            summary: "Secure SDLC, security requirements, security testing in development",
+            implementation: {
+                general: { steps: ["Implement secure SDLC methodology", "Include security requirements in design phase", "Conduct threat modeling", "Perform security code reviews", "Conduct security testing", "Perform penetration testing", "Document security in system documentation", "Train developers on secure coding"], effort_hours: 24 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use AWS Well-Architected Framework", "Implement security in CI/CD pipeline", "Use CodeGuru for security review", "Use Inspector for vulnerability scanning", "Document security in architecture diagrams", "Train developers on AWS security best practices"], cost_estimate: "$50-300/month", effort_hours: 16 }},
+                azure: { implementation: { steps: ["Use Azure Well-Architected Framework", "Implement security in CI/CD pipeline", "Use Defender for DevOps", "Use Security Center recommendations", "Document security in architecture diagrams", "Train developers on Azure security best practices"], cost_estimate: "$50-250/month", effort_hours: 16 }},
+                gcp: { implementation: { steps: ["Use Google Cloud Architecture Framework", "Implement security in CI/CD pipeline", "Use Container Analysis", "Use Security Command Center", "Document security in architecture diagrams", "Train developers on GCP security best practices"], cost_estimate: "$50-250/month", effort_hours: 16 }}
+            },
+            small_business: { approach: "Implement basic secure SDLC, include security requirements in development, conduct security testing before deployment", cost_estimate: "$0-2000 (training)", effort_hours: 12 }
+        }
+        
+        ,
+        
+        "SA.L2-3.14.3": {
+            objective: "Require the developer of the information system, system component, or information system service to produce a plan for the continuous monitoring of security control effectiveness that contains the required level of detail.",
+            summary: "Continuous monitoring plan, security metrics, ongoing assessment",
+            implementation: {
+                general: { steps: ["Create continuous monitoring plan", "Define security metrics to monitor", "Establish monitoring frequency", "Define alerting thresholds", "Document monitoring procedures", "Assign monitoring responsibilities", "Review monitoring plan annually"], effort_hours: 12 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Document continuous monitoring plan", "Use Security Hub for continuous monitoring", "Use Config for compliance monitoring", "Create CloudWatch dashboards for security metrics", "Set up automated alerts", "Review monitoring effectiveness quarterly"], cost_estimate: "$100-500/month", effort_hours: 10 }},
+                azure: { implementation: { steps: ["Document continuous monitoring plan", "Use Sentinel for continuous monitoring", "Use Azure Policy for compliance monitoring", "Create Azure Monitor dashboards", "Set up automated alerts", "Review monitoring effectiveness quarterly"], cost_estimate: "$200-800/month", effort_hours: 10 }},
+                gcp: { implementation: { steps: ["Document continuous monitoring plan", "Use Security Command Center for continuous monitoring", "Use organization policies for compliance", "Create Cloud Monitoring dashboards", "Set up automated alerts", "Review monitoring effectiveness quarterly"], cost_estimate: "$200-600/month", effort_hours: 10 }}
+            },
+            small_business: { approach: "Document monitoring plan, use cloud provider security dashboards, review security metrics monthly", cost_estimate: "$0-200/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "SA.L2-3.14.4": {
+            objective: "Require the developer of the information system, system component, or information system service to perform configuration management during system, component, or service development, implementation, and operation.",
+            summary: "Configuration management, version control, change tracking",
+            implementation: {
+                general: { steps: ["Implement configuration management process", "Use version control (Git)", "Track all configuration changes", "Require change approval", "Document configuration baselines", "Maintain configuration documentation", "Review configuration changes"], effort_hours: 12 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use CodeCommit or GitHub for version control", "Use CodePipeline for CI/CD", "Use Config for configuration tracking", "Implement infrastructure as code (CloudFormation, Terraform)", "Track changes in Git", "Require pull request approval", "Document configuration management procedures"], cost_estimate: "$10-100/month", effort_hours: 10 }},
+                azure: { implementation: { steps: ["Use Azure Repos for version control", "Use Azure Pipelines for CI/CD", "Use Azure Policy for configuration tracking", "Implement infrastructure as code (ARM templates, Terraform)", "Track changes in Git", "Require pull request approval", "Document configuration management procedures"], cost_estimate: "$10-80/month", effort_hours: 10 }},
+                gcp: { implementation: { steps: ["Use Cloud Source Repositories for version control", "Use Cloud Build for CI/CD", "Use Config Connector for configuration tracking", "Implement infrastructure as code (Deployment Manager, Terraform)", "Track changes in Git", "Require pull request approval", "Document configuration management procedures"], cost_estimate: "$10-80/month", effort_hours: 10 }}
+            },
+            small_business: { approach: "Use Git for version control, track configuration changes, require approval for production changes", cost_estimate: "$0-20/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "SA.L2-3.14.5": {
+            objective: "Require the developer of the information system, system component, or information system service to document, manage, and ensure the integrity of changes to the system, component, or service.",
+            summary: "Change management, change documentation, integrity verification",
+            implementation: {
+                general: { steps: ["Document change management process", "Require change tickets for all changes", "Document change details (what, why, who, when)", "Require change approval", "Test changes before production", "Verify change integrity", "Document rollback procedures", "Review changes in CAB"], effort_hours: 12 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use ServiceNow/Jira for change management", "Track changes in CloudTrail", "Use CodePipeline for automated deployments", "Implement blue/green deployments", "Verify change integrity with checksums", "Document rollback procedures", "Review changes in CAB meetings"], cost_estimate: "$0-100/month", effort_hours: 10 }},
+                azure: { implementation: { steps: ["Use Azure DevOps for change management", "Track changes in Activity Log", "Use Azure Pipelines for automated deployments", "Implement blue/green deployments", "Verify change integrity", "Document rollback procedures", "Review changes in CAB meetings"], cost_estimate: "$0-80/month", effort_hours: 10 }},
+                gcp: { implementation: { steps: ["Use Jira/ServiceNow for change management", "Track changes in Cloud Audit Logs", "Use Cloud Build for automated deployments", "Implement blue/green deployments", "Verify change integrity", "Document rollback procedures", "Review changes in CAB meetings"], cost_estimate: "$0-100/month", effort_hours: 10 }}
+            },
+            small_business: { approach: "Document all changes in ticketing system, require approval, test before production, document rollback procedures", cost_estimate: "$0-50/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "SA.L2-3.14.6": {
+            objective: "Require the developer of the information system, system component, or information system service to reduce attack surfaces to a minimum.",
+            summary: "Minimize attack surface, disable unnecessary features, least functionality",
+            implementation: {
+                general: { steps: ["Disable unnecessary services and features", "Remove unused code and libraries", "Minimize exposed ports and protocols", "Use minimal base images", "Implement least privilege", "Remove default accounts", "Disable unnecessary APIs", "Document attack surface reduction measures"], effort_hours: 12 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use minimal AMIs", "Disable unused AWS services", "Use Security Groups with minimal ports", "Remove unnecessary IAM permissions", "Use VPC endpoints (no internet gateway)", "Implement least privilege", "Document attack surface"], cost_estimate: "$0", effort_hours: 8 }},
+                azure: { implementation: { steps: ["Use minimal VM images", "Disable unused Azure services", "Use NSGs with minimal ports", "Remove unnecessary RBAC assignments", "Use Private Endpoints", "Implement least privilege", "Document attack surface"], cost_estimate: "$0", effort_hours: 8 }},
+                gcp: { implementation: { steps: ["Use minimal VM images (Container-Optimized OS)", "Disable unused GCP APIs", "Use firewall rules with minimal ports", "Remove unnecessary IAM bindings", "Use Private Google Access", "Implement least privilege", "Document attack surface"], cost_estimate: "$0", effort_hours: 8 }}
+            },
+            small_business: { approach: "Use minimal OS installations, disable unnecessary services, close unused ports, remove default accounts", cost_estimate: "$0", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "SA.L2-3.14.7": {
+            objective: "Require the developer of the information system, system component, or information system service to employ tools for analyzing the security of code.",
+            summary: "Static code analysis, security scanning, vulnerability testing",
+            implementation: {
+                general: { steps: ["Implement static code analysis (SAST)", "Implement dynamic code analysis (DAST)", "Use dependency scanning", "Scan for secrets in code", "Integrate security scanning in CI/CD", "Require remediation of critical findings", "Document security scanning procedures"], effort_hours: 12 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use CodeGuru for code security review", "Use Inspector for application scanning", "Implement security scanning in CodePipeline", "Use third-party tools (Snyk, Checkmarx)", "Scan for secrets with tools like git-secrets", "Require security gates in CI/CD"], cost_estimate: "$100-500/month", effort_hours: 10 }},
+                azure: { implementation: { steps: ["Use Defender for DevOps", "Implement security scanning in Azure Pipelines", "Use third-party tools (Snyk, Checkmarx)", "Scan for secrets with Azure Key Vault", "Require security gates in CI/CD", "Document security scanning procedures"], cost_estimate: "$100-400/month", effort_hours: 10 }},
+                gcp: { implementation: { steps: ["Use Container Analysis for image scanning", "Implement security scanning in Cloud Build", "Use third-party tools (Snyk, Checkmarx)", "Scan for secrets", "Require security gates in CI/CD", "Document security scanning procedures"], cost_estimate: "$100-400/month", effort_hours: 10 }}
+            },
+            small_business: { approach: "Use free security scanning tools (SonarQube, OWASP ZAP), scan code before deployment, fix critical vulnerabilities", cost_estimate: "$0-200/month", effort_hours: 8 }
+        }
+        
     }
 };
 
