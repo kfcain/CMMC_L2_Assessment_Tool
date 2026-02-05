@@ -1643,6 +1643,842 @@ logging host 10.0.100.10 transport udp port 514`,
             }
         }
         
+        ,
+        
+        "AC.L2-3.1.4": {
+            objective: "Separate the duties of individuals to reduce the risk of malevolent activity without collusion.",
+            
+            cloud: {
+                aws: {
+                    services: ["IAM", "Organizations", "SCP", "Control Tower", "CloudTrail", "Config"],
+                    implementation: {
+                        steps: [
+                            "Define roles with mutually exclusive permissions (e.g., developer vs. production deployer)",
+                            "Use IAM policies to enforce separation (deny production access to developers)",
+                            "Implement AWS Organizations SCPs to prevent privilege escalation",
+                            "Create separate AWS accounts for dev/staging/production",
+                            "Use IAM permission boundaries to limit maximum permissions",
+                            "Require multi-person approval for critical actions (AWS Config rules)",
+                            "Enable CloudTrail to audit all privileged actions",
+                            "Use AWS Control Tower for guardrails across accounts",
+                            "Implement break-glass procedures with monitoring",
+                            "Use AWS SSO with group-based access control"
+                        ],
+                        terraform_example: `# IAM policy for developers - can create but not deploy to production
+resource "aws_iam_policy" "developer_policy" {
+  name        = "DeveloperPolicy"
+  description = "Developers can develop but not deploy to production"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowDevelopmentAccess"
+        Effect = "Allow"
+        Action = [
+          "ec2:*",
+          "s3:*",
+          "rds:*",
+          "lambda:*"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:RequestedRegion" = "us-east-1"
+          }
+          StringLike = {
+            "aws:ResourceTag/Environment" = ["dev", "staging"]
+          }
+        }
+      },
+      {
+        Sid    = "DenyProductionAccess"
+        Effect = "Deny"
+        Action = "*"
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceTag/Environment" = "production"
+          }
+        }
+      },
+      {
+        Sid    = "DenyIAMModification"
+        Effect = "Deny"
+        Action = [
+          "iam:CreateUser",
+          "iam:DeleteUser",
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:AttachUserPolicy",
+          "iam:AttachRolePolicy",
+          "iam:PutUserPolicy",
+          "iam:PutRolePolicy"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# IAM policy for deployers - can deploy but not develop
+resource "aws_iam_policy" "deployer_policy" {
+  name        = "DeployerPolicy"
+  description = "Deployers can deploy to production but not modify code"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowProductionDeployment"
+        Effect = "Allow"
+        Action = [
+          "ecs:UpdateService",
+          "ecs:RegisterTaskDefinition",
+          "lambda:UpdateFunctionCode",
+          "lambda:PublishVersion",
+          "codedeploy:CreateDeployment",
+          "codedeploy:GetDeployment"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceTag/Environment" = "production"
+          }
+        }
+      },
+      {
+        Sid    = "DenyCodeModification"
+        Effect = "Deny"
+        Action = [
+          "codecommit:*",
+          "lambda:CreateFunction",
+          "lambda:DeleteFunction",
+          "ec2:RunInstances",
+          "ec2:TerminateInstances"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "DenyIAMModification"
+        Effect = "Deny"
+        Action = "iam:*"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# IAM policy for security team - can audit but not modify
+resource "aws_iam_policy" "security_auditor_policy" {
+  name        = "SecurityAuditorPolicy"
+  description = "Security team can audit but not modify resources"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowReadOnlyAccess"
+        Effect = "Allow"
+        Action = [
+          "cloudtrail:LookupEvents",
+          "cloudtrail:GetTrailStatus",
+          "config:Describe*",
+          "config:Get*",
+          "config:List*",
+          "guardduty:Get*",
+          "guardduty:List*",
+          "securityhub:Get*",
+          "securityhub:List*",
+          "access-analyzer:List*",
+          "iam:Get*",
+          "iam:List*",
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "DenyModification"
+        Effect = "Deny"
+        Action = [
+          "*:Create*",
+          "*:Delete*",
+          "*:Update*",
+          "*:Put*",
+          "*:Modify*"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Permission boundary to prevent privilege escalation
+resource "aws_iam_policy" "permission_boundary" {
+  name        = "MaxPermissionBoundary"
+  description = "Maximum permissions any user can have"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DenyPrivilegeEscalation"
+        Effect = "Deny"
+        Action = [
+          "iam:CreatePolicyVersion",
+          "iam:DeletePolicy",
+          "iam:DeletePolicyVersion",
+          "iam:SetDefaultPolicyVersion",
+          "iam:PassRole"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "DenyOrganizationChanges"
+        Effect = "Deny"
+        Action = "organizations:*"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Attach permission boundary to all users
+resource "aws_iam_user" "developer" {
+  name                 = "developer-user"
+  permissions_boundary = aws_iam_policy.permission_boundary.arn
+  
+  tags = {
+    Role = "Developer"
+  }
+}`,
+                        verification: [
+                            "Test developers cannot access production resources",
+                            "Test deployers cannot modify code repositories",
+                            "Test security auditors cannot modify resources",
+                            "Review CloudTrail for any privilege escalation attempts",
+                            "Use AWS IAM Access Analyzer to identify overly permissive policies"
+                        ],
+                        cost_estimate: "$0-50/month (IAM is free, CloudTrail/Config costs)",
+                        effort_hours: 20
+                    }
+                },
+                
+                azure: {
+                    services: ["Azure RBAC", "Azure AD PIM", "Management Groups", "Azure Policy", "Activity Log"],
+                    implementation: {
+                        steps: [
+                            "Define custom RBAC roles with separation of duties",
+                            "Use Azure AD Privileged Identity Management (PIM) for just-in-time access",
+                            "Implement Management Groups for organizational hierarchy",
+                            "Create separate subscriptions for dev/staging/production",
+                            "Use Azure Policy to enforce separation controls",
+                            "Require approval workflows for privileged role activation",
+                            "Enable Activity Log for all privileged actions",
+                            "Implement Conditional Access for sensitive operations",
+                            "Use Azure AD access reviews for periodic validation",
+                            "Configure alerts for privilege escalation attempts"
+                        ],
+                        azure_cli_example: `# Create custom role for developers - no production access
+az role definition create --role-definition '{
+  "Name": "Developer Role",
+  "Description": "Developers can work in dev/staging but not production",
+  "Actions": [
+    "Microsoft.Compute/*",
+    "Microsoft.Storage/*",
+    "Microsoft.Web/*",
+    "Microsoft.Sql/servers/databases/read"
+  ],
+  "NotActions": [
+    "Microsoft.Authorization/*/Write",
+    "Microsoft.Authorization/*/Delete"
+  ],
+  "AssignableScopes": [
+    "/subscriptions/DEV_SUBSCRIPTION_ID",
+    "/subscriptions/STAGING_SUBSCRIPTION_ID"
+  ]
+}'
+
+# Create custom role for deployers - production deployment only
+az role definition create --role-definition '{
+  "Name": "Production Deployer Role",
+  "Description": "Can deploy to production but not modify code",
+  "Actions": [
+    "Microsoft.Web/sites/publish/Action",
+    "Microsoft.Web/sites/config/write",
+    "Microsoft.ContainerRegistry/registries/pull/read",
+    "Microsoft.ContainerService/managedClusters/write"
+  ],
+  "NotActions": [
+    "Microsoft.Resources/deployments/write",
+    "Microsoft.Compute/virtualMachines/write",
+    "Microsoft.Authorization/*/Write"
+  ],
+  "AssignableScopes": [
+    "/subscriptions/PROD_SUBSCRIPTION_ID"
+  ]
+}'
+
+# Create custom role for security auditors - read-only
+az role definition create --role-definition '{
+  "Name": "Security Auditor Role",
+  "Description": "Read-only access for security auditing",
+  "Actions": [
+    "*/read",
+    "Microsoft.Security/*/read",
+    "Microsoft.SecurityInsights/*/read"
+  ],
+  "NotActions": [
+    "*/write",
+    "*/delete"
+  ],
+  "AssignableScopes": [
+    "/subscriptions/ALL_SUBSCRIPTION_IDS"
+  ]
+}'
+
+# Configure PIM for just-in-time privileged access
+az ad sp create-for-rbac --name "PIM-Admin" --role "Privileged Role Administrator"
+
+# Assign role with PIM (requires approval)
+az role assignment create \\
+  --assignee user@domain.com \\
+  --role "Production Deployer Role" \\
+  --scope /subscriptions/PROD_SUBSCRIPTION_ID \\
+  --description "Requires manager approval for activation"
+
+# Create Azure Policy to deny production access to developers
+az policy definition create --name 'DenyDeveloperProductionAccess' \\
+  --mode All \\
+  --rules '{
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Compute/virtualMachines"
+        },
+        {
+          "field": "tags.Environment",
+          "equals": "Production"
+        }
+      ]
+    },
+    "then": {
+      "effect": "deny"
+    }
+  }' \\
+  --params '{}'
+
+# Assign policy to subscription
+az policy assignment create \\
+  --name 'EnforceSeparationOfDuties' \\
+  --policy 'DenyDeveloperProductionAccess' \\
+  --scope /subscriptions/SUBSCRIPTION_ID`,
+                        verification: [
+                            "Test developers cannot access production subscription",
+                            "Test deployers cannot modify development resources",
+                            "Verify PIM requires approval for privileged roles",
+                            "Review Activity Log for privilege escalation attempts",
+                            "Use Azure AD access reviews to validate role assignments"
+                        ],
+                        cost_estimate: "$6-16/user/month (Azure AD P2 for PIM)",
+                        effort_hours: 20
+                    }
+                },
+                
+                gcp: {
+                    services: ["IAM", "Organization Policies", "Resource Manager", "Cloud Audit Logs", "VPC Service Controls"],
+                    implementation: {
+                        steps: [
+                            "Define custom IAM roles with separation of duties",
+                            "Use separate GCP projects for dev/staging/production",
+                            "Implement Organization Policies to enforce constraints",
+                            "Use IAM Conditions for context-aware access control",
+                            "Enable Cloud Audit Logs for all privileged actions",
+                            "Implement VPC Service Controls for data perimeter",
+                            "Use Resource Manager hierarchy for inheritance",
+                            "Configure IAM recommender to identify over-privileged accounts",
+                            "Implement break-glass procedures with monitoring",
+                            "Use Workload Identity for service-to-service auth"
+                        ],
+                        gcloud_example: `# Create custom role for developers
+gcloud iam roles create developer_role \\
+  --project=PROJECT_ID \\
+  --title="Developer Role" \\
+  --description="Developers can work in dev/staging only" \\
+  --permissions=compute.instances.create,compute.instances.delete,storage.buckets.create,storage.objects.create \\
+  --stage=GA
+
+# Create custom role for deployers
+gcloud iam roles create deployer_role \\
+  --project=PROJECT_ID \\
+  --title="Production Deployer Role" \\
+  --description="Can deploy to production but not develop" \\
+  --permissions=run.services.update,cloudfunctions.functions.update,container.clusters.update \\
+  --stage=GA
+
+# Create custom role for security auditors
+gcloud iam roles create security_auditor_role \\
+  --project=PROJECT_ID \\
+  --title="Security Auditor Role" \\
+  --description="Read-only access for auditing" \\
+  --permissions=logging.logEntries.list,monitoring.timeSeries.list,cloudaudit.logs.read \\
+  --stage=GA
+
+# Assign developer role to dev project only
+gcloud projects add-iam-policy-binding dev-project-id \\
+  --member=user:developer@domain.com \\
+  --role=projects/PROJECT_ID/roles/developer_role
+
+# Assign deployer role to production project only
+gcloud projects add-iam-policy-binding prod-project-id \\
+  --member=user:deployer@domain.com \\
+  --role=projects/PROJECT_ID/roles/deployer_role
+
+# Assign auditor role to all projects
+gcloud organizations add-iam-policy-binding ORGANIZATION_ID \\
+  --member=user:auditor@domain.com \\
+  --role=projects/PROJECT_ID/roles/security_auditor_role
+
+# Create Organization Policy to restrict project creation
+gcloud resource-manager org-policies set-policy \\
+  --organization=ORGANIZATION_ID \\
+  policy.yaml
+
+# policy.yaml content:
+# constraint: constraints/resourcemanager.allowedProjectCreators
+# listPolicy:
+#   allowedValues:
+#     - user:admin@domain.com
+
+# Use IAM Conditions for time-based access
+gcloud projects add-iam-policy-binding prod-project-id \\
+  --member=user:deployer@domain.com \\
+  --role=roles/run.admin \\
+  --condition='expression=request.time < timestamp("2024-12-31T23:59:59Z"),title=Temporary Access,description=Access expires end of year'`,
+                        verification: [
+                            "Test developers cannot access production project",
+                            "Test deployers cannot create new resources",
+                            "Verify IAM conditions enforce time/location restrictions",
+                            "Review Cloud Audit Logs for privilege escalation",
+                            "Use IAM recommender to identify excessive permissions"
+                        ],
+                        cost_estimate: "$0-50/month (IAM is free, Audit Logs costs)",
+                        effort_hours: 18
+                    }
+                }
+            },
+            
+            database: {
+                postgresql: {
+                    features: ["Database Roles", "Row-Level Security", "Schema Separation", "Audit Logging"],
+                    implementation: {
+                        steps: [
+                            "Create separate database roles for different functions",
+                            "Use schema-level permissions to separate duties",
+                            "Implement row-level security (RLS) for data access control",
+                            "Enable pgAudit extension for comprehensive logging",
+                            "Separate read-only and read-write roles",
+                            "Implement stored procedures for controlled data modification",
+                            "Use GRANT/REVOKE to enforce least privilege",
+                            "Create separate roles for backup/restore operations",
+                            "Implement connection pooling with role-based routing"
+                        ],
+                        sql_example: `-- Create separate roles for different duties
+CREATE ROLE app_developer LOGIN PASSWORD 'secure_password';
+CREATE ROLE app_deployer LOGIN PASSWORD 'secure_password';
+CREATE ROLE data_analyst LOGIN PASSWORD 'secure_password';
+CREATE ROLE dba_admin LOGIN PASSWORD 'secure_password';
+CREATE ROLE security_auditor LOGIN PASSWORD 'secure_password';
+
+-- Developer role - can create/modify in dev schema only
+GRANT CONNECT ON DATABASE cui_app TO app_developer;
+GRANT USAGE ON SCHEMA dev TO app_developer;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA dev TO app_developer;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA dev TO app_developer;
+ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT ALL ON TABLES TO app_developer;
+
+-- Deployer role - can deploy to production but not modify schema
+GRANT CONNECT ON DATABASE cui_app TO app_deployer;
+GRANT USAGE ON SCHEMA production TO app_deployer;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA production TO app_deployer;
+-- Explicitly deny DDL operations
+REVOKE CREATE ON SCHEMA production FROM app_deployer;
+
+-- Data analyst role - read-only access to production
+GRANT CONNECT ON DATABASE cui_app TO data_analyst;
+GRANT USAGE ON SCHEMA production TO data_analyst;
+GRANT SELECT ON ALL TABLES IN SCHEMA production TO data_analyst;
+ALTER DEFAULT PRIVILEGES IN SCHEMA production GRANT SELECT ON TABLES TO data_analyst;
+
+-- Security auditor role - can read logs and metadata only
+GRANT CONNECT ON DATABASE cui_app TO security_auditor;
+GRANT SELECT ON pg_catalog.pg_stat_activity TO security_auditor;
+GRANT SELECT ON pg_catalog.pg_stat_statements TO security_auditor;
+-- Grant access to audit log table
+GRANT SELECT ON audit.logged_actions TO security_auditor;
+
+-- DBA admin role - full access but logged
+GRANT ALL PRIVILEGES ON DATABASE cui_app TO dba_admin;
+-- Enable logging for DBA actions
+ALTER ROLE dba_admin SET log_statement = 'all';
+
+-- Implement row-level security for sensitive data
+ALTER TABLE production.customer_data ENABLE ROW LEVEL SECURITY;
+
+-- Policy: developers can only see test data
+CREATE POLICY developer_policy ON production.customer_data
+  FOR ALL
+  TO app_developer
+  USING (data_classification = 'test');
+
+-- Policy: analysts can see non-CUI data only
+CREATE POLICY analyst_policy ON production.customer_data
+  FOR SELECT
+  TO data_analyst
+  USING (data_classification != 'CUI');
+
+-- Policy: deployers can modify but not delete
+CREATE POLICY deployer_policy ON production.customer_data
+  FOR UPDATE
+  TO app_deployer
+  USING (true)
+  WITH CHECK (true);
+
+-- Enable pgAudit extension
+CREATE EXTENSION IF NOT EXISTS pgaudit;
+
+-- Configure audit logging for all roles
+ALTER SYSTEM SET pgaudit.log = 'write, ddl, role';
+ALTER SYSTEM SET pgaudit.log_catalog = 'off';
+ALTER SYSTEM SET pgaudit.log_parameter = 'on';
+ALTER SYSTEM SET pgaudit.log_relation = 'on';
+
+-- Create audit log table
+CREATE SCHEMA IF NOT EXISTS audit;
+CREATE TABLE audit.logged_actions (
+  event_id BIGSERIAL PRIMARY KEY,
+  schema_name TEXT,
+  table_name TEXT,
+  user_name TEXT,
+  action TEXT,
+  original_data JSONB,
+  new_data JSONB,
+  query TEXT,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create trigger function for audit logging
+CREATE OR REPLACE FUNCTION audit.log_changes()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO audit.logged_actions (
+    schema_name, table_name, user_name, action, 
+    original_data, new_data, query
+  ) VALUES (
+    TG_TABLE_SCHEMA, TG_TABLE_NAME, SESSION_USER, TG_OP,
+    row_to_json(OLD), row_to_json(NEW), current_query()
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Apply audit trigger to sensitive tables
+CREATE TRIGGER audit_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON production.customer_data
+  FOR EACH ROW EXECUTE FUNCTION audit.log_changes();`,
+                        verification: [
+                            "Test developers cannot access production schema",
+                            "Test deployers cannot perform DDL operations",
+                            "Verify row-level security policies are enforced",
+                            "Review audit logs for all privileged operations",
+                            "Test that analysts have read-only access"
+                        ],
+                        effort_hours: 16
+                    }
+                },
+                
+                mysql: {
+                    features: ["User Privileges", "Database Separation", "Audit Plugin", "Roles"],
+                    implementation: {
+                        steps: [
+                            "Create separate MySQL users for different functions",
+                            "Use database-level privileges for separation",
+                            "Enable MySQL Enterprise Audit or MariaDB audit plugin",
+                            "Implement roles (MySQL 8.0+) for grouped permissions",
+                            "Separate read-only and read-write users",
+                            "Use views to restrict data access",
+                            "Implement stored procedures for controlled operations",
+                            "Enable binary logging for change tracking"
+                        ],
+                        sql_example: `-- Create roles for separation of duties (MySQL 8.0+)
+CREATE ROLE 'app_developer';
+CREATE ROLE 'app_deployer';
+CREATE ROLE 'data_analyst';
+CREATE ROLE 'dba_admin';
+CREATE ROLE 'security_auditor';
+
+-- Developer role - dev database only
+GRANT ALL PRIVILEGES ON cui_dev.* TO 'app_developer';
+GRANT SELECT, INSERT, UPDATE, DELETE ON cui_staging.* TO 'app_developer';
+
+-- Deployer role - can deploy but not modify structure
+GRANT SELECT, INSERT, UPDATE, DELETE ON cui_production.* TO 'app_deployer';
+REVOKE CREATE, DROP, ALTER ON cui_production.* FROM 'app_deployer';
+
+-- Data analyst role - read-only
+GRANT SELECT ON cui_production.* TO 'data_analyst';
+
+-- Security auditor role - audit logs only
+GRANT SELECT ON mysql.general_log TO 'security_auditor';
+GRANT SELECT ON mysql.slow_log TO 'security_auditor';
+GRANT SELECT ON audit_log.* TO 'security_auditor';
+
+-- DBA admin role - full access
+GRANT ALL PRIVILEGES ON *.* TO 'dba_admin' WITH GRANT OPTION;
+
+-- Create users and assign roles
+CREATE USER 'dev_user'@'%' IDENTIFIED BY 'secure_password';
+GRANT 'app_developer' TO 'dev_user'@'%';
+SET DEFAULT ROLE 'app_developer' TO 'dev_user'@'%';
+
+CREATE USER 'deploy_user'@'%' IDENTIFIED BY 'secure_password';
+GRANT 'app_deployer' TO 'deploy_user'@'%';
+SET DEFAULT ROLE 'app_deployer' TO 'deploy_user'@'%';
+
+-- Enable audit logging (MySQL Enterprise Audit)
+INSTALL PLUGIN audit_log SONAME 'audit_log.so';
+SET GLOBAL audit_log_policy = 'ALL';
+SET GLOBAL audit_log_format = 'JSON';
+
+-- Create audit log table for custom logging
+CREATE DATABASE IF NOT EXISTS audit_log;
+CREATE TABLE audit_log.user_actions (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user VARCHAR(255),
+  host VARCHAR(255),
+  query_text TEXT,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user (user),
+  INDEX idx_timestamp (timestamp)
+);`,
+                        verification: [
+                            "Test developers cannot access production database",
+                            "Test deployers cannot perform DDL operations",
+                            "Verify audit plugin logs all privileged actions",
+                            "Review role assignments for proper separation",
+                            "Test that analysts have read-only access"
+                        ],
+                        effort_hours: 14
+                    }
+                }
+            },
+            
+            application: {
+                nodejs: {
+                    features: ["RBAC Middleware", "Permission Checks", "Audit Logging", "Separation in Code"],
+                    implementation: {
+                        steps: [
+                            "Implement role-based access control (RBAC) middleware",
+                            "Create separate service accounts for different functions",
+                            "Use environment-specific configuration files",
+                            "Implement approval workflows for critical operations",
+                            "Separate read and write API endpoints",
+                            "Use different database connections for different roles",
+                            "Implement audit logging for all privileged actions",
+                            "Use feature flags to control access to sensitive features"
+                        ],
+                        code_example: `// rbac-middleware.js - Role-based access control
+const roles = {
+  developer: {
+    permissions: ['read:dev', 'write:dev', 'read:staging'],
+    environments: ['development', 'staging']
+  },
+  deployer: {
+    permissions: ['deploy:production', 'read:production'],
+    environments: ['production'],
+    requiresApproval: true
+  },
+  analyst: {
+    permissions: ['read:production', 'read:staging', 'read:dev'],
+    environments: ['development', 'staging', 'production']
+  },
+  admin: {
+    permissions: ['*'],
+    environments: ['*'],
+    requiresMFA: true
+  }
+};
+
+// Middleware to check role permissions
+function checkPermission(requiredPermission) {
+  return (req, res, next) => {
+    const userRole = req.user.role;
+    const roleConfig = roles[userRole];
+    
+    if (!roleConfig) {
+      return res.status(403).json({ error: 'Invalid role' });
+    }
+    
+    // Check if user has required permission
+    const hasPermission = roleConfig.permissions.includes('*') ||
+                         roleConfig.permissions.includes(requiredPermission);
+    
+    if (!hasPermission) {
+      auditLog({
+        user: req.user.email,
+        action: 'permission_denied',
+        permission: requiredPermission,
+        timestamp: new Date()
+      });
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+    
+    // Check environment access
+    const currentEnv = process.env.NODE_ENV;
+    const hasEnvAccess = roleConfig.environments.includes('*') ||
+                        roleConfig.environments.includes(currentEnv);
+    
+    if (!hasEnvAccess) {
+      auditLog({
+        user: req.user.email,
+        action: 'environment_access_denied',
+        environment: currentEnv,
+        timestamp: new Date()
+      });
+      return res.status(403).json({ error: 'Environment access denied' });
+    }
+    
+    // Check if approval is required
+    if (roleConfig.requiresApproval && !req.approvalToken) {
+      return res.status(403).json({ 
+        error: 'Approval required',
+        approvalUrl: '/api/request-approval'
+      });
+    }
+    
+    // Log successful access
+    auditLog({
+      user: req.user.email,
+      action: 'permission_granted',
+      permission: requiredPermission,
+      environment: currentEnv,
+      timestamp: new Date()
+    });
+    
+    next();
+  };
+}
+
+// Separation of duties in API routes
+const express = require('express');
+const router = express.Router();
+
+// Developer routes - dev/staging only
+router.post('/api/dev/deploy', 
+  checkPermission('write:dev'),
+  async (req, res) => {
+    // Deploy to development
+  }
+);
+
+// Deployer routes - production deployment with approval
+router.post('/api/production/deploy',
+  checkPermission('deploy:production'),
+  requireApproval(),
+  async (req, res) => {
+    // Deploy to production
+    auditLog({
+      user: req.user.email,
+      action: 'production_deployment',
+      details: req.body,
+      approver: req.approvalToken.approver,
+      timestamp: new Date()
+    });
+  }
+);
+
+// Analyst routes - read-only
+router.get('/api/data/query',
+  checkPermission('read:production'),
+  async (req, res) => {
+    // Read-only data access
+  }
+);
+
+// Approval workflow middleware
+function requireApproval() {
+  return async (req, res, next) => {
+    const approvalToken = req.headers['x-approval-token'];
+    
+    if (!approvalToken) {
+      return res.status(403).json({
+        error: 'Approval required',
+        message: 'This action requires manager approval'
+      });
+    }
+    
+    // Verify approval token
+    const approval = await verifyApprovalToken(approvalToken);
+    
+    if (!approval.valid) {
+      return res.status(403).json({ error: 'Invalid approval token' });
+    }
+    
+    req.approvalToken = approval;
+    next();
+  };
+}
+
+// Audit logging function
+async function auditLog(entry) {
+  const db = require('./db');
+  await db.query(
+    'INSERT INTO audit_log (user_email, action, details, timestamp) VALUES ($1, $2, $3, $4)',
+    [entry.user, entry.action, JSON.stringify(entry), entry.timestamp]
+  );
+}
+
+module.exports = { checkPermission, requireApproval };`,
+                        verification: [
+                            "Test developers cannot deploy to production",
+                            "Test deployers cannot modify code",
+                            "Verify approval workflow for critical actions",
+                            "Review audit logs for all privileged operations",
+                            "Test role-based access control enforcement"
+                        ],
+                        effort_hours: 24
+                    }
+                }
+            },
+            
+            small_business: {
+                budget_tier: "under_2k",
+                recommended_approach: "Use cloud provider IAM with separate accounts/projects",
+                implementation: {
+                    steps: [
+                        "Create separate AWS/Azure/GCP accounts for dev and production",
+                        "Use built-in IAM roles (no custom development needed)",
+                        "Implement simple approval process (email/Slack)",
+                        "Use separate database users with different privileges",
+                        "Enable cloud provider audit logging (free tier)",
+                        "Document separation of duties in policy",
+                        "Use GitHub branch protection for code approval",
+                        "Implement 2-person rule for production changes"
+                    ],
+                    tools: [
+                        { name: "AWS Organizations (free)", cost: "$0", purpose: "Separate accounts" },
+                        { name: "GitHub branch protection", cost: "$0", purpose: "Code approval" },
+                        { name: "CloudTrail/Activity Log", cost: "$0-10/month", purpose: "Audit logging" },
+                        { name: "Slack/Email", cost: "$0", purpose: "Approval workflow" }
+                    ],
+                    total_cost_estimate: "$0-20/month",
+                    effort_hours: 8
+                }
+            }
+        }
+        
         // Continue adding more objectives...
     }
 };
