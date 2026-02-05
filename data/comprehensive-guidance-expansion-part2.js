@@ -2803,7 +2803,153 @@ module.exports = { checkPermission, requireApproval };`,
             small_business: { approach: "Manual review before publishing, use cloud storage private by default, implement access controls on public websites", cost_estimate: "$0-50/month", effort_hours: 6 }
         }
         
-        // Continue with AU.L2-3.3.2 through 3.3.9 in next batch...
+        ,
+        
+        "AU.L2-3.3.2": {
+            objective: "Ensure that the actions of individual system users can be uniquely traced to those users so they can be held accountable for their actions.",
+            summary: "Individual user accounts, no shared accounts, audit logging with user attribution",
+            cloud: {
+                aws: { services: ["IAM", "CloudTrail", "CloudWatch"], implementation: { steps: ["Disable root account for daily use", "Create individual IAM users (no shared accounts)", "Enable CloudTrail for all API activity", "Use IAM Access Analyzer to identify shared credentials", "Configure CloudWatch Logs for application logging with user context", "Tag resources with owner information"], cost_estimate: "$10-50/month", effort_hours: 6 }},
+                azure: { services: ["Azure AD", "Activity Log", "Monitor"], implementation: { steps: ["Require individual Azure AD accounts", "Disable shared admin accounts", "Enable Azure Activity Log for all operations", "Use Azure AD sign-in logs for user tracking", "Configure diagnostic settings to Log Analytics", "Implement user attribution in application logs"], cost_estimate: "$5-30/month", effort_hours: 6 }},
+                gcp: { services: ["Cloud Identity", "Cloud Audit Logs", "Cloud Logging"], implementation: { steps: ["Require individual Google accounts", "Disable shared service accounts for user access", "Enable Cloud Audit Logs (Admin, Data, System)", "Use Cloud Identity for user tracking", "Configure log sinks to Cloud Logging", "Implement user context in application logs"], cost_estimate: "$10-40/month", effort_hours: 6 }}
+            },
+            database: {
+                postgresql: { implementation: { steps: ["Create individual database roles (no shared accounts)", "Enable pgAudit extension", "Configure log_statement = 'all' or 'mod'", "Set log_line_prefix to include username and session ID", "Use application-level user tracking for connection pooling"], effort_hours: 4 }},
+                mysql: { implementation: { steps: ["Create individual MySQL users", "Enable general query log or audit plugin", "Configure log format to include user information", "Use application-level tracking for pooled connections", "Monitor mysql.general_log table"], effort_hours: 4 }}
+            },
+            small_business: { approach: "Require individual user accounts in Microsoft 365/Google Workspace, disable shared mailboxes for CUI access, enable audit logging", cost_estimate: "$0", effort_hours: 3 }
+        }
+        
+        ,
+        
+        "AU.L2-3.3.3": {
+            objective: "Review and update logged events.",
+            summary: "Quarterly review of audit log configuration, update based on incidents",
+            implementation: {
+                general: {
+                    steps: [
+                        "Document current audit log configuration",
+                        "Review quarterly or after security incidents",
+                        "Identify gaps in logging coverage",
+                        "Add logging for new systems/applications",
+                        "Remove unnecessary logging to reduce noise",
+                        "Update SIEM correlation rules",
+                        "Document changes in audit policy",
+                        "Train SOC team on new log sources"
+                    ],
+                    effort_hours: 8
+                }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Review CloudTrail event selectors quarterly", "Update S3 data events based on CUI storage changes", "Review CloudWatch Log Groups for completeness", "Add logging for new AWS services", "Update AWS Config rules", "Review GuardDuty findings for logging gaps"], cost_estimate: "$0", effort_hours: 4 }},
+                azure: { implementation: { steps: ["Review diagnostic settings quarterly", "Update Activity Log categories", "Review Log Analytics workspace retention", "Add logging for new Azure resources", "Update Azure Policy for logging enforcement", "Review Sentinel data connectors"], cost_estimate: "$0", effort_hours: 4 }},
+                gcp: { implementation: { steps: ["Review Cloud Audit Logs configuration quarterly", "Update log sinks and filters", "Review Cloud Logging retention policies", "Add logging for new GCP services", "Update organization policies for logging", "Review Security Command Center findings"], cost_estimate: "$0", effort_hours: 4 }}
+            },
+            small_business: { approach: "Review Microsoft 365 audit log configuration quarterly, add new log sources as systems are added", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "AU.L2-3.3.4": {
+            objective: "Alert in the event of an audit logging process failure.",
+            summary: "Monitor log pipeline health, alert on logging failures",
+            cloud: {
+                aws: { services: ["CloudWatch", "SNS", "EventBridge"], implementation: { steps: ["Create CloudWatch alarm for CloudTrail logging failures", "Monitor S3 bucket for log delivery", "Set up EventBridge rule for CloudTrail StopLogging events", "Configure SNS topic for alert notifications", "Monitor CloudWatch Logs agent status", "Use AWS Config to detect disabled logging"], cost_estimate: "$5-20/month", effort_hours: 6 }},
+                azure: { services: ["Monitor", "Action Groups", "Service Health"], implementation: { steps: ["Create Azure Monitor alert for Activity Log failures", "Monitor Log Analytics workspace ingestion", "Set up Action Group for alert notifications", "Configure Service Health alerts for logging service issues", "Monitor diagnostic settings compliance", "Use Azure Policy to detect disabled logging"], cost_estimate: "$5-15/month", effort_hours: 6 }},
+                gcp: { services: ["Cloud Monitoring", "Cloud Logging", "Pub/Sub"], implementation: { steps: ["Create Cloud Monitoring alert for Audit Log failures", "Monitor log sink delivery", "Set up Pub/Sub notifications for logging errors", "Configure alerting policies for log volume drops", "Monitor Cloud Logging API errors", "Use organization policies to prevent logging disablement"], cost_estimate: "$5-20/month", effort_hours: 6 }}
+            },
+            application: {
+                general: { implementation: { steps: ["Implement health check for logging framework", "Monitor log file rotation and disk space", "Alert on logging exceptions", "Monitor SIEM ingestion rate", "Set up dead letter queue for failed log shipments", "Test logging failure scenarios"], effort_hours: 8 }}
+            },
+            small_business: { approach: "Set up email alerts for Microsoft 365 audit log failures, monitor log retention settings", cost_estimate: "$0", effort_hours: 3 }
+        }
+        
+        ,
+        
+        "AU.L2-3.3.5": {
+            objective: "Correlate audit record review, analysis, and reporting processes for investigation and response to indications of unlawful, unauthorized, suspicious, or unusual activity.",
+            summary: "SIEM correlation rules, automated alerting, incident investigation workflows",
+            cloud: {
+                aws: { services: ["Security Hub", "GuardDuty", "Detective", "Athena"], implementation: { steps: ["Enable AWS Security Hub for centralized findings", "Configure GuardDuty for threat detection", "Use Amazon Detective for investigation", "Create Athena queries for log analysis", "Set up EventBridge rules for automated response", "Integrate with incident response platform"], cost_estimate: "$100-500/month", effort_hours: 20 }},
+                azure: { services: ["Sentinel", "Defender for Cloud", "Log Analytics"], implementation: { steps: ["Deploy Microsoft Sentinel as SIEM", "Enable Defender for Cloud for threat detection", "Create KQL queries for correlation", "Configure analytics rules for automated alerting", "Set up playbooks for automated response", "Integrate with incident management system"], cost_estimate: "$200-800/month", effort_hours: 20 }},
+                gcp: { services: ["Chronicle", "Security Command Center", "BigQuery"], implementation: { steps: ["Use Chronicle SIEM for log correlation", "Enable Security Command Center Premium", "Create BigQuery queries for analysis", "Configure detection rules", "Set up Cloud Functions for automated response", "Integrate with ticketing system"], cost_estimate: "$500-2000/month", effort_hours: 20 }}
+            },
+            siem: {
+                splunk: { implementation: { steps: ["Configure log ingestion from all sources", "Create correlation searches for suspicious activity", "Set up notable events and alerts", "Build investigation dashboards", "Implement automated response actions", "Integrate with SOAR platform"], effort_hours: 24 }},
+                elastic: { implementation: { steps: ["Deploy Elastic SIEM", "Configure Beats for log collection", "Create detection rules", "Build investigation timelines", "Set up alerting workflows", "Integrate with case management"], effort_hours: 20 }}
+            },
+            small_business: { approach: "Use cloud provider native SIEM (Azure Sentinel, AWS Security Hub), configure basic correlation rules, integrate with email/Slack for alerts", cost_estimate: "$50-200/month", effort_hours: 12 }
+        }
+        
+        ,
+        
+        "AU.L2-3.3.6": {
+            objective: "Provide audit record reduction and report generation to support on-demand analysis and reporting.",
+            summary: "Log aggregation, filtering, reporting dashboards",
+            cloud: {
+                aws: { services: ["Athena", "QuickSight", "CloudWatch Insights"], implementation: { steps: ["Use Athena to query CloudTrail logs in S3", "Create saved queries for common investigations", "Build QuickSight dashboards for audit reporting", "Use CloudWatch Logs Insights for real-time analysis", "Implement log filtering and aggregation", "Schedule automated reports"], cost_estimate: "$50-200/month", effort_hours: 12 }},
+                azure: { services: ["Log Analytics", "Workbooks", "Power BI"], implementation: { steps: ["Use KQL queries in Log Analytics", "Create saved queries for investigations", "Build Azure Workbooks for visualization", "Use Power BI for executive reporting", "Implement log filtering and summarization", "Schedule automated reports"], cost_estimate: "$50-150/month", effort_hours: 12 }},
+                gcp: { services: ["BigQuery", "Data Studio", "Cloud Logging"], implementation: { steps: ["Export logs to BigQuery for analysis", "Create SQL queries for investigations", "Build Data Studio dashboards", "Use Cloud Logging filters for reduction", "Implement log aggregation", "Schedule automated reports"], cost_estimate: "$50-200/month", effort_hours: 12 }}
+            },
+            siem: {
+                general: { implementation: { steps: ["Create saved searches for common queries", "Build executive dashboards", "Implement role-based report access", "Configure scheduled report delivery", "Use log filtering to reduce noise", "Create investigation templates"], effort_hours: 10 }}
+            },
+            small_business: { approach: "Use cloud provider log query tools, create basic dashboards, export to Excel for reporting", cost_estimate: "$0-50/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "AU.L2-3.3.7": {
+            objective: "Provide a system capability that compares and synchronizes internal system clocks with an authoritative source to generate time stamps for audit records.",
+            summary: "NTP configuration, time synchronization monitoring",
+            cloud: {
+                aws: { implementation: { steps: ["Use Amazon Time Sync Service (169.254.169.123)", "Configure NTP on EC2 instances to use AWS time", "Enable CloudWatch time drift monitoring", "Use AWS Systems Manager for time sync compliance", "Configure chrony or ntpd with AWS NTP"], cost_estimate: "$0", effort_hours: 3 }},
+                azure: { implementation: { steps: ["Use Azure time service (time.windows.com)", "Configure VMs to sync with Azure time", "Enable Azure Monitor for time drift", "Use Azure Policy to enforce time sync", "Configure Windows Time service or chrony"], cost_estimate: "$0", effort_hours: 3 }},
+                gcp: { implementation: { steps: ["Use Google Cloud NTP (metadata.google.internal)", "Configure VMs to sync with GCP time", "Enable Cloud Monitoring for time drift", "Use OS Config for time sync enforcement", "Configure chrony with GCP NTP"], cost_estimate: "$0", effort_hours: 3 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Configure Windows Time service", "Set NTP server: w32tm /config /manualpeerlist:time.nist.gov /syncfromflags:manual /reliable:yes /update", "Enable time sync monitoring", "Use Group Policy to enforce time settings"], effort_hours: 2 }},
+                linux: { implementation: { steps: ["Install and configure chrony or ntpd", "Configure NTP servers (time.nist.gov, pool.ntp.org)", "Enable chronyd service: systemctl enable chronyd", "Monitor time drift: timedatectl status", "Use configuration management for enforcement"], effort_hours: 2 }}
+            },
+            network: {
+                general: { implementation: { steps: ["Configure network devices to use NTP", "Set NTP servers (time.nist.gov, USNO time servers)", "Enable NTP authentication", "Monitor time synchronization status", "Use stratum 1 or 2 time sources"], effort_hours: 3 }}
+            },
+            small_business: { approach: "Use default cloud provider time sync, configure Windows Time service to sync with time.nist.gov", cost_estimate: "$0", effort_hours: 1 }
+        }
+        
+        ,
+        
+        "AU.L2-3.3.8": {
+            objective: "Protect audit information and audit logging tools from unauthorized access, modification, and deletion.",
+            summary: "Immutable logs, separate audit accounts, write-once storage",
+            cloud: {
+                aws: { services: ["S3", "CloudTrail", "IAM", "KMS"], implementation: { steps: ["Enable S3 Object Lock for CloudTrail logs (WORM)", "Use S3 Bucket Policies to restrict access", "Enable S3 versioning and MFA Delete", "Encrypt logs with KMS", "Use separate AWS account for log storage", "Enable CloudTrail log file validation", "Restrict IAM permissions for log access"], cost_estimate: "$20-100/month", effort_hours: 8 }},
+                azure: { services: ["Storage", "Activity Log", "RBAC", "Key Vault"], implementation: { steps: ["Enable immutable blob storage for logs", "Use Azure RBAC to restrict log access", "Enable soft delete and versioning", "Encrypt logs with customer-managed keys", "Use separate subscription for log storage", "Enable Activity Log integrity monitoring", "Restrict access with Conditional Access"], cost_estimate: "$20-80/month", effort_hours: 8 }},
+                gcp: { services: ["Cloud Storage", "Cloud Audit Logs", "IAM"], implementation: { steps: ["Enable bucket retention policies for logs", "Use IAM to restrict log access", "Enable object versioning", "Encrypt logs with CMEK", "Use separate project for log storage", "Enable Cloud Audit Logs for log access", "Use VPC Service Controls for log perimeter"], cost_estimate: "$20-100/month", effort_hours: 8 }}
+            },
+            siem: {
+                general: { implementation: { steps: ["Use separate admin accounts for SIEM access", "Enable SIEM audit logging", "Restrict log deletion permissions", "Implement log forwarding to secondary storage", "Use write-once storage for archived logs", "Monitor SIEM configuration changes"], effort_hours: 6 }}
+            },
+            small_business: { approach: "Use cloud provider immutable storage, restrict log access to admin accounts only, enable MFA for log access", cost_estimate: "$10-30/month", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "AU.L2-3.3.9": {
+            objective: "Limit management of audit logging functionality to a subset of privileged users.",
+            summary: "Separate audit admin role, least privilege for log management",
+            cloud: {
+                aws: { implementation: { steps: ["Create dedicated IAM role for audit administrators", "Use IAM policy to restrict CloudTrail management", "Separate log read access from log management", "Enable MFA for audit admin role", "Use AWS Organizations SCP to prevent logging disablement", "Monitor IAM policy changes with CloudTrail"], cost_estimate: "$0", effort_hours: 6 }},
+                azure: { implementation: { steps: ["Create custom RBAC role for audit administrators", "Assign Security Reader role for log viewing", "Restrict Activity Log configuration to audit admins", "Enable PIM for audit admin role activation", "Use Azure Policy to prevent logging disablement", "Monitor RBAC changes with Activity Log"], cost_estimate: "$0", effort_hours: 6 }},
+                gcp: { implementation: { steps: ["Create custom IAM role for audit administrators", "Use Logging Admin role for log management", "Separate Logs Viewer role for read access", "Enable IAM Conditions for time-based access", "Use organization policies to prevent logging disablement", "Monitor IAM changes with Cloud Audit Logs"], cost_estimate: "$0", effort_hours: 6 }}
+            },
+            siem: {
+                general: { implementation: { steps: ["Create separate SIEM admin role", "Restrict log source configuration to admins", "Implement approval workflow for logging changes", "Use MFA for SIEM admin access", "Monitor SIEM configuration changes", "Document audit admin procedures"], effort_hours: 4 }}
+            },
+            small_business: { approach: "Assign audit admin role to 1-2 trusted users, require MFA, document who has audit admin access", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
+        // Continue with CM.L2-3.4.1 through 3.4.9 in next batch...
     }
 };
 
