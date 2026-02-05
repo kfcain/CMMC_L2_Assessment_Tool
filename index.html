@@ -6,7 +6,7 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
     <title>CMMC 2.0 Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css?v=62">
@@ -663,7 +663,15 @@
     <script src="js/lazy-loader.js?v=3"></script>
     <script src="js/skeleton-loader.js?v=1"></script>
     <script src="js/osc-inventory.js?v=7"></script>
-    <script src="js/security.js?v=1"></script>
+    
+    <!-- Security Modules (Load Before App) -->
+    <script src="js/security.js?v=2"></script>
+    <script src="js/session-manager.js?v=1"></script>
+    <script src="js/secure-storage.js?v=1"></script>
+    <script src="js/csrf-protection.js?v=1"></script>
+    <script src="js/security-monitor.js?v=1"></script>
+    <script src="js/integrity-validator.js?v=1"></script>
+    
     <script src="app-main.js"></script>
     <script src="js/supabase-client.js?v=1" defer></script>
     <script src="js/evidence-ui.js?v=1" defer></script>

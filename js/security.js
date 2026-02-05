@@ -248,7 +248,8 @@ const SecurityUtils = {
             timestamp: new Date().toISOString(),
             type,
             details: this.truncate(JSON.stringify(details), 1000),
-            userAgent: navigator.userAgent?.slice(0, 200)
+            userAgent: navigator.userAgent?.slice(0, 200),
+            sessionId: window.SessionManager?.getSessionId()?.substring(0, 8) || 'unknown'
         };
         
         // Store in sessionStorage for debugging (limited to last 50 events)
@@ -265,6 +266,66 @@ const SecurityUtils = {
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             console.warn('[Security]', type, details);
         }
+    },
+
+    // Prevent clickjacking
+    preventClickjacking() {
+        if (window.self !== window.top) {
+            // Page is in an iframe
+            this.logSecurityEvent('clickjacking_attempt', { referrer: document.referrer });
+            
+            // Break out of frame
+            window.top.location = window.self.location;
+        }
+    },
+
+    // Secure external links
+    secureExternalLinks() {
+        document.querySelectorAll('a[href^="http"]').forEach(link => {
+            const url = new URL(link.href);
+            if (url.origin !== window.location.origin) {
+                // Add security attributes to external links
+                link.setAttribute('rel', 'noopener noreferrer');
+                link.setAttribute('target', '_blank');
+            }
+        });
+    },
+
+    // Disable autocomplete on sensitive fields
+    disableSensitiveAutocomplete() {
+        const sensitiveSelectors = [
+            'input[type="password"]',
+            'input[name*="secret"]',
+            'input[name*="token"]',
+            'input[name*="key"]'
+        ];
+
+        sensitiveSelectors.forEach(selector => {
+            document.querySelectorAll(selector).forEach(input => {
+                input.setAttribute('autocomplete', 'off');
+                input.setAttribute('autocorrect', 'off');
+                input.setAttribute('autocapitalize', 'off');
+                input.setAttribute('spellcheck', 'false');
+            });
+        });
+    },
+
+    // Initialize all security features
+    initSecurityFeatures() {
+        this.preventClickjacking();
+        this.secureExternalLinks();
+        this.disableSensitiveAutocomplete();
+        
+        // Re-run on DOM changes
+        const observer = new MutationObserver(() => {
+            this.secureExternalLinks();
+            this.disableSensitiveAutocomplete();
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
     }
 };
 
@@ -275,3 +336,10 @@ Object.freeze(SecurityUtils.rateLimiter);
 
 // Export for use
 window.SecurityUtils = SecurityUtils;
+
+// Auto-initialize security features
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => SecurityUtils.initSecurityFeatures());
+} else {
+    SecurityUtils.initSecurityFeatures();
+}
