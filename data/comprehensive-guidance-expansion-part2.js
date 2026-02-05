@@ -1013,7 +1013,637 @@ output.elasticsearch:
             }
         }
         
-        // Additional objectives will continue to be added...
+        ,
+        
+        "AC.L2-3.1.3": {
+            objective: "Control the flow of CUI in accordance with approved authorizations.",
+            
+            cloud: {
+                aws: {
+                    services: ["VPC", "Security Groups", "NACLs", "PrivateLink", "Transit Gateway", "Resource Access Manager"],
+                    implementation: {
+                        steps: [
+                            "Design VPC architecture with public/private/isolated subnets",
+                            "Implement Security Groups for stateful firewall rules",
+                            "Use Network ACLs for subnet-level access control",
+                            "Enable VPC Flow Logs to monitor traffic patterns",
+                            "Use AWS PrivateLink for private connectivity to services",
+                            "Implement Transit Gateway for multi-VPC routing control",
+                            "Use Resource Access Manager for controlled cross-account sharing",
+                            "Tag all resources with data classification (CUI, Public, etc.)",
+                            "Implement S3 bucket policies to control data flow",
+                            "Use AWS Organizations SCPs to prevent unauthorized data transfers"
+                        ],
+                        terraform_example: `# VPC with CUI isolation
+resource "aws_vpc" "cui_vpc" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+  
+  tags = {
+    Name           = "CUI-VPC"
+    Classification = "CUI"
+  }
+}
+
+# Private subnet for CUI workloads
+resource "aws_subnet" "cui_private" {
+  vpc_id            = aws_vpc.cui_vpc.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "us-east-1a"
+  
+  tags = {
+    Name           = "CUI-Private-Subnet"
+    Classification = "CUI"
+  }
+}
+
+# Security group for CUI application tier
+resource "aws_security_group" "cui_app" {
+  name        = "cui-app-sg"
+  description = "Security group for CUI applications"
+  vpc_id      = aws_vpc.cui_vpc.id
+  
+  # Allow inbound only from authorized sources
+  ingress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cui_alb.id]
+    description     = "HTTPS from ALB only"
+  }
+  
+  # Allow outbound only to authorized destinations
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.cui_db.id]
+    description     = "PostgreSQL to CUI database only"
+  }
+  
+  tags = {
+    Name           = "CUI-App-SG"
+    Classification = "CUI"
+  }
+}
+
+# S3 bucket policy to control CUI data flow
+resource "aws_s3_bucket_policy" "cui_bucket_policy" {
+  bucket = aws_s3_bucket.cui_data.id
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DenyUnencryptedObjectUploads"
+        Effect = "Deny"
+        Principal = "*"
+        Action = "s3:PutObject"
+        Resource = "\${aws_s3_bucket.cui_data.arn}/*"
+        Condition = {
+          StringNotEquals = {
+            "s3:x-amz-server-side-encryption" = "aws:kms"
+          }
+        }
+      },
+      {
+        Sid    = "DenyInsecureTransport"
+        Effect = "Deny"
+        Principal = "*"
+        Action = "s3:*"
+        Resource = [
+          aws_s3_bucket.cui_data.arn,
+          "\${aws_s3_bucket.cui_data.arn}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+      {
+        Sid    = "AllowOnlyFromCUIVPC"
+        Effect = "Deny"
+        Principal = "*"
+        Action = "s3:*"
+        Resource = [
+          aws_s3_bucket.cui_data.arn,
+          "\${aws_s3_bucket.cui_data.arn}/*"
+        ]
+        Condition = {
+          StringNotEquals = {
+            "aws:SourceVpc" = aws_vpc.cui_vpc.id
+          }
+        }
+      }
+    ]
+  })
+}
+
+# VPC Flow Logs
+resource "aws_flow_log" "cui_vpc_flow_log" {
+  vpc_id          = aws_vpc.cui_vpc.id
+  traffic_type    = "ALL"
+  iam_role_arn    = aws_iam_role.flow_log_role.arn
+  log_destination = aws_cloudwatch_log_group.flow_log.arn
+  
+  tags = {
+    Name = "CUI-VPC-Flow-Logs"
+  }
+}`,
+                        verification: [
+                            "Review VPC Flow Logs for unauthorized traffic patterns",
+                            "Test Security Group rules block unauthorized access",
+                            "Verify S3 bucket policies prevent unauthorized data transfers",
+                            "Check CloudTrail for any policy violations",
+                            "Use AWS Config to verify resource compliance"
+                        ],
+                        cost_estimate: "$50-150/month (VPC, Flow Logs, data transfer)",
+                        effort_hours: 16
+                    }
+                },
+                
+                azure: {
+                    services: ["Virtual Network", "NSGs", "Azure Firewall", "Private Link", "Azure Policy"],
+                    implementation: {
+                        steps: [
+                            "Design VNet with subnet segmentation for CUI workloads",
+                            "Implement Network Security Groups (NSGs) for traffic control",
+                            "Deploy Azure Firewall for centralized network security",
+                            "Use Private Endpoints for secure service connectivity",
+                            "Enable NSG Flow Logs for traffic monitoring",
+                            "Implement Azure Policy to enforce network controls",
+                            "Use Service Endpoints for Azure service access control",
+                            "Configure Storage Account network rules to restrict access",
+                            "Implement Azure Front Door for global traffic management",
+                            "Use Azure DDoS Protection for CUI resources"
+                        ],
+                        azure_cli_example: `# Create VNet for CUI workloads
+az network vnet create \\
+  --resource-group cui-rg \\
+  --name cui-vnet \\
+  --address-prefix 10.0.0.0/16 \\
+  --subnet-name cui-app-subnet \\
+  --subnet-prefix 10.0.1.0/24 \\
+  --tags Classification=CUI
+
+# Create NSG for CUI application tier
+az network nsg create \\
+  --resource-group cui-rg \\
+  --name cui-app-nsg \\
+  --tags Classification=CUI
+
+# Add inbound rule - allow HTTPS from authorized sources only
+az network nsg rule create \\
+  --resource-group cui-rg \\
+  --nsg-name cui-app-nsg \\
+  --name AllowHTTPSFromAGW \\
+  --priority 100 \\
+  --source-address-prefixes 10.0.0.0/24 \\
+  --destination-port-ranges 443 \\
+  --protocol Tcp \\
+  --access Allow \\
+  --direction Inbound
+
+# Add outbound rule - allow database access only
+az network nsg rule create \\
+  --resource-group cui-rg \\
+  --nsg-name cui-app-nsg \\
+  --name AllowDatabaseAccess \\
+  --priority 100 \\
+  --destination-address-prefixes 10.0.2.0/24 \\
+  --destination-port-ranges 5432 \\
+  --protocol Tcp \\
+  --access Allow \\
+  --direction Outbound
+
+# Deny all other outbound traffic
+az network nsg rule create \\
+  --resource-group cui-rg \\
+  --nsg-name cui-app-nsg \\
+  --name DenyAllOutbound \\
+  --priority 4096 \\
+  --access Deny \\
+  --direction Outbound
+
+# Enable NSG Flow Logs
+az network watcher flow-log create \\
+  --resource-group cui-rg \\
+  --name cui-app-nsg-flow-log \\
+  --nsg cui-app-nsg \\
+  --storage-account cuistorage \\
+  --enabled true \\
+  --retention 90
+
+# Configure Storage Account network rules
+az storage account network-rule add \\
+  --resource-group cui-rg \\
+  --account-name cuistorage \\
+  --vnet-name cui-vnet \\
+  --subnet cui-app-subnet
+
+az storage account update \\
+  --resource-group cui-rg \\
+  --name cuistorage \\
+  --default-action Deny`,
+                        verification: [
+                            "Review NSG Flow Logs for traffic patterns",
+                            "Test NSG rules block unauthorized access",
+                            "Verify Storage Account network rules",
+                            "Check Azure Policy compliance",
+                            "Review Azure Monitor for network alerts"
+                        ],
+                        cost_estimate: "$100-300/month (VNet, NSG Flow Logs, Azure Firewall)",
+                        effort_hours: 16
+                    }
+                },
+                
+                gcp: {
+                    services: ["VPC", "Firewall Rules", "Cloud Armor", "Private Service Connect", "VPC Service Controls"],
+                    implementation: {
+                        steps: [
+                            "Create VPC with custom subnets for CUI workloads",
+                            "Implement hierarchical firewall rules",
+                            "Use VPC Service Controls to create security perimeters",
+                            "Enable VPC Flow Logs for traffic monitoring",
+                            "Implement Private Service Connect for Google services",
+                            "Use Cloud Armor for DDoS protection and WAF",
+                            "Configure Cloud Storage bucket IAM and ACLs",
+                            "Implement Organization Policies for network controls",
+                            "Use Cloud NAT for controlled outbound access",
+                            "Enable Packet Mirroring for traffic inspection"
+                        ],
+                        gcloud_example: `# Create VPC for CUI workloads
+gcloud compute networks create cui-vpc \\
+  --subnet-mode=custom \\
+  --bgp-routing-mode=regional
+
+# Create subnet for CUI applications
+gcloud compute networks subnets create cui-app-subnet \\
+  --network=cui-vpc \\
+  --region=us-central1 \\
+  --range=10.0.1.0/24 \\
+  --enable-flow-logs \\
+  --logging-aggregation-interval=interval-5-sec
+
+# Create firewall rule - allow HTTPS from load balancer only
+gcloud compute firewall-rules create cui-allow-lb-to-app \\
+  --network=cui-vpc \\
+  --action=ALLOW \\
+  --rules=tcp:443 \\
+  --source-ranges=10.0.0.0/24 \\
+  --target-tags=cui-app \\
+  --priority=1000
+
+# Create firewall rule - allow database access only
+gcloud compute firewall-rules create cui-allow-app-to-db \\
+  --network=cui-vpc \\
+  --action=ALLOW \\
+  --rules=tcp:5432 \\
+  --source-tags=cui-app \\
+  --target-tags=cui-db \\
+  --priority=1000
+
+# Deny all other traffic (implicit deny, but explicit for clarity)
+gcloud compute firewall-rules create cui-deny-all \\
+  --network=cui-vpc \\
+  --action=DENY \\
+  --rules=all \\
+  --priority=65534
+
+# Create VPC Service Controls perimeter
+gcloud access-context-manager perimeters create cui_perimeter \\
+  --title="CUI Data Perimeter" \\
+  --resources=projects/PROJECT_NUMBER \\
+  --restricted-services=storage.googleapis.com,bigquery.googleapis.com \\
+  --policy=POLICY_ID
+
+# Configure Cloud Storage bucket with network restrictions
+gsutil iam ch -d allUsers:objectViewer gs://cui-bucket
+gsutil iam ch serviceAccount:cui-app@project.iam.gserviceaccount.com:objectViewer gs://cui-bucket`,
+                        verification: [
+                            "Review VPC Flow Logs for traffic patterns",
+                            "Test firewall rules block unauthorized access",
+                            "Verify VPC Service Controls perimeter",
+                            "Check Organization Policy compliance",
+                            "Review Cloud Logging for network events"
+                        ],
+                        cost_estimate: "$75-200/month (VPC, Flow Logs, Cloud Armor)",
+                        effort_hours: 16
+                    }
+                }
+            },
+            
+            containers: {
+                kubernetes: {
+                    features: ["NetworkPolicies", "Ingress Controllers", "Service Mesh", "Calico/Cilium"],
+                    implementation: {
+                        steps: [
+                            "Implement NetworkPolicies for pod-to-pod traffic control",
+                            "Use namespace isolation for CUI workloads",
+                            "Deploy service mesh (Istio/Linkerd) for fine-grained traffic control",
+                            "Configure Ingress controllers with TLS termination",
+                            "Use Calico or Cilium for advanced network policies",
+                            "Implement egress gateways to control outbound traffic",
+                            "Enable mTLS between services",
+                            "Use network policy logging for audit",
+                            "Implement DNS policies to control name resolution"
+                        ],
+                        yaml_example: `# NetworkPolicy - Default deny all traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: cui-workloads
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+# NetworkPolicy - Allow CUI app to database only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cui-app-to-db
+  namespace: cui-workloads
+spec:
+  podSelector:
+    matchLabels:
+      app: cui-application
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: cui-database
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    - podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+---
+# NetworkPolicy - Allow ingress from authorized sources
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cui-app-ingress
+  namespace: cui-workloads
+spec:
+  podSelector:
+    matchLabels:
+      app: cui-application
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - podSelector:
+        matchLabels:
+          app: nginx-ingress
+    ports:
+    - protocol: TCP
+      port: 8080
+---
+# Cilium NetworkPolicy with L7 controls
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: cui-app-l7-policy
+  namespace: cui-workloads
+spec:
+  endpointSelector:
+    matchLabels:
+      app: cui-application
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        app: cui-api
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP
+      rules:
+        http:
+        - method: "GET"
+          path: "/api/cui/.*"
+        - method: "POST"
+          path: "/api/cui/.*"`,
+                        verification: [
+                            "Test NetworkPolicies block unauthorized pod communication",
+                            "Verify egress controls prevent data exfiltration",
+                            "Check service mesh mTLS is enforced",
+                            "Review network policy logs for violations"
+                        ],
+                        effort_hours: 20
+                    }
+                }
+            },
+            
+            saas: {
+                microsoft365: {
+                    features: ["DLP Policies", "Information Barriers", "Sensitivity Labels", "Conditional Access"],
+                    implementation: {
+                        steps: [
+                            "Create DLP policies to prevent CUI data exfiltration",
+                            "Implement sensitivity labels for CUI classification",
+                            "Configure Information Barriers to restrict communication",
+                            "Use Conditional Access to control data flow by location/device",
+                            "Enable Azure Information Protection for document tracking",
+                            "Configure Exchange mail flow rules to control CUI emails",
+                            "Implement SharePoint site permissions for CUI content",
+                            "Use Microsoft Cloud App Security for shadow IT control",
+                            "Enable audit logging for all data access"
+                        ],
+                        powershell_example: `# Create DLP policy to prevent CUI exfiltration
+New-DlpCompliancePolicy -Name "CUI Protection Policy" \\
+  -ExchangeLocation All \\
+  -SharePointLocation All \\
+  -OneDriveLocation All \\
+  -TeamsLocation All \\
+  -Mode Enforce
+
+New-DlpComplianceRule -Name "Block CUI External Sharing" \\
+  -Policy "CUI Protection Policy" \\
+  -ContentContainsSensitiveInformation @{Name="U.S. Social Security Number (SSN)"} \\
+  -BlockAccess $true \\
+  -NotifyUser Owner \\
+  -NotifyEmailCustomText "This content contains CUI and cannot be shared externally"
+
+# Create sensitivity label for CUI
+New-Label -Name "CUI" \\
+  -DisplayName "Controlled Unclassified Information" \\
+  -Tooltip "For CUI data - restricted sharing" \\
+  -EncryptionEnabled $true \\
+  -EncryptionProtectionType Template \\
+  -EncryptionRightsDefinitions "domain\\CUI-Users:VIEW,EDIT"
+
+# Configure mail flow rule to prevent CUI external emails
+New-TransportRule -Name "Block CUI External Email" \\
+  -SubjectOrBodyContainsWords "CUI","Controlled Unclassified" \\
+  -SentToScope NotInOrganization \\
+  -RejectMessageReasonText "CUI content cannot be sent to external recipients" \\
+  -RejectMessageEnhancedStatusCode "5.7.1"`,
+                        verification: [
+                            "Test DLP policies block unauthorized sharing",
+                            "Verify sensitivity labels are applied correctly",
+                            "Check mail flow rules prevent CUI external emails",
+                            "Review DLP policy matches and incidents"
+                        ],
+                        cost_estimate: "$12-35/user/month (E3/E5 for DLP)",
+                        effort_hours: 12
+                    }
+                }
+            },
+            
+            network: {
+                paloalto: {
+                    features: ["Security Policies", "App-ID", "User-ID", "URL Filtering", "Data Filtering"],
+                    implementation: {
+                        steps: [
+                            "Create security zones for CUI network segments",
+                            "Implement security policies based on App-ID and User-ID",
+                            "Configure URL filtering to block unauthorized destinations",
+                            "Use Data Filtering profiles to prevent CUI exfiltration",
+                            "Enable SSL/TLS decryption for traffic inspection",
+                            "Implement zone protection profiles",
+                            "Configure logging for all security policy actions",
+                            "Use Panorama for centralized policy management",
+                            "Implement WildFire for advanced threat prevention"
+                        ],
+                        cli_example: `# Create security zones
+set zone cui-trust network layer3 ethernet1/1
+set zone cui-dmz network layer3 ethernet1/2
+set zone cui-untrust network layer3 ethernet1/3
+
+# Create security policy - CUI app to database
+set rulebase security rules cui-app-to-db from cui-trust
+set rulebase security rules cui-app-to-db to cui-dmz
+set rulebase security rules cui-app-to-db source 10.0.1.0/24
+set rulebase security rules cui-app-to-db destination 10.0.2.0/24
+set rulebase security rules cui-app-to-db application postgres
+set rulebase security rules cui-app-to-db service application-default
+set rulebase security rules cui-app-to-db action allow
+set rulebase security rules cui-app-to-db log-end yes
+
+# Create data filtering profile to prevent SSN exfiltration
+set profiles data-filtering cui-data-filter rules ssn-block data-pattern predefined-pattern social-security-numbers
+set profiles data-filtering cui-data-filter rules ssn-block application any
+set profiles data-filtering cui-data-filter rules ssn-block file-type any
+set profiles data-filtering cui-data-filter rules ssn-block direction both
+set profiles data-filtering cui-data-filter rules ssn-block alert-threshold 1
+set profiles data-filtering cui-data-filter rules ssn-block block-threshold 1
+set profiles data-filtering cui-data-filter rules ssn-block action block
+
+# Apply data filtering to security policy
+set rulebase security rules cui-outbound-policy profile-setting profiles data-filtering cui-data-filter`,
+                        verification: [
+                            "Review traffic logs for policy violations",
+                            "Test data filtering blocks CUI exfiltration",
+                            "Verify App-ID correctly identifies applications",
+                            "Check URL filtering blocks unauthorized sites"
+                        ],
+                        cost_estimate: "$3,000-10,000 (hardware) + $1,000-3,000/year (subscriptions)",
+                        effort_hours: 24
+                    }
+                },
+                
+                cisco: {
+                    features: ["ASA/Firepower", "Access Control Lists", "Zone-Based Firewall", "Cisco ISE"],
+                    implementation: {
+                        steps: [
+                            "Configure security zones for CUI network segments",
+                            "Implement Access Control Lists (ACLs) for traffic filtering",
+                            "Use Cisco ISE for identity-based network access control",
+                            "Configure zone-based firewall policies",
+                            "Implement TrustSec for software-defined segmentation",
+                            "Enable NetFlow for traffic monitoring",
+                            "Configure logging to syslog/SIEM",
+                            "Implement Cisco Umbrella for DNS security",
+                            "Use Firepower for next-gen firewall capabilities"
+                        ],
+                        cli_example: `! Configure security zones
+zone security cui-inside
+zone security cui-dmz
+zone security cui-outside
+
+! Configure zone-pair and policy
+zone-pair security cui-inside-to-dmz source cui-inside destination cui-dmz
+ service-policy type inspect cui-policy
+
+! Create class-map for CUI application traffic
+class-map type inspect match-all cui-app-traffic
+ match protocol tcp
+ match access-group name cui-app-acl
+
+! Create policy-map
+policy-map type inspect cui-policy
+ class type inspect cui-app-traffic
+  inspect
+  log
+ class class-default
+  drop
+  log
+
+! Configure ACL for CUI application
+ip access-list extended cui-app-acl
+ permit tcp 10.0.1.0 0.0.0.255 10.0.2.0 0.0.0.255 eq 5432
+ deny ip any any log
+
+! Configure logging
+logging trap informational
+logging host 10.0.100.10 transport udp port 514`,
+                        verification: [
+                            "Review firewall logs for policy violations",
+                            "Test ACLs block unauthorized traffic",
+                            "Verify zone-based policies are enforced",
+                            "Check NetFlow data for traffic patterns"
+                        ],
+                        cost_estimate: "$2,000-8,000 (hardware) + $500-2,000/year (SmartNet)",
+                        effort_hours: 20
+                    }
+                }
+            },
+            
+            small_business: {
+                budget_tier: "under_3k",
+                recommended_approach: "Use cloud provider network controls with basic firewall",
+                implementation: {
+                    steps: [
+                        "Use cloud provider's VPC/VNet with security groups",
+                        "Implement subnet segmentation for CUI workloads",
+                        "Configure security group rules to allow only necessary traffic",
+                        "Enable flow logs (use free tier where available)",
+                        "Use pfSense or OPNsense for on-premises firewall (free)",
+                        "Implement basic DLP in Microsoft 365 (E3 license)",
+                        "Document all network flows and approved paths",
+                        "Review logs monthly for unauthorized traffic"
+                    ],
+                    tools: [
+                        { name: "AWS VPC/Security Groups", cost: "Free", purpose: "Network segmentation" },
+                        { name: "pfSense", cost: "Free (open source)", purpose: "On-premises firewall" },
+                        { name: "Microsoft 365 E3", cost: "$36/user/month", purpose: "Basic DLP" },
+                        { name: "CloudWatch/Azure Monitor", cost: "$5-20/month", purpose: "Log monitoring" }
+                    ],
+                    total_cost_estimate: "$50-100/month + M365 licenses",
+                    effort_hours: 12
+                }
+            }
+        }
+        
+        // Continue adding more objectives...
     }
 };
 

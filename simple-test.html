@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Test</title>
+</head>
+<body>
+    <h1>Testing App Initialization</h1>
+    <div id="output" style="font-family: monospace; white-space: pre-wrap;"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        let log = '';
+        
+        // Override console
+        console.log = function(...args) {
+            log += args.join(' ') + '\n';
+            output.textContent = log;
+        };
+        
+        console.error = function(...args) {
+            log += 'ERROR: ' + args.join(' ') + '\n';
+            output.textContent = log;
+        };
+        
+        window.onerror = function(msg, url, line, col, error) {
+            log += `\n=== JAVASCRIPT ERROR ===\n${msg}\nFile: ${url}\nLine: ${line}:${col}\nStack: ${error?.stack}\n`;
+            output.textContent = log;
+            return false;
+        };
+        
+        console.log('Starting test...');
+    </script>
+    
+    <!-- Load data files -->
+    <script src="data/families-ac-at-au.js"></script>
+    <script src="data/families-cm-ia.js"></script>
+    <script src="data/families-ir-ma-mp-ps-pe.js"></script>
+    <script src="data/families-ra-ca-sc-si.js"></script>
+    <script src="data/loader.js"></script>
+    
+    <script>
+        console.log('Data loaded, CONTROL_FAMILIES exists: ' + (typeof CONTROL_FAMILIES !== 'undefined'));
+    </script>
+    
+    <!-- Load core app -->
+    <script src="js/lazy-loader.js?v=3"></script>
+    <script src="js/skeleton-loader.js?v=1"></script>
+    <script src="js/security.js?v=1"></script>
+    
+    <script>
+        console.log('Core scripts loaded');
+    </script>
+    
+    <!-- Load app-main.js -->
+    <script src="app-main.js"></script>
+    
+    <script>
+        console.log('app-main.js loaded');
+        console.log('AssessmentApp class exists: ' + (typeof AssessmentApp !== 'undefined'));
+        
+        // Try to initialize
+        setTimeout(() => {
+            try {
+                console.log('Attempting to create AssessmentApp instance...');
+                const testApp = new AssessmentApp();
+                console.log('SUCCESS: App initialized!');
+            } catch (e) {
+                console.error('FAILED to initialize app: ' + e.message);
+                console.error('Stack: ' + e.stack);
+            }
+        }, 100);
+    </script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprehensive Bug Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #444; border-radius: 5px; }
+        .error { color: #f48771; }
+        .success { color: #89d185; }
+        .warning { color: #f59e0b; }
+        .info { color: #6cb6ff; }
+        pre { background: #2d2d2d; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        button { margin: 5px; padding: 8px 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Comprehensive Site Bug Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        const tests = [];
+        
+        function addSection(title) {
+            const section = document.createElement('div');
+            section.className = 'section';
+            section.innerHTML = `<h2>${title}</h2><div class="content"></div>`;
+            results.appendChild(section);
+            return section.querySelector('.content');
+        }
+        
+        function addResult(container, message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = message;
+            container.appendChild(div);
+        }
+        
+        // Capture all errors
+        window.errors = [];
+        window.onerror = function(msg, url, line, col, error) {
+            window.errors.push({ msg, url, line, col, error: error?.stack });
+            return false;
+        };
+        
+        console.log('Starting comprehensive test...');
+    </script>
+    
+    <!-- Load all core data files -->
+    <script src="data/families-ac-at-au.js"></script>
+    <script src="data/families-cm-ia.js"></script>
+    <script src="data/families-ir-ma-mp-ps-pe.js"></script>
+    <script src="data/families-ra-ca-sc-si.js"></script>
+    <script src="data/sprs-scoring.js"></script>
+    <script src="data/loader.js"></script>
+    
+    <!-- Load core app scripts -->
+    <script src="js/lazy-loader.js?v=3"></script>
+    <script src="js/security.js?v=1"></script>
+    
+    <!-- Load enhancement modules -->
+    <script src="js/assessment-enhancements.js?v=1"></script>
+    <script src="js/system-inventory.js?v=1"></script>
+    <script src="js/ai-assistant.js?v=1"></script>
+    <script src="js/poam-enhancements.js?v=1"></script>
+    <script src="js/planner-enhancements.js?v=1"></script>
+    <script src="js/readiness-scorecard.js?v=1"></script>
+    
+    <script>
+        setTimeout(() => {
+            // Test 1: Check if core data loaded
+            const dataSection = addSection('1. Core Data Loading');
+            addResult(dataSection, 
+                typeof CONTROL_FAMILIES !== 'undefined' ? 
+                `✓ CONTROL_FAMILIES loaded (${CONTROL_FAMILIES.length} families)` : 
+                '✗ CONTROL_FAMILIES not loaded', 
+                typeof CONTROL_FAMILIES !== 'undefined' ? 'success' : 'error'
+            );
+            
+            // Test 2: Check if enhancement modules loaded
+            const modulesSection = addSection('2. Enhancement Modules');
+            const modules = [
+                'AssessmentEnhancements',
+                'SystemInventory',
+                'AIAssistant',
+                'POAMEnhancements',
+                'PlannerEnhancements',
+                'ReadinessScorecard'
+            ];
+            
+            modules.forEach(name => {
+                const loaded = typeof window[name] !== 'undefined';
+                addResult(modulesSection, 
+                    loaded ? `✓ ${name} loaded` : `✗ ${name} NOT loaded`,
+                    loaded ? 'success' : 'error'
+                );
+            });
+            
+            // Test 3: Check for JavaScript errors
+            const errorsSection = addSection('3. JavaScript Errors');
+            if (window.errors.length === 0) {
+                addResult(errorsSection, '✓ No JavaScript errors detected', 'success');
+            } else {
+                addResult(errorsSection, `✗ ${window.errors.length} error(s) detected:`, 'error');
+                window.errors.forEach(err => {
+                    const pre = document.createElement('pre');
+                    pre.className = 'error';
+                    pre.textContent = `${err.msg}\n${err.url}:${err.line}:${err.col}\n${err.error || ''}`;
+                    errorsSection.appendChild(pre);
+                });
+            }
+            
+            // Test 4: Check module initialization
+            const initSection = addSection('4. Module Initialization');
+            
+            // Check if modules have their data structures
+            const checks = [
+                { name: 'AssessmentEnhancements.enhancedData', check: () => typeof AssessmentEnhancements?.enhancedData === 'object' },
+                { name: 'SystemInventory.inventory', check: () => typeof SystemInventory?.inventory === 'object' },
+                { name: 'AIAssistant.config', check: () => typeof AIAssistant?.config === 'object' },
+                { name: 'POAMEnhancements.poamData', check: () => typeof POAMEnhancements?.poamData === 'object' },
+                { name: 'PlannerEnhancements.plannerData', check: () => typeof PlannerEnhancements?.plannerData === 'object' },
+                { name: 'ReadinessScorecard.history', check: () => typeof ReadinessScorecard?.history === 'object' }
+            ];
+            
+            checks.forEach(({ name, check }) => {
+                try {
+                    const result = check();
+                    addResult(initSection, 
+                        result ? `✓ ${name} initialized` : `✗ ${name} not initialized`,
+                        result ? 'success' : 'error'
+                    );
+                } catch (e) {
+                    addResult(initSection, `✗ ${name} error: ${e.message}`, 'error');
+                }
+            });
+            
+            // Test 5: Test event listeners
+            const eventsSection = addSection('5. Event Listener Test');
+            addResult(eventsSection, 'Click the test buttons below:', 'info');
+            
+            const buttonTests = [
+                { class: 'open-impl-details-btn', label: 'Implementation Details', module: 'AssessmentEnhancements' },
+                { class: 'link-evidence-btn', label: 'Link Evidence', module: 'AssessmentEnhancements' },
+                { class: 'analyze-objective-btn', label: 'Analyze with AI', module: 'AIAssistant' }
+            ];
+            
+            buttonTests.forEach(({ class: className, label, module }) => {
+                const btn = document.createElement('button');
+                btn.className = className;
+                btn.dataset.objectiveId = 'TEST.L2-3.1.1';
+                btn.textContent = `Test ${label}`;
+                btn.addEventListener('click', () => {
+                    addResult(eventsSection, `✓ Direct listener fired for ${label}`, 'success');
+                });
+                eventsSection.appendChild(btn);
+            });
+            
+            // Test 6: Console log check
+            const consoleSection = addSection('6. Console Logs');
+            addResult(consoleSection, 'Check browser console (F12) for:', 'info');
+            addResult(consoleSection, '  • [AssessmentEnhancements] Initialized', 'info');
+            addResult(consoleSection, '  • [AIAssistant] Initialized', 'info');
+            addResult(consoleSection, '  • [SystemInventory] Initialized', 'info');
+            addResult(consoleSection, '  • [POAMEnhancements] Initialized', 'info');
+            addResult(consoleSection, '  • [PlannerEnhancements] Initialized', 'info');
+            addResult(consoleSection, '  • [ReadinessScorecard] Initialized', 'info');
+            
+            // Test 7: LocalStorage check
+            const storageSection = addSection('7. LocalStorage Keys');
+            const storageKeys = [
+                'nist-assessment-enhanced',
+                'nist-system-inventory',
+                'nist-ai-config',
+                'nist-ai-results',
+                'nist-poam-enhanced',
+                'nist-planner-enhanced',
+                'nist-readiness-history'
+            ];
+            
+            storageKeys.forEach(key => {
+                const exists = localStorage.getItem(key) !== null;
+                addResult(storageSection, 
+                    `${exists ? '✓' : '○'} ${key} ${exists ? '(exists)' : '(empty)'}`,
+                    exists ? 'success' : 'info'
+                );
+            });
+            
+            // Summary
+            const summarySection = addSection('Summary');
+            const totalErrors = window.errors.length;
+            const modulesLoaded = modules.filter(m => typeof window[m] !== 'undefined').length;
+            
+            addResult(summarySection, `Modules Loaded: ${modulesLoaded}/${modules.length}`, 
+                modulesLoaded === modules.length ? 'success' : 'warning');
+            addResult(summarySection, `JavaScript Errors: ${totalErrors}`, 
+                totalErrors === 0 ? 'success' : 'error');
+            addResult(summarySection, `Data Files: ${typeof CONTROL_FAMILIES !== 'undefined' ? 'OK' : 'FAILED'}`,
+                typeof CONTROL_FAMILIES !== 'undefined' ? 'success' : 'error');
+                
+        }, 1000);
+    </script>
+</body>
+</html>

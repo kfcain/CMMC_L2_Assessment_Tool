@@ -6,14 +6,22 @@ const DocumentParser = {
     config: {
         version: "1.0.0",
         maxFileSize: 10 * 1024 * 1024, // 10MB
+        storageKey: 'nist-parsed-documents',
         supportedTypes: {
             'application/pdf': 'PDF',
             'text/plain': 'Text',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word',
             'text/csv': 'CSV',
-            'application/json': 'JSON'
-        }
+            'application/json': 'JSON',
+            'text/markdown': 'Markdown'
+        },
+        // File types that should be converted to markdown
+        convertToMarkdown: ['PDF', 'Word', 'Text'],
+        // File types that should NOT be converted (keep as-is)
+        skipConversion: ['JSON', 'CSV', 'image/png', 'image/jpeg', 'image/jpg', 'image/gif']
     },
+
+    parsedDocuments: {},
 
     // Control-related keywords for intelligent extraction
     keywords: {

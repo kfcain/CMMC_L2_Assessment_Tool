@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Enhancement Buttons</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
+        .log { margin: 5px 0; }
+        .error { color: #f48771; }
+        .success { color: #89d185; }
+        .info { color: #6cb6ff; }
+        button { margin: 10px 5px; padding: 10px 20px; }
+    </style>
+</head>
+<body>
+    <h1>Enhancement Buttons Test</h1>
+    <div id="log"></div>
+    
+    <div style="margin-top: 20px;">
+        <h3>Test Buttons:</h3>
+        <button class="open-impl-details-btn" data-objective-id="AC.L2-3.1.1">Implementation Details</button>
+        <button class="link-evidence-btn" data-objective-id="AC.L2-3.1.1">Link Evidence</button>
+        <button class="analyze-objective-btn" data-objective-id="AC.L2-3.1.1">Analyze with AI</button>
+    </div>
+    
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            log.appendChild(div);
+        }
+        
+        // Capture console
+        console.log = function(...args) {
+            addLog(args.join(' '), 'info');
+        };
+        console.error = function(...args) {
+            addLog('ERROR: ' + args.join(' '), 'error');
+        };
+        
+        window.onerror = function(msg, url, line, col, error) {
+            addLog(`ERROR: ${msg} at ${url}:${line}:${col}`, 'error');
+            return false;
+        };
+        
+        addLog('Starting test...');
+    </script>
+    
+    <!-- Load enhancement modules -->
+    <script src="js/assessment-enhancements.js?v=1"></script>
+    <script src="js/ai-assistant.js?v=1"></script>
+    
+    <script>
+        setTimeout(() => {
+            addLog('Checking if modules loaded...');
+            addLog('AssessmentEnhancements: ' + (typeof AssessmentEnhancements !== 'undefined' ? 'LOADED' : 'NOT LOADED'), 
+                   typeof AssessmentEnhancements !== 'undefined' ? 'success' : 'error');
+            addLog('AIAssistant: ' + (typeof AIAssistant !== 'undefined' ? 'LOADED' : 'NOT LOADED'),
+                   typeof AIAssistant !== 'undefined' ? 'success' : 'error');
+            
+            // Test clicking buttons
+            addLog('Click the buttons above to test if event listeners are working...');
+            
+            // Add manual click listeners to verify
+            document.querySelector('.open-impl-details-btn').addEventListener('click', () => {
+                addLog('DIRECT LISTENER: Implementation Details clicked!', 'success');
+            });
+            
+            document.querySelector('.link-evidence-btn').addEventListener('click', () => {
+                addLog('DIRECT LISTENER: Link Evidence clicked!', 'success');
+            });
+            
+            document.querySelector('.analyze-objective-btn').addEventListener('click', () => {
+                addLog('DIRECT LISTENER: Analyze with AI clicked!', 'success');
+            });
+        }, 500);
+    </script>
+</body>
+</html>
