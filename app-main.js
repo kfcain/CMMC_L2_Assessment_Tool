@@ -2800,6 +2800,14 @@ gcloud assured workloads list --location=us-central1`
             AssessmentEnhancements.updateEvidenceBadge(objective.id);
         }
 
+        // Add comprehensive guidance for this objective if available
+        if (typeof ComprehensiveGuidanceUI !== 'undefined') {
+            const detailsSection = objectiveDiv.querySelector('.objective-details');
+            if (detailsSection) {
+                ComprehensiveGuidanceUI.renderGuidance(objective.id, detailsSection);
+            }
+        }
+
         // Bind cloud provider toggle buttons
         objectiveDiv.querySelectorAll('.cloud-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
