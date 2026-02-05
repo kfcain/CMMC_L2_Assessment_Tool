@@ -2738,17 +2738,14 @@ gcloud assured workloads list --location=us-central1`
             });
         });
 
-        // Bind Implementation Notes link
-        objectiveDiv.querySelector('.impl-link').addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.openImplementationModal(objective, controlId);
-        });
-
         // Bind expand button
-        objectiveDiv.querySelector('.objective-expand').addEventListener('click', (e) => {
-            e.stopPropagation();
-            objectiveDiv.classList.toggle('expanded');
-        });
+        const expandBtn = objectiveDiv.querySelector('.objective-expand');
+        if (expandBtn) {
+            expandBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                objectiveDiv.classList.toggle('expanded');
+            });
+        }
 
         // Add POA&M link for not-met/partial items
         if (showPoamLink) {
