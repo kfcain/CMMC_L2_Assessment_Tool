@@ -27,8 +27,21 @@ const ComprehensiveGuidanceUI = {
     
     // Get guidance data for an objective
     getGuidanceForObjective: function(objectiveId) {
+        // Debug: Log what's available
+        if (!window._guidanceDebugLogged) {
+            console.log('[Comprehensive Guidance] Available data sources:', {
+                part1: typeof COMPREHENSIVE_GUIDANCE !== 'undefined',
+                part2: typeof COMPREHENSIVE_GUIDANCE_PART2 !== 'undefined',
+                part3: typeof COMPREHENSIVE_GUIDANCE_PART3 !== 'undefined',
+                part4: typeof COMPREHENSIVE_GUIDANCE_PART4 !== 'undefined',
+                part5: typeof COMPREHENSIVE_GUIDANCE_PART5 !== 'undefined'
+            });
+            window._guidanceDebugLogged = true;
+        }
+        
         // Check Part 1 (comprehensive-implementation-guidance.js)
         if (typeof COMPREHENSIVE_GUIDANCE !== 'undefined' && 
+            COMPREHENSIVE_GUIDANCE && 
             COMPREHENSIVE_GUIDANCE.objectives && 
             COMPREHENSIVE_GUIDANCE.objectives[objectiveId]) {
             return COMPREHENSIVE_GUIDANCE.objectives[objectiveId];
@@ -36,6 +49,7 @@ const ComprehensiveGuidanceUI = {
         
         // Check Part 2 (comprehensive-guidance-expansion-part2.js)
         if (typeof COMPREHENSIVE_GUIDANCE_PART2 !== 'undefined' && 
+            COMPREHENSIVE_GUIDANCE_PART2 && 
             COMPREHENSIVE_GUIDANCE_PART2.objectives && 
             COMPREHENSIVE_GUIDANCE_PART2.objectives[objectiveId]) {
             return COMPREHENSIVE_GUIDANCE_PART2.objectives[objectiveId];
@@ -43,6 +57,7 @@ const ComprehensiveGuidanceUI = {
         
         // Check Part 3 (comprehensive-guidance-expansion-part3.js)
         if (typeof COMPREHENSIVE_GUIDANCE_PART3 !== 'undefined' && 
+            COMPREHENSIVE_GUIDANCE_PART3 && 
             COMPREHENSIVE_GUIDANCE_PART3.objectives && 
             COMPREHENSIVE_GUIDANCE_PART3.objectives[objectiveId]) {
             return COMPREHENSIVE_GUIDANCE_PART3.objectives[objectiveId];
@@ -50,6 +65,7 @@ const ComprehensiveGuidanceUI = {
         
         // Check Part 4 (comprehensive-guidance-expansion-part4.js)
         if (typeof COMPREHENSIVE_GUIDANCE_PART4 !== 'undefined' && 
+            COMPREHENSIVE_GUIDANCE_PART4 && 
             COMPREHENSIVE_GUIDANCE_PART4.objectives && 
             COMPREHENSIVE_GUIDANCE_PART4.objectives[objectiveId]) {
             return COMPREHENSIVE_GUIDANCE_PART4.objectives[objectiveId];
@@ -57,6 +73,7 @@ const ComprehensiveGuidanceUI = {
         
         // Check Part 5 (comprehensive-guidance-expansion-part5.js)
         if (typeof COMPREHENSIVE_GUIDANCE_PART5 !== 'undefined' && 
+            COMPREHENSIVE_GUIDANCE_PART5 && 
             COMPREHENSIVE_GUIDANCE_PART5.objectives && 
             COMPREHENSIVE_GUIDANCE_PART5.objectives[objectiveId]) {
             return COMPREHENSIVE_GUIDANCE_PART5.objectives[objectiveId];
