@@ -5,24 +5,24 @@ const ComprehensiveGuidanceUI = {
     
     // Render comprehensive guidance for an objective
     renderGuidance: function(objectiveId, container) {
-        // Check both guidance data sources
-        const guidance = this.getGuidanceForObjective(objectiveId);
-        
-        if (!guidance) {
-            return; // No comprehensive guidance available
+        try {
+            const guidance = this.getGuidanceForObjective(objectiveId);
+            if (!guidance) return;
+            
+            const guidanceDiv = document.createElement('div');
+            guidanceDiv.className = 'comprehensive-guidance';
+            guidanceDiv.innerHTML = `
+                <div class="guidance-header">
+                    <h4>📚 Comprehensive Implementation Guidance</h4>
+                    ${guidance.summary ? `<p class="guidance-summary">${guidance.summary}</p>` : ''}
+                </div>
+                ${this.renderGuidanceSections(guidance)}
+            `;
+            
+            container.appendChild(guidanceDiv);
+        } catch (error) {
+            console.error('[ComprehensiveGuidanceUI] Error rendering guidance for', objectiveId, error);
         }
-        
-        const guidanceDiv = document.createElement('div');
-        guidanceDiv.className = 'comprehensive-guidance';
-        guidanceDiv.innerHTML = `
-            <div class="guidance-header">
-                <h4>📚 Comprehensive Implementation Guidance</h4>
-                ${guidance.summary ? `<p class="guidance-summary">${guidance.summary}</p>` : ''}
-            </div>
-            ${this.renderGuidanceSections(guidance)}
-        `;
-        
-        container.appendChild(guidanceDiv);
     },
     
     // Get guidance data for an objective
