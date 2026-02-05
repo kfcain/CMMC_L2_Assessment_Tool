@@ -7,7 +7,12 @@ const ComprehensiveGuidanceUI = {
     renderGuidance: function(objectiveId, container) {
         try {
             const guidance = this.getGuidanceForObjective(objectiveId);
-            if (!guidance) return;
+            if (!guidance) {
+                console.log('[ComprehensiveGuidanceUI] No guidance found for', objectiveId);
+                return;
+            }
+            
+            console.log('[ComprehensiveGuidanceUI] Rendering guidance for', objectiveId);
             
             const guidanceDiv = document.createElement('div');
             guidanceDiv.className = 'comprehensive-guidance';
@@ -20,6 +25,7 @@ const ComprehensiveGuidanceUI = {
             `;
             
             container.appendChild(guidanceDiv);
+            console.log('[ComprehensiveGuidanceUI] Successfully appended guidance for', objectiveId);
         } catch (error) {
             console.error('[ComprehensiveGuidanceUI] Error rendering guidance for', objectiveId, error);
         }
