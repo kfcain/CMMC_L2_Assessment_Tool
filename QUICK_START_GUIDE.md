@@ -226,42 +226,6 @@ Click the three horizontal lines in the top-left to open the navigation menu. Al
 
 ---
 
-## 🔌 Phase 6: API Connectors
-
-### **API Connectors**
-📍 **Location:** Hamburger Menu → "Integrations" section → "API Connectors" (line 104-108)
-
-**What it does:**
-- Connect to cloud platforms using YOUR API keys
-- Automated evidence collection from Azure, AWS, M365, GCP
-- All API calls made client-side (no backend)
-- YOU pay for API usage (not the tool owner)
-- Credentials stored only in your browser
-
-**How to test:**
-1. Click hamburger menu (☰)
-2. Scroll to "Integrations" section
-3. Click "API Connectors"
-4. Read the disclaimer (you pay for API costs)
-5. Click "Connect" on any platform (Azure/AWS/M365/GCP)
-6. Follow setup instructions
-7. Enter your credentials:
-   - **Azure**: Client ID, Client Secret, Tenant ID
-   - **AWS**: Access Key ID, Secret Key, Region
-   - **M365**: Client ID, Client Secret, Tenant ID
-   - **GCP**: Service Account JSON, Project ID
-8. Click "Save Connection"
-9. Click "Test" to verify credentials
-10. Click "Collect Evidence" to gather data (confirms you'll be charged)
-
-**Important notes:**
-- ⚠️ Multiple warnings that YOU pay for API costs
-- Credentials stored in YOUR browser only
-- No data passes through any backend server
-- Direct API calls from browser to cloud provider
-
----
-
 ## 🎨 Visual Guide to the Interface
 
 ### Main Navigation Structure:
@@ -284,9 +248,6 @@ Click the three horizontal lines in the top-left to open the navigation menu. Al
 │   ├── 🆕 Document Parser ← NEW!
 │   ├── 🆕 Evidence Library ← NEW!
 │   └── 🆕 Executive Dashboard ← NEW!
-│
-└── Integrations
-    └── 🆕 API Connectors ← NEW!
 ```
 
 ---
@@ -344,14 +305,6 @@ Click the three horizontal lines in the top-left to open the navigation menu. Al
 - Read executive recommendations
 - Check readiness level
 - Export executive report
-
-#### 8. **API Connectors (5 minutes)**
-- Open API Connectors
-- Read disclaimers about costs
-- Click "Connect" on a platform
-- Review setup instructions
-- (Optional) Enter test credentials if you have them
-- Note the cost warnings throughout
 
 ---
 
@@ -421,17 +374,16 @@ After testing, you should have:
 - ✅ Gap analysis report with scores and recommendations
 - ✅ Evidence library with 3+ items
 - ✅ Executive dashboard showing KPIs
-- ✅ Understanding of API connector setup
 - ✅ Exported JSON reports from various features
 
 ---
 
 ## 🎉 You're All Set!
 
-All 6 phases are complete and ready to use. Every feature is:
+All 5 phases are complete and ready to use. Every feature is:
 - ✅ Fully functional
 - ✅ Accessible from hamburger menu
-- ✅ Working offline (except API connectors)
+- ✅ Working offline
 - ✅ Saving data locally
 - ✅ Production-ready
 
