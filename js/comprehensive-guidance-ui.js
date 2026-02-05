@@ -45,44 +45,52 @@ const ComprehensiveGuidanceUI = {
             window._guidanceDebugLogged = true;
         }
         
-        // Check Part 1 (comprehensive-implementation-guidance.js)
-        if (typeof COMPREHENSIVE_GUIDANCE !== 'undefined' && 
-            COMPREHENSIVE_GUIDANCE && 
-            COMPREHENSIVE_GUIDANCE.objectives && 
-            COMPREHENSIVE_GUIDANCE.objectives[objectiveId]) {
-            return COMPREHENSIVE_GUIDANCE.objectives[objectiveId];
-        }
+        // Extract control ID from objective ID (e.g., "3.1.1[a]" -> "3.1.1")
+        const controlId = objectiveId.replace(/\[.*\]$/, '');
         
-        // Check Part 2 (comprehensive-guidance-expansion-part2.js)
-        if (typeof COMPREHENSIVE_GUIDANCE_PART2 !== 'undefined' && 
-            COMPREHENSIVE_GUIDANCE_PART2 && 
-            COMPREHENSIVE_GUIDANCE_PART2.objectives && 
-            COMPREHENSIVE_GUIDANCE_PART2.objectives[objectiveId]) {
-            return COMPREHENSIVE_GUIDANCE_PART2.objectives[objectiveId];
-        }
+        // Map control ID to guidance keys (e.g., "3.1.1" -> "AC.L1-3.1.1" or "AC.L2-3.1.1")
+        // Try both L1 and L2 variants
+        const guidanceKeys = [
+            `AC.L1-${controlId}`,
+            `AC.L2-${controlId}`,
+            `AT.L2-${controlId}`,
+            `AU.L2-${controlId}`,
+            `CM.L2-${controlId}`,
+            `IA.L1-${controlId}`,
+            `IA.L2-${controlId}`,
+            `IR.L2-${controlId}`,
+            `MA.L2-${controlId}`,
+            `MP.L2-${controlId}`,
+            `PE.L1-${controlId}`,
+            `PE.L2-${controlId}`,
+            `PS.L2-${controlId}`,
+            `RE.L2-${controlId}`,
+            `RA.L2-${controlId}`,
+            `CA.L2-${controlId}`,
+            `SC.L1-${controlId}`,
+            `SC.L2-${controlId}`,
+            `SI.L1-${controlId}`,
+            `SI.L2-${controlId}`,
+            `SA.L2-${controlId}`
+        ];
         
-        // Check Part 3 (comprehensive-guidance-expansion-part3.js)
-        if (typeof COMPREHENSIVE_GUIDANCE_PART3 !== 'undefined' && 
-            COMPREHENSIVE_GUIDANCE_PART3 && 
-            COMPREHENSIVE_GUIDANCE_PART3.objectives && 
-            COMPREHENSIVE_GUIDANCE_PART3.objectives[objectiveId]) {
-            return COMPREHENSIVE_GUIDANCE_PART3.objectives[objectiveId];
-        }
+        // Check all data sources for any matching guidance key
+        const dataSources = [
+            typeof COMPREHENSIVE_GUIDANCE !== 'undefined' ? COMPREHENSIVE_GUIDANCE : null,
+            typeof COMPREHENSIVE_GUIDANCE_PART2 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART2 : null,
+            typeof COMPREHENSIVE_GUIDANCE_PART3 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART3 : null,
+            typeof COMPREHENSIVE_GUIDANCE_PART4 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART4 : null,
+            typeof COMPREHENSIVE_GUIDANCE_PART5 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART5 : null
+        ];
         
-        // Check Part 4 (comprehensive-guidance-expansion-part4.js)
-        if (typeof COMPREHENSIVE_GUIDANCE_PART4 !== 'undefined' && 
-            COMPREHENSIVE_GUIDANCE_PART4 && 
-            COMPREHENSIVE_GUIDANCE_PART4.objectives && 
-            COMPREHENSIVE_GUIDANCE_PART4.objectives[objectiveId]) {
-            return COMPREHENSIVE_GUIDANCE_PART4.objectives[objectiveId];
-        }
-        
-        // Check Part 5 (comprehensive-guidance-expansion-part5.js)
-        if (typeof COMPREHENSIVE_GUIDANCE_PART5 !== 'undefined' && 
-            COMPREHENSIVE_GUIDANCE_PART5 && 
-            COMPREHENSIVE_GUIDANCE_PART5.objectives && 
-            COMPREHENSIVE_GUIDANCE_PART5.objectives[objectiveId]) {
-            return COMPREHENSIVE_GUIDANCE_PART5.objectives[objectiveId];
+        for (const source of dataSources) {
+            if (!source || !source.objectives) continue;
+            
+            for (const key of guidanceKeys) {
+                if (source.objectives[key]) {
+                    return source.objectives[key];
+                }
+            }
         }
         
         return null;
