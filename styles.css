@@ -7230,6 +7230,23 @@ body {
     opacity: 1;
 }
 
+/* Submenu items - indented and styled differently */
+.hamburger-submenu-item {
+    padding-left: 44px;
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.hamburger-submenu-item svg {
+    width: 14px;
+    height: 14px;
+}
+
+.hamburger-submenu-item:hover {
+    opacity: 1;
+    background: var(--bg-tertiary);
+}
+
 .hamburger-divider {
     height: 1px;
     background: var(--border-color);
