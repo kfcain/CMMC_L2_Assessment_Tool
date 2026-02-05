@@ -1,7 +1,7 @@
 // Service Worker for CMMC Assessment Tool
 // Provides offline caching and faster repeat visits
 
-const CACHE_NAME = 'cmmc-tool-v30';
+const CACHE_NAME = 'cmmc-tool-v31';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Core files that should always be cached
@@ -18,6 +18,7 @@ const CORE_ASSETS = [
     '/css/arch-guide.css',
     '/css/enhanced-features.css',
     '/css/msp-portal.css',
+    '/css/comprehensive-guidance.css',
     '/styles/api-tester.css',
     '/js/lazy-loader.js',
     '/js/security.js',
@@ -31,6 +32,7 @@ const CORE_ASSETS = [
     '/js/rev3-crosswalk.js',
     '/js/cmmc-l3-assessment.js',
     '/js/api-tester.js',
+    '/js/comprehensive-guidance-ui.js',
     '/data/families-ac-at-au.js',
     '/data/families-cm-ia.js',
     '/data/families-ir-ma-mp-ps-pe.js',
@@ -46,6 +48,11 @@ const CORE_ASSETS = [
     '/data/msp-evidence-lists.js',
     '/data/msp-data-protection.js',
     '/data/api-evidence-collection.js',
+    '/data/comprehensive-implementation-guidance.js',
+    '/data/comprehensive-guidance-expansion-part2.js',
+    '/data/comprehensive-guidance-expansion-part3.js',
+    '/data/comprehensive-guidance-expansion-part4.js',
+    '/data/comprehensive-guidance-expansion-part5.js',
     '/favicon.svg'
 ];
 
