@@ -26,14 +26,24 @@ class AssessmentApp {
         
         // Ensure dashboard renders on initial load
         console.log('[App] Current view:', this.currentView);
-        this.switchView(this.currentView); // Restore last view
         
-        // Force dashboard render if it's the current view
+        // Always show dashboard view by default on page load
+        const dashboardView = document.getElementById('dashboard-view');
+        const assessmentView = document.getElementById('assessment-view');
+        
         if (this.currentView === 'dashboard') {
-            console.log('[App] Forcing dashboard render...');
+            console.log('[App] Setting dashboard as active view...');
+            if (dashboardView) dashboardView.classList.add('active');
+            if (assessmentView) assessmentView.classList.remove('active');
+            
+            // Render dashboard immediately
             setTimeout(() => {
+                console.log('[App] Rendering dashboard...');
                 this.renderDashboard();
-            }, 100);
+            }, 50);
+        } else {
+            // For other views, use switchView
+            this.switchView(this.currentView);
         }
         
         this.initDataStorageNotice();
