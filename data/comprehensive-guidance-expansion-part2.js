@@ -572,7 +572,7 @@ db.createView(
 }
 
 resource "aws_s3_bucket" "audit_logs" {
-  bucket = "cui-audit-logs-${data.aws_caller_identity.current.account_id}"
+  bucket = "cui-audit-logs-\${data.aws_caller_identity.current.account_id}"
   
   versioning {
     enabled = true
@@ -940,7 +940,7 @@ coldToFrozenDir = /mnt/frozen/cui_audit`,
 output.elasticsearch:
   hosts: ["https://elasticsearch:9200"]
   username: "filebeat_writer"
-  password: "${FILEBEAT_PASSWORD}"
+  password: "\${FILEBEAT_PASSWORD}"
   index: "cui-logs-%{+yyyy.MM.dd}"
   ssl.certificate_authorities: ["/etc/pki/ca.crt"]`,
                         ilm_policy: `PUT _ilm/policy/cui-logs-policy
