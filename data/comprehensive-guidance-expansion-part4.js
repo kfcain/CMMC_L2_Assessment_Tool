@@ -63,6 +63,116 @@ const COMPREHENSIVE_GUIDANCE_PART4 = {
             small_business: { approach: "Test backup restoration quarterly, verify critical files restore correctly, document test results", cost_estimate: "$0", effort_hours: 4 }
         }
         
+        ,
+        
+        "RA.L2-3.11.1": {
+            objective: "Periodically assess the risk to organizational operations, organizational assets, and individuals, resulting from the operation of organizational systems and the associated processing, storage, or transmission of CUI.",
+            summary: "Annual risk assessment, identify threats and vulnerabilities, document risks",
+            implementation: {
+                general: { steps: ["Conduct annual risk assessment", "Identify threats to CUI systems", "Identify vulnerabilities", "Assess likelihood and impact", "Calculate risk levels (high/medium/low)", "Document risks in risk register", "Develop risk mitigation strategies", "Review and update risk assessment after major changes"], effort_hours: 40 }
+            },
+            cloud: {
+                aws: { services: ["Security Hub", "Inspector", "GuardDuty"], implementation: { steps: ["Use Security Hub for continuous risk assessment", "Run Inspector vulnerability scans", "Review GuardDuty findings", "Use AWS Well-Architected Tool for risk review", "Document risks in risk register", "Conduct annual formal risk assessment"], cost_estimate: "$100-500/month", effort_hours: 24 }},
+                azure: { services: ["Security Center", "Defender"], implementation: { steps: ["Use Defender for Cloud for continuous risk assessment", "Review security recommendations", "Use Azure Advisor for risk insights", "Document risks in risk register", "Conduct annual formal risk assessment"], cost_estimate: "$100-400/month", effort_hours: 24 }},
+                gcp: { services: ["Security Command Center"], implementation: { steps: ["Use Security Command Center for risk assessment", "Review security findings", "Document risks in risk register", "Conduct annual formal risk assessment"], cost_estimate: "$200-600/month", effort_hours: 24 }}
+            },
+            small_business: { approach: "Use risk assessment template, identify top 10 risks, document in spreadsheet, review annually", cost_estimate: "$0-2000 (consultant)", effort_hours: 16 }
+        }
+        
+        ,
+        
+        "RA.L2-3.11.2": {
+            objective: "Scan for vulnerabilities in organizational systems and applications periodically and when new vulnerabilities affecting those systems and applications are identified.",
+            summary: "Monthly vulnerability scans, patch critical vulnerabilities within 30 days",
+            cloud: {
+                aws: { services: ["Inspector", "Systems Manager"], implementation: { steps: ["Enable Amazon Inspector for automated scanning", "Scan EC2 instances monthly", "Scan container images", "Use Systems Manager Patch Manager", "Review CVE findings", "Prioritize critical/high vulnerabilities", "Track remediation in ticketing system"], cost_estimate: "$50-300/month", effort_hours: 12 }},
+                azure: { services: ["Defender for Cloud", "Qualys"], implementation: { steps: ["Enable Defender for Cloud vulnerability scanning", "Scan VMs monthly", "Scan container registries", "Use Qualys integration", "Review vulnerability findings", "Prioritize critical/high vulnerabilities", "Track remediation"], cost_estimate: "$50-250/month", effort_hours: 12 }},
+                gcp: { services: ["Security Command Center", "Container Analysis"], implementation: { steps: ["Enable Security Command Center vulnerability scanning", "Scan Compute Engine instances monthly", "Use Container Analysis for images", "Review vulnerability findings", "Prioritize critical/high vulnerabilities", "Track remediation"], cost_estimate: "$50-250/month", effort_hours: 12 }}
+            },
+            tools: {
+                nessus: { implementation: { steps: ["Deploy Nessus scanner", "Scan all systems monthly", "Scan after new vulnerability announcements", "Generate vulnerability reports", "Track remediation"], cost_estimate: "$3000-4000/year", effort_hours: 12 }},
+                openvas: { implementation: { steps: ["Deploy OpenVAS scanner (free)", "Scan all systems monthly", "Review vulnerability reports", "Track remediation"], cost_estimate: "$0", effort_hours: 12 }}
+            },
+            small_business: { approach: "Use cloud provider vulnerability scanning, scan monthly, patch critical vulnerabilities within 30 days", cost_estimate: "$0-100/month", effort_hours: 8 }
+        }
+        
+        ,
+        
+        "RA.L2-3.11.3": {
+            objective: "Remediate vulnerabilities in accordance with risk assessments.",
+            summary: "Patch critical within 30 days, high within 90 days, track in POA&M",
+            implementation: {
+                general: { steps: ["Prioritize vulnerabilities by risk (CVSS score)", "Critical: remediate within 30 days", "High: remediate within 90 days", "Medium: remediate within 180 days", "Track remediation in POA&M", "Document compensating controls if patching not possible", "Verify remediation with re-scan"], effort_hours: 16 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use Systems Manager Patch Manager for automated patching", "Create maintenance windows", "Prioritize patches by severity", "Track remediation in AWS Config", "Document exceptions in POA&M", "Verify with Inspector re-scan"], cost_estimate: "$10-50/month", effort_hours: 12 }},
+                azure: { implementation: { steps: ["Use Azure Update Management for patching", "Create maintenance schedules", "Prioritize patches by severity", "Track remediation in Azure Policy", "Document exceptions in POA&M", "Verify with Defender re-scan"], cost_estimate: "$10-40/month", effort_hours: 12 }},
+                gcp: { implementation: { steps: ["Use OS Config for patch management", "Create maintenance windows", "Prioritize patches by severity", "Track remediation", "Document exceptions in POA&M", "Verify with re-scan"], cost_estimate: "$10-40/month", effort_hours: 12 }}
+            },
+            small_business: { approach: "Enable automatic updates for Windows/cloud systems, manually patch critical vulnerabilities within 30 days, track in Excel", cost_estimate: "$0", effort_hours: 8 }
+        }
+        
+        ,
+        
+        "CA.L2-3.12.1": {
+            objective: "Periodically assess the security controls in organizational systems to determine if the controls are effective in their application.",
+            summary: "Annual security control assessment, test controls, document findings",
+            implementation: {
+                general: { steps: ["Conduct annual security control assessment", "Test each NIST 800-171 control", "Interview personnel", "Review documentation", "Test technical controls", "Document findings", "Identify deficiencies", "Develop corrective action plan"], effort_hours: 80 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use AWS Audit Manager for control assessment", "Review Security Hub compliance standards", "Test IAM policies", "Review CloudTrail logs", "Test backup/recovery procedures", "Document findings", "Conduct annual formal assessment"], cost_estimate: "$100-500/month", effort_hours: 40 }},
+                azure: { implementation: { steps: ["Use Azure Policy compliance dashboard", "Review Defender for Cloud recommendations", "Test RBAC policies", "Review Activity Logs", "Test backup/recovery procedures", "Document findings", "Conduct annual formal assessment"], cost_estimate: "$100-400/month", effort_hours: 40 }},
+                gcp: { implementation: { steps: ["Use Security Command Center compliance dashboard", "Review organization policy compliance", "Test IAM policies", "Review Cloud Audit Logs", "Test backup/recovery procedures", "Document findings", "Conduct annual formal assessment"], cost_estimate: "$200-600/month", effort_hours: 40 }}
+            },
+            small_business: { approach: "Use CMMC assessment tool for self-assessment, test key controls, document findings, hire consultant for formal assessment", cost_estimate: "$5000-15000 (consultant)", effort_hours: 40 }
+        }
+        
+        ,
+        
+        "CA.L2-3.12.2": {
+            objective: "Develop and implement plans of action designed to correct deficiencies and reduce or eliminate vulnerabilities in organizational systems.",
+            summary: "POA&M for deficiencies, track milestones, monthly updates",
+            implementation: {
+                general: { steps: ["Create POA&M for each deficiency", "Assign owner and due date", "Define milestones", "Estimate resources needed", "Track progress monthly", "Update POA&M status", "Close POA&M when remediated", "Report POA&M status to management"], effort_hours: 16 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use ServiceNow/Jira for POA&M tracking", "Create ticket for each deficiency", "Assign to resource owner", "Set due dates based on risk", "Track in weekly meetings", "Update status in AWS Config", "Document closure"], cost_estimate: "$0-100/month (ticketing)", effort_hours: 12 }},
+                azure: { implementation: { steps: ["Use Azure DevOps for POA&M tracking", "Create work items for deficiencies", "Assign to resource owner", "Set due dates", "Track in sprint reviews", "Update status in Azure Policy", "Document closure"], cost_estimate: "$0-50/month", effort_hours: 12 }},
+                gcp: { implementation: { steps: ["Use Jira/ServiceNow for POA&M tracking", "Create tickets for deficiencies", "Assign to resource owner", "Set due dates", "Track progress", "Document closure"], cost_estimate: "$0-100/month", effort_hours: 12 }}
+            },
+            small_business: { approach: "Use Excel POA&M template, track deficiencies, update monthly, report to management quarterly", cost_estimate: "$0", effort_hours: 8 }
+        }
+        
+        ,
+        
+        "CA.L2-3.12.3": {
+            objective: "Monitor security controls on an ongoing basis to ensure the continued effectiveness of the controls.",
+            summary: "Continuous monitoring with SIEM, automated compliance checks, dashboards",
+            cloud: {
+                aws: { services: ["Security Hub", "Config", "CloudWatch"], implementation: { steps: ["Enable Security Hub for continuous monitoring", "Use AWS Config for compliance monitoring", "Create CloudWatch dashboards", "Set up automated compliance checks", "Review security findings daily", "Alert on control failures", "Document monitoring procedures"], cost_estimate: "$100-500/month", effort_hours: 16 }},
+                azure: { services: ["Sentinel", "Policy", "Monitor"], implementation: { steps: ["Deploy Microsoft Sentinel for continuous monitoring", "Use Azure Policy for compliance monitoring", "Create Azure Monitor dashboards", "Set up automated compliance checks", "Review security findings daily", "Alert on control failures", "Document monitoring procedures"], cost_estimate: "$200-800/month", effort_hours: 16 }},
+                gcp: { services: ["Security Command Center", "Cloud Monitoring"], implementation: { steps: ["Enable Security Command Center for continuous monitoring", "Use organization policies for compliance", "Create Cloud Monitoring dashboards", "Set up automated compliance checks", "Review security findings daily", "Alert on control failures", "Document monitoring procedures"], cost_estimate: "$200-600/month", effort_hours: 16 }}
+            },
+            small_business: { approach: "Use cloud provider security dashboards, review weekly, enable automated alerts for critical findings", cost_estimate: "$0-200/month", effort_hours: 8 }
+        }
+        
+        ,
+        
+        "CA.L2-3.12.4": {
+            objective: "Develop, document, and periodically update system security plans that describe system boundaries, system environments of operation, how security requirements are implemented, and the relationships with or connections to other systems.",
+            summary: "System Security Plan (SSP), update annually, document architecture",
+            implementation: {
+                general: { steps: ["Create System Security Plan (SSP)", "Define system boundary", "Document system architecture", "List all system components", "Describe security control implementation", "Document connections to other systems", "Update SSP annually", "Review SSP after major changes"], effort_hours: 40 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Document AWS account structure", "Create network diagrams with VPCs", "List all AWS services used", "Document IAM structure", "Describe data flows", "Document connections to on-premises", "Use AWS Systems Manager for inventory", "Update SSP annually"], cost_estimate: "$0-2000 (consultant)", effort_hours: 24 }},
+                azure: { implementation: { steps: ["Document Azure subscription structure", "Create network diagrams with VNets", "List all Azure services used", "Document Azure AD structure", "Describe data flows", "Document hybrid connections", "Use Azure Resource Graph for inventory", "Update SSP annually"], cost_estimate: "$0-2000 (consultant)", effort_hours: 24 }},
+                gcp: { implementation: { steps: ["Document GCP project structure", "Create network diagrams with VPCs", "List all GCP services used", "Document Cloud Identity structure", "Describe data flows", "Document hybrid connections", "Use Cloud Asset Inventory", "Update SSP annually"], cost_estimate: "$0-2000 (consultant)", effort_hours: 24 }}
+            },
+            small_business: { approach: "Use SSP template, create network diagram, document key systems, update annually", cost_estimate: "$0-5000 (consultant)", effort_hours: 20 }
+        }
+        
     }
 };
 
