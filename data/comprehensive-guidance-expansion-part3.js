@@ -340,6 +340,115 @@ const COMPREHENSIVE_GUIDANCE_PART3 = {
             small_business: { approach: "Use cloud backup service with encryption (Backblaze, Carbonite), test restoration quarterly, store local backups in locked cabinet", cost_estimate: "$50-200/month", effort_hours: 6 }
         }
         
+        ,
+        
+        "PE.L2-3.10.1": {
+            objective: "Limit physical access to organizational systems, equipment, and the respective operating environments to authorized individuals.",
+            summary: "Badge access, visitor logs, locked server rooms",
+            implementation: {
+                general: { steps: ["Implement badge access system", "Maintain authorized personnel list", "Lock server rooms and equipment closets", "Require badge for building entry", "Implement visitor sign-in procedures", "Review access list quarterly"], effort_hours: 12 }
+            },
+            cloud: { approach: "Cloud providers handle physical security (SOC 2 Type II certified data centers)", cost_estimate: "$0 (included)", effort_hours: 2 },
+            small_business: { approach: "Lock server room/closet, maintain key control log, implement visitor sign-in sheet", cost_estimate: "$200-1000 (locks)", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "PE.L2-3.10.2": {
+            objective: "Protect and monitor the physical facility and support infrastructure for organizational systems.",
+            summary: "Security cameras, UPS, fire suppression, environmental monitoring",
+            implementation: {
+                general: { steps: ["Install security cameras", "Implement UPS for power protection", "Install fire suppression system", "Monitor temperature and humidity", "Implement water leak detection", "Maintain HVAC systems", "Test backup power quarterly"], effort_hours: 20 }
+            },
+            cloud: { approach: "Cloud providers handle facility protection and monitoring", cost_estimate: "$0 (included)", effort_hours: 2 },
+            small_business: { approach: "Install security camera for server room, use UPS for servers, monitor temperature, maintain fire extinguisher", cost_estimate: "$500-2000", effort_hours: 8 }
+        }
+        
+        ,
+        
+        "PE.L2-3.10.3": {
+            objective: "Escort visitors and monitor visitor activity.",
+            summary: "Visitor badges, escort requirements, activity monitoring",
+            implementation: {
+                general: { steps: ["Issue visitor badges", "Require escort for all visitors", "Maintain visitor log", "Prohibit unescorted access to secure areas", "Monitor visitor activity", "Collect badges on departure"], effort_hours: 4 }
+            },
+            cloud: { approach: "Cloud providers handle visitor management at data centers", cost_estimate: "$0 (included)", effort_hours: 1 },
+            small_business: { approach: "Maintain visitor sign-in sheet, escort visitors at all times, prohibit unescorted access to server room", cost_estimate: "$0-50 (visitor badges)", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "PE.L2-3.10.4": {
+            objective: "Maintain audit logs of physical access.",
+            summary: "Badge access logs, visitor logs, review quarterly",
+            implementation: {
+                general: { steps: ["Use badge system with logging", "Maintain visitor logs", "Review access logs quarterly", "Investigate anomalies", "Retain logs for 1 year minimum", "Document access violations"], effort_hours: 6 }
+            },
+            cloud: { approach: "Cloud providers maintain physical access logs (available on request)", cost_estimate: "$0 (included)", effort_hours: 1 },
+            small_business: { approach: "Maintain manual visitor log, document key access, review logs quarterly", cost_estimate: "$0", effort_hours: 3 }
+        }
+        
+        ,
+        
+        "PE.L2-3.10.5": {
+            objective: "Control and manage physical access devices.",
+            summary: "Badge management, key control, lock changes",
+            implementation: {
+                general: { steps: ["Maintain inventory of access devices (badges, keys)", "Issue devices to authorized personnel only", "Collect devices on termination", "Change locks when keys are lost", "Disable lost badges immediately", "Audit device inventory quarterly"], effort_hours: 6 }
+            },
+            cloud: { approach: "Cloud providers manage physical access devices", cost_estimate: "$0 (included)", effort_hours: 1 },
+            small_business: { approach: "Maintain key control log, collect keys on termination, change locks if keys lost", cost_estimate: "$100-500 (lock changes)", effort_hours: 3 }
+        }
+        
+        ,
+        
+        "PE.L2-3.10.6": {
+            objective: "Enforce safeguarding measures for CUI at alternate work sites.",
+            summary: "Remote work security, home office requirements, VPN",
+            implementation: {
+                general: { steps: ["Document remote work security policy", "Require VPN for remote access", "Require encrypted laptops", "Prohibit CUI on personal devices", "Require secure home office (locked room/cabinet)", "Provide security awareness training", "Conduct periodic compliance checks"], effort_hours: 8 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Require AWS SSO with MFA for remote access", "Use WorkSpaces for secure remote desktop", "Implement VPN with MFA", "Monitor remote access with CloudTrail"], cost_estimate: "$25-75/user/month (WorkSpaces)", effort_hours: 6 }},
+                azure: { implementation: { steps: ["Require Azure AD with MFA for remote access", "Use Azure Virtual Desktop for secure remote desktop", "Implement VPN with MFA", "Use Conditional Access for location-based policies"], cost_estimate: "$25-75/user/month (AVD)", effort_hours: 6 }}
+            },
+            small_business: { approach: "Require VPN for remote access, enable BitLocker on laptops, prohibit printing CUI at home, require locked home office", cost_estimate: "$0-50/user/month", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "PS.L2-3.9.1": {
+            objective: "Screen individuals prior to authorizing access to organizational systems containing CUI.",
+            summary: "Background checks, security clearances, reference checks",
+            implementation: {
+                general: { steps: ["Conduct background checks for all employees with CUI access", "Verify employment history", "Check references", "Conduct criminal background check", "Verify education credentials", "Document screening results", "Re-screen every 5 years", "Screen contractors and vendors"], effort_hours: 4 }
+            },
+            process: {
+                levels: {
+                    basic: { description: "Reference checks, employment verification", cost: "$50-100/person" },
+                    moderate: { description: "Criminal background check, credit check", cost: "$100-300/person" },
+                    high: { description: "Federal background investigation (SF-85/SF-86)", cost: "$3000-5000/person" }
+                }
+            },
+            small_business: { approach: "Use background check service (Checkr, GoodHire), conduct reference checks, document results", cost_estimate: "$100-300/person", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "PS.L2-3.9.2": {
+            objective: "Ensure that organizational systems containing CUI are protected during and after personnel actions such as terminations and transfers.",
+            summary: "Termination checklist, disable accounts immediately, collect equipment",
+            implementation: {
+                general: { steps: ["Create termination checklist", "Disable accounts immediately on termination", "Collect badges, keys, and equipment", "Change passwords for shared accounts", "Review access rights on transfer", "Conduct exit interview", "Document termination in HR system"], effort_hours: 6 }
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Disable IAM user immediately", "Remove from AWS SSO", "Review CloudTrail for final activities", "Transfer ownership of resources", "Remove MFA devices", "Document in ticketing system"], cost_estimate: "$0", effort_hours: 2 }},
+                azure: { implementation: { steps: ["Disable Azure AD account immediately", "Remove from groups and roles", "Review Activity Log for final activities", "Transfer resource ownership", "Remove MFA registration", "Document in Azure DevOps"], cost_estimate: "$0", effort_hours: 2 }},
+                gcp: { implementation: { steps: ["Disable Cloud Identity account immediately", "Remove from groups and roles", "Review Cloud Audit Logs", "Transfer resource ownership", "Remove 2FA devices", "Document in ticketing system"], cost_estimate: "$0", effort_hours: 2 }}
+            },
+            small_business: { approach: "Use termination checklist, disable accounts immediately, collect equipment, change shared passwords, document in HR file", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
     }
 };
 
