@@ -1,0 +1,199 @@
+/* Comprehensive Guidance UI Styles */
+
+.comprehensive-guidance {
+    margin: 20px 0;
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-blue);
+}
+
+.guidance-header {
+    margin-bottom: 20px;
+}
+
+.guidance-header h4 {
+    color: var(--accent-blue);
+    font-size: 1.3em;
+    margin-bottom: 10px;
+}
+
+.guidance-summary {
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-top: 8px;
+}
+
+.guidance-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.guidance-category {
+    background: var(--bg-tertiary);
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.guidance-category h5 {
+    color: var(--text-primary);
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.platform-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: var(--bg-tertiary);
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.platform-icon {
+    font-size: 1.3em;
+}
+
+.platform-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1.05em;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.card-body p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.card-body strong {
+    color: var(--accent-blue);
+}
+
+.implementation-steps,
+.verification-steps,
+.tools-list {
+    margin: 15px 0;
+}
+
+.implementation-steps ol,
+.verification-steps ul,
+.tools-list ul {
+    margin-left: 20px;
+    margin-top: 8px;
+}
+
+.implementation-steps li,
+.verification-steps li,
+.tools-list li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.code-example {
+    margin: 15px 0;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.code-example summary {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--accent-blue);
+    user-select: none;
+}
+
+.code-example summary:hover {
+    background: var(--bg-tertiary);
+}
+
+.code-example pre {
+    margin: 0;
+    padding: 15px;
+    overflow-x: auto;
+    background: var(--input-bg);
+}
+
+.code-example code {
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.cost-estimate,
+.effort-estimate {
+    display: inline-block;
+    margin: 8px 15px 8px 0;
+    padding: 6px 12px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    font-size: 0.95em;
+}
+
+.cost-estimate {
+    border-left: 3px solid #98c379;
+}
+
+.effort-estimate {
+    border-left: 3px solid #e5c07b;
+}
+
+.small-business-section {
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+    border: 2px solid var(--accent-blue);
+}
+
+.small-business-section .platform-card {
+    background: var(--bg-secondary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .comprehensive-guidance {
+        padding: 15px;
+    }
+    
+    .guidance-category {
+        padding: 12px;
+    }
+    
+    .card-body {
+        padding: 12px;
+    }
+    
+    .code-example pre {
+        font-size: 0.85em;
+    }
+}
+
+/* Print styles */
+@media print {
+    .comprehensive-guidance {
+        page-break-inside: avoid;
+    }
+    
+    .platform-card {
+        page-break-inside: avoid;
+    }
+    
+    .code-example {
+        page-break-inside: avoid;
+    }
+}

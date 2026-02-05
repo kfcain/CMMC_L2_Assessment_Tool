@@ -1998,9 +1998,14 @@ class AssessmentApp {
         control.objectives.forEach(objective => {
             const objEl = this.createL3ObjectiveElement(objective, control);
             container.appendChild(objEl);
+            
+            // Add comprehensive guidance for this objective if available
+            if (typeof ComprehensiveGuidanceUI !== 'undefined') {
+                ComprehensiveGuidanceUI.renderGuidance(objective.id, objEl);
+            }
         });
 
-        // Add implementation guidance if available
+        // Add legacy implementation guidance if available (for L3 controls)
         if (control.implementationGuidance) {
             const guidanceDiv = document.createElement('div');
             guidanceDiv.className = 'l3-guidance';
