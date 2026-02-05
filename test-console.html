@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Console Test</title>
+</head>
+<body>
+    <h1>JavaScript Console Test</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        // Test if modules load
+        const modules = [
+            'js/assessment-enhancements.js',
+            'js/system-inventory.js',
+            'js/ai-assistant.js',
+            'js/poam-enhancements.js',
+            'js/planner-enhancements.js',
+            'js/readiness-scorecard.js'
+        ];
+        
+        let loaded = 0;
+        let errors = [];
+        
+        modules.forEach(src => {
+            const script = document.createElement('script');
+            script.src = src + '?v=1';
+            script.defer = true;
+            script.onload = () => {
+                loaded++;
+                output.innerHTML += `<p style="color: green;">✓ Loaded: ${src}</p>`;
+                if (loaded === modules.length) {
+                    output.innerHTML += '<p style="color: blue; font-weight: bold;">All modules loaded successfully!</p>';
+                    
+                    // Check if objects exist
+                    const checks = [
+                        'AssessmentEnhancements',
+                        'SystemInventory',
+                        'AIAssistant',
+                        'POAMEnhancements',
+                        'PlannerEnhancements',
+                        'ReadinessScorecard'
+                    ];
+                    
+                    checks.forEach(name => {
+                        if (typeof window[name] !== 'undefined') {
+                            output.innerHTML += `<p style="color: green;">✓ ${name} object exists</p>`;
+                        } else {
+                            output.innerHTML += `<p style="color: red;">✗ ${name} object NOT found</p>`;
+                        }
+                    });
+                }
+            };
+            script.onerror = (e) => {
+                errors.push(src);
+                output.innerHTML += `<p style="color: red;">✗ Error loading: ${src}</p>`;
+            };
+            document.body.appendChild(script);
+        });
+        
+        // Catch any JavaScript errors
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            output.innerHTML += `<p style="color: red; font-weight: bold;">ERROR: ${msg}<br>File: ${url}<br>Line: ${lineNo}</p>`;
+            return false;
+        };
+    </script>
+</body>
+</html>

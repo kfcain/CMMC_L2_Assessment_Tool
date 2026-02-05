@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Console</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
+        .error { color: #f48771; }
+        .success { color: #89d185; }
+        .info { color: #6cb6ff; }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Debug Console</h1>
+    <div id="log"></div>
+    
+    <script>
+        const log = document.getElementById('log');
+        
+        // Capture console output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function(...args) {
+            log.innerHTML += `<div class="info">[LOG] ${args.join(' ')}</div>`;
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            log.innerHTML += `<div class="error">[ERROR] ${args.join(' ')}</div>`;
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            log.innerHTML += `<div class="error">[WARN] ${args.join(' ')}</div>`;
+            originalWarn.apply(console, args);
+        };
+        
+        // Capture global errors
+        window.onerror = function(msg, url, line, col, error) {
+            log.innerHTML += `<div class="error"><strong>[GLOBAL ERROR]</strong><br>Message: ${msg}<br>File: ${url}<br>Line: ${line}:${col}<br>Error: ${error}</div>`;
+            return false;
+        };
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            log.innerHTML += `<div class="error"><strong>[UNHANDLED PROMISE]</strong><br>${event.reason}</div>`;
+        });
+        
+        log.innerHTML += '<div class="info">Debug console initialized. Loading main app...</div>';
+    </script>
+    
+    <!-- Load the main app scripts in order -->
+    <script src="data/families-ac-at-au.js"></script>
+    <script src="data/families-cm-ia.js"></script>
+    <script src="data/families-ir-ma-mp-ps-pe.js"></script>
+    <script src="data/families-ra-ca-sc-si.js"></script>
+    <script src="data/sprs-scoring.js"></script>
+    <script src="data/ctrl-xref.js?v=2"></script>
+    <script src="data/related-objectives.js?v=1"></script>
+    <script src="data/loader.js"></script>
+    
+    <script>
+        console.log('Data files loaded');
+        console.log('CONTROL_FAMILIES defined:', typeof CONTROL_FAMILIES !== 'undefined');
+        if (typeof CONTROL_FAMILIES !== 'undefined') {
+            console.log('CONTROL_FAMILIES length:', CONTROL_FAMILIES.length);
+        }
+    </script>
+    
+    <!-- Load new enhancement modules -->
+    <script src="js/assessment-enhancements.js?v=1" defer></script>
+    <script src="js/system-inventory.js?v=1" defer></script>
+    <script src="js/ai-assistant.js?v=1" defer></script>
+    <script src="js/poam-enhancements.js?v=1" defer></script>
+    <script src="js/planner-enhancements.js?v=1" defer></script>
+    <script src="js/readiness-scorecard.js?v=1" defer></script>
+    
+    <script>
+        // Check after a delay
+        setTimeout(() => {
+            console.log('=== Module Check ===');
+            console.log('AssessmentEnhancements:', typeof AssessmentEnhancements !== 'undefined');
+            console.log('SystemInventory:', typeof SystemInventory !== 'undefined');
+            console.log('AIAssistant:', typeof AIAssistant !== 'undefined');
+            console.log('POAMEnhancements:', typeof POAMEnhancements !== 'undefined');
+            console.log('PlannerEnhancements:', typeof PlannerEnhancements !== 'undefined');
+            console.log('ReadinessScorecard:', typeof ReadinessScorecard !== 'undefined');
+        }, 1000);
+    </script>
+</body>
+</html>

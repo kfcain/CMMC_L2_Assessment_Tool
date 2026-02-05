@@ -417,9 +417,12 @@ class AssessmentApp {
         });
 
         // Search
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            this.filterControls();
-        });
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.filterControls();
+            });
+        }
 
         // Assessment Level Selector
         const levelSelect = document.getElementById('assessment-level-select');
@@ -435,13 +438,24 @@ class AssessmentApp {
         }
 
         // Filters
-        document.getElementById('filter-status').addEventListener('change', () => this.filterControls());
-        document.getElementById('filter-family').addEventListener('change', () => this.filterControls());
+        const filterStatus = document.getElementById('filter-status');
+        const filterFamily = document.getElementById('filter-family');
+        if (filterStatus) {
+            filterStatus.addEventListener('change', () => this.filterControls());
+        }
+        if (filterFamily) {
+            filterFamily.addEventListener('change', () => this.filterControls());
+        }
 
         // Save/Load/Export
-        document.getElementById('save-btn').addEventListener('click', () => this.saveData());
-        document.getElementById('load-btn').addEventListener('click', () => this.loadDataFromFile());
-        document.getElementById('export-btn').addEventListener('click', () => this.exportPOAMCSV());
+        const saveBtn = document.getElementById('save-btn');
+        const loadBtn = document.getElementById('load-btn');
+        const exportBtn = document.getElementById('export-btn');
+        
+        if (saveBtn) saveBtn.addEventListener('click', () => this.saveData());
+        if (loadBtn) loadBtn.addEventListener('click', () => this.loadDataFromFile());
+        if (exportBtn) exportBtn.addEventListener('click', () => this.exportPOAMCSV());
+        
         document.getElementById('export-csv-btn')?.addEventListener('click', () => this.exportPOAMCSV());
         document.getElementById('export-assessment-btn')?.addEventListener('click', () => this.exportAssessmentCSV());
         document.getElementById('mark-all-not-met-btn')?.addEventListener('click', () => this.markAllNotMet());
