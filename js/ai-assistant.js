@@ -50,46 +50,74 @@ const AIAssistant = {
 
     bindEvents: function() {
         document.addEventListener('click', (e) => {
-            // Open AI settings
-            if (e.target.closest('#open-ai-settings-btn')) {
-                this.showSettingsModal();
-            }
+            try {
+                // Open AI settings
+                if (e.target.closest('#open-ai-settings-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('[AIAssistant] Opening settings modal');
+                    this.showSettingsModal();
+                }
 
-            // Save AI config
-            if (e.target.closest('#save-ai-config-btn')) {
-                this.saveConfig();
-            }
+                // Save AI config
+                if (e.target.closest('#save-ai-config-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('[AIAssistant] Saving config');
+                    this.saveConfig();
+                }
 
-            // Test API connection
-            if (e.target.closest('#test-ai-connection-btn')) {
-                this.testConnection();
-            }
+                // Test API connection
+                if (e.target.closest('#test-ai-connection-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('[AIAssistant] Testing connection');
+                    this.testConnection();
+                }
 
-            // Clear API key
-            if (e.target.closest('#clear-ai-key-btn')) {
-                this.clearConfig();
-            }
+                // Clear API key
+                if (e.target.closest('#clear-ai-key-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('[AIAssistant] Clearing config');
+                    this.clearConfig();
+                }
 
-            // Analyze single objective
-            if (e.target.closest('.analyze-objective-btn')) {
-                const objectiveId = e.target.closest('.analyze-objective-btn').dataset.objectiveId;
-                this.analyzeObjective(objectiveId);
-            }
+                // Analyze single objective
+                if (e.target.closest('.analyze-objective-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const objectiveId = e.target.closest('.analyze-objective-btn').dataset.objectiveId;
+                    console.log('[AIAssistant] Analyze clicked for:', objectiveId);
+                    this.analyzeObjective(objectiveId);
+                }
 
-            // View analysis results
-            if (e.target.closest('.view-analysis-btn')) {
-                const objectiveId = e.target.closest('.view-analysis-btn').dataset.objectiveId;
-                this.showAnalysisResults(objectiveId);
-            }
+                // View analysis results
+                if (e.target.closest('.view-analysis-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const objectiveId = e.target.closest('.view-analysis-btn').dataset.objectiveId;
+                    console.log('[AIAssistant] View results clicked for:', objectiveId);
+                    this.showAnalysisResults(objectiveId);
+                }
 
-            // Batch analyze
-            if (e.target.closest('#batch-analyze-btn')) {
-                this.showBatchAnalysisModal();
-            }
+                // Batch analyze
+                if (e.target.closest('#batch-analyze-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('[AIAssistant] Batch analyze clicked');
+                    this.showBatchAnalysisModal();
+                }
 
-            // Start batch analysis
-            if (e.target.closest('#start-batch-analysis-btn')) {
-                this.startBatchAnalysis();
+                // Start batch analysis
+                if (e.target.closest('#start-batch-analysis-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('[AIAssistant] Starting batch analysis');
+                    this.startBatchAnalysis();
+                }
+            } catch (error) {
+                console.error('[AIAssistant] Error in click handler:', error);
             }
         });
     },

@@ -24,33 +24,50 @@ const AssessmentEnhancements = {
 
     bindEvents: function() {
         document.addEventListener('click', (e) => {
-            // Link evidence button
-            if (e.target.closest('.link-evidence-btn')) {
-                const objectiveId = e.target.closest('.link-evidence-btn').dataset.objectiveId;
-                this.showLinkEvidenceModal(objectiveId);
-            }
+            try {
+                // Link evidence button
+                if (e.target.closest('.link-evidence-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const objectiveId = e.target.closest('.link-evidence-btn').dataset.objectiveId;
+                    console.log('[AssessmentEnhancements] Link evidence clicked for:', objectiveId);
+                    this.showLinkEvidenceModal(objectiveId);
+                }
 
-            // Save evidence links
-            if (e.target.closest('#save-evidence-links-btn')) {
-                this.saveEvidenceLinks();
-            }
+                // Save evidence links
+                if (e.target.closest('#save-evidence-links-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('[AssessmentEnhancements] Saving evidence links');
+                    this.saveEvidenceLinks();
+                }
 
-            // Open implementation details
-            if (e.target.closest('.open-impl-details-btn')) {
-                const objectiveId = e.target.closest('.open-impl-details-btn').dataset.objectiveId;
-                this.showImplementationDetailsModal(objectiveId);
-            }
+                // Open implementation details
+                if (e.target.closest('.open-impl-details-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const objectiveId = e.target.closest('.open-impl-details-btn').dataset.objectiveId;
+                    console.log('[AssessmentEnhancements] Implementation details clicked for:', objectiveId);
+                    this.showImplementationDetailsModal(objectiveId);
+                }
 
-            // Save implementation details
-            if (e.target.closest('#save-impl-details-btn')) {
-                this.saveImplementationDetails();
-            }
+                // Save implementation details
+                if (e.target.closest('#save-impl-details-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('[AssessmentEnhancements] Saving implementation details');
+                    this.saveImplementationDetails();
+                }
 
-            // Implementation status change
-            if (e.target.closest('.impl-status-select')) {
-                const select = e.target.closest('.impl-status-select');
-                const objectiveId = select.dataset.objectiveId;
-                this.updateImplementationStatus(objectiveId, select.value);
+                // Implementation status change
+                if (e.target.closest('.impl-status-select')) {
+                    const select = e.target.closest('.impl-status-select');
+                    const objectiveId = select.dataset.objectiveId;
+                    console.log('[AssessmentEnhancements] Status changed for:', objectiveId);
+                    this.updateImplementationStatus(objectiveId, select.value);
+                }
+            } catch (error) {
+                console.error('[AssessmentEnhancements] Error in click handler:', error);
             }
         });
 
