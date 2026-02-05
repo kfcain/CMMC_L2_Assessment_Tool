@@ -2609,7 +2609,201 @@ module.exports = { checkPermission, requireApproval };`,
             small_business: { approach: "Configure Windows/Mac screen lock via local policy, enforce on mobile devices via Microsoft 365/Google Workspace MDM", cost_estimate: "$0", effort_hours: 3 }
         }
         
-        // Continue with AC.L2-3.1.11 through 3.1.22 in next batch...
+        ,
+        
+        "AC.L2-3.1.11": {
+            objective: "Terminate (automatically) a user session after a defined condition.",
+            summary: "Auto-logout after inactivity or max session duration",
+            cloud: {
+                aws: { implementation: { steps: ["Configure AWS SSO session timeout (12 hours max)", "Set CloudFront signed cookie expiration", "Configure ALB session stickiness timeout", "Use Lambda@Edge for custom session validation", "Set EC2 instance idle timeout"], cost_estimate: "$0-5/month", effort_hours: 4 }},
+                azure: { implementation: { steps: ["Configure Azure AD session timeout (12 hours)", "Set Conditional Access session controls", "Configure App Service session timeout", "Use Azure Front Door session affinity timeout", "Set AVD idle session timeout (15 min)"], cost_estimate: "$0", effort_hours: 4 }},
+                gcp: { implementation: { steps: ["Configure Cloud Identity session timeout", "Set Cloud IAP session duration", "Configure App Engine session timeout", "Use Cloud Load Balancer session affinity timeout"], cost_estimate: "$0", effort_hours: 4 }}
+            },
+            application: {
+                nodejs: { implementation: { steps: ["Use express-session with maxAge and rolling: false", "Implement absolute timeout (12 hours)", "Implement idle timeout (15 minutes)", "Clear session on logout", "Use Redis for distributed session store"], effort_hours: 6 }},
+                general: { implementation: { steps: ["Set session timeout in web.config/application properties", "Implement both idle and absolute timeouts", "Clear server-side session data on timeout", "Redirect to login page on timeout", "Display warning before timeout"], effort_hours: 6 }}
+            },
+            small_business: { approach: "Configure session timeout in Microsoft 365 (12 hours), web apps (15 min idle)", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.12": {
+            objective: "Monitor and control remote access sessions.",
+            summary: "VPN logging, remote desktop monitoring, privileged access tracking",
+            cloud: {
+                aws: { services: ["VPC", "Client VPN", "Systems Manager", "CloudTrail"], implementation: { steps: ["Deploy AWS Client VPN with MFA", "Enable VPN connection logging to CloudWatch", "Use Systems Manager Session Manager for audited SSH/RDP", "Configure VPC Flow Logs for remote access traffic", "Set up CloudTrail for API access monitoring", "Implement AWS SSO for centralized remote access"], cost_estimate: "$50-200/month (VPN endpoints)", effort_hours: 10 }},
+                azure: { services: ["VPN Gateway", "Bastion", "Azure AD", "Monitor"], implementation: { steps: ["Deploy Azure VPN Gateway with P2S VPN", "Enable Azure Bastion for RDP/SSH without public IPs", "Configure Azure AD Conditional Access for remote access", "Enable NSG Flow Logs", "Use Azure Monitor for VPN connection logs", "Implement Just-in-Time VM access"], cost_estimate: "$140-400/month (Bastion + VPN)", effort_hours: 10 }},
+                gcp: { services: ["Cloud VPN", "IAP", "Cloud Logging"], implementation: { steps: ["Deploy Cloud VPN with Cloud Identity", "Use Identity-Aware Proxy for TCP forwarding", "Enable VPN tunnel logging", "Configure VPC Flow Logs", "Use Cloud Logging for access monitoring"], cost_estimate: "$50-150/month", effort_hours: 8 }}
+            },
+            network: {
+                paloalto: { implementation: { steps: ["Enable GlobalProtect VPN logging", "Configure User-ID for user tracking", "Set up syslog forwarding to SIEM", "Enable session monitoring in ACC", "Configure alerts for suspicious remote access"], effort_hours: 6 }},
+                cisco: { implementation: { steps: ["Configure AnyConnect VPN with RADIUS/TACACS+", "Enable VPN session logging", "Configure ISE for posture assessment", "Set up syslog to SIEM", "Enable NetFlow for traffic analysis"], effort_hours: 6 }}
+            },
+            small_business: { approach: "Use Microsoft 365 sign-in logs, Windows RDP logging (Event ID 4624), VPN provider logs", cost_estimate: "$0-50/month", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.13": {
+            objective: "Employ cryptographic mechanisms to protect the confidentiality of remote access sessions.",
+            summary: "TLS 1.2+, VPN encryption, encrypted remote desktop",
+            cloud: {
+                aws: { implementation: { steps: ["Enforce TLS 1.2+ on ALB/CloudFront", "Use AWS Client VPN with AES-256-GCM", "Configure Systems Manager Session Manager with KMS encryption", "Enable RDP encryption on EC2 Windows instances", "Use AWS Certificate Manager for TLS certificates"], cost_estimate: "$0-10/month", effort_hours: 6 }},
+                azure: { implementation: { steps: ["Enforce TLS 1.2+ on Application Gateway/Front Door", "Use Azure VPN Gateway with IKEv2 and AES-256", "Configure Azure Bastion (always encrypted)", "Enable RDP encryption on Azure VMs", "Use Azure Key Vault for certificate management"], cost_estimate: "$0", effort_hours: 6 }},
+                gcp: { implementation: { steps: ["Enforce TLS 1.2+ on Cloud Load Balancer", "Use Cloud VPN with IKEv2 and AES-256-GCM", "Configure IAP TCP forwarding (always encrypted)", "Enable RDP encryption on Compute Engine", "Use Certificate Manager for TLS"], cost_estimate: "$0", effort_hours: 6 }}
+            },
+            network: {
+                general: { implementation: { steps: ["Configure VPN with AES-256 encryption", "Enforce TLS 1.2+ on web servers", "Disable SSLv3, TLS 1.0, TLS 1.1", "Use strong cipher suites only", "Implement perfect forward secrecy (PFS)"], effort_hours: 4 }}
+            },
+            small_business: { approach: "Use built-in VPN encryption (IKEv2/IPsec), enforce TLS 1.2+ on websites, use encrypted RDP", cost_estimate: "$0", effort_hours: 3 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.14": {
+            objective: "Route remote access via managed access control points.",
+            summary: "VPN gateway, bastion hosts, no direct internet access to internal systems",
+            cloud: {
+                aws: { implementation: { steps: ["Deploy AWS Client VPN as single entry point", "Use Systems Manager Session Manager (no direct SSH/RDP)", "Remove public IPs from internal EC2 instances", "Use Transit Gateway for hub-and-spoke VPN", "Configure Security Groups to allow access only from VPN CIDR"], cost_estimate: "$75-250/month", effort_hours: 12 }},
+                azure: { implementation: { steps: ["Deploy Azure Bastion for all RDP/SSH access", "Use Azure VPN Gateway as single entry point", "Remove public IPs from internal VMs", "Configure NSGs to allow access only from VPN/Bastion", "Use Azure Firewall for outbound traffic control"], cost_estimate: "$140-500/month", effort_hours: 12 }},
+                gcp: { implementation: { steps: ["Use Identity-Aware Proxy for all remote access", "Deploy Cloud VPN as single entry point", "Remove external IPs from internal VMs", "Configure firewall rules to allow access only from IAP/VPN", "Use Private Google Access for API access"], cost_estimate: "$50-200/month", effort_hours: 10 }}
+            },
+            network: {
+                general: { implementation: { steps: ["Deploy VPN concentrator as single entry point", "Configure firewall to block direct internet access to internal systems", "Use jump box/bastion host for administrative access", "Implement network segmentation", "Monitor for unauthorized access attempts"], effort_hours: 10 }}
+            },
+            small_business: { approach: "Use VPN as single entry point, remove public IPs from internal systems, use cloud provider bastion services", cost_estimate: "$50-150/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.15": {
+            objective: "Authorize remote execution of privileged commands and remote access to security-relevant information.",
+            summary: "Approval workflow for privileged remote access, audit all privileged sessions",
+            cloud: {
+                aws: { implementation: { steps: ["Use AWS SSO with approval workflow for privileged roles", "Implement Step Functions for approval automation", "Use Systems Manager Session Manager with session logging", "Configure SNS notifications for privileged access requests", "Store session logs in S3 with Glacier for long-term retention"], cost_estimate: "$10-30/month", effort_hours: 12 }},
+                azure: { implementation: { steps: ["Use Azure AD PIM with approval workflow", "Configure multi-approver requirements for privileged roles", "Enable PIM audit logs to Log Analytics", "Use Azure Bastion with session recording", "Set up alerts for privileged access activation"], cost_estimate: "$6-16/user/month (Azure AD P2)", effort_hours: 12 }},
+                gcp: { implementation: { steps: ["Implement custom approval workflow with Cloud Functions", "Use IAM Conditions for time-based access", "Enable Cloud Audit Logs for privileged access", "Use Cloud Logging for session monitoring", "Set up Pub/Sub notifications for privileged access"], cost_estimate: "$10-25/month", effort_hours: 14 }}
+            },
+            application: {
+                general: { implementation: { steps: ["Implement approval workflow for privileged operations", "Require manager approval for sensitive data access", "Log all privileged command executions", "Use ticketing system integration (ServiceNow, Jira)", "Implement time-limited access tokens"], effort_hours: 16 }}
+            },
+            small_business: { approach: "Use email approval for privileged access, document all approvals, use cloud provider PIM features", cost_estimate: "$0-20/month", effort_hours: 8 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.16": {
+            objective: "Authorize wireless access prior to allowing such connections.",
+            summary: "WPA3-Enterprise, 802.1X authentication, MAC address filtering",
+            cloud: {
+                aws: { implementation: { steps: ["Use AWS Managed Microsoft AD for RADIUS authentication", "Deploy EC2-based RADIUS server with FreeRADIUS", "Configure AWS Certificate Manager for 802.1X certificates", "Use AWS IoT Device Management for IoT device authentication"], cost_estimate: "$50-150/month", effort_hours: 10 }},
+                azure: { implementation: { steps: ["Use Azure AD with NPS extension for RADIUS", "Deploy Network Policy Server on Azure VM", "Configure certificate-based 802.1X authentication", "Use Azure AD Conditional Access for wireless access control"], cost_estimate: "$50-120/month", effort_hours: 10 }},
+                gcp: { implementation: { steps: ["Deploy Cloud Identity for user authentication", "Use Compute Engine for RADIUS server", "Configure certificate-based 802.1X", "Use Cloud Identity for wireless access control"], cost_estimate: "$50-100/month", effort_hours: 10 }}
+            },
+            network: {
+                general: { implementation: { steps: ["Configure WPA3-Enterprise on wireless access points", "Deploy RADIUS server (FreeRADIUS, Cisco ISE, ClearPass)", "Implement 802.1X authentication with certificates or username/password", "Configure MAC address filtering as secondary control", "Separate guest and corporate wireless networks", "Disable WPS, WEP, WPA1"], effort_hours: 12 }}
+            },
+            small_business: { approach: "Use WPA3-Personal with strong passphrase, separate guest network, MAC filtering, cloud RADIUS (JumpCloud, Okta)", cost_estimate: "$0-50/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.17": {
+            objective: "Protect wireless access using authentication and encryption.",
+            summary: "WPA3, AES encryption, disable legacy protocols",
+            network: {
+                general: { implementation: { steps: ["Configure WPA3-Enterprise (802.1X) or WPA3-Personal", "Use AES-256 encryption (CCMP)", "Disable WEP, WPA1, TKIP", "Enable Management Frame Protection (802.11w)", "Configure strong RADIUS shared secret (32+ characters)", "Use EAP-TLS for certificate-based authentication", "Implement wireless IDS/IPS"], effort_hours: 8 }}
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use AWS Certificate Manager for 802.1X certificates", "Deploy RADIUS server with strong encryption", "Configure CloudWatch monitoring for wireless authentication failures"], cost_estimate: "$10-30/month", effort_hours: 6 }},
+                azure: { implementation: { steps: ["Use Azure AD for RADIUS authentication", "Deploy NPS with strong encryption settings", "Configure Azure Monitor for wireless access logs"], cost_estimate: "$10-25/month", effort_hours: 6 }}
+            },
+            small_business: { approach: "Use WPA3-Personal with 20+ character passphrase, rotate quarterly, separate guest network", cost_estimate: "$0", effort_hours: 2 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.18": {
+            objective: "Control connection of mobile devices.",
+            summary: "MDM enrollment, device compliance, conditional access",
+            saas: {
+                microsoft365: { services: ["Intune", "Conditional Access"], implementation: { steps: ["Enroll devices in Microsoft Intune", "Configure device compliance policies (encryption, PIN, OS version)", "Implement Conditional Access to require compliant devices", "Configure app protection policies for mobile apps", "Enable remote wipe capability", "Block jailbroken/rooted devices"], cost_estimate: "$6-14/user/month (Intune)", effort_hours: 10 }},
+                google_workspace: { services: ["Endpoint Management"], implementation: { steps: ["Enroll devices in Google Endpoint Management", "Configure device policies (encryption, screen lock)", "Implement Context-Aware Access", "Configure mobile app management", "Enable remote wipe", "Block rooted devices"], cost_estimate: "$6-18/user/month (Enterprise)", effort_hours: 10 }}
+            },
+            cloud: {
+                aws: { implementation: { steps: ["Use AWS WorkSpaces for mobile access (BYOD alternative)", "Implement device certificates for authentication", "Use AWS Device Farm for testing"], cost_estimate: "$25-75/user/month", effort_hours: 8 }},
+                azure: { implementation: { steps: ["Use Intune for MDM", "Configure Conditional Access device policies", "Implement Azure AD device registration", "Use Azure Virtual Desktop for BYOD"], cost_estimate: "$6-14/user/month", effort_hours: 8 }}
+            },
+            small_business: { approach: "Use Microsoft 365 Basic Mobility (free) or Google Workspace device management, require device enrollment", cost_estimate: "$0-10/user/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.19": {
+            objective: "Encrypt CUI on mobile devices and mobile computing platforms.",
+            summary: "Full disk encryption, BitLocker, FileVault, encrypted containers",
+            mobile: {
+                ios: { implementation: { steps: ["Enable Data Protection (enabled by default on iOS 8+)", "Require device passcode (6+ digits)", "Use MDM to enforce encryption", "Configure passcode complexity requirements", "Enable Find My iPhone for remote wipe"], effort_hours: 2 }},
+                android: { implementation: { steps: ["Enable full disk encryption (Settings > Security > Encrypt device)", "Require screen lock PIN/password", "Use MDM to enforce encryption", "Configure encryption for SD cards", "Enable remote wipe via MDM"], effort_hours: 2 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Enable BitLocker on all drives", "Use TPM 2.0 for key storage", "Store recovery keys in Azure AD or on-premises AD", "Configure Group Policy to enforce BitLocker", "Enable BitLocker To Go for removable drives"], effort_hours: 4 }},
+                macos: { implementation: { steps: ["Enable FileVault full disk encryption", "Store recovery key in institutional key escrow or iCloud", "Use MDM to enforce FileVault", "Configure firmware password"], effort_hours: 3 }},
+                linux: { implementation: { steps: ["Use LUKS for full disk encryption during installation", "Configure encrypted /home partition", "Store encryption keys securely", "Use TPM if available"], effort_hours: 4 }}
+            },
+            small_business: { approach: "Enable BitLocker (Windows Pro+), FileVault (macOS), device encryption (iOS/Android), enforce via MDM", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.20": {
+            objective: "Verify and control/limit connections to and use of external information systems.",
+            summary: "Whitelist external connections, monitor data transfers, DLP",
+            cloud: {
+                aws: { services: ["VPC", "Security Groups", "GuardDuty", "Macie"], implementation: { steps: ["Use VPC endpoints for AWS service access (no internet)", "Configure Security Groups to whitelist external IPs", "Enable VPC Flow Logs for connection monitoring", "Use AWS GuardDuty for threat detection", "Implement AWS Macie for data exfiltration detection", "Use AWS Firewall Manager for centralized rules"], cost_estimate: "$50-200/month", effort_hours: 12 }},
+                azure: { services: ["Virtual Network", "NSG", "Firewall", "Sentinel"], implementation: { steps: ["Use Private Endpoints for Azure services", "Configure NSGs to whitelist external connections", "Deploy Azure Firewall with application rules", "Enable NSG Flow Logs", "Use Azure Sentinel for connection monitoring", "Implement Microsoft Defender for Cloud"], cost_estimate: "$100-400/month", effort_hours: 12 }},
+                gcp: { services: ["VPC", "Cloud Firewall", "VPC Service Controls"], implementation: { steps: ["Use Private Google Access for API access", "Configure VPC firewall rules to whitelist external IPs", "Enable VPC Flow Logs", "Use VPC Service Controls for perimeter security", "Implement Cloud Armor for web app protection"], cost_estimate: "$50-200/month", effort_hours: 10 }}
+            },
+            network: {
+                general: { implementation: { steps: ["Configure firewall to whitelist external connections", "Implement web proxy with URL filtering", "Deploy DLP solution to monitor data transfers", "Use DNS filtering to block malicious domains", "Monitor outbound connections with SIEM"], effort_hours: 14 }}
+            },
+            small_business: { approach: "Use cloud provider firewall rules, DNS filtering (Cloudflare, Quad9), monitor unusual outbound traffic", cost_estimate: "$0-50/month", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.21": {
+            objective: "Limit use of portable storage devices on external systems.",
+            summary: "Disable USB ports, BitLocker To Go, DLP for removable media",
+            operating_system: {
+                windows: { implementation: { steps: ["Use Group Policy to disable USB storage devices", "Configure BitLocker To Go for approved USB drives", "Use Windows Defender Application Control to allow only approved devices", "Implement Device Guard", "Monitor USB device usage with Event ID 6416"], effort_hours: 6 }},
+                macos: { implementation: { steps: ["Use MDM to disable external storage", "Configure kernel extensions to block USB storage", "Use Jamf or Intune for device control", "Monitor USB connections"], effort_hours: 6 }},
+                linux: { implementation: { steps: ["Blacklist USB storage kernel modules (usb-storage)", "Use udev rules to block USB storage devices", "Configure SELinux/AppArmor policies", "Monitor /var/log/messages for USB events"], effort_hours: 6 }}
+            },
+            saas: {
+                microsoft365: { implementation: { steps: ["Configure Intune device compliance to block USB storage", "Use Endpoint DLP to control removable media", "Implement Conditional Access based on device compliance", "Monitor USB usage with Defender for Endpoint"], cost_estimate: "$0 (included in E5)", effort_hours: 6 }}
+            },
+            small_business: { approach: "Use Group Policy to disable USB storage, whitelist approved devices by serial number, use BitLocker To Go", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "AC.L2-3.1.22": {
+            objective: "Control CUI posted or processed on publicly accessible information systems.",
+            summary: "DLP for public websites, content review, access controls on public-facing systems",
+            cloud: {
+                aws: { services: ["Macie", "GuardDuty", "WAF"], implementation: { steps: ["Use AWS Macie to scan S3 buckets for CUI", "Configure S3 Block Public Access", "Implement AWS WAF to protect public websites", "Use CloudFront with signed URLs for controlled access", "Enable S3 versioning and MFA Delete", "Monitor CloudTrail for public access changes"], cost_estimate: "$50-200/month", effort_hours: 10 }},
+                azure: { services: ["Purview", "Storage", "Front Door"], implementation: { steps: ["Use Microsoft Purview DLP for Azure Storage", "Configure storage accounts to disallow public access", "Implement Azure Front Door with WAF", "Use SAS tokens for time-limited access", "Enable storage analytics logging", "Monitor Activity Log for public access changes"], cost_estimate: "$50-200/month", effort_hours: 10 }},
+                gcp: { services: ["DLP", "Cloud Storage", "Cloud Armor"], implementation: { steps: ["Use Cloud DLP to scan Cloud Storage for CUI", "Configure bucket-level IAM to prevent public access", "Implement Cloud Armor for web protection", "Use signed URLs for controlled access", "Enable Cloud Storage audit logs", "Monitor Cloud Logging for public access"], cost_estimate: "$50-200/month", effort_hours: 10 }}
+            },
+            application: {
+                general: { implementation: { steps: ["Implement content review workflow before publishing", "Use DLP to scan content for CUI markers", "Require authentication for CUI access", "Implement role-based publishing permissions", "Monitor public-facing systems for unauthorized CUI", "Use watermarking for controlled documents"], effort_hours: 12 }}
+            },
+            small_business: { approach: "Manual review before publishing, use cloud storage private by default, implement access controls on public websites", cost_estimate: "$0-50/month", effort_hours: 6 }
+        }
+        
+        // Continue with AU.L2-3.3.2 through 3.3.9 in next batch...
     }
 };
 
