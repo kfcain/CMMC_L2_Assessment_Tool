@@ -2897,11 +2897,128 @@ body {
 .evidence-type-badge.procedure { background: #3b82f6; color: white; }
 .evidence-type-badge.screenshot { background: #10b981; color: white; }
 .evidence-type-badge.config { background: #f59e0b; color: white; }
+.evidence-type-badge.configuration { background: #f59e0b; color: white; }
 .evidence-type-badge.log { background: #6b7280; color: white; }
 .evidence-type-badge.audit { background: #ef4444; color: white; }
+.evidence-type-badge.document { background: #3b82f6; color: white; }
+.evidence-type-badge.certificate { background: #10b981; color: white; }
+.evidence-type-badge.report { background: #8b5cf6; color: white; }
+.evidence-type-badge.other { background: #6b7280; color: white; }
 
 .evidence-date {
     color: var(--text-muted);
+}
+
+/* Evidence Management Modal Styles */
+.evidence-summary {
+    padding: 16px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.evidence-count {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.evidence-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.evidence-add-section {
+    padding: 20px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.evidence-add-section h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.evidence-list-section h3 {
+    margin-bottom: 16px;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.evidence-item {
+    padding: 16px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--accent-blue);
+}
+
+.evidence-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.evidence-item-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.evidence-description {
+    margin: 8px 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.evidence-file-ref {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    background: var(--bg-primary);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    font-family: monospace;
+}
+
+.evidence-meta {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.delete-evidence-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.delete-evidence-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.evidence-count-badge {
+    display: none;
+    padding: 2px 8px;
+    background: var(--accent-blue);
+    color: white;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 8px;
 }
 
 .impl-details-tabs {

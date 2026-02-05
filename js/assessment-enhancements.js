@@ -25,21 +25,32 @@ const AssessmentEnhancements = {
     bindEvents: function() {
         document.addEventListener('click', (e) => {
             try {
-                // Link evidence button
+                // Manage evidence button
                 if (e.target.closest('.link-evidence-btn')) {
                     e.preventDefault();
                     e.stopPropagation();
                     const objectiveId = e.target.closest('.link-evidence-btn').dataset.objectiveId;
-                    console.log('[AssessmentEnhancements] Link evidence clicked for:', objectiveId);
-                    this.showLinkEvidenceModal(objectiveId);
+                    console.log('[AssessmentEnhancements] Manage evidence clicked for:', objectiveId);
+                    this.showManageEvidenceModal(objectiveId);
                 }
 
-                // Save evidence links
-                if (e.target.closest('#save-evidence-links-btn')) {
+                // Add evidence
+                if (e.target.closest('#add-evidence-btn')) {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('[AssessmentEnhancements] Saving evidence links');
-                    this.saveEvidenceLinks();
+                    const objectiveId = e.target.closest('#add-evidence-btn').dataset.objectiveId;
+                    console.log('[AssessmentEnhancements] Adding evidence for:', objectiveId);
+                    this.addEvidence(objectiveId);
+                }
+
+                // Delete evidence
+                if (e.target.closest('.delete-evidence-btn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const evidenceId = e.target.closest('.delete-evidence-btn').dataset.evidenceId;
+                    const objectiveId = e.target.closest('.delete-evidence-btn').dataset.objectiveId;
+                    console.log('[AssessmentEnhancements] Deleting evidence:', evidenceId);
+                    this.deleteEvidence(objectiveId, evidenceId);
                 }
 
                 // Open implementation details
@@ -99,7 +110,7 @@ const AssessmentEnhancements = {
         if (!this.enhancedData[objectiveId]) {
             this.enhancedData[objectiveId] = {
                 implementationStatus: null,
-                linkedEvidence: [],
+                evidence: [], // Array of evidence items directly attached to this AO
                 implementationNotes: '',
                 assessorNotes: '',
                 lastUpdated: Date.now(),
@@ -132,46 +143,70 @@ const AssessmentEnhancements = {
         this.saveToStorage();
     },
 
-    showLinkEvidenceModal: function(objectiveId) {
+    showManageEvidenceModal: function(objectiveId) {
         const data = this.getEnhancedData(objectiveId);
-        const evidenceLibrary = this.getEvidenceLibrary();
         
         const modal = document.createElement('div');
         modal.className = 'modal-backdrop active';
+        modal.id = 'evidence-modal';
         modal.innerHTML = `
-            <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-content" style="max-width: 800px;">
                 <div class="modal-header">
-                    <h2>Link Evidence to ${objectiveId}</h2>
+                    <h2>Manage Evidence - ${objectiveId}</h2>
                     <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
                 </div>
                 <div class="modal-body">
-                    <p style="margin-bottom: 16px; color: var(--text-secondary);">
-                        Select evidence items to link to this objective. Linked evidence will be included in assessment reports.
-                    </p>
-                    <div class="evidence-selection-list">
-                        ${Object.keys(evidenceLibrary).length === 0 ? 
-                            '<p style="color: var(--text-muted); text-align: center; padding: 20px;">No evidence items in library. Add evidence first.</p>' :
-                            Object.entries(evidenceLibrary).map(([id, item]) => `
-                                <label class="evidence-selection-item">
-                                    <input type="checkbox" 
-                                           class="evidence-checkbox" 
-                                           value="${id}"
-                                           ${data.linkedEvidence.includes(id) ? 'checked' : ''}>
-                                    <div class="evidence-item-info">
-                                        <div class="evidence-item-title">${item.title}</div>
-                                        <div class="evidence-item-meta">
-                                            <span class="evidence-type-badge ${item.type}">${item.type}</span>
-                                            <span class="evidence-date">${new Date(item.dateAdded).toLocaleDateString()}</span>
-                                        </div>
-                                    </div>
-                                </label>
-                            `).join('')
-                        }
+                    <div class="evidence-summary">
+                        <div class="evidence-count">
+                            <strong>${data.evidence.length}</strong> evidence item(s)
+                        </div>
+                        <div class="evidence-types">
+                            ${this.getEvidenceTypeSummary(data.evidence)}
+                        </div>
+                    </div>
+                    
+                    <div class="evidence-add-section">
+                        <h3>Add Evidence</h3>
+                        <div class="form-group">
+                            <label>Evidence Title</label>
+                            <input type="text" id="evidence-title" class="form-control" placeholder="e.g., Access Control Policy Document">
+                        </div>
+                        <div class="form-group">
+                            <label>Evidence Type</label>
+                            <select id="evidence-type" class="form-control">
+                                <option value="document">Document</option>
+                                <option value="screenshot">Screenshot</option>
+                                <option value="log">Log File</option>
+                                <option value="configuration">Configuration File</option>
+                                <option value="policy">Policy/Procedure</option>
+                                <option value="certificate">Certificate</option>
+                                <option value="report">Report</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="evidence-description" class="form-control" rows="2" placeholder="Brief description of the evidence..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>File Reference (optional)</label>
+                            <input type="text" id="evidence-file-ref" class="form-control" placeholder="e.g., evidence/AC-001.pdf or URL">
+                        </div>
+                        <button class="btn-primary" id="add-evidence-btn" data-objective-id="${objectiveId}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Evidence
+                        </button>
+                    </div>
+                    
+                    <div class="evidence-list-section">
+                        <h3>Evidence Items</h3>
+                        <div id="evidence-items-list">
+                            ${this.renderEvidenceList(objectiveId, data.evidence)}
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
-                    <button class="btn-primary" id="save-evidence-links-btn" data-objective-id="${objectiveId}">Save Links</button>
+                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Close</button>
                 </div>
             </div>
         `;
@@ -179,24 +214,123 @@ const AssessmentEnhancements = {
         document.body.appendChild(modal);
     },
 
-    saveEvidenceLinks: function() {
-        const btn = document.getElementById('save-evidence-links-btn');
-        const objectiveId = btn.dataset.objectiveId;
-        const checkboxes = document.querySelectorAll('.evidence-checkbox:checked');
-        const linkedEvidence = Array.from(checkboxes).map(cb => cb.value);
+    addEvidence: function(objectiveId) {
+        const title = document.getElementById('evidence-title').value.trim();
+        const type = document.getElementById('evidence-type').value;
+        const description = document.getElementById('evidence-description').value.trim();
+        const fileRef = document.getElementById('evidence-file-ref').value.trim();
+        
+        if (!title) {
+            this.showToast('Please enter an evidence title', 'error');
+            return;
+        }
         
         const data = this.getEnhancedData(objectiveId);
-        data.linkedEvidence = linkedEvidence;
+        const evidenceItem = {
+            id: Date.now().toString(),
+            title: title,
+            type: type,
+            description: description,
+            fileReference: fileRef,
+            dateAdded: Date.now(),
+            addedBy: localStorage.getItem('nist-user-name') || 'Unknown'
+        };
+        
+        data.evidence.push(evidenceItem);
         data.lastUpdated = Date.now();
-        data.updatedBy = localStorage.getItem('nist-user-name') || 'Unknown';
         this.saveToStorage();
         
-        // Close modal
-        btn.closest('.modal-backdrop').remove();
+        // Clear form
+        document.getElementById('evidence-title').value = '';
+        document.getElementById('evidence-description').value = '';
+        document.getElementById('evidence-file-ref').value = '';
         
-        // Update UI
+        // Refresh evidence list
+        document.getElementById('evidence-items-list').innerHTML = this.renderEvidenceList(objectiveId, data.evidence);
+        
+        // Update summary
+        const summaryEl = document.querySelector('.evidence-count');
+        if (summaryEl) {
+            summaryEl.innerHTML = `<strong>${data.evidence.length}</strong> evidence item(s)`;
+        }
+        const typesEl = document.querySelector('.evidence-types');
+        if (typesEl) {
+            typesEl.innerHTML = this.getEvidenceTypeSummary(data.evidence);
+        }
+        
+        // Update badge in main view
         this.updateEvidenceBadge(objectiveId);
-        this.showToast(`Linked ${linkedEvidence.length} evidence item(s) to ${objectiveId}`, 'success');
+        
+        this.showToast('Evidence added successfully', 'success');
+    },
+
+    deleteEvidence: function(objectiveId, evidenceId) {
+        if (!confirm('Are you sure you want to delete this evidence item?')) {
+            return;
+        }
+        
+        const data = this.getEnhancedData(objectiveId);
+        data.evidence = data.evidence.filter(e => e.id !== evidenceId);
+        data.lastUpdated = Date.now();
+        this.saveToStorage();
+        
+        // Refresh evidence list
+        document.getElementById('evidence-items-list').innerHTML = this.renderEvidenceList(objectiveId, data.evidence);
+        
+        // Update summary
+        const summaryEl = document.querySelector('.evidence-count');
+        if (summaryEl) {
+            summaryEl.innerHTML = `<strong>${data.evidence.length}</strong> evidence item(s)`;
+        }
+        const typesEl = document.querySelector('.evidence-types');
+        if (typesEl) {
+            typesEl.innerHTML = this.getEvidenceTypeSummary(data.evidence);
+        }
+        
+        // Update badge in main view
+        this.updateEvidenceBadge(objectiveId);
+        
+        this.showToast('Evidence deleted', 'success');
+    },
+
+    renderEvidenceList: function(objectiveId, evidence) {
+        if (evidence.length === 0) {
+            return '<p style="color: var(--text-muted); text-align: center; padding: 20px;">No evidence items yet. Add evidence above.</p>';
+        }
+        
+        return evidence.map(item => `
+            <div class="evidence-item">
+                <div class="evidence-item-header">
+                    <div class="evidence-item-title-row">
+                        <span class="evidence-type-badge ${item.type}">${item.type}</span>
+                        <strong>${item.title}</strong>
+                    </div>
+                    <button class="delete-evidence-btn" data-evidence-id="${item.id}" data-objective-id="${objectiveId}" title="Delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </div>
+                ${item.description ? `<p class="evidence-description">${item.description}</p>` : ''}
+                ${item.fileReference ? `<div class="evidence-file-ref"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg> ${item.fileReference}</div>` : ''}
+                <div class="evidence-meta">
+                    Added by ${item.addedBy} on ${new Date(item.dateAdded).toLocaleDateString()}
+                </div>
+            </div>
+        `).join('');
+    },
+
+    getEvidenceTypeSummary: function(evidence) {
+        if (evidence.length === 0) {
+            return '<span style="color: var(--text-muted);">No evidence</span>';
+        }
+        
+        const typeCounts = {};
+        evidence.forEach(item => {
+            typeCounts[item.type] = (typeCounts[item.type] || 0) + 1;
+        });
+        
+        return Object.entries(typeCounts)
+            .map(([type, count]) => `<span class="evidence-type-badge ${type}">${count} ${type}</span>`)
+            .join(' ');
     },
 
     showImplementationDetailsModal: function(objectiveId) {
@@ -240,13 +374,23 @@ const AssessmentEnhancements = {
                     </div>
                     
                     <div class="impl-tab-content" data-tab-content="evidence">
-                        <div class="linked-evidence-list">
-                            ${this.renderLinkedEvidence(data.linkedEvidence)}
+                        <div class="evidence-summary" style="margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>${data.evidence.length}</strong> evidence item(s)
+                                </div>
+                                <button class="btn-secondary" onclick="AssessmentEnhancements.showManageEvidenceModal('${objectiveId}'); this.closest('.modal-backdrop').remove();">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                    Manage Evidence
+                                </button>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                ${this.getEvidenceTypeSummary(data.evidence)}
+                            </div>
                         </div>
-                        <button class="btn-secondary" onclick="AssessmentEnhancements.showLinkEvidenceModal('${objectiveId}'); this.closest('.modal-backdrop').remove();">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                            Link Evidence
-                        </button>
+                        <div class="evidence-list">
+                            ${this.renderEvidenceList(objectiveId, data.evidence)}
+                        </div>
                     </div>
                     
                     <div class="impl-tab-content" data-tab-content="assessor">
@@ -307,38 +451,7 @@ const AssessmentEnhancements = {
         // Close modal
         btn.closest('.modal-backdrop').remove();
         
-        // Update UI
-        this.updateImplementationBadge(objectiveId);
         this.showToast('Implementation details saved', 'success');
-    },
-
-    renderLinkedEvidence: function(linkedEvidenceIds) {
-        if (linkedEvidenceIds.length === 0) {
-            return '<p style="color: var(--text-muted); text-align: center; padding: 20px;">No evidence linked yet</p>';
-        }
-        
-        const evidenceLibrary = this.getEvidenceLibrary();
-        return linkedEvidenceIds.map(id => {
-            const item = evidenceLibrary[id];
-            if (!item) return '';
-            
-            return `
-                <div class="linked-evidence-item">
-                    <div class="evidence-item-info">
-                        <div class="evidence-item-title">${item.title}</div>
-                        <div class="evidence-item-meta">
-                            <span class="evidence-type-badge ${item.type}">${item.type}</span>
-                            <span class="evidence-date">${new Date(item.dateAdded).toLocaleDateString()}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    },
-
-    getEvidenceLibrary: function() {
-        const saved = localStorage.getItem('nist-evidence-library');
-        return saved ? JSON.parse(saved) : {};
     },
 
     updateImplementationBadge: function(objectiveId) {
@@ -361,8 +474,20 @@ const AssessmentEnhancements = {
         if (!badge) return;
         
         const data = this.getEnhancedData(objectiveId);
-        if (data.linkedEvidence.length > 0) {
-            badge.textContent = `${data.linkedEvidence.length} evidence`;
+        if (data.evidence.length > 0) {
+            // Get type counts
+            const typeCounts = {};
+            data.evidence.forEach(item => {
+                typeCounts[item.type] = (typeCounts[item.type] || 0) + 1;
+            });
+            
+            // Create summary text
+            const typeText = Object.entries(typeCounts)
+                .map(([type, count]) => `${count} ${type}`)
+                .join(', ');
+            
+            badge.textContent = `${data.evidence.length} evidence`;
+            badge.title = typeText;
             badge.style.display = 'inline-block';
         } else {
             badge.style.display = 'none';
