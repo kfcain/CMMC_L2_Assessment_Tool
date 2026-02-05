@@ -1802,6 +1802,10 @@ class AssessmentApp {
 
     renderControls() {
         const container = document.getElementById('controls-list');
+        if (!container) {
+            console.error('controls-list element not found');
+            return;
+        }
         container.innerHTML = '';
 
         // Handle L3 assessment separately using NIST 800-172A data
@@ -7589,10 +7593,31 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new AssessmentApp();
-    
-    // Initialize Cmd+K search
-    initGlobalSearch();
+    try {
+        console.log('[App] Initializing AssessmentApp...');
+        window.app = new AssessmentApp();
+        console.log('[App] AssessmentApp initialized successfully');
+        
+        // Initialize Cmd+K search
+        initGlobalSearch();
+    } catch (error) {
+        console.error('[App] Failed to initialize:', error);
+        console.error('[App] Error stack:', error.stack);
+        
+        // Show error to user
+        const body = document.body;
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #ef4444; color: white; padding: 20px; border-radius: 8px; z-index: 10000; max-width: 600px;';
+        errorDiv.innerHTML = `
+            <h2 style="margin: 0 0 10px 0;">App Initialization Error</h2>
+            <p style="margin: 0 0 10px 0;">${error.message}</p>
+            <details style="margin-top: 10px;">
+                <summary style="cursor: pointer;">Show Details</summary>
+                <pre style="margin-top: 10px; overflow: auto; max-height: 200px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px;">${error.stack}</pre>
+            </details>
+        `;
+        body.appendChild(errorDiv);
+    }
 });
 
 // Global Search (Cmd+K) functionality
