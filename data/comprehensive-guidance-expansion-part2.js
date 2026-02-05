@@ -2949,7 +2949,148 @@ module.exports = { checkPermission, requireApproval };`,
             small_business: { approach: "Assign audit admin role to 1-2 trusted users, require MFA, document who has audit admin access", cost_estimate: "$0", effort_hours: 2 }
         }
         
-        // Continue with CM.L2-3.4.1 through 3.4.9 in next batch...
+        ,
+        
+        "CM.L2-3.4.1": {
+            objective: "Establish and maintain baseline configurations and inventories of organizational systems (including hardware, software, firmware, and documentation) throughout the respective system development life cycles.",
+            summary: "Configuration baselines, system inventory, change tracking",
+            cloud: {
+                aws: { services: ["Config", "Systems Manager", "Service Catalog"], implementation: { steps: ["Enable AWS Config for all regions", "Create configuration baselines with Systems Manager", "Use AWS Config rules for compliance checking", "Maintain inventory with Systems Manager Inventory", "Use Service Catalog for approved configurations", "Tag all resources with owner and environment", "Document baseline configurations"], cost_estimate: "$50-200/month", effort_hours: 16 }},
+                azure: { services: ["Policy", "Automation", "Resource Graph"], implementation: { steps: ["Deploy Azure Policy for configuration enforcement", "Use Azure Automation State Configuration (DSC)", "Enable Azure Resource Graph for inventory", "Create configuration baselines with Azure Automanage", "Use Azure Blueprints for approved configurations", "Tag all resources with metadata", "Document baselines"], cost_estimate: "$50-150/month", effort_hours: 16 }},
+                gcp: { services: ["Asset Inventory", "Config Connector", "Deployment Manager"], implementation: { steps: ["Use Cloud Asset Inventory for resource tracking", "Deploy Config Connector for Kubernetes", "Create configuration baselines with Deployment Manager", "Use organization policies for enforcement", "Label all resources with metadata", "Document baselines"], cost_estimate: "$30-100/month", effort_hours: 14 }}
+            },
+            tools: {
+                ansible: { implementation: { steps: ["Create Ansible playbooks for baseline configs", "Use Ansible Tower/AWX for inventory", "Implement configuration drift detection", "Store playbooks in Git", "Document baseline"], effort_hours: 12 }},
+                terraform: { implementation: { steps: ["Define infrastructure as code in Terraform", "Use Terraform state for inventory", "Implement drift detection with Terraform plan", "Store configs in Git", "Document baseline"], effort_hours: 12 }}
+            },
+            small_business: { approach: "Document baseline configurations in Excel/SharePoint, use cloud provider native inventory tools, maintain hardware/software list", cost_estimate: "$0-20/month", effort_hours: 8 }
+        }
+        
+        ,
+        
+        "CM.L2-3.4.2": {
+            objective: "Establish and enforce security configuration settings for information technology products employed in organizational systems.",
+            summary: "Security hardening, CIS benchmarks, configuration policies",
+            cloud: {
+                aws: { services: ["Config", "Systems Manager", "Security Hub"], implementation: { steps: ["Use AWS Config conformance packs (CIS benchmarks)", "Deploy Systems Manager baselines for patching", "Enable Security Hub security standards", "Use AWS Managed Config rules", "Implement EC2 Image Builder for hardened AMIs", "Enforce IMDSv2 on EC2"], cost_estimate: "$50-150/month", effort_hours: 14 }},
+                azure: { services: ["Policy", "Security Center", "Defender"], implementation: { steps: ["Deploy Azure Policy with CIS benchmark initiative", "Enable Microsoft Defender for Cloud", "Use Azure Security Baseline for VMs", "Implement Azure Automanage", "Enforce TLS 1.2+ on all services", "Enable Just-in-Time VM access"], cost_estimate: "$100-300/month", effort_hours: 14 }},
+                gcp: { services: ["Security Command Center", "OS Config", "Policy"], implementation: { steps: ["Enable Security Command Center Premium", "Use OS Config for security patch management", "Deploy organization policies", "Use CIS GCP Foundation Benchmark", "Implement Shielded VMs", "Enforce OS Login"], cost_estimate: "$200-500/month", effort_hours: 14 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Apply CIS Windows Server benchmark via GPO", "Use Microsoft Security Compliance Toolkit", "Enable Windows Defender", "Disable SMBv1", "Configure Windows Firewall", "Enable BitLocker"], effort_hours: 10 }},
+                linux: { implementation: { steps: ["Apply CIS Linux benchmark", "Use OpenSCAP for compliance scanning", "Configure SELinux/AppArmor", "Disable unnecessary services", "Configure iptables/firewalld", "Enable automatic security updates"], effort_hours: 10 }}
+            },
+            small_business: { approach: "Use cloud provider security baselines, apply Windows security baseline via GPO, document security settings", cost_estimate: "$0-50/month", effort_hours: 8 }
+        }
+        
+        ,
+        
+        "CM.L2-3.4.3": {
+            objective: "Track, review, approve or disapprove, and log changes to organizational systems.",
+            summary: "Change management process, approval workflow, change logging",
+            cloud: {
+                aws: { services: ["Config", "CloudTrail", "Systems Manager"], implementation: { steps: ["Enable AWS Config change tracking", "Use CloudTrail for change logging", "Implement change approval via ServiceNow/Jira", "Use Systems Manager Change Manager", "Require MFA for production changes", "Tag changes with ticket numbers", "Review changes in CAB meetings"], cost_estimate: "$20-80/month", effort_hours: 12 }},
+                azure: { services: ["Activity Log", "DevOps", "Automation"], implementation: { steps: ["Enable Azure Activity Log", "Use Azure DevOps for change approval", "Implement Azure Automation Change Tracking", "Require PIM activation for privileged changes", "Tag changes with work item IDs", "Review changes in CAB", "Use Azure Policy to prevent unauthorized changes"], cost_estimate: "$20-60/month", effort_hours: 12 }},
+                gcp: { services: ["Cloud Audit Logs", "Cloud Build", "Resource Manager"], implementation: { steps: ["Enable Cloud Audit Logs", "Use Cloud Build with approval gates", "Implement change approval via Jira/ServiceNow", "Require IAM approval for privileged changes", "Label changes with ticket numbers", "Review changes in CAB", "Use organization policies"], cost_estimate: "$20-70/month", effort_hours: 12 }}
+            },
+            small_business: { approach: "Use email approval for changes, document changes in Excel/SharePoint, hold monthly change review meetings", cost_estimate: "$0", effort_hours: 6 }
+        }
+        
+        ,
+        
+        "CM.L2-3.4.4": {
+            objective: "Analyze the security impact of changes prior to implementation.",
+            summary: "Security impact assessment, pre-change testing, risk analysis",
+            cloud: {
+                aws: { implementation: { steps: ["Use AWS Config rules to test changes", "Run Security Hub checks before deployment", "Use CloudFormation ChangeSet for preview", "Test in dev/staging", "Review IAM changes with Access Analyzer", "Document security impact"], cost_estimate: "$10-30/month", effort_hours: 8 }},
+                azure: { implementation: { steps: ["Use Azure Policy What-If for impact analysis", "Run Defender for Cloud assessment", "Test in dev/staging subscription", "Review RBAC changes", "Use Azure Blueprints", "Document security impact"], cost_estimate: "$10-25/month", effort_hours: 8 }},
+                gcp: { implementation: { steps: ["Use Policy Analyzer", "Run Security Command Center scan", "Test in dev/staging project", "Review IAM changes with Policy Troubleshooter", "Use Deployment Manager preview", "Document security impact"], cost_estimate: "$10-30/month", effort_hours: 8 }}
+            },
+            small_business: { approach: "Use security checklist for changes, test in non-production environment, document security impact in change request", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "CM.L2-3.4.5": {
+            objective: "Define, document, approve, and enforce physical and logical access restrictions associated with changes to organizational systems.",
+            summary: "Change access controls, production access restrictions, approval gates",
+            cloud: {
+                aws: { implementation: { steps: ["Use IAM policies to restrict production access", "Require MFA for production changes", "Implement approval workflow with Step Functions", "Use Organizations SCPs to enforce restrictions", "Restrict console access to approved IPs", "Use Systems Manager Session Manager", "Document access requirements"], cost_estimate: "$10-30/month", effort_hours: 10 }},
+                azure: { implementation: { steps: ["Use Azure RBAC to restrict production access", "Require PIM activation for privileged changes", "Implement approval workflow with Logic Apps", "Use Conditional Access to restrict by location", "Require MFA for production access", "Use Azure Bastion", "Document access requirements"], cost_estimate: "$10-25/month", effort_hours: 10 }},
+                gcp: { implementation: { steps: ["Use IAM to restrict production access", "Require approval for privileged role activation", "Implement approval workflow with Cloud Functions", "Use VPC Service Controls", "Require MFA", "Use IAP", "Document access requirements"], cost_estimate: "$10-30/month", effort_hours: 10 }}
+            },
+            small_business: { approach: "Restrict production access to 2-3 admins, require MFA, document who has production access", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "CM.L2-3.4.6": {
+            objective: "Employ the principle of least functionality by configuring organizational systems to provide only essential capabilities.",
+            summary: "Disable unnecessary services, remove unused software, minimal attack surface",
+            cloud: {
+                aws: { implementation: { steps: ["Use minimal AMIs (Amazon Linux 2 Minimal)", "Disable unused AWS services via SCPs", "Remove unnecessary IAM permissions", "Use VPC endpoints (no internet gateway where possible)", "Disable unused EC2 metadata", "Remove default VPC", "Inventory installed software"], cost_estimate: "$0-20/month", effort_hours: 8 }},
+                azure: { implementation: { steps: ["Use minimal VM images", "Disable unused Azure services via Policy", "Remove unnecessary RBAC assignments", "Use Private Endpoints", "Disable unused VM extensions", "Remove default resources", "Use Azure Arc for inventory"], cost_estimate: "$0-20/month", effort_hours: 8 }},
+                gcp: { implementation: { steps: ["Use minimal VM images (Container-Optimized OS)", "Disable unused GCP APIs", "Remove unnecessary IAM bindings", "Use Private Google Access", "Disable unused VM metadata", "Remove default networks", "Use OS Config for inventory"], cost_estimate: "$0-20/month", effort_hours: 8 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Disable unnecessary Windows features", "Remove unused applications", "Disable unnecessary services", "Use Server Core where possible", "Disable SMBv1", "Remove default shares"], effort_hours: 6 }},
+                linux: { implementation: { steps: ["Use minimal Linux distribution", "Remove unnecessary packages", "Disable unnecessary services", "Use systemd to disable unused services", "Remove unnecessary kernel modules", "Disable unused network protocols"], effort_hours: 6 }}
+            },
+            small_business: { approach: "Remove unused applications, disable unnecessary Windows services, use minimal cloud VM images", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "CM.L2-3.4.7": {
+            objective: "Restrict, disable, or prevent the use of nonessential programs, functions, ports, protocols, and services.",
+            summary: "Firewall rules, port restrictions, application whitelisting",
+            cloud: {
+                aws: { services: ["Security Groups", "Network ACLs", "WAF"], implementation: { steps: ["Configure Security Groups with minimal ports (443, 22 from bastion only)", "Use Network ACLs for subnet restrictions", "Deploy AWS WAF", "Use VPC Flow Logs to identify unused ports", "Implement Systems Manager Session Manager (disable SSH/RDP)", "Use Network Firewall"], cost_estimate: "$50-200/month", effort_hours: 10 }},
+                azure: { services: ["NSG", "Firewall", "Application Gateway"], implementation: { steps: ["Configure NSGs with minimal ports", "Deploy Azure Firewall with application rules", "Use Application Gateway WAF", "Enable NSG Flow Logs", "Use Azure Bastion (no RDP/SSH ports)", "Implement Just-in-Time VM access"], cost_estimate: "$140-400/month", effort_hours: 10 }},
+                gcp: { services: ["Firewall Rules", "Cloud Armor", "Cloud NAT"], implementation: { steps: ["Configure VPC firewall rules with minimal ports", "Use Cloud Armor for filtering", "Enable VPC Flow Logs", "Use IAP for TCP forwarding (no SSH/RDP ports)", "Implement Cloud NAT for outbound-only"], cost_estimate: "$50-150/month", effort_hours: 10 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Configure Windows Firewall to block unused ports", "Use Windows Defender Application Control", "Disable unnecessary protocols (NetBIOS, LLMNR)", "Use AppLocker", "Disable PowerShell v2"], effort_hours: 8 }},
+                linux: { implementation: { steps: ["Configure iptables/firewalld to block unused ports", "Use SELinux/AppArmor", "Disable unnecessary protocols", "Use fail2ban", "Implement application whitelisting with fapolicyd"], effort_hours: 8 }}
+            },
+            small_business: { approach: "Configure firewall to allow only necessary ports (443, 80), use cloud provider security groups, disable unused services", cost_estimate: "$0", effort_hours: 4 }
+        }
+        
+        ,
+        
+        "CM.L2-3.4.8": {
+            objective: "Apply deny-by-exception (blacklist) policy to prevent the use of unauthorized software or deny-all, permit-by-exception (whitelisting) policy to allow the execution of authorized software.",
+            summary: "Application whitelisting, software restriction policies",
+            cloud: {
+                aws: { implementation: { steps: ["Use Systems Manager to inventory software", "Implement approved software list", "Use Config rules to detect unauthorized software", "Deploy EC2 Image Builder with approved software only", "Use AppStream for application delivery"], cost_estimate: "$20-80/month", effort_hours: 12 }},
+                azure: { implementation: { steps: ["Use Defender for Endpoint for software inventory", "Implement Intune app deployment policies", "Use Azure Policy to detect unauthorized software", "Deploy Windows Virtual Desktop with approved apps", "Use Azure AD application proxy"], cost_estimate: "$50-150/month", effort_hours: 12 }},
+                gcp: { implementation: { steps: ["Use OS Config for software inventory", "Implement approved software list", "Use organization policies to restrict installation", "Deploy Container-Optimized OS", "Use Chrome Enterprise"], cost_estimate: "$20-60/month", effort_hours: 10 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Deploy Windows Defender Application Control (WDAC)", "Use AppLocker for whitelisting", "Configure Software Restriction Policies via GPO", "Create whitelist of approved executables", "Block execution from temp folders", "Monitor blocked applications"], effort_hours: 14 }},
+                linux: { implementation: { steps: ["Use fapolicyd for whitelisting", "Configure SELinux/AppArmor policies", "Use rpm/dpkg to maintain approved packages", "Block execution from /tmp with noexec", "Monitor unauthorized software with auditd"], effort_hours: 12 }}
+            },
+            small_business: { approach: "Use Windows AppLocker to whitelist approved applications, maintain list of approved software, block admin rights", cost_estimate: "$0", effort_hours: 8 }
+        }
+        
+        ,
+        
+        "CM.L2-3.4.9": {
+            objective: "Control and monitor user-installed software.",
+            summary: "Prevent user software installation, monitor for unauthorized software",
+            cloud: {
+                aws: { implementation: { steps: ["Remove admin rights from user IAM roles", "Use Systems Manager to monitor software changes", "Deploy Config rule to detect new software", "Use EC2 instance profiles with minimal permissions", "Implement AppStream for application delivery", "Alert on unauthorized software"], cost_estimate: "$20-60/month", effort_hours: 10 }},
+                azure: { implementation: { steps: ["Remove local admin rights via Intune", "Use Defender for Endpoint to monitor software", "Deploy Azure Policy to detect new software", "Implement Conditional Access to block non-compliant devices", "Use Azure Virtual Desktop", "Alert on unauthorized software"], cost_estimate: "$50-120/month", effort_hours: 10 }},
+                gcp: { implementation: { steps: ["Remove admin permissions from user accounts", "Use OS Config to monitor software changes", "Deploy organization policies to restrict installations", "Use Chrome Enterprise", "Implement Cloud Monitoring alerts"], cost_estimate: "$20-50/month", effort_hours: 8 }}
+            },
+            operating_system: {
+                windows: { implementation: { steps: ["Remove local admin rights from users", "Use Group Policy to prevent software installation", "Deploy Microsoft Endpoint Manager", "Use AppLocker to block user-installed software", "Monitor Event ID 11707 (software installation)", "Implement SCCM/Intune"], effort_hours: 10 }},
+                macos: { implementation: { steps: ["Remove admin rights from users", "Use Jamf or Intune for software management", "Implement Gatekeeper to block unsigned apps", "Monitor software changes with osquery", "Use MDM to deploy approved software"], effort_hours: 10 }}
+            },
+            small_business: { approach: "Remove admin rights from users, use Group Policy to block installations, monitor with Windows Event Logs", cost_estimate: "$0", effort_hours: 6 }
+        }
+        
+        // Continue with IA.L2-3.5.1 through 3.5.11 in next batch...
     }
 };
 
