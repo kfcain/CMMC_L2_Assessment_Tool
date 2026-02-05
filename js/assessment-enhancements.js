@@ -189,8 +189,16 @@ const AssessmentEnhancements = {
                             <textarea id="evidence-description" class="form-control" rows="2" placeholder="Brief description of the evidence..."></textarea>
                         </div>
                         <div class="form-group">
-                            <label>File Reference (optional)</label>
-                            <input type="text" id="evidence-file-ref" class="form-control" placeholder="e.g., evidence/AC-001.pdf or URL">
+                            <label>Upload File (optional)</label>
+                            <input type="file" id="evidence-file-upload" class="form-control" accept=".pdf,.txt,.docx,.html,.json,.yaml,.png,.jpg,.jpeg,.gif">
+                            <small style="color: var(--text-muted); margin-top: 4px; display: block;">
+                                Documents (PDF, Word, Text, HTML) will be auto-converted to markdown for AI assessment.
+                                JSON, YAML, and screenshots will be stored as-is.
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label>Or File Reference/URL</label>
+                            <input type="text" id="evidence-file-ref" class="form-control" placeholder="e.g., evidence/AC-001.pdf or https://...">
                         </div>
                         <button class="btn-primary" id="add-evidence-btn" data-objective-id="${objectiveId}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -214,11 +222,13 @@ const AssessmentEnhancements = {
         document.body.appendChild(modal);
     },
 
-    addEvidence: function(objectiveId) {
+    async addEvidence(objectiveId) {
         const title = document.getElementById('evidence-title').value.trim();
         const type = document.getElementById('evidence-type').value;
         const description = document.getElementById('evidence-description').value.trim();
         const fileRef = document.getElementById('evidence-file-ref').value.trim();
+        const fileInput = document.getElementById('evidence-file-upload');
+        const file = fileInput?.files[0];
         
         if (!title) {
             this.showToast('Please enter an evidence title', 'error');
@@ -233,8 +243,30 @@ const AssessmentEnhancements = {
             description: description,
             fileReference: fileRef,
             dateAdded: Date.now(),
-            addedBy: localStorage.getItem('nist-user-name') || 'Unknown'
+            addedBy: localStorage.getItem('nist-user-name') || 'Unknown',
+            documentId: null,
+            hasMarkdown: false
         };
+        
+        // Process uploaded file if present
+        if (file && typeof DocumentConverter !== 'undefined') {
+            try {
+                this.showToast('Processing file...', 'info');
+                const processedDoc = await DocumentConverter.processFile(file, objectiveId);
+                evidenceItem.documentId = processedDoc.id;
+                evidenceItem.fileReference = processedDoc.fileName;
+                evidenceItem.hasMarkdown = processedDoc.conversionStatus === 'converted';
+                
+                if (processedDoc.conversionStatus === 'converted') {
+                    this.showToast(`File uploaded and converted to markdown for AI assessment`, 'success');
+                } else if (processedDoc.conversionStatus === 'skipped') {
+                    this.showToast(`File uploaded (${processedDoc.fileType} - no conversion needed)`, 'success');
+                }
+            } catch (error) {
+                this.showToast(`File upload failed: ${error.message}`, 'error');
+                return;
+            }
+        }
         
         data.evidence.push(evidenceItem);
         data.lastUpdated = Date.now();
@@ -244,6 +276,7 @@ const AssessmentEnhancements = {
         document.getElementById('evidence-title').value = '';
         document.getElementById('evidence-description').value = '';
         document.getElementById('evidence-file-ref').value = '';
+        if (fileInput) fileInput.value = '';
         
         // Refresh evidence list
         document.getElementById('evidence-items-list').innerHTML = this.renderEvidenceList(objectiveId, data.evidence);
@@ -261,7 +294,9 @@ const AssessmentEnhancements = {
         // Update badge in main view
         this.updateEvidenceBadge(objectiveId);
         
-        this.showToast('Evidence added successfully', 'success');
+        if (!file) {
+            this.showToast('Evidence added successfully', 'success');
+        }
     },
 
     deleteEvidence: function(objectiveId, evidenceId) {
@@ -304,6 +339,7 @@ const AssessmentEnhancements = {
                     <div class="evidence-item-title-row">
                         <span class="evidence-type-badge ${item.type}">${item.type}</span>
                         <strong>${item.title}</strong>
+                        ${item.hasMarkdown ? '<span class="markdown-badge" title="Converted to markdown for AI assessment">📝 MD</span>' : ''}
                     </div>
                     <button class="delete-evidence-btn" data-evidence-id="${item.id}" data-objective-id="${objectiveId}" title="Delete">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -311,6 +347,7 @@ const AssessmentEnhancements = {
                 </div>
                 ${item.description ? `<p class="evidence-description">${item.description}</p>` : ''}
                 ${item.fileReference ? `<div class="evidence-file-ref"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg> ${item.fileReference}</div>` : ''}
+                ${item.documentId ? `<div class="evidence-document-info"><span class="markdown-status">${item.hasMarkdown ? '✓ Converted to markdown for AI assessment' : 'ℹ️ Stored as-is (no conversion)'}</span></div>` : ''}
                 <div class="evidence-meta">
                     Added by ${item.addedBy} on ${new Date(item.dateAdded).toLocaleDateString()}
                 </div>
