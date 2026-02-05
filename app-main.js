@@ -359,6 +359,10 @@ class AssessmentApp {
 
     populateFamilyFilter() {
         const select = document.getElementById('filter-family');
+        if (!select) {
+            console.warn('filter-family element not found');
+            return;
+        }
         CONTROL_FAMILIES.forEach(family => {
             // Count total objectives in this family
             const objectiveCount = family.controls.reduce((sum, ctrl) => sum + (ctrl.objectives?.length || 0), 0);
