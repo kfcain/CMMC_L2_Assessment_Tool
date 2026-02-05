@@ -9,7 +9,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co;">
     <title>CMMC 2.0 Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=57">
+    <link rel="stylesheet" href="styles.css?v=62">
     <link rel="stylesheet" href="css/evidence.css?v=1">
     <link rel="stylesheet" href="css/theme-picker.css?v=3">
     <link rel="stylesheet" href="css/crosswalk.css?v=20260126b">
@@ -100,6 +100,28 @@
                 <button class="hamburger-nav-btn" id="open-executive-dashboard-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
                     Executive Dashboard
+                </button>
+                <button class="hamburger-nav-btn" id="open-system-inventory-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    System Inventory
+                </button>
+                <div class="hamburger-section-label">AI Tools</div>
+                <button class="hamburger-nav-btn" id="open-ai-settings-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    AI Assistant Settings
+                </button>
+                <div class="hamburger-section-label">Enhanced Views</div>
+                <button class="hamburger-nav-btn" id="view-enhanced-poam-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Enhanced POA&M
+                </button>
+                <button class="hamburger-nav-btn" id="view-enhanced-planner-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Enhanced Planner
+                </button>
+                <button class="hamburger-nav-btn" id="view-readiness-scorecard-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Readiness Scorecard
                 </button>
             </nav>
             <div class="hamburger-divider"></div>
@@ -664,6 +686,21 @@
     
     <!-- Assessment Enhancements -->
     <script src="js/assessment-enhancements.js?v=1" defer></script>
+    
+    <!-- System Inventory -->
+    <script src="js/system-inventory.js?v=1" defer></script>
+    
+    <!-- AI Assistant -->
+    <script src="js/ai-assistant.js?v=1" defer></script>
+    
+    <!-- POA&M Enhancements -->
+    <script src="js/poam-enhancements.js?v=1" defer></script>
+    
+    <!-- Planner Enhancements -->
+    <script src="js/planner-enhancements.js?v=1" defer></script>
+    
+    <!-- Readiness Scorecard -->
+    <script src="js/readiness-scorecard.js?v=1" defer></script>
     
     <!-- Reporting & Analytics -->
     <script src="js/executive-dashboard.js?v=1" defer></script>
