@@ -5,7 +5,7 @@
 /**
  * GUIDANCE STRUCTURE:
  * Each assessment objective can have guidance for multiple platforms/scenarios:
- * - Cloud Platforms: AWS, Azure, GCP, Oracle Cloud, IBM Cloud, DigitalOcean, Linode, etc.
+ * - Cloud Platforms: AWS, Azure, GCP, Oracle Cloud, etc.
  * - SaaS Platforms: Microsoft 365, Google Workspace, Salesforce, Slack, etc.
  * - Custom Applications: Node.js, Python, Java, .NET, mobile apps, etc.
  * - Databases: PostgreSQL, MySQL, MongoDB, SQL Server, etc.
@@ -23,7 +23,7 @@ const COMPREHENSIVE_GUIDANCE = {
     platformCategories: {
         cloud: {
             name: "Cloud Platforms",
-            platforms: ["aws", "azure", "gcp", "oracle", "ibm", "alibaba", "digitalocean", "linode", "vultr", "hetzner"]
+            platforms: ["aws", "azure", "gcp", "oracle"]
         },
         saas: {
             name: "SaaS Applications",
@@ -229,65 +229,6 @@ oci iam policy create \\
                         ],
                         cost_estimate: "$50-150/month",
                         effort_hours: 8
-                    }
-                },
-                
-                ibm: {
-                    services: ["IBM Cloud IAM", "App ID", "Key Protect"],
-                    implementation: {
-                        steps: [
-                            "Configure IBM Cloud IAM for user and service ID management",
-                            "Create access groups for role-based access",
-                            "Implement MFA using IBM Security Verify",
-                            "Use service IDs with API keys for application access",
-                            "Enable context-based restrictions for IP allowlisting",
-                            "Implement App ID for application authentication",
-                            "Use resource groups for access control boundaries"
-                        ],
-                        ibmcloud_cli_example: `
-# Create access group and policy
-ibmcloud iam access-group-create CUIAccessGroup -d "Group for CUI data access"
-ibmcloud iam access-group-policy-create CUIAccessGroup \\
-  --roles Viewer,Writer \\
-  --service-name cloud-object-storage \\
-  --resource-group-name CUI-Resources`,
-                        verification: [
-                            "Review access group memberships and policies",
-                            "Check Activity Tracker logs for access events",
-                            "Verify MFA is enforced for users",
-                            "Review context-based restrictions"
-                        ],
-                        cost_estimate: "$50-100/month",
-                        effort_hours: 7
-                    }
-                },
-                
-                digitalocean: {
-                    services: ["Teams", "Spaces", "Droplets"],
-                    implementation: {
-                        steps: [
-                            "Create team with role-based permissions",
-                            "Enable 2FA for all team members",
-                            "Use SSH keys instead of passwords for Droplet access",
-                            "Implement Cloud Firewalls to restrict access",
-                            "Use Spaces access keys with minimal permissions",
-                            "Enable VPC for network isolation",
-                            "Implement IP allowlisting for critical resources"
-                        ],
-                        doctl_example: `
-# Create firewall rule allowing only specific IPs
-doctl compute firewall create \\
-  --name cui-firewall \\
-  --inbound-rules "protocol:tcp,ports:22,sources:addresses:203.0.113.0/24" \\
-  --outbound-rules "protocol:tcp,ports:all,destinations:addresses:0.0.0.0/0"`,
-                        verification: [
-                            "Review team member permissions",
-                            "Verify 2FA is enabled for all users",
-                            "Check firewall rules are properly configured",
-                            "Review Droplet access logs"
-                        ],
-                        cost_estimate: "$12-50/month (team features)",
-                        effort_hours: 4
                     }
                 }
             },

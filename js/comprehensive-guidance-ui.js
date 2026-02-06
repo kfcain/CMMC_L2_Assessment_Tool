@@ -10,8 +10,6 @@ const ComprehensiveGuidanceUI = {
         azure: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M13.05 4.24L6.56 18.05l.02.02h5.74l2.18-4.38L8.86 18.07h8.58L13.05 4.24z" fill="#0078D4"/><path d="M13.05 4.24L8.86 18.07H3.12L13.05 4.24z" fill="#0078D4"/><path d="M17.44 18.07h3.44L15.23 4.24l-2.18 4.38 4.39 9.45z" fill="#0078D4"/></svg>',
         gcp: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M15.65 8.35h1.2l3.4-3.4.17-1.44A10.94 10.94 0 0012 1C7.39 1 3.43 3.8 1.73 7.84l1.22-.17 4.08-.67s.21-.35.32-.33a6.85 6.85 0 018.3 1.68z" fill="#EA4335"/><path d="M20.49 7.84a10.96 10.96 0 00-3.31-5.33l-3.53 3.53a6.85 6.85 0 012.52 5.44v.68c1.9 0 3.43 1.54 3.43 3.43s-1.54 3.43-3.43 3.43H12l-.68.69v4.11l.68.68h4.17A7.52 7.52 0 0020.49 7.84z" fill="#4285F4"/><path d="M7.83 24.5h4.17v-5.48H7.83a3.4 3.4 0 01-1.42-.31l-.98.3-2.8 2.8-.24.96A7.47 7.47 0 007.83 24.5z" fill="#34A853"/><path d="M7.83 9.47A7.52 7.52 0 002.39 22.77l4.02-4.02a3.43 3.43 0 111.42-6.55V8.12l-.68-.68H7.83v2.03z" fill="#FBBC05"/></svg>',
         oracle: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M8.13 16.87h7.74a4.87 4.87 0 100-9.74H8.13a4.87 4.87 0 100 9.74zm.35-7.7h7.04a2.83 2.83 0 110 5.66H8.48a2.83 2.83 0 110-5.66z" fill="#F80000"/></svg>',
-        ibm: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="4" width="20" height="2" rx=".5" fill="#054ADA"/><rect x="2" y="7" width="20" height="2" rx=".5" fill="#054ADA"/><rect x="2" y="10" width="8" height="2" rx=".5" fill="#054ADA"/><rect x="14" y="10" width="8" height="2" rx=".5" fill="#054ADA"/><rect x="2" y="13" width="8" height="2" rx=".5" fill="#054ADA"/><rect x="14" y="13" width="8" height="2" rx=".5" fill="#054ADA"/><rect x="2" y="16" width="20" height="2" rx=".5" fill="#054ADA"/><rect x="2" y="19" width="20" height="2" rx=".5" fill="#054ADA"/></svg>',
-        digitalocean: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12h5.08v-2.54a4.92 4.92 0 016.78-4.55A4.93 4.93 0 0117.08 9.5H22C22 5.36 17.52 2 12 2z" fill="#0080FF"/><path d="M12 17.08v4.92c5.52 0 10-4.48 10-10h-4.92A5.09 5.09 0 0112 17.08z" fill="#0080FF"/><path d="M7.08 17.08H12V12H7.08v5.08z" fill="#0080FF"/><path d="M3.46 20.54h3.62v-3.46H3.46v3.46z" fill="#0080FF"/><path d="M.54 20.54H3.46V17.7H.54v2.84z" fill="#0080FF"/></svg>',
         // Containers
         kubernetes: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 1.5l-9.5 5.5v11L12 23.5l9.5-5.5V7L12 1.5z" fill="#326CE5" stroke="#fff" stroke-width=".5"/><path d="M12 6v12M7 8.9l10 5.2M17 8.9L7 14.1" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/><circle cx="12" cy="6" r="1.2" fill="#fff"/><circle cx="12" cy="18" r="1.2" fill="#fff"/><circle cx="7" cy="8.9" r="1.2" fill="#fff"/><circle cx="17" cy="8.9" r="1.2" fill="#fff"/><circle cx="7" cy="14.1" r="1.2" fill="#fff"/><circle cx="17" cy="14.1" r="1.2" fill="#fff"/></svg>',
         docker: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M13.98 11.08h2.12v-1.9h-2.12v1.9zm-2.54 0h2.12v-1.9h-2.12v1.9zm-2.54 0h2.12v-1.9H8.9v1.9zm-2.54 0h2.12v-1.9H6.36v1.9zm2.54-2.32h2.12V6.86H8.9v1.9zm2.54 0h2.12V6.86h-2.12v1.9zm2.54 0h2.12V6.86h-2.12v1.9zm-2.54-2.32h2.12V4.54h-2.12v1.9zm2.54 0h2.12V4.54h-2.12v1.9z" fill="#2496ED"/><path d="M23.5 11.18c-.55-.47-1.8-.64-2.76-.41-.13-.93-.66-1.74-1.3-2.41l-.44-.37-.38.43c-.48.57-.76 1.36-.68 2.13.03.28.13.79.44 1.23-.31.17-.93.4-1.74.39H.5c-.17.99-.17 4.08 2.34 6.46 1.9 1.8 4.72 2.72 8.38 2.72 7.97 0 13.87-3.67 16.64-10.33.54.01 1.72.01 2.32-1.15l.12-.23-.38-.22-.44-.24z" fill="#2496ED"/></svg>',
@@ -68,8 +66,6 @@ const ComprehensiveGuidanceUI = {
         azure: 'Microsoft Azure',
         gcp: 'Google Cloud Platform',
         oracle: 'Oracle Cloud',
-        ibm: 'IBM Cloud',
-        digitalocean: 'DigitalOcean',
         kubernetes: 'Kubernetes',
         docker: 'Docker',
         openshift: 'Red Hat OpenShift',
@@ -113,7 +109,7 @@ const ComprehensiveGuidanceUI = {
 
     // Category groupings for ordering
     categories: {
-        'Cloud Platforms': ['aws', 'azure', 'gcp', 'oracle', 'ibm', 'digitalocean'],
+        'Cloud Platforms': ['aws', 'azure', 'gcp', 'oracle'],
         'Containers & Orchestration': ['kubernetes', 'docker', 'openshift', 'rancher', 'eks', 'aks', 'gke', 'ecs'],
         'SaaS Platforms': ['microsoft365', 'google_workspace', 'salesforce'],
         'Operating Systems': ['windows', 'linux', 'macos'],
