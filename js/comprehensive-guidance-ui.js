@@ -294,12 +294,16 @@ const ComprehensiveGuidanceUI = {
             html += '</ol></div>';
         }
 
-        // Tools list (small business)
+        // Tools list (small business / industry)
         if (impl.tools && impl.tools.length > 0) {
             html += '<div class="cg-steps"><div class="cg-steps-title">Recommended Tools</div><ul>';
             for (var t = 0; t < impl.tools.length; t++) {
                 var tool = impl.tools[t];
-                html += '<li><strong>' + tool.name + '</strong> &mdash; ' + tool.cost + (tool.purpose ? ' (' + tool.purpose + ')' : '') + '</li>';
+                if (typeof tool === 'string') {
+                    html += '<li>' + tool + '</li>';
+                } else {
+                    html += '<li><strong>' + tool.name + '</strong> &mdash; ' + tool.cost + (tool.purpose ? ' (' + tool.purpose + ')' : '') + '</li>';
+                }
             }
             html += '</ul></div>';
         }
