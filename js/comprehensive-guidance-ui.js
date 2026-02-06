@@ -155,7 +155,7 @@ const ComprehensiveGuidanceUI = {
     getGuidanceForObjective: function(objectiveId) {
         const controlId = objectiveId.replace(/\[.*\]$/, '');
         const families = ['AC','AT','AU','CM','IA','IR','MA','MP','PE','PS','RE','RA','CA','SC','SI','SA'];
-        const levels = ['L1','L2'];
+        const levels = ['L1','L2','L3'];
         const guidanceKeys = [];
         for (const fam of families) {
             for (const lvl of levels) {
@@ -168,7 +168,8 @@ const ComprehensiveGuidanceUI = {
             typeof COMPREHENSIVE_GUIDANCE_PART2 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART2 : null,
             typeof COMPREHENSIVE_GUIDANCE_PART3 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART3 : null,
             typeof COMPREHENSIVE_GUIDANCE_PART4 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART4 : null,
-            typeof COMPREHENSIVE_GUIDANCE_PART5 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART5 : null
+            typeof COMPREHENSIVE_GUIDANCE_PART5 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART5 : null,
+            typeof COMPREHENSIVE_GUIDANCE_L3 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_L3 : null
         ];
 
         for (const source of dataSources) {
