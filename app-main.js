@@ -402,28 +402,35 @@ class AssessmentApp {
         const hamburgerToggle = document.getElementById('hamburger-menu-toggle');
         const hamburgerDropdown = document.getElementById('hamburger-dropdown');
         const hamburgerOverlay = document.getElementById('hamburger-overlay');
+        const hbCloseBtn = document.getElementById('hb-close-btn');
         
-        hamburgerToggle?.addEventListener('click', () => {
-            hamburgerDropdown?.classList.toggle('active');
-            hamburgerOverlay?.classList.toggle('active');
-        });
-        
-        hamburgerOverlay?.addEventListener('click', () => {
+        const openMenu = () => {
+            hamburgerDropdown?.classList.add('active');
+            hamburgerOverlay?.classList.add('active');
+            hamburgerToggle?.classList.add('open');
+        };
+        const closeMenu = () => {
             hamburgerDropdown?.classList.remove('active');
             hamburgerOverlay?.classList.remove('active');
+            hamburgerToggle?.classList.remove('open');
+        };
+        
+        hamburgerToggle?.addEventListener('click', () => {
+            hamburgerDropdown?.classList.contains('active') ? closeMenu() : openMenu();
         });
+        
+        hamburgerOverlay?.addEventListener('click', closeMenu);
+        hbCloseBtn?.addEventListener('click', closeMenu);
         
         // Hamburger Navigation
         document.querySelectorAll('.hamburger-nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const view = e.currentTarget.dataset.view;
-                this.switchView(view);
+                if (view) this.switchView(view);
                 // Update active state in hamburger menu
                 document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
                 e.currentTarget.classList.add('active');
-                // Close dropdown
-                hamburgerDropdown?.classList.remove('active');
-                hamburgerOverlay?.classList.remove('active');
+                closeMenu();
             });
         });
 
@@ -431,7 +438,6 @@ class AssessmentApp {
         const headerBranding = document.getElementById('header-branding');
         headerBranding?.addEventListener('click', () => {
             this.switchView('dashboard');
-            // Update active state in hamburger menu
             document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelector('.hamburger-nav-btn[data-view="dashboard"]')?.classList.add('active');
         });

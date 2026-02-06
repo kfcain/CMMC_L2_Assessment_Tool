@@ -35,128 +35,169 @@
 
     <!-- Top Header Bar -->
     <header class="top-header-bar">
-        <button class="hamburger-menu-toggle" id="hamburger-menu-toggle" aria-label="Toggle menu">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <button class="hb-toggle" id="hamburger-menu-toggle" aria-label="Toggle menu">
+            <span class="hb-toggle-bar"></span>
+            <span class="hb-toggle-bar"></span>
+            <span class="hb-toggle-bar"></span>
         </button>
         <div class="header-branding" id="header-branding" style="cursor: pointer;" title="Go to Dashboard">
             <span class="header-badge">CMMC 2.0</span>
             <span class="header-title">Assessment Tool</span>
         </div>
         <div class="header-theme-picker" id="header-theme-picker"></div>
-        <div class="hamburger-dropdown" id="hamburger-dropdown">
-            <nav class="hamburger-nav">
-                <!-- Core Assessment Views -->
-                <button class="hamburger-nav-btn active" data-view="dashboard">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-                    Dashboard
-                </button>
-                <button class="hamburger-nav-btn" data-view="assessment">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                    Assessment
-                </button>
-                
+    </header>
+
+    <!-- Slide-out Navigation Panel -->
+    <div class="hb-overlay" id="hamburger-overlay"></div>
+    <aside class="hb-panel" id="hamburger-dropdown">
+        <!-- Panel Header -->
+        <div class="hb-panel-header">
+            <span class="hb-panel-badge">CMMC 2.0</span>
+            <span class="hb-panel-title">Navigation</span>
+            <button class="hb-close" id="hb-close-btn" aria-label="Close menu">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <!-- Scrollable Nav Content -->
+        <div class="hb-scroll">
+            <nav class="hb-nav">
+                <!-- Core -->
+                <div class="hb-group">
+                    <button class="hamburger-nav-btn active" data-view="dashboard">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span>
+                        <span class="hb-label">Dashboard</span>
+                    </button>
+                    <button class="hamburger-nav-btn" data-view="assessment">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+                        <span class="hb-label">Assessment</span>
+                    </button>
+                </div>
+
                 <!-- Planning & Remediation -->
-                <div class="hamburger-section-label">Planning & Remediation</div>
-                <button class="hamburger-nav-btn" data-view="poam">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    POA&M
-                </button>
-                <button class="hamburger-nav-btn" data-view="impl-planner">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 14l2 2 4-4"/></svg>
-                    Implementation Planner
-                </button>
-                <button class="hamburger-nav-btn hamburger-submenu-item" id="run-gap-analysis-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-                    Gap Analysis
-                </button>
-                
+                <div class="hb-group">
+                    <div class="hb-section-label">Planning & Remediation</div>
+                    <button class="hamburger-nav-btn" data-view="poam">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+                        <span class="hb-label">POA&amp;M</span>
+                    </button>
+                    <button class="hamburger-nav-btn" data-view="impl-planner">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 14l2 2 4-4"/></svg></span>
+                        <span class="hb-label">Implementation Planner</span>
+                    </button>
+                    <button class="hamburger-nav-btn hb-sub" id="run-gap-analysis-btn">
+                        <span class="hb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></span>
+                        <span class="hb-label">Gap Analysis</span>
+                    </button>
+                </div>
+
                 <!-- Documentation & Guidance -->
-                <div class="hamburger-section-label">Documentation & Guidance</div>
-                <button class="hamburger-nav-btn hamburger-submenu-item" id="open-document-parser-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    Document Parser
-                </button>
-                <button class="hamburger-nav-btn" data-view="impl-guide">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                    Architecture Guide
-                </button>
-                
-                <!-- System & Asset Inventory -->
-                <div class="hamburger-section-label">System & Asset Inventory</div>
-                <button class="hamburger-nav-btn" data-view="osc-inventory">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    Asset Inventory
-                </button>
-                
-                <!-- Framework Mapping & Analysis -->
-                <div class="hamburger-section-label">Framework Mapping</div>
-                <button class="hamburger-nav-btn" data-view="crosswalk">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                    Crosswalk Viewer
-                </button>
-                <button class="hamburger-nav-btn hamburger-submenu-item" id="open-rev3-crosswalk-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/></svg>
-                    Rev2→Rev3 Crosswalk
-                </button>
-                
-                <!-- Reporting & Dashboards -->
-                <div class="hamburger-section-label">Reporting & Dashboards</div>
-                <button class="hamburger-nav-btn" id="open-executive-dashboard-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-                    Executive Dashboard
-                </button>
-                
-                <!-- MSP Tools -->
-                <div class="hamburger-section-label">MSP Tools</div>
-                <button class="hamburger-nav-btn" id="open-msp-portal-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                    MSP Portal
-                </button>
+                <div class="hb-group">
+                    <div class="hb-section-label">Documentation & Guidance</div>
+                    <button class="hamburger-nav-btn" id="open-document-parser-btn">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+                        <span class="hb-label">Document Parser</span>
+                    </button>
+                    <button class="hamburger-nav-btn" data-view="impl-guide">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+                        <span class="hb-label">Architecture Guide</span>
+                    </button>
+                </div>
+
+                <!-- Assets -->
+                <div class="hb-group">
+                    <div class="hb-section-label">System & Assets</div>
+                    <button class="hamburger-nav-btn" data-view="osc-inventory">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+                        <span class="hb-label">Asset Inventory</span>
+                    </button>
+                </div>
+
+                <!-- Framework Mapping -->
+                <div class="hb-group">
+                    <div class="hb-section-label">Framework Mapping</div>
+                    <button class="hamburger-nav-btn" data-view="crosswalk">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
+                        <span class="hb-label">Crosswalk Viewer</span>
+                    </button>
+                    <button class="hamburger-nav-btn hb-sub" id="open-rev3-crosswalk-btn">
+                        <span class="hb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/></svg></span>
+                        <span class="hb-label">Rev2 &rarr; Rev3 Crosswalk</span>
+                    </button>
+                </div>
+
+                <!-- Reporting -->
+                <div class="hb-group">
+                    <div class="hb-section-label">Reporting</div>
+                    <button class="hamburger-nav-btn" id="open-executive-dashboard-btn">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></span>
+                        <span class="hb-label">Executive Dashboard</span>
+                    </button>
+                </div>
+
+                <!-- MSP -->
+                <div class="hb-group">
+                    <div class="hb-section-label">MSP Tools</div>
+                    <button class="hamburger-nav-btn" id="open-msp-portal-btn">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
+                        <span class="hb-label">MSP Portal</span>
+                    </button>
+                </div>
             </nav>
-            <div class="hamburger-divider"></div>
-            <!-- Organization Info Section -->
-            <div class="hamburger-org-section">
-                <div class="hamburger-org-card">
-                    <div class="hamburger-org-label">Assessor</div>
-                    <input type="text" id="org-assessor-name" class="hamburger-org-input" placeholder="Company Name">
-                    <div class="hamburger-org-logo-row">
-                        <div class="hamburger-org-logo" id="assessor-logo-container">
+
+            <!-- Organization Info -->
+            <div class="hb-org-section">
+                <div class="hb-section-label" style="padding: 0 0 8px 0;">Organizations</div>
+                <div class="hb-org-card">
+                    <div class="hb-org-header">
+                        <div class="hb-org-logo" id="assessor-logo-container">
                             <img id="assessor-logo-img" class="hamburger-logo-img" style="display: none;" alt="Logo">
                             <div class="hamburger-logo-placeholder" id="assessor-logo-placeholder">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                             </div>
                         </div>
-                        <input type="text" id="org-assessor-url" class="hamburger-org-url" placeholder="website.com">
-                        <button id="fetch-assessor-logo-btn" class="hamburger-fetch-btn" title="Fetch logo">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                        <div class="hb-org-info">
+                            <span class="hb-org-tag">Assessor</span>
+                            <input type="text" id="org-assessor-name" class="hb-org-input" placeholder="Company Name">
+                        </div>
+                    </div>
+                    <div class="hb-org-url-row">
+                        <input type="text" id="org-assessor-url" class="hb-org-url" placeholder="website.com">
+                        <button id="fetch-assessor-logo-btn" class="hb-fetch-btn" title="Fetch logo">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
                         </button>
                     </div>
                     <input type="file" id="assessor-logo-input" accept="image/*" style="display: none;">
                 </div>
-                <div class="hamburger-org-card">
-                    <div class="hamburger-org-label">Organization Seeking Certification</div>
-                    <input type="text" id="org-osc-name" class="hamburger-org-input" placeholder="Company Name">
-                    <div class="hamburger-org-logo-row">
-                        <div class="hamburger-org-logo" id="osc-logo-container">
+                <div class="hb-org-card">
+                    <div class="hb-org-header">
+                        <div class="hb-org-logo" id="osc-logo-container">
                             <img id="osc-logo-img" class="hamburger-logo-img" style="display: none;" alt="Logo">
                             <div class="hamburger-logo-placeholder" id="osc-logo-placeholder">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                             </div>
                         </div>
-                        <input type="text" id="org-osc-url" class="hamburger-org-url" placeholder="website.com">
-                        <button id="fetch-osc-logo-btn" class="hamburger-fetch-btn" title="Fetch logo">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                        <div class="hb-org-info">
+                            <span class="hb-org-tag">OSC</span>
+                            <input type="text" id="org-osc-name" class="hb-org-input" placeholder="Company Name">
+                        </div>
+                    </div>
+                    <div class="hb-org-url-row">
+                        <input type="text" id="org-osc-url" class="hb-org-url" placeholder="website.com">
+                        <button id="fetch-osc-logo-btn" class="hb-fetch-btn" title="Fetch logo">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
                         </button>
                     </div>
                     <input type="file" id="osc-logo-input" accept="image/*" style="display: none;">
                 </div>
             </div>
-            <div class="hamburger-divider"></div>
-            <!-- Auth Container -->
+        </div>
+
+        <!-- Panel Footer -->
+        <div class="hb-panel-footer">
             <div class="auth-container" id="auth-container"></div>
         </div>
-    </header>
-    <div class="hamburger-overlay" id="hamburger-overlay"></div>
+    </aside>
     
     <!-- Mobile Menu Toggle (legacy) -->
     <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu" style="display:none;">
