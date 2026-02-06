@@ -44,11 +44,16 @@ const ComprehensiveGuidanceUI = {
         java: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M8.85 18.56s-.98.57.7.76c2.03.23 3.06.2 5.3-.22 0 0 .59.37 1.41.69-5.01 2.15-11.34-.12-7.41-1.23z" fill="#5382A1"/><path d="M8.29 15.89s-1.1.81.58.98c2.18.22 3.87.24 6.83-.32 0 0 .41.42 1.06.65-6.06 1.77-12.81.14-8.47-1.31z" fill="#5382A1"/><path d="M13.47 11.34c1.24 1.43-.33 2.71-.33 2.71s3.15-1.62 1.7-3.66c-1.35-1.9-2.38-2.84 3.22-6.09 0 0-8.8 2.2-4.59 7.04z" fill="#E76F00"/></svg>',
         dotnet: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#512BD4"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="6" font-weight="bold">.N</text></svg>',
         general: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>',
+        // XDR / EDR
+        sentinelone: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z" fill="#6C2EB9"/><path d="M12 6l-4 2v4c0 3.33 2.3 6.44 4 7.2 1.7-.76 4-3.87 4-7.2V8l-4-2z" fill="#fff"/></svg>',
+        // RMM
+        ninjaone: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="4" fill="#00AEEF"/><path d="M8 8h3v8H8V8zm5 3h3v5h-3v-5z" fill="#fff"/></svg>',
         // Security Tools
         splunk: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M4 6l8 5-8 5V6z" fill="#65A637"/><path d="M20 6l-8 5 8 5V6z" fill="#65A637"/></svg>',
         elk: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#005571"/><text x="12" y="14" text-anchor="middle" fill="#F8B700" font-size="5.5" font-weight="bold">ELK</text></svg>',
         sentinel: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#0078D4"/><path d="M12 6a6 6 0 100 12 6 6 0 000-12z" fill="#50E6FF"/><path d="M12 9a3 3 0 100 6 3 3 0 000-6z" fill="#fff"/></svg>',
-        nessus: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><circle cx="12" cy="12" r="10" fill="#00B1E1"/><path d="M12 6v6l4 4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+        // Vulnerability Management
+        tenable: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><circle cx="12" cy="12" r="10" fill="#00B1E1"/><path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         openvas: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><circle cx="12" cy="12" r="10" fill="#66C430"/><path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         // Mobile
         ios: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.81-1.31.05-2.3-1.32-3.14-2.53C4.25 16.76 3 12.55 4.78 9.75a4.69 4.69 0 013.95-2.4c1.3-.03 2.52.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83l.1-.47z" fill="#555"/></svg>',
@@ -95,10 +100,12 @@ const ComprehensiveGuidanceUI = {
         java: 'Java',
         dotnet: '.NET',
         general: 'General',
+        sentinelone: 'SentinelOne',
+        ninjaone: 'NinjaOne',
         splunk: 'Splunk',
         elk: 'Elastic Stack (ELK)',
         sentinel: 'Microsoft Sentinel',
-        nessus: 'Tenable Nessus',
+        tenable: 'Tenable',
         openvas: 'OpenVAS',
         ios: 'Apple iOS',
         android: 'Android',
@@ -116,8 +123,11 @@ const ComprehensiveGuidanceUI = {
         'SaaS Platforms': ['microsoft365', 'google_workspace', 'salesforce'],
         'Operating Systems': ['windows', 'linux', 'macos'],
         'Databases': ['postgresql', 'mysql', 'sqlserver', 'mongodb'],
-        'Network & Security': ['paloalto', 'cisco', 'fortinet', 'firewall'],
-        'Security Tools': ['splunk', 'elk', 'sentinel', 'nessus', 'openvas'],
+        'Firewalls & Network': ['paloalto', 'cisco', 'fortinet', 'firewall'],
+        'XDR / EDR': ['sentinelone'],
+        'RMM & Endpoint Mgmt': ['ninjaone'],
+        'Vulnerability Management': ['tenable', 'openvas'],
+        'SIEM & Monitoring': ['splunk', 'elk', 'sentinel'],
         'Application & Code': ['nodejs', 'python', 'java', 'dotnet', 'general', 'software'],
         'Mobile': ['ios', 'android'],
         'Industry & Business': ['manufacturing', 'small_business', 'physical', 'process']

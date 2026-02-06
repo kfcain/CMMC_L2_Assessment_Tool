@@ -50,8 +50,20 @@ const COMPREHENSIVE_GUIDANCE = {
             platforms: ["okta", "azure_ad", "ping", "auth0", "keycloak", "freeipa"]
         },
         security_tools: {
-            name: "Security Tools",
-            platforms: ["splunk", "elk", "sentinel", "crowdstrike", "sentinelone", "defender", "nessus", "qualys"]
+            name: "SIEM & Monitoring",
+            platforms: ["splunk", "elk", "sentinel"]
+        },
+        xdr_edr: {
+            name: "XDR / EDR",
+            platforms: ["sentinelone", "crowdstrike", "defender"]
+        },
+        rmm: {
+            name: "RMM & Endpoint Management",
+            platforms: ["ninjaone"]
+        },
+        vuln_mgmt: {
+            name: "Vulnerability Management",
+            platforms: ["tenable", "openvas", "qualys"]
         }
     },
     
@@ -987,6 +999,143 @@ docker service create \\
                 }
             },
             
+            // Firewalls & Network Security
+            firewalls: {
+                paloalto: {
+                    services: ["PAN-OS", "Panorama", "Prisma Access", "GlobalProtect", "WildFire"],
+                    implementation: {
+                        steps: [
+                            "Deploy Palo Alto NGFW (PA-series) at network perimeter and internal segmentation points",
+                            "Configure Security Zones to separate CUI networks from general traffic",
+                            "Create granular Security Policies based on App-ID, User-ID, and Content-ID",
+                            "Enable User-ID integration with Active Directory for identity-based policies",
+                            "Configure GlobalProtect VPN with certificate-based authentication and HIP checks",
+                            "Enable WildFire for advanced threat prevention on CUI traffic flows",
+                            "Implement URL Filtering and SSL Decryption for outbound CUI traffic inspection",
+                            "Deploy Panorama for centralized management and log aggregation across all firewalls",
+                            "Configure log forwarding to SIEM (Syslog/CEF to Splunk, Sentinel, etc.)",
+                            "Enable Threat Prevention profiles (IPS, Anti-Spyware, Antivirus) on all CUI zone policies"
+                        ],
+                        panos_cli_example: "# Configure security zone for CUI\nset network zone CUI-Zone network layer3 ethernet1/3\n\n# Create address group for CUI systems\nset address-group CUI-Systems static [CUI-Server-1 CUI-Server-2 CUI-DB]\n\n# Security policy: allow authorized users to CUI zone\nset rulebase security rules Allow-CUI-Access from General-Zone to CUI-Zone source-user CUI-Authorized-Group application [ssl web-browsing ssh] action allow profile-setting group CUI-Security-Profile\n\n# Deny all other traffic to CUI zone\nset rulebase security rules Deny-CUI-Default from any to CUI-Zone action deny log-end yes\n\n# Enable GlobalProtect with HIP check\nset network tunnel global-protect-gateway gp-gateway remote-user-tunnel tunnel-mode yes\nset network tunnel global-protect-gateway gp-gateway hip-notification hip-match-message \"Device does not meet CUI compliance requirements\"",
+                        verification: [
+                            "Review Security Policy rules in Panorama or local PAN-OS for CUI zone isolation",
+                            "Verify User-ID is mapping users correctly: show user ip-user-mapping all",
+                            "Check GlobalProtect HIP reports for endpoint compliance",
+                            "Review Traffic logs for denied connections to CUI zones",
+                            "Verify WildFire submissions and verdicts for CUI traffic",
+                            "Run Best Practice Assessment in Panorama"
+                        ],
+                        cost_estimate: "$3,000-15,000/year (hardware + Threat Prevention subscription)",
+                        effort_hours: 20
+                    }
+                }
+            },
+
+            // XDR / EDR
+            xdr_edr: {
+                sentinelone: {
+                    services: ["Singularity Platform", "Singularity XDR", "Ranger", "Vigilance MDR", "RemoteOps"],
+                    implementation: {
+                        steps: [
+                            "Deploy SentinelOne agent to all endpoints handling CUI (Windows, macOS, Linux)",
+                            "Configure policy groups: create a dedicated CUI Endpoint Policy with maximum protection",
+                            "Enable Detect and Protect mode (not Detect-only) for CUI systems",
+                            "Configure threat response: set automated remediation to Kill & Quarantine",
+                            "Enable Deep Visibility for full EDR telemetry and threat hunting on CUI endpoints",
+                            "Configure Firewall Control policies to restrict CUI endpoint network access",
+                            "Enable Device Control to block unauthorized USB/removable media on CUI systems",
+                            "Set up Ranger for network discovery to identify unmanaged devices accessing CUI networks",
+                            "Configure STAR (Storyline Active Response) custom rules for CUI-specific detections",
+                            "Integrate with SIEM via Syslog or API for centralized alerting",
+                            "Enable Identity Threat Detection (ITDR) for credential-based attack detection",
+                            "Schedule Rogues report to identify unprotected endpoints in CUI scope"
+                        ],
+                        api_example: "# SentinelOne API: Get agents in CUI group\ncurl -X GET \"https://MGMT_CONSOLE.sentinelone.net/web/api/v2.1/agents?groupIds=CUI_GROUP_ID&isActive=true\" \\\n  -H \"Authorization: ApiToken YOUR_API_TOKEN\" \\\n  -H \"Content-Type: application/json\"\n\n# Create custom STAR rule for CUI data exfiltration detection\ncurl -X POST \"https://MGMT_CONSOLE.sentinelone.net/web/api/v2.1/cloud-detection/rules\" \\\n  -H \"Authorization: ApiToken YOUR_API_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"data\": {\n      \"name\": \"CUI-Exfiltration-Detection\",\n      \"queryType\": \"events\",\n      \"query\": \"ObjectType = \\\"File\\\" AND EventType = \\\"Modified\\\" AND FilePath ContainsCIS \\\"CUI\\\"\",\n      \"severity\": \"High\"\n    }\n  }'",
+                        verification: [
+                            "Verify all CUI endpoints have agent installed: check Management Console > Sentinels",
+                            "Confirm policy is set to Protect mode (not Detect): Sentinels > Policy > Mode",
+                            "Run EICAR test file to verify real-time detection and automated response",
+                            "Review Deep Visibility queries for CUI file access patterns",
+                            "Check Device Control is blocking unauthorized USB on CUI endpoints",
+                            "Verify Ranger is discovering all devices on CUI network segments",
+                            "Review Threat Intelligence feed integration status"
+                        ],
+                        cost_estimate: "$5-12/endpoint/month (Singularity Control or Complete)",
+                        effort_hours: 12
+                    }
+                }
+            },
+
+            // RMM & Endpoint Management
+            rmm: {
+                ninjaone: {
+                    services: ["NinjaOne RMM", "Patch Management", "Endpoint Monitoring", "Backup", "Documentation"],
+                    implementation: {
+                        steps: [
+                            "Deploy NinjaOne agent to all CUI-scope endpoints and servers",
+                            "Create a dedicated Organization and Policy for CUI systems with hardened settings",
+                            "Configure automated OS patch management: approve critical/security patches within 48 hours",
+                            "Configure third-party application patching for all CUI-scope software",
+                            "Set up monitoring conditions: disk encryption status, antivirus status, firewall status",
+                            "Create alerts for compliance drift: agent offline, patch failures, security software disabled",
+                            "Enable remote access with MFA and session recording for CUI systems",
+                            "Configure scripting/automation for CUI compliance checks (e.g., BitLocker status, local admin audit)",
+                            "Set up NinjaOne Backup for CUI endpoint data with encryption",
+                            "Use NinjaOne Documentation to maintain CUI asset inventory and configuration baselines",
+                            "Implement device approval workflow: new devices require admin approval before joining CUI policy",
+                            "Configure role-based access for technicians: limit CUI system access to authorized personnel only"
+                        ],
+                        script_example: "# NinjaOne PowerShell Script: CUI Compliance Check\n# Deploy via NinjaOne Scripting > Scheduled Script\n\n# Check BitLocker encryption status\n$bitlocker = Get-BitLockerVolume -MountPoint \"C:\" -ErrorAction SilentlyContinue\nif ($bitlocker.ProtectionStatus -ne \"On\") {\n    Write-Host \"ALERT: BitLocker is NOT enabled on C: drive\"\n    Ninja-Property-Set cuiCompliant \"Non-Compliant - No Encryption\"\n    exit 1\n}\n\n# Check Windows Firewall\n$fw = Get-NetFirewallProfile | Where-Object {$_.Enabled -eq $false}\nif ($fw) {\n    Write-Host \"ALERT: Windows Firewall disabled on profile(s): $($fw.Name)\"\n    Ninja-Property-Set cuiCompliant \"Non-Compliant - Firewall Disabled\"\n    exit 1\n}\n\n# Check antivirus status\n$av = Get-MpComputerStatus\nif (-not $av.RealTimeProtectionEnabled) {\n    Write-Host \"ALERT: Real-time protection disabled\"\n    Ninja-Property-Set cuiCompliant \"Non-Compliant - AV Disabled\"\n    exit 1\n}\n\nNinja-Property-Set cuiCompliant \"Compliant\"\nWrite-Host \"All CUI compliance checks passed\"",
+                        verification: [
+                            "Review NinjaOne Dashboard for CUI organization: verify all endpoints are online and reporting",
+                            "Check Patch Management report: confirm no critical/security patches pending > 48 hours",
+                            "Verify monitoring alerts are configured for compliance drift conditions",
+                            "Review custom field 'cuiCompliant' across all CUI endpoints",
+                            "Confirm remote access sessions require MFA and are logged",
+                            "Audit technician role assignments: verify least-privilege for CUI system access",
+                            "Review NinjaOne Backup status for CUI endpoints"
+                        ],
+                        cost_estimate: "$3-5/endpoint/month",
+                        effort_hours: 10
+                    }
+                }
+            },
+
+            // Vulnerability Management
+            vuln_mgmt: {
+                tenable: {
+                    services: ["Tenable.io", "Tenable.sc", "Nessus Professional", "Tenable.asm", "Tenable.cs"],
+                    implementation: {
+                        steps: [
+                            "Deploy Nessus scanners (cloud-linked or on-prem) with network access to all CUI-scope systems",
+                            "Create dedicated Scan Policies for CUI systems using DISA STIG and CIS benchmark audit files",
+                            "Configure credentialed scans with a dedicated service account for accurate vulnerability detection",
+                            "Set up scheduled scans: weekly vulnerability scans and monthly compliance audits for CUI assets",
+                            "Create Asset Groups or Tags for CUI systems to isolate reporting and track remediation",
+                            "Configure scan exclusion windows to avoid disrupting CUI production systems",
+                            "Set up Tenable.io dashboards for CUI vulnerability posture: critical/high counts, SLA compliance",
+                            "Integrate with ticketing (ServiceNow, Jira) for automated remediation workflow",
+                            "Configure email alerts for new critical/high vulnerabilities on CUI assets",
+                            "Enable Tenable.asm (Attack Surface Management) to discover internet-facing CUI assets",
+                            "Implement Vulnerability Priority Rating (VPR) to focus on exploitable vulnerabilities first",
+                            "Generate monthly executive reports showing CUI vulnerability trends and remediation SLA compliance"
+                        ],
+                        api_example: "# Tenable.io API: List vulnerabilities on CUI-tagged assets\ncurl -X GET \"https://cloud.tenable.com/workbenches/assets?filter.0.filter=tag.CUI&filter.0.quality=set-has&filter.0.value=true\" \\\n  -H \"X-ApiKeys: accessKey=ACCESS_KEY;secretKey=SECRET_KEY\" \\\n  -H \"Content-Type: application/json\"\n\n# Export vulnerability report for CUI assets\ncurl -X POST \"https://cloud.tenable.com/vulns/export\" \\\n  -H \"X-ApiKeys: accessKey=ACCESS_KEY;secretKey=SECRET_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"filters\": {\n      \"tag.CUI\": [\"true\"],\n      \"severity\": [\"critical\", \"high\"]\n    },\n    \"num_assets\": 500\n  }'",
+                        verification: [
+                            "Verify all CUI assets are being scanned: check Tenable.io > Assets for coverage gaps",
+                            "Confirm credentialed scans are succeeding: review scan results for authentication failures",
+                            "Review vulnerability SLA compliance: critical < 15 days, high < 30 days, medium < 90 days",
+                            "Check DISA STIG/CIS compliance audit results for CUI systems",
+                            "Verify scan schedules are running on time and completing successfully",
+                            "Review VPR scores to ensure highest-risk vulnerabilities are prioritized",
+                            "Confirm ticketing integration is creating remediation tickets automatically"
+                        ],
+                        cost_estimate: "$3,000-6,000/year (Nessus Pro) or $30-65/asset/year (Tenable.io)",
+                        effort_hours: 14
+                    }
+                }
+            },
+
             // Industry-Specific Guidance
             industry_specific: {
                 manufacturing: {

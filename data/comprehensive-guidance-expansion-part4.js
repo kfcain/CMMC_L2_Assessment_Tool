@@ -90,7 +90,7 @@ const COMPREHENSIVE_GUIDANCE_PART4 = {
                 gcp: { services: ["Security Command Center", "Container Analysis"], implementation: { steps: ["Enable Security Command Center vulnerability scanning", "Scan Compute Engine instances monthly", "Use Container Analysis for images", "Review vulnerability findings", "Prioritize critical/high vulnerabilities", "Track remediation"], cost_estimate: "$50-250/month", effort_hours: 12 }}
             },
             tools: {
-                nessus: { implementation: { steps: ["Deploy Nessus scanner", "Scan all systems monthly", "Scan after new vulnerability announcements", "Generate vulnerability reports", "Track remediation"], cost_estimate: "$3000-4000/year", effort_hours: 12 }},
+                tenable: { implementation: { steps: ["Deploy Nessus scanner (Tenable)", "Scan all systems monthly", "Scan after new vulnerability announcements", "Generate vulnerability reports", "Track remediation"], cost_estimate: "$3000-6000/year", effort_hours: 12 }},
                 openvas: { implementation: { steps: ["Deploy OpenVAS scanner (free)", "Scan all systems monthly", "Review vulnerability reports", "Track remediation"], cost_estimate: "$0", effort_hours: 12 }}
             },
             small_business: { approach: "Use cloud provider vulnerability scanning, scan monthly, patch critical vulnerabilities within 30 days", cost_estimate: "$0-100/month", effort_hours: 8 }
