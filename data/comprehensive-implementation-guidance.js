@@ -230,6 +230,33 @@ oci iam policy create \\
                         cost_estimate: "$50-150/month",
                         effort_hours: 8
                     }
+                },
+                
+                nutanix: {
+                    services: ["Prism Central", "Flow Network Security", "Nutanix IAM", "Security Central", "AHV"],
+                    implementation: {
+                        steps: [
+                            "Configure Prism Central for centralized identity and access management",
+                            "Create role-based access control (RBAC) roles in Prism Central with least-privilege assignments",
+                            "Enable multi-factor authentication (MFA) via SAML 2.0 integration with corporate IdP",
+                            "Implement Flow Network Security microsegmentation policies to isolate CUI workloads",
+                            "Use Nutanix Security Central for continuous compliance posture monitoring",
+                            "Configure audit logging in Prism Central and forward to SIEM",
+                            "Enable Data-at-Rest Encryption (DARE) with software or external KMS",
+                            "Use categories (tags) to classify VMs handling CUI for policy enforcement"
+                        ],
+                        nutanix_cli_example: "# Create a network security policy for CUI isolation\n# In Prism Central > Network Security > Create Policy\n# Or via Nutanix REST API v3:\ncurl -k -u admin:PASSWORD -X POST \\\n  https://PRISM_CENTRAL_IP:9440/api/nutanix/v3/network_security_rules \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"spec\": {\n      \"name\": \"CUI-Isolation-Policy\",\n      \"resources\": {\n        \"app_rule\": {\n          \"target_group\": {\n            \"filter\": {\n              \"type\": \"CATEGORIES_MATCH_ALL\",\n              \"params\": {\"DataClassification\": [\"CUI\"]}\n            }\n          },\n          \"inbound_allow_list\": [{\n            \"filter\": {\"type\": \"CATEGORIES_MATCH_ALL\", \"params\": {\"AppTier\": [\"Authorized\"]}}\n          }]\n        }\n      }\n    }\n  }'",
+                        verification: [
+                            "Review RBAC role assignments in Prism Central > Administration > Roles",
+                            "Verify MFA/SAML configuration under Authentication settings",
+                            "Check Flow Network Security policies are applied to CUI-tagged VMs",
+                            "Review audit trail in Prism Central > Activity > Audits",
+                            "Confirm DARE encryption status on storage containers",
+                            "Run Security Central compliance checks"
+                        ],
+                        cost_estimate: "$75-200/month (per-node licensing)",
+                        effort_hours: 10
+                    }
                 }
             },
             
