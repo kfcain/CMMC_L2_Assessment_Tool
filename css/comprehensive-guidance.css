@@ -1,199 +1,358 @@
-/* Comprehensive Guidance UI Styles */
+/* Comprehensive Guidance UI Styles — Per-Technology Dropdowns */
 
-.comprehensive-guidance {
-    margin: 20px 0;
-    padding: 20px;
-    background: var(--bg-secondary);
+/* ── Root container ── */
+.cg-root {
+    margin: 16px 0 8px;
     border-radius: 8px;
-    border-left: 4px solid var(--accent-blue);
-}
-
-.guidance-header {
-    margin-bottom: 20px;
-}
-
-.guidance-header h4 {
-    color: var(--accent-blue);
-    font-size: 1.3em;
-    margin-bottom: 10px;
-}
-
-.guidance-summary {
-    color: var(--text-secondary);
-    font-style: italic;
-    margin-top: 8px;
-}
-
-.guidance-sections {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-.guidance-category {
-    background: var(--bg-tertiary);
-    padding: 15px;
-    border-radius: 6px;
-}
-
-.guidance-category h5 {
-    color: var(--text-primary);
-    font-size: 1.1em;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.platform-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    margin-bottom: 15px;
     overflow: hidden;
 }
 
-.card-header {
-    background: var(--bg-tertiary);
-    padding: 12px 15px;
+/* ── Header bar ── */
+.cg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-tertiary, #1e2030);
+    border: 1px solid var(--border-color, #2e3148);
+    border-radius: 8px 8px 0 0;
+}
+
+.cg-title {
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary, #8892b0);
+}
+
+.cg-count {
+    font-size: 0.72rem;
+    color: var(--text-secondary, #8892b0);
+    background: var(--bg-secondary, #171926);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+/* ── Technology list ── */
+.cg-techs {
+    border: 1px solid var(--border-color, #2e3148);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+}
+
+/* ── Individual tech dropdown ── */
+.cg-tech-dropdown {
+    border-bottom: 1px solid var(--border-color, #2e3148);
+}
+
+.cg-tech-dropdown:last-child {
+    border-bottom: none;
+}
+
+/* ── Summary row (collapsed) ── */
+.cg-tech-summary {
     display: flex;
     align-items: center;
     gap: 10px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.platform-icon {
-    font-size: 1.3em;
-}
-
-.platform-name {
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 1.05em;
-}
-
-.card-body {
-    padding: 15px;
-}
-
-.card-body p {
-    margin-bottom: 12px;
-    line-height: 1.6;
-}
-
-.card-body strong {
-    color: var(--accent-blue);
-}
-
-.implementation-steps,
-.verification-steps,
-.tools-list {
-    margin: 15px 0;
-}
-
-.implementation-steps ol,
-.verification-steps ul,
-.tools-list ul {
-    margin-left: 20px;
-    margin-top: 8px;
-}
-
-.implementation-steps li,
-.verification-steps li,
-.tools-list li {
-    margin-bottom: 8px;
-    line-height: 1.5;
-}
-
-.code-example {
-    margin: 15px 0;
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-}
-
-.code-example summary {
-    padding: 10px 15px;
+    padding: 9px 14px;
     cursor: pointer;
-    font-weight: 600;
-    color: var(--accent-blue);
     user-select: none;
+    list-style: none;
+    background: var(--bg-secondary, #171926);
+    transition: background 0.15s ease;
+    font-size: 0.88rem;
 }
 
-.code-example summary:hover {
-    background: var(--bg-tertiary);
+.cg-tech-summary::-webkit-details-marker {
+    display: none;
 }
 
-.code-example pre {
-    margin: 0;
-    padding: 15px;
-    overflow-x: auto;
-    background: var(--input-bg);
+.cg-tech-summary::marker {
+    content: '';
 }
 
-.code-example code {
-    font-family: 'Fira Code', 'Courier New', monospace;
-    font-size: 0.9em;
-    line-height: 1.5;
-    color: var(--text-primary);
+.cg-tech-summary:hover {
+    background: var(--bg-tertiary, #1e2030);
 }
 
-.cost-estimate,
-.effort-estimate {
-    display: inline-block;
-    margin: 8px 15px 8px 0;
-    padding: 6px 12px;
-    background: var(--bg-tertiary);
+.cg-tech-dropdown[open] > .cg-tech-summary {
+    background: var(--bg-tertiary, #1e2030);
+    border-bottom: 1px solid var(--border-color, #2e3148);
+}
+
+/* ── Icon ── */
+.cg-tech-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.cg-tech-icon svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+/* ── Name ── */
+.cg-tech-name {
+    font-weight: 500;
+    color: var(--text-primary, #cdd6f4);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Badges (cost / effort) on summary line ── */
+.cg-badges {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.cg-badge {
+    font-size: 0.68rem;
+    font-weight: 500;
+    padding: 2px 7px;
     border-radius: 4px;
-    font-size: 0.95em;
+    white-space: nowrap;
 }
 
-.cost-estimate {
-    border-left: 3px solid #98c379;
+.cg-badge-cost {
+    background: rgba(52, 211, 153, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.25);
 }
 
-.effort-estimate {
-    border-left: 3px solid #e5c07b;
+.cg-badge-effort {
+    background: rgba(251, 191, 36, 0.12);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.25);
 }
 
-.small-business-section {
-    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
-    border: 2px solid var(--accent-blue);
+/* ── Chevron ── */
+.cg-chevron {
+    flex-shrink: 0;
+    color: var(--text-secondary, #8892b0);
+    transition: transform 0.2s ease;
+    margin-left: 4px;
 }
 
-.small-business-section .platform-card {
-    background: var(--bg-secondary);
+.cg-tech-dropdown[open] > .cg-tech-summary .cg-chevron {
+    transform: rotate(180deg);
 }
 
-/* Responsive design */
+/* ── Body (expanded content) ── */
+.cg-tech-body {
+    padding: 14px 16px 16px;
+    background: var(--bg-secondary, #171926);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-primary, #cdd6f4);
+}
+
+/* ── Service / Feature tags ── */
+.cg-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 12px;
+}
+
+.cg-tag {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--bg-tertiary, #1e2030);
+    color: var(--accent-blue, #89b4fa);
+    border: 1px solid var(--border-color, #2e3148);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* ── Approach / summary text ── */
+.cg-approach {
+    margin: 0 0 12px;
+    color: var(--text-secondary, #8892b0);
+    font-style: italic;
+}
+
+.cg-approach strong {
+    font-style: normal;
+    color: var(--text-primary, #cdd6f4);
+}
+
+/* ── Implementation steps ── */
+.cg-steps {
+    margin: 10px 0;
+}
+
+.cg-steps-title {
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary, #8892b0);
+    margin-bottom: 6px;
+}
+
+.cg-steps ol,
+.cg-steps ul {
+    margin: 0 0 0 20px;
+    padding: 0;
+}
+
+.cg-steps li {
+    margin-bottom: 5px;
+    line-height: 1.55;
+}
+
+.cg-steps li strong {
+    color: var(--accent-blue, #89b4fa);
+}
+
+/* ── Code examples ── */
+.cg-code {
+    margin: 10px 0;
+    border: 1px solid var(--border-color, #2e3148);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.cg-code summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent-blue, #89b4fa);
+    background: var(--bg-tertiary, #1e2030);
+    user-select: none;
+    list-style: none;
+}
+
+.cg-code summary::-webkit-details-marker {
+    display: none;
+}
+
+.cg-code summary::marker {
+    content: '';
+}
+
+.cg-code summary:hover {
+    background: var(--input-bg, #232636);
+}
+
+.cg-code summary svg {
+    flex-shrink: 0;
+    color: var(--accent-blue, #89b4fa);
+}
+
+.cg-code pre {
+    margin: 0;
+    padding: 12px 14px;
+    overflow-x: auto;
+    background: var(--input-bg, #232636);
+    border-top: 1px solid var(--border-color, #2e3148);
+}
+
+.cg-code code {
+    font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-primary, #cdd6f4);
+}
+
+/* ── Verification ── */
+.cg-verify {
+    margin: 12px 0 4px;
+}
+
+.cg-verify-title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #34d399;
+    margin-bottom: 6px;
+}
+
+.cg-verify ul {
+    margin: 0 0 0 20px;
+    padding: 0;
+}
+
+.cg-verify li {
+    margin-bottom: 4px;
+    line-height: 1.5;
+    color: var(--text-primary, #cdd6f4);
+}
+
+/* ── Cost meta row (inside body) ── */
+.cg-meta-row {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cg-meta {
+    font-size: 0.76rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 4px;
+}
+
+.cg-meta-cost {
+    background: rgba(52, 211, 153, 0.1);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+/* ── Responsive ── */
 @media (max-width: 768px) {
-    .comprehensive-guidance {
-        padding: 15px;
+    .cg-tech-summary {
+        padding: 8px 10px;
+        gap: 8px;
+        font-size: 0.82rem;
     }
-    
-    .guidance-category {
-        padding: 12px;
+
+    .cg-tech-body {
+        padding: 10px 12px 14px;
     }
-    
-    .card-body {
-        padding: 12px;
+
+    .cg-badges {
+        display: none;
     }
-    
-    .code-example pre {
-        font-size: 0.85em;
+
+    .cg-code pre {
+        font-size: 0.75rem;
     }
 }
 
-/* Print styles */
+/* ── Print ── */
 @media print {
-    .comprehensive-guidance {
+    .cg-tech-dropdown {
         page-break-inside: avoid;
     }
-    
-    .platform-card {
-        page-break-inside: avoid;
+
+    .cg-tech-dropdown[open] > .cg-tech-body {
+        display: block !important;
     }
-    
-    .code-example {
-        page-break-inside: avoid;
+
+    .cg-chevron {
+        display: none;
     }
 }
