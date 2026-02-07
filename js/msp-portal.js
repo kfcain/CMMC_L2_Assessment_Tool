@@ -22,6 +22,7 @@ const MSPPortal = {
         { id: 'enclaves', name: 'Enclave Design', icon: 'shield', section: 'infrastructure' },
         { id: 'vdi', name: 'VDI Solutions', icon: 'monitor', section: 'infrastructure' },
         { id: 'siem', name: 'SIEM/MSSP Operations', icon: 'activity', section: 'security' },
+        { id: 'mssp-playbook', name: 'MSSP Playbook', icon: 'shield', section: 'security' },
         { id: 'automation', name: 'Automation & Compliance', icon: 'cpu', section: 'security' },
         { id: 'automation-platforms', name: 'RMM & Automation Tools', icon: 'settings', section: 'tools' },
         { id: 'cloud-templates', name: 'Cloud Templates', icon: 'database', section: 'tools' },
@@ -65,6 +66,8 @@ const MSPPortal = {
         console.log('[MSPPortal] Initialized v' + this.config.version);
     },
 
+    _escHandler: null,
+
     bindEvents: function() {
         document.addEventListener('click', (e) => {
             if (e.target.closest('#open-msp-portal-btn')) this.openPortal();
@@ -97,6 +100,11 @@ const MSPPortal = {
     getIcon: function(name) { return this.icons[name] || this.icons['file-text']; },
 
     openPortal: function() {
+        // Close hamburger menu if open
+        document.getElementById('hamburger-dropdown')?.classList.remove('active');
+        document.getElementById('hamburger-overlay')?.classList.remove('active');
+        document.getElementById('hamburger-menu-toggle')?.classList.remove('open');
+
         const html = `
         <div class="msp-portal-overlay" id="msp-portal">
             <div class="msp-portal-container">
@@ -108,15 +116,20 @@ const MSPPortal = {
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', html);
-        this.attachEvents();
+        this.attachPortalEvents();
+
+        // Escape key handler
+        this._escHandler = (e) => { if (e.key === 'Escape') this.closePortal(); };
+        document.addEventListener('keydown', this._escHandler);
     },
 
     closePortal: function() {
-        document.getElementById('msp-portal')?.remove();
-        // Return to the main dashboard without page refresh
-        if (typeof window.app !== 'undefined' && window.app.switchView) {
-            window.app.switchView('dashboard');
+        // Remove Escape handler
+        if (this._escHandler) {
+            document.removeEventListener('keydown', this._escHandler);
+            this._escHandler = null;
         }
+        document.getElementById('msp-portal')?.remove();
     },
 
     renderSidebar: function() {
@@ -151,9 +164,16 @@ const MSPPortal = {
         </div>`;
     },
 
-    attachEvents: function() {
-        document.querySelectorAll('.msp-nav-btn').forEach(btn => {
-            btn.addEventListener('click', () => this.switchView(btn.dataset.view));
+    attachPortalEvents: function() {
+        // Use single delegated listener on the portal container to avoid stacking
+        const portal = document.getElementById('msp-portal');
+        if (!portal) return;
+        portal.addEventListener('click', (e) => {
+            // Nav buttons
+            const navBtn = e.target.closest('.msp-nav-btn');
+            if (navBtn) { this.switchView(navBtn.dataset.view); return; }
+            // Close button
+            if (e.target.closest('.msp-close-btn')) { this.closePortal(); return; }
         });
         this.attachDataViewEvents();
     },
@@ -237,6 +257,28 @@ const MSPPortal = {
                     }
                 });
             });
+
+            // MSSP Playbook tabs
+            document.querySelectorAll('.mssp-pb-tab').forEach(tab => {
+                const newTab = tab.cloneNode(true);
+                tab.parentNode.replaceChild(newTab, tab);
+                newTab.addEventListener('click', (e) => {
+                    const tabId = e.target.dataset.pbTab;
+                    const data = typeof MSSP_PLAYBOOK_DATA !== 'undefined' ? MSSP_PLAYBOOK_DATA : null;
+                    if (!data) return;
+                    document.querySelectorAll('.mssp-pb-tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    const contentEl = document.getElementById('mssp-pb-content');
+                    if (!contentEl) return;
+                    switch (tabId) {
+                        case 'scoping': contentEl.innerHTML = MSPPortalViews.renderPlaybookScoping(data); break;
+                        case 'tools': contentEl.innerHTML = MSPPortalViews.renderPlaybookTools(data); break;
+                        case 'playbooks': contentEl.innerHTML = MSPPortalViews.renderPlaybookSOC(data); break;
+                        case 'onboarding': contentEl.innerHTML = MSPPortalViews.renderPlaybookOnboarding(data); break;
+                        case 'dfars': contentEl.innerHTML = MSPPortalViews.renderPlaybookDFARS(data); break;
+                    }
+                });
+            });
         }, 0);
     },
 
@@ -246,7 +288,7 @@ const MSPPortal = {
         const nav = this.navigation.find(n => n.id === viewId);
         document.getElementById('msp-view-title').textContent = nav?.name || viewId;
         document.getElementById('msp-portal-content').innerHTML = this.renderView(viewId);
-        this.attachEvents();
+        this.attachDataViewEvents();
     },
 
     refresh: function() { this.loadState(); this.switchView(this.state.activeView); },

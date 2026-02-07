@@ -10,6 +10,7 @@ class AssessmentApp {
         this.implementationData = {}; // Tracks how objectives are met
         this.orgData = {}; // Organization info (assessor, OSC)
         this.assessmentLevel = localStorage.getItem('nist-assessment-level') || '2'; // '1' for L1, '2' for L2
+        this.assessmentRevision = localStorage.getItem('nist-assessment-revision') || 'r2'; // 'r2' or 'r3'
         this.currentView = localStorage.getItem('nist-current-view') || 'dashboard';
         this.assessmentScriptsLoaded = false; // Track if guidance scripts are loaded
         this.init();
@@ -23,6 +24,7 @@ class AssessmentApp {
         this.renderControls();
         this.updateProgress();
         this.bindEvents();
+        this.updateRevisionBranding();
         
         // Ensure dashboard renders on initial load
         console.log('[App] Current view:', this.currentView);
@@ -66,10 +68,42 @@ class AssessmentApp {
         });
     }
 
+    // Returns the localStorage key prefix based on current revision
+    getStoragePrefix() {
+        return this.assessmentRevision === 'r3' ? 'nist-r3-' : 'nist-';
+    }
+
+    updateRevisionToggleVisibility() {
+        const container = document.getElementById('revision-toggle-container');
+        if (container) {
+            container.style.display = this.assessmentLevel === '2' ? 'flex' : 'none';
+        }
+    }
+
+    updateRevisionBranding() {
+        const isR3 = this.assessmentRevision === 'r3' && this.assessmentLevel === '2';
+        // Toggle body class for site-wide Rev 3 theming
+        document.body.classList.toggle('rev3-active', isR3);
+        // Swap badge text
+        const headerBadge = document.querySelector('.header-badge');
+        const panelBadge = document.querySelector('.hb-panel-badge');
+        if (headerBadge) headerBadge.textContent = isR3 ? 'CMMC 3.0' : 'CMMC 2.0';
+        if (panelBadge) panelBadge.textContent = isR3 ? 'CMMC 3.0' : 'CMMC 2.0';
+    }
+
+    // Get the active control families based on current revision
+    getActiveControlFamilies() {
+        if (this.assessmentRevision === 'r3' && this.assessmentLevel === '2' && typeof CONTROL_FAMILIES_R3 !== 'undefined') {
+            return CONTROL_FAMILIES_R3;
+        }
+        return CONTROL_FAMILIES;
+    }
+
     loadSavedData() {
-        const savedAssessment = localStorage.getItem('nist-assessment-data');
-        const savedPoam = localStorage.getItem('nist-poam-data');
-        const savedDeficiency = localStorage.getItem('nist-deficiency-data');
+        const prefix = this.getStoragePrefix();
+        const savedAssessment = localStorage.getItem(prefix + 'assessment-data');
+        const savedPoam = localStorage.getItem(prefix + 'poam-data');
+        const savedDeficiency = localStorage.getItem(prefix + 'deficiency-data');
         
         // Use SecurityUtils for safe JSON parsing and sanitization
         const safeParseAndSanitize = (jsonStr) => {
@@ -93,7 +127,7 @@ class AssessmentApp {
         this.poamData = safeParseAndSanitize(savedPoam);
         this.deficiencyData = safeParseAndSanitize(savedDeficiency);
 
-        const savedImplementation = localStorage.getItem('nist-implementation-data');
+        const savedImplementation = localStorage.getItem(prefix + 'implementation-data');
         this.implementationData = safeParseAndSanitize(savedImplementation);
 
         const savedOrg = localStorage.getItem('nist-org-data');
@@ -146,12 +180,93 @@ class AssessmentApp {
     }
 
     saveData() {
-        localStorage.setItem('nist-assessment-data', JSON.stringify(this.assessmentData));
-        localStorage.setItem('nist-poam-data', JSON.stringify(this.poamData));
-        localStorage.setItem('nist-deficiency-data', JSON.stringify(this.deficiencyData));
-        localStorage.setItem('nist-implementation-data', JSON.stringify(this.implementationData));
+        const prefix = this.getStoragePrefix();
+        localStorage.setItem(prefix + 'assessment-data', JSON.stringify(this.assessmentData));
+        localStorage.setItem(prefix + 'poam-data', JSON.stringify(this.poamData));
+        localStorage.setItem(prefix + 'deficiency-data', JSON.stringify(this.deficiencyData));
+        localStorage.setItem(prefix + 'implementation-data', JSON.stringify(this.implementationData));
         localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
-        this.showToast('Progress saved successfully', 'success');
+        const revLabel = this.assessmentRevision === 'r3' ? ' (Rev 3)' : '';
+        this.showToast('Progress saved successfully' + revLabel, 'success');
+    }
+
+    migrateRev2ToRev3() {
+        if (!confirm('This will copy your Rev 2 assessment statuses to Rev 3 using the control mapping. Existing Rev 3 data will NOT be overwritten. Continue?')) {
+            return;
+        }
+
+        // Load Rev 2 data
+        const r2Assessment = JSON.parse(localStorage.getItem('nist-assessment-data') || '{}');
+        const r2Poam = JSON.parse(localStorage.getItem('nist-poam-data') || '{}');
+        const r2Deficiency = JSON.parse(localStorage.getItem('nist-deficiency-data') || '{}');
+        const r2Implementation = JSON.parse(localStorage.getItem('nist-implementation-data') || '{}');
+
+        // Get migration mapping from nist-800-171a-r3.js
+        const migrationMap = (typeof REV2_TO_REV3_MIGRATION !== 'undefined') ? REV2_TO_REV3_MIGRATION : null;
+
+        if (!migrationMap) {
+            this.showToast('Migration mapping not available. Ensure Rev 3 data files are loaded.', 'error');
+            return;
+        }
+
+        let migrated = 0;
+        let skipped = 0;
+
+        // Iterate Rev 3 families and map objectives
+        if (typeof CONTROL_FAMILIES_R3 !== 'undefined') {
+            CONTROL_FAMILIES_R3.forEach(family => {
+                family.controls.forEach(control => {
+                    const rev2Id = control.rev2Id;
+                    if (!rev2Id) return; // New control, no Rev 2 equivalent
+
+                    control.objectives.forEach((objective, idx) => {
+                        // Try to find matching Rev 2 objective
+                        // Rev 3 objective IDs use format like "03.01.01[a]"
+                        // Rev 2 objective IDs use format like "3.1.1[a]"
+                        const r3ObjId = objective.id;
+
+                        // Build the corresponding Rev 2 objective ID
+                        // Extract the sub-objective letter from Rev 3 ID
+                        const letterMatch = r3ObjId.match(/\[([a-z])\]$/);
+                        const letter = letterMatch ? letterMatch[1] : null;
+                        const r2ObjId = letter ? `${rev2Id}[${letter}]` : rev2Id;
+
+                        // Only migrate if Rev 3 doesn't already have data
+                        if (!this.assessmentData[r3ObjId]?.status) {
+                            if (r2Assessment[r2ObjId]?.status) {
+                                this.assessmentData[r3ObjId] = { ...r2Assessment[r2ObjId] };
+                                migrated++;
+                            }
+                        } else {
+                            skipped++;
+                        }
+
+                        // Migrate POA&M data
+                        if (!this.poamData[r3ObjId] && r2Poam[r2ObjId]) {
+                            this.poamData[r3ObjId] = { ...r2Poam[r2ObjId] };
+                        }
+
+                        // Migrate deficiency data
+                        if (!this.deficiencyData[r3ObjId] && r2Deficiency[r2ObjId]) {
+                            this.deficiencyData[r3ObjId] = { ...r2Deficiency[r2ObjId] };
+                        }
+
+                        // Migrate implementation data
+                        if (!this.implementationData[r3ObjId] && r2Implementation[r2ObjId]) {
+                            this.implementationData[r3ObjId] = { ...r2Implementation[r2ObjId] };
+                        }
+                    });
+                });
+            });
+        }
+
+        // Save migrated data
+        this.saveData();
+        this.renderControls();
+        this.updateProgress();
+        this.filterControls();
+
+        this.showToast(`Migration complete: ${migrated} objectives migrated, ${skipped} skipped (already had data)`, 'success');
     }
 
     saveOrgData() {
@@ -387,7 +502,12 @@ class AssessmentApp {
             console.warn('filter-family element not found');
             return;
         }
-        CONTROL_FAMILIES.forEach(family => {
+        // Clear existing options except "All Families"
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+        const families = this.getActiveControlFamilies();
+        families.forEach(family => {
             // Count total objectives in this family
             const objectiveCount = family.controls.reduce((sum, ctrl) => sum + (ctrl.objectives?.length || 0), 0);
             const option = document.createElement('option');
@@ -465,10 +585,41 @@ class AssessmentApp {
             levelSelect.addEventListener('change', (e) => {
                 this.assessmentLevel = e.target.value;
                 localStorage.setItem('nist-assessment-level', this.assessmentLevel);
+                this.updateRevisionToggleVisibility();
+                this.updateRevisionBranding();
                 this.renderControls();
                 this.updateProgress();
                 this.filterControls();
+                this.populateFamilyFilter();
             });
+        }
+
+        // Revision Toggle (Rev 2 / Rev 3) - only visible when Level 2 is selected
+        const revToggleContainer = document.getElementById('revision-toggle-container');
+        if (revToggleContainer) {
+            revToggleContainer.querySelectorAll('.rev-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const rev = e.currentTarget.dataset.rev;
+                    if (rev === this.assessmentRevision) return;
+                    this.assessmentRevision = rev;
+                    localStorage.setItem('nist-assessment-revision', rev);
+                    // Update active state
+                    revToggleContainer.querySelectorAll('.rev-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    // Reload with new revision data
+                    this.loadSavedData();
+                    this.populateFamilyFilter();
+                    this.renderControls();
+                    this.updateProgress();
+                    this.filterControls();
+                    this.updateRevisionBranding();
+                });
+            });
+            // Set initial active state and visibility
+            revToggleContainer.querySelectorAll('.rev-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.rev === this.assessmentRevision);
+            });
+            this.updateRevisionToggleVisibility();
         }
 
         // Filters
@@ -675,8 +826,9 @@ class AssessmentApp {
         this.searchIndex = [];
 
         // Add all controls
-        if (typeof CONTROL_FAMILIES !== 'undefined') {
-            CONTROL_FAMILIES.forEach(family => {
+        const families = this.getActiveControlFamilies();
+        if (families && families.length > 0) {
+            families.forEach(family => {
                 family.controls.forEach(control => {
                     const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
                     const level = mapping?.cmmc?.level || 2;
@@ -714,7 +866,9 @@ class AssessmentApp {
             { id: 'sprs', title: 'SPRS Calculator', desc: 'Calculate SPRS score' },
             { id: 'crosswalk', title: 'Framework Crosswalk', desc: 'Map controls across frameworks' },
             { id: 'impl-guide', title: 'Implementation Guide', desc: 'Technical implementation guidance' },
-            { id: 'cheat-sheet', title: 'Assessor Cheat Sheet', desc: 'Quick reference for assessors' }
+            { id: 'cheat-sheet', title: 'Assessor Cheat Sheet', desc: 'Quick reference for assessors' },
+            { id: 'cmvp-explorer', title: 'CMVP Explorer', desc: 'Search FIPS 140 validated cryptographic modules' },
+            { id: 'fedramp-reference', title: 'FedRAMP Reference', desc: 'FedRAMP 20x KSI families and control mappings' }
         ];
         views.forEach(v => {
             this.searchIndex.push({
@@ -968,6 +1122,14 @@ class AssessmentApp {
             // Rev3 Crosswalk view - render using Rev3Crosswalk module
             if (typeof Rev3Crosswalk !== 'undefined' && Rev3Crosswalk.renderView) {
                 Rev3Crosswalk.renderView();
+            }
+        } else if (view === 'cmvp-explorer') {
+            if (typeof CMVPExplorer !== 'undefined') {
+                CMVPExplorer.init();
+            }
+        } else if (view === 'fedramp-reference') {
+            if (typeof FedRAMPReference !== 'undefined') {
+                FedRAMPReference.init();
             }
         }
         
@@ -1532,16 +1694,26 @@ class AssessmentApp {
         const currentCloud = this.implGuideCloud || 'azure';
         this.archGuideSection = this.archGuideSection || null;
         
-        // Calculate assessment progress stats
-        const totalObjectives = 320;
+        // Calculate assessment progress stats dynamically from active revision
+        const isRev3 = this.assessmentRevision === 'r3' && this.assessmentLevel === '2';
+        const families = this.getActiveControlFamilies();
+        let totalObjectives = 0, totalControls = 0;
+        families.forEach(family => {
+            family.controls.forEach(control => {
+                totalControls++;
+                totalObjectives += control.objectives.length;
+            });
+        });
+        const totalFamilies = families.length;
         const metCount = Object.values(this.assessmentData).filter(s => s === 'met').length;
         const notMetCount = Object.values(this.assessmentData).filter(s => s === 'not-met').length;
         const partialCount = Object.values(this.assessmentData).filter(s => s === 'partial').length;
         const naCount = Object.values(this.assessmentData).filter(s => s === 'na').length;
         const assessedCount = metCount + notMetCount + partialCount + naCount;
         const remainingCount = totalObjectives - assessedCount;
-        const progressPct = Math.round((metCount / totalObjectives) * 100);
-        const assessedPct = Math.round((assessedCount / totalObjectives) * 100);
+        const progressPct = totalObjectives > 0 ? Math.round((metCount / totalObjectives) * 100) : 0;
+        const assessedPct = totalObjectives > 0 ? Math.round((assessedCount / totalObjectives) * 100) : 0;
+        const revLabel = isRev3 ? 'Rev 3' : 'Rev 2';
         
         // Determine readiness status
         let readinessStatus, readinessClass;
@@ -1588,7 +1760,7 @@ class AssessmentApp {
                             </div>
                             <div>
                                 <h1>Architecture Guide</h1>
-                                <p>Implementation guidance for ${cloudNames[currentCloud]}</p>
+                                <p>Implementation guidance for ${cloudNames[currentCloud]} <span style="opacity:0.6;font-size:0.8em">· NIST 800-171A ${revLabel}</span></p>
                             </div>
                         </div>
                         <div class="arch-cloud-selector">
@@ -1616,12 +1788,20 @@ class AssessmentApp {
     }
     
     renderArchGuideCategories(guide) {
+        // Dynamic counts from active revision
+        const isRev3 = this.assessmentRevision === 'r3' && this.assessmentLevel === '2';
+        const activeFamilies = this.getActiveControlFamilies();
+        let dynControls = 0, dynObjectives = 0;
+        activeFamilies.forEach(f => f.controls.forEach(c => { dynControls++; dynObjectives += c.objectives.length; }));
+        const hasL3 = typeof NIST_800_172A_FAMILIES !== 'undefined' && NIST_800_172A_FAMILIES.length > 0;
+
         const categories = [
             { id: 'project-plan', name: 'Project Plan', desc: 'Implementation timeline, milestones, and task tracking for your CMMC journey', icon: 'clipboard-list', items: guide?.phases?.length || 8 },
-            { id: 'evidence', name: 'Evidence Collection', desc: 'Artifact requirements and evidence gathering guidance for each control', icon: 'folder-check', items: 110 },
+            { id: 'evidence', name: 'Evidence Collection', desc: 'Artifact requirements and evidence gathering guidance for each control', icon: 'folder-check', items: dynControls },
             { id: 'policies', name: 'Policies & Procedures', desc: 'Required policy documents and procedure templates mapped to controls', icon: 'file-text', items: 24 },
             { id: 'ssp', name: 'System Security Plan', desc: 'SSP structure, control responsibility matrix, and documentation guidance', icon: 'shield', items: 14 },
             { id: 'services', name: 'Cloud Services', desc: 'FedRAMP-authorized services and configuration guidance for your platform', icon: 'cloud', items: 45 },
+            { id: 'security-stack', name: 'Security Stack', desc: 'Vendor-specific implementation guidance — Palo Alto, SentinelOne, NinjaOne, Tenable, and cloud platforms', icon: 'layers', items: dynControls },
             { id: 'architecture', name: 'Reference Architecture', desc: 'Network diagrams, enclave patterns, and VDI deployment options', icon: 'layout', items: 12 },
             { id: 'cui-discovery', name: 'CUI Discovery', desc: 'Native tools for identifying and classifying CUI in your environment', icon: 'search', items: 6 },
             { id: 'extras', name: 'Extras & Deep Dives', desc: 'Advanced topics, ITAR guidance, and platform-specific configurations', icon: 'layers', items: 8 }
@@ -1640,11 +1820,16 @@ class AssessmentApp {
         
         return `
             <div class="arch-quick-stats">
-                <div class="arch-quick-stat"><div class="value">110</div><div class="label">Controls</div></div>
-                <div class="arch-quick-stat"><div class="value">320</div><div class="label">Objectives</div></div>
-                <div class="arch-quick-stat"><div class="value">8</div><div class="label">Categories</div></div>
-                <div class="arch-quick-stat"><div class="value">45+</div><div class="label">Services</div></div>
+                <div class="arch-quick-stat"><div class="value">${dynControls}</div><div class="label">Controls</div></div>
+                <div class="arch-quick-stat"><div class="value">${dynObjectives}</div><div class="label">Objectives</div></div>
+                <div class="arch-quick-stat"><div class="value">${activeFamilies.length}</div><div class="label">Families</div></div>
+                <div class="arch-quick-stat"><div class="value">${categories.length}</div><div class="label">Categories</div></div>
+                ${hasL3 ? '<div class="arch-quick-stat"><div class="value" style="color:#fbbf24">L3</div><div class="label">Enhanced</div></div>' : ''}
             </div>
+            ${isRev3 ? `<div class="arch-rev-banner" style="display:flex;align-items:center;gap:10px;padding:10px 16px;margin-bottom:16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:8px;font-size:0.8rem;color:var(--text-secondary)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <span><strong style="color:#10b981">Rev 3 Active</strong> — ${activeFamilies.length} families, ${dynControls} controls, ${dynObjectives} objectives. Includes new families (PL, SR) and updated control numbering (03.xx.xx format).</span>
+            </div>` : ''}
             <div class="arch-category-grid">
                 ${categories.map(cat => `
                     <div class="arch-category-card" data-category="${cat.id}">
@@ -1677,6 +1862,7 @@ class AssessmentApp {
             case 'policies': return backBtn + this.renderImplPolicies(guide);
             case 'ssp': return backBtn + this.renderImplSSP(guide);
             case 'services': return backBtn + this.renderImplServices(guide);
+            case 'security-stack': return backBtn + this.renderSecurityStack();
             case 'architecture': return backBtn + this.renderImplArchitecture();
             case 'cui-discovery': return backBtn + this.renderCUIDiscovery();
             case 'extras': return backBtn + this.renderImplExtras(guide);
@@ -1740,6 +1926,118 @@ class AssessmentApp {
         `;
     }
     
+    renderSecurityStack() {
+        const isRev3 = this.assessmentRevision === 'r3' && this.assessmentLevel === '2';
+        const hasL3 = typeof NIST_800_172A_FAMILIES !== 'undefined' && NIST_800_172A_FAMILIES.length > 0;
+        const cgui = typeof ComprehensiveGuidanceUI !== 'undefined' ? ComprehensiveGuidanceUI : null;
+
+        // Define the primary vendor stack with descriptions
+        const vendorStack = [
+            { key: 'paloalto', name: 'Palo Alto Networks', category: 'Firewalls & Network', color: '#FA582D',
+              desc: 'PAN-OS, GlobalProtect, Panorama, WildFire, Threat Prevention, Cortex XDR',
+              controls: 'AC, SC, SI, AU, CA, IR — boundary protection, network segmentation, threat prevention, VPN' },
+            { key: 'sentinelone', name: 'SentinelOne', category: 'XDR / EDR', color: '#6C2EB9',
+              desc: 'Singularity XDR, Device Control, ITDR, Ranger, Deep Visibility, STAR custom rules',
+              controls: 'SI, IR, AU, CM, SC — malware protection, incident response, endpoint detection, device control' },
+            { key: 'ninjaone', name: 'NinjaOne', category: 'RMM & Endpoint Mgmt', color: '#00AEEF',
+              desc: 'RMM, Patch Management, Scripting Engine, Monitoring, Backup, Documentation',
+              controls: 'CM, MA, SI, MP — configuration management, patching, maintenance, system monitoring' },
+            { key: 'tenable', name: 'Tenable', category: 'Vulnerability Management', color: '#00B1E1',
+              desc: 'Tenable.io, Nessus, Compliance Scans, VPR scoring, STIG/CIS audit profiles',
+              controls: 'RA, CA, SI, CM — vulnerability scanning, risk assessment, compliance auditing, configuration checks' },
+            { key: 'azure', name: 'Microsoft Azure / GCC High', category: 'Cloud Platform', color: '#0078D4',
+              desc: 'Entra ID, Intune, Defender, Purview, Sentinel, Azure Virtual Desktop, Key Vault',
+              controls: 'All families — identity, endpoint, data protection, monitoring, VDI, encryption' },
+            { key: 'aws', name: 'Amazon Web Services GovCloud', category: 'Cloud Platform', color: '#FF9900',
+              desc: 'IAM, CloudTrail, GuardDuty, Config, SecurityHub, WorkSpaces, KMS, Systems Manager',
+              controls: 'All families — identity, audit logging, threat detection, configuration, VDI, encryption' },
+            { key: 'gcp', name: 'Google Cloud Platform', category: 'Cloud Platform', color: '#4285F4',
+              desc: 'Cloud IAM, Assured Workloads, Chronicle, BeyondCorp, Cloud KMS, Compute Engine',
+              controls: 'All families — identity, compliance workloads, SIEM, zero-trust, encryption' }
+        ];
+
+        // Additional vendors available in comprehensive guidance
+        const additionalVendors = [
+            { category: 'Identity & Access (IAM/PAM)', vendors: ['Okta', 'CyberArk', 'Delinea', 'BeyondTrust', 'JumpCloud', 'Cisco Duo', 'Keeper'] },
+            { category: 'SIEM & Monitoring', vendors: ['Splunk', 'Elastic Stack (ELK)', 'Microsoft Sentinel', 'Sumo Logic', 'Blumira'] },
+            { category: 'Email Security', vendors: ['Proofpoint', 'Mimecast', 'Abnormal Security'] },
+            { category: 'DLP & Data Protection', vendors: ['Microsoft Purview', 'Netskope', 'Code42 Incydr'] },
+            { category: 'Backup & Recovery', vendors: ['Veeam', 'Druva', 'Datto BCDR', 'Acronis'] },
+            { category: 'GRC & Compliance', vendors: ['Vanta', 'Drata', 'Secureframe', 'RSA Archer', 'ServiceNow'] },
+            { category: 'MDM / UEM', vendors: ['Microsoft Intune', 'Jamf Pro', 'Kandji', 'VMware Workspace ONE'] },
+            { category: 'CSPM / Cloud Security', vendors: ['Palo Alto Prisma Cloud', 'Wiz', 'Orca Security'] }
+        ];
+
+        const icons = cgui?.icons || {};
+
+        return `
+            <div class="arch-section">
+                <div class="arch-section-header">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        Security Stack — Vendor Implementation Guidance
+                    </h2>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;margin:4px 0 0 0">
+                        Per-control implementation steps are available for each vendor below. Open any control in the 
+                        <strong>Assessment</strong> view to see detailed, vendor-specific guidance under each objective.
+                        ${isRev3 ? '<span style="color:#10b981"> Includes Rev 3 control mappings.</span>' : ''}
+                        ${hasL3 ? '<span style="color:#fbbf24"> L3 enhanced controls included.</span>' : ''}
+                    </p>
+                </div>
+                <div class="arch-section-body">
+                    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:20px;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);border-radius:8px;font-size:0.8rem;color:var(--text-secondary)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <span><strong>Tip:</strong> Each control's objectives in the Assessment view include expandable implementation guidance with CLI commands, Terraform examples, verification steps, and cost estimates per vendor.</span>
+                    </div>
+
+                    <h3 style="font-size:0.9rem;color:var(--text-primary);margin:0 0 12px 0;font-weight:600">Primary Vendor Stack</h3>
+                    <div class="impl-cards-grid" style="margin-bottom:24px">
+                        ${vendorStack.map(v => `
+                            <div class="impl-policy-card" style="border-top:3px solid ${v.color}">
+                                <div class="impl-policy-header" style="background:${v.color}15;display:flex;align-items:center;gap:10px">
+                                    <span>${icons[v.key] || ''}</span>
+                                    <div>
+                                        <h4 style="margin:0">${v.name}</h4>
+                                        <span style="font-size:0.65rem;opacity:0.7">${v.category}</span>
+                                    </div>
+                                </div>
+                                <div class="impl-policy-body">
+                                    <p style="font-size:0.8rem;margin:0 0 10px 0;color:var(--text-secondary)">${v.desc}</p>
+                                    <div style="font-size:0.7rem;color:var(--text-muted)">
+                                        <strong>Control Families:</strong> ${v.controls}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <h3 style="font-size:0.9rem;color:var(--text-primary);margin:0 0 12px 0;font-weight:600">Additional Vendors by Category</h3>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 12px 0">These vendors also have per-control implementation guidance available in the Assessment view.</p>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px">
+                        ${additionalVendors.map(cat => `
+                            <div style="background:var(--bg-primary);border:1px solid var(--border-color);border-radius:8px;padding:14px">
+                                <div style="font-size:0.8rem;font-weight:600;color:var(--text-primary);margin-bottom:8px">${cat.category}</div>
+                                <div style="display:flex;flex-wrap:wrap;gap:6px">
+                                    ${cat.vendors.map(v => `<span style="font-size:0.7rem;padding:3px 8px;background:var(--bg-tertiary);border-radius:4px;color:var(--text-secondary)">${v}</span>`).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div style="padding:14px;background:var(--bg-tertiary);border-radius:8px;font-size:0.8rem;color:var(--text-secondary)">
+                        <strong>How to access per-control guidance:</strong>
+                        <ol style="margin:8px 0 0 0;padding-left:20px">
+                            <li>Navigate to the <strong>Assessment</strong> view from the sidebar</li>
+                            <li>Expand any control to see its objectives</li>
+                            <li>Each objective has an <strong>Implementation Guidance</strong> section with vendor-specific dropdowns</li>
+                            <li>Expand a vendor to see implementation steps, CLI commands, code examples, and verification steps</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     bindArchGuideEvents(container, guide) {
         // Cloud selector
         container.querySelectorAll('.arch-cloud-btn').forEach(btn => {
@@ -1853,10 +2151,42 @@ class AssessmentApp {
             return;
         }
 
+        // Add Rev 3 info banner when in Rev 3 mode
+        if (this.assessmentRevision === 'r3' && this.assessmentLevel === '2') {
+            const banner = document.createElement('div');
+            banner.className = 'r3-info-banner';
+            banner.innerHTML = `
+                <div class="r3-banner-content">
+                    <div class="r3-banner-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                    </div>
+                    <div class="r3-banner-text">
+                        <strong>NIST SP 800-171 Revision 3 Assessment</strong>
+                        <p>Assessing against NIST SP 800-171A Rev 3 (November 2024). Includes 97 controls across 17 families with 417 assessment objectives. Organization-Defined Parameters (ODPs) are tracked separately with DoD-defined values. Rev 3 assessment data is stored separately from Rev 2. Transition deadline: November 2026.</p>
+                        <div class="r3-banner-actions">
+                            <button class="r3-migrate-btn" id="r3-migrate-btn" title="Copy Rev 2 assessment statuses to Rev 3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                                Migrate from Rev 2
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(banner);
+
+            // Bind migrate button
+            banner.querySelector('#r3-migrate-btn')?.addEventListener('click', () => this.migrateRev2ToRev3());
+        }
+
+        // Get the appropriate control families based on revision
+        const families = this.getActiveControlFamilies();
+
         // Filter families based on assessment level (L1/L2)
-        CONTROL_FAMILIES.forEach(family => {
+        families.forEach(family => {
             // Filter controls within each family based on level
             const filteredControls = family.controls.filter(control => {
+                // Rev 3 controls don't have framework mappings yet, show all
+                if (this.assessmentRevision === 'r3') return true;
                 const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
                 const cmmcLevel = mapping?.cmmc?.level || 2;
                 // L1 assessment: only show L1 controls; L2 assessment: show all controls
@@ -1880,15 +2210,9 @@ class AssessmentApp {
             container.innerHTML = `
                 <div class="empty-state">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <h3>Loading CMMC Level 3 Data...</h3>
-                    <p>If this message persists, please refresh the page.</p>
+                    <h3>CMMC Level 3 Data Not Available</h3>
+                    <p>The NIST SP 800-172A data file could not be loaded. Ensure <code>data/nist-800-172a.js</code> is included in the page.</p>
                 </div>`;
-            // Try to load data dynamically
-            setTimeout(() => {
-                if (this.assessmentLevel === '3') {
-                    this.renderControls();
-                }
-            }, 500);
             return;
         }
 
@@ -2612,24 +2936,68 @@ gcloud assured workloads list --location=us-central1`
         const pointValue = control.pointValue || 1;
         const poamEligibility = control.poamEligibility || {};
         const canBeOnPoam = poamEligibility.selfAssessment?.canBeOnPoam !== false;
-        const isNeverPoam = SPRS_SCORING?.neverPoam?.includes(control.id);
+        const scoringSource = (this.assessmentRevision === 'r3' && typeof SPRS_SCORING_R3 !== 'undefined') ? SPRS_SCORING_R3 : (typeof SPRS_SCORING !== 'undefined' ? SPRS_SCORING : null);
+        const isNeverPoam = scoringSource?.neverPoam?.includes(control.id);
         const cmmcId = control.cmmcPracticeId || '';
 
         // Point value badge styling
         const pointClass = pointValue >= 5 ? 'high' : pointValue >= 3 ? 'medium' : 'low';
         const poamWarning = isNeverPoam ? '<span class="poam-warning" title="Cannot be on POA&M per 32 CFR 170.21">⚠️ No POA&M</span>' : 
-                           (pointValue > 1 && control.id !== '3.13.11') ? '<span class="poam-caution" title="Point value > 1, cannot be on POA&M for Conditional status">⚡ Requires Implementation</span>' : '';
+                           (pointValue > 1 && control.id !== '3.13.11' && control.id !== '03.13.11') ? '<span class="poam-caution" title="Point value > 1, cannot be on POA&M for Conditional status">⚡ Requires Implementation</span>' : '';
+
+        // Rev 3 badges
+        let rev3BadgeHtml = '';
+        if (this.assessmentRevision === 'r3' && control.changeType) {
+            const badgeClass = control.changeType;
+            const badgeLabel = control.changeType === 'new' ? 'New in Rev 3' : 
+                              control.changeType === 'enhanced' ? 'Enhanced' : 
+                              'Renumbered';
+            rev3BadgeHtml = `<span class="rev3-badge ${badgeClass}">${badgeLabel}</span>`;
+            if (control.rev2Id) {
+                rev3BadgeHtml += `<span class="rev3-badge renumbered" title="Was ${control.rev2Id} in Rev 2" style="opacity:0.7;">Rev 2: ${control.rev2Id}</span>`;
+            }
+        }
+
+        // ODP section for Rev 3 enhanced controls
+        // ODPs are tracked separately from assessment objectives (not assessable)
+        let odpHtml = '';
+        if (this.assessmentRevision === 'r3' && control.odps && control.odps.length > 0) {
+            // Try DoD-defined values from Rev3Crosswalk.DOD_ODPS first (more specific), then REV3_ODPS
+            const dodOdps = (typeof Rev3Crosswalk !== 'undefined' && Rev3Crosswalk.DOD_ODPS) ? Rev3Crosswalk.DOD_ODPS[control.id] : null;
+            const r3Odps = (typeof REV3_ODPS !== 'undefined') ? REV3_ODPS[control.id] : null;
+            const odpItems = control.odps.map((odp, i) => {
+                let odpValue = '';
+                // Prefer DoD-defined values (crosswalk) — these are the official DoD CUI ODP values
+                if (dodOdps && dodOdps.odps && dodOdps.odps[i]) {
+                    odpValue = dodOdps.odps[i].value || '';
+                } else if (r3Odps && r3Odps.parameters && r3Odps.parameters[i]) {
+                    odpValue = r3Odps.parameters[i].suggestedValue || '';
+                }
+                const valueDisplay = odpValue ? `<span style="color: #34d399;">${odpValue}</span>` : '<span style="color: var(--text-muted); font-style: italic;">Organization-defined</span>';
+                return `<div class="odp-item"><span class="odp-label">ODP ${i + 1}:</span> ${odp} — ${valueDisplay}</div>`;
+            }).join('');
+            odpHtml = `
+                <div class="odp-section">
+                    <div class="odp-section-header" onclick="this.classList.toggle('expanded'); this.nextElementSibling.style.display = this.classList.contains('expanded') ? 'block' : 'none';">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        Organization-Defined Parameters (${control.odps.length})
+                    </div>
+                    <div class="odp-list" style="display:none;">${odpItems}</div>
+                </div>`;
+        }
 
         controlDiv.innerHTML = `
             <div class="control-header" data-family-id="${familyId}">
                 <div class="control-info">
                     <div class="control-id">
                         ${control.id} - ${control.name}
-                        <span class="sprs-badge ${pointClass}" title="SPRS Point Value">${pointValue} ${pointValue === 1 ? 'pt' : 'pts'}</span>
+                        ${this.assessmentRevision !== 'r3' ? `<span class="sprs-badge ${pointClass}" title="SPRS Point Value">${pointValue} ${pointValue === 1 ? 'pt' : 'pts'}</span>` : ''}
+                        ${rev3BadgeHtml}
                         ${poamWarning}
                     </div>
                     <div class="control-meta">${cmmcId}</div>
                     <div class="control-name">${control.description}</div>
+                    ${odpHtml}
                 </div>
                 <svg class="control-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
@@ -3100,8 +3468,11 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         const ccaData = typeof getCCAQuestions === 'function' ? getCCAQuestions(objectiveId) : null;
         const fedrampData = typeof getFedRAMPServices === 'function' ? getFedRAMPServices(controlId) : null;
         
-        // Get family ID from control ID (e.g., "3.1.1" -> "AC")
-        const familyMap = {'3.1': 'AC', '3.2': 'AT', '3.3': 'AU', '3.4': 'CM', '3.5': 'IA', '3.6': 'IR', '3.7': 'MA', '3.8': 'MP', '3.9': 'PS', '3.10': 'PE', '3.11': 'RA', '3.12': 'CA', '3.13': 'SC', '3.14': 'SI'};
+        // Get family ID from control ID (e.g., "3.1.1" -> "AC", "03.01.01" -> "AC")
+        const familyMap = {
+            '3.1': 'AC', '3.2': 'AT', '3.3': 'AU', '3.4': 'CM', '3.5': 'IA', '3.6': 'IR', '3.7': 'MA', '3.8': 'MP', '3.9': 'PS', '3.10': 'PE', '3.11': 'RA', '3.12': 'CA', '3.13': 'SC', '3.14': 'SI',
+            '03.01': 'AC', '03.02': 'AT', '03.03': 'AU', '03.04': 'CM', '03.05': 'IA', '03.06': 'IR', '03.07': 'MA', '03.08': 'MP', '03.09': 'PS', '03.10': 'PE', '03.11': 'RA', '03.12': 'CA', '03.13': 'SC', '03.14': 'SI', '03.15': 'SR', '03.16': 'PL'
+        };
         const familyPrefix = controlId.split('.').slice(0, 2).join('.');
         const familyId = familyMap[familyPrefix];
         const pitfallsData = typeof CCA_PITFALLS !== 'undefined' && familyId ? CCA_PITFALLS.byFamily[familyId] : null;
@@ -3176,11 +3547,11 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 ${topicsHtml}
                 ${screenshareHtml}
             `;
-        } else if (ccaData) {
+        } else if (ccaData && ccaData.questions) {
             // Fallback to original data if new data not available
             const questionsList = ccaData.questions.map(q => `<li>${q}</li>`).join('');
             const evidenceReqs = ccaData.evidenceRequests || ccaData.evidence || [];
-            const evidenceList = evidenceReqs.map(e => `<li>${e}</li>`).join('');
+            const evidenceList = Array.isArray(evidenceReqs) ? evidenceReqs.map(e => `<li>${e}</li>`).join('') : '';
             questionsHtml = `
                 <div class="cheat-sheet-subsection">
                     <div class="cheat-sheet-subtitle">Sample Assessor Questions</div>
@@ -3406,7 +3777,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Get control info
         let control = null;
-        CONTROL_FAMILIES.forEach(family => {
+        this.getActiveControlFamilies().forEach(family => {
             family.controls.forEach(c => {
                 if (c.id === controlId) control = c;
             });
@@ -3518,11 +3889,13 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         this.updateProgress();
         
         // Auto-save
-        localStorage.setItem('nist-assessment-data', JSON.stringify(this.assessmentData));
+        const prefix = this.getStoragePrefix();
+        localStorage.setItem(prefix + 'assessment-data', JSON.stringify(this.assessmentData));
     }
 
     findObjectiveById(objectiveId) {
-        for (const family of CONTROL_FAMILIES) {
+        const families = this.getActiveControlFamilies();
+        for (const family of families) {
             for (const control of family.controls) {
                 const objective = control.objectives.find(o => o.id === objectiveId);
                 if (objective) return objective;
@@ -3532,7 +3905,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     }
 
     updateFamilyStats(familyId) {
-        const family = CONTROL_FAMILIES.find(f => f.id === familyId);
+        const families = this.getActiveControlFamilies();
+        const family = families.find(f => f.id === familyId);
         if (!family) return;
 
         const stats = this.calculateFamilyStats(family);
@@ -3563,11 +3937,12 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     calculateFamilySPRS(family) {
         let lost = 0;
         let maxPossible = 0;
+        const scoringSrc = (this.assessmentRevision === 'r3' && typeof SPRS_SCORING_R3 !== 'undefined') ? SPRS_SCORING_R3 : (typeof SPRS_SCORING !== 'undefined' ? SPRS_SCORING : null);
         
         family.controls.forEach(control => {
             // Get SPRS point value for this control (default to 1 if not specified)
-            const pointValue = typeof SPRS_SCORING !== 'undefined' && SPRS_SCORING.pointValues 
-                ? (SPRS_SCORING.pointValues[control.id] || 1) 
+            const pointValue = scoringSrc && scoringSrc.pointValues 
+                ? (scoringSrc.pointValues[control.id] || 1) 
                 : 1;
             
             maxPossible += pointValue;
@@ -3588,11 +3963,13 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     calculateTotalSPRS() {
         // SPRS starts at 110 and subtracts points for non-met controls
         let score = 110;
+        const families = this.getActiveControlFamilies();
+        const scoringSource = (this.assessmentRevision === 'r3' && typeof SPRS_SCORING_R3 !== 'undefined') ? SPRS_SCORING_R3 : (typeof SPRS_SCORING !== 'undefined' ? SPRS_SCORING : null);
         
-        CONTROL_FAMILIES.forEach(family => {
+        families.forEach(family => {
             family.controls.forEach(control => {
-                const pointValue = typeof SPRS_SCORING !== 'undefined' && SPRS_SCORING.pointValues 
-                    ? (SPRS_SCORING.pointValues[control.id] || 1) 
+                const pointValue = scoringSource && scoringSource.pointValues 
+                    ? (scoringSource.pointValues[control.id] || 1) 
                     : 1;
                 
                 const allObjectivesMet = control.objectives.every(objective => {
@@ -3611,8 +3988,9 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     calculateControlsMet() {
         // Count how many controls have ALL objectives met
         let controlsMet = 0;
+        const families = this.getActiveControlFamilies();
         
-        CONTROL_FAMILIES.forEach(family => {
+        families.forEach(family => {
             family.controls.forEach(control => {
                 const allObjectivesMet = control.objectives.every(objective => {
                     return this.assessmentData[objective.id]?.status === 'met';
@@ -3641,7 +4019,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         
         let l1ControlsMet = 0;
         
-        CONTROL_FAMILIES.forEach(family => {
+        this.getActiveControlFamilies().forEach(family => {
             family.controls.forEach(control => {
                 if (L1_CONTROL_IDS.includes(control.id)) {
                     const allObjectivesMet = control.objectives.every(objective => {
@@ -3657,6 +4035,20 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         return { met: l1ControlsMet, total: L1_CONTROL_IDS.length };
     }
 
+    calculateL3ControlsMet() {
+        if (typeof NIST_800_172A_FAMILIES === 'undefined') return { met: 0, total: 0 };
+        const l3Data = JSON.parse(localStorage.getItem('nist-l3-assessment') || '{}');
+        let l3Met = 0, l3Total = 0;
+        NIST_800_172A_FAMILIES.forEach(family => {
+            family.controls.forEach(control => {
+                l3Total++;
+                const allMet = control.objectives.length > 0 && control.objectives.every(obj => l3Data[obj.id]?.status === 'met');
+                if (allMet) l3Met++;
+            });
+        });
+        return { met: l3Met, total: l3Total };
+    }
+
     updateProgress() {
         // Handle L3 progress separately
         if (this.assessmentLevel === '3') {
@@ -3666,12 +4058,15 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         let total = 0, assessed = 0, met = 0, partial = 0, notMet = 0;
 
-        CONTROL_FAMILIES.forEach(family => {
+        const families = this.getActiveControlFamilies();
+        families.forEach(family => {
             family.controls.forEach(control => {
-                // Filter controls based on assessment level
-                const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
-                const cmmcLevel = mapping?.cmmc?.level || 2;
-                if (this.assessmentLevel === '1' && cmmcLevel !== 1) return;
+                // Filter controls based on assessment level (only for Rev 2)
+                if (this.assessmentRevision !== 'r3') {
+                    const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
+                    const cmmcLevel = mapping?.cmmc?.level || 2;
+                    if (this.assessmentLevel === '1' && cmmcLevel !== 1) return;
+                }
                 
                 control.objectives.forEach(objective => {
                     total++;
@@ -3686,8 +4081,9 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             });
         });
 
-        // Update text with level indicator
-        const levelLabel = this.assessmentLevel === '1' ? 'L1' : 'L2';
+        // Update text with level and revision indicator
+        let levelLabel = this.assessmentLevel === '1' ? 'L1' : 'L2';
+        if (this.assessmentRevision === 'r3' && this.assessmentLevel === '2') levelLabel = 'L2 Rev 3';
         document.getElementById('progress-text').textContent = `${assessed} of ${total} assessed (${levelLabel})`;
         
         const complianceRate = assessed > 0 ? Math.round((met / assessed) * 100) : 0;
@@ -3761,15 +4157,16 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
 
         // Get control and check POA&M eligibility
         let control = null;
-        CONTROL_FAMILIES.forEach(family => {
+        this.getActiveControlFamilies().forEach(family => {
             family.controls.forEach(c => {
                 if (c.id === controlId) control = c;
             });
         });
 
         const pointValue = control?.pointValue || 1;
-        const isNeverPoam = SPRS_SCORING?.neverPoam?.includes(controlId);
-        const isFipsException = controlId === '3.13.11';
+        const scoringRef = (this.assessmentRevision === 'r3' && typeof SPRS_SCORING_R3 !== 'undefined') ? SPRS_SCORING_R3 : (typeof SPRS_SCORING !== 'undefined' ? SPRS_SCORING : null);
+        const isNeverPoam = scoringRef?.neverPoam?.includes(controlId);
+        const isFipsException = controlId === '3.13.11' || controlId === '03.13.11';
         const cmmcId = control?.cmmcPracticeId || controlId;
 
         // Build warning message
@@ -3965,10 +4362,11 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // Separate POA&M eligible items from never-POA&M deficiencies
         const poamItems = [];
         const deficiencyItems = [];
+        const scoringRef2 = (this.assessmentRevision === 'r3' && typeof SPRS_SCORING_R3 !== 'undefined') ? SPRS_SCORING_R3 : (typeof SPRS_SCORING !== 'undefined' ? SPRS_SCORING : null);
         
-        CONTROL_FAMILIES.forEach(family => {
+        this.getActiveControlFamilies().forEach(family => {
             family.controls.forEach(control => {
-                const isNeverPoam = SPRS_SCORING?.neverPoam?.includes(control.id);
+                const isNeverPoam = scoringRef2?.neverPoam?.includes(control.id);
                 
                 control.objectives.forEach(objective => {
                     const assessment = this.assessmentData[objective.id];
@@ -4116,7 +4514,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         if (poamItems.length > 0) {
             const poamTbody = container.querySelector('#poam-tbody');
             poamItems.forEach(item => {
-                const isFipsException = item.controlId === '3.13.11';
+                const isFipsException = item.controlId === '3.13.11' || item.controlId === '03.13.11';
                 
                 let poamStatus, poamClass;
                 if (item.pointValue > 1 && !isFipsException) {
@@ -4169,7 +4567,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         // Calculate overall stats
         let totalObjectives = 0, totalMet = 0, totalPartial = 0, totalNotMet = 0, totalNotAssessed = 0;
         
-        CONTROL_FAMILIES.forEach(family => {
+        this.getActiveControlFamilies().forEach(family => {
             family.controls.forEach(control => {
                 control.objectives.forEach(objective => {
                     totalObjectives++;
@@ -4197,13 +4595,19 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         const sprsScore = this.calculateTotalSPRS();
         const sprsClass = sprsScore >= 0 ? 'positive' : sprsScore >= -50 ? 'moderate' : 'critical';
 
+        // Calculate L3 status
+        const l3Status = this.calculateL3ControlsMet();
+        const l3Complete = l3Status.met === l3Status.total && l3Status.total > 0;
+        const l3StatusClass = l3Complete ? 'eligible' : 'not-eligible';
+
         // Render inline header scores with theme picker
+        const isRev3 = this.assessmentRevision === 'r3';
         if (headerScores) {
             headerScores.innerHTML = `
-                <div class="dashboard-score-badge sprs ${sprsClass}">
+                ${!isRev3 ? `<div class="dashboard-score-badge sprs ${sprsClass}">
                     <span class="score-badge-label">SPRS:</span>
                     <span class="score-badge-value">${sprsScore}</span>
-                </div>
+                </div>` : ''}
                 <div class="dashboard-score-badge cmmc ${l1StatusClass}">
                     <span class="score-badge-label">L1:</span>
                     <span class="score-badge-value">${l1Status.met}/${l1Status.total}</span>
@@ -4214,6 +4618,11 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     <span class="score-badge-value">${controlsMet}/110</span>
                     <span>${meetsConditionalThreshold ? '✓' : '⚠'}</span>
                 </div>
+                ${l3Status.total > 0 ? `<div class="dashboard-score-badge cmmc-l3 ${l3StatusClass}">
+                    <span class="score-badge-label">L3:</span>
+                    <span class="score-badge-value">${l3Status.met}/${l3Status.total}</span>
+                    <span>${l3Complete ? '✓' : '⚠'}</span>
+                </div>` : ''}
             `;
         }
 
@@ -4243,7 +4652,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         `;
 
         // Family cards
-        CONTROL_FAMILIES.forEach(family => {
+        this.getActiveControlFamilies().forEach(family => {
             const stats = this.calculateFamilyStats(family);
             let familyTotal = 0;
             family.controls.forEach(c => familyTotal += c.objectives.length);
@@ -4273,11 +4682,11 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                             <div class="dashboard-stat-label">Pending</div>
                         </div>
                     </div>
-                    <div class="sprs-family-score">
+                    ${!isRev3 ? `<div class="sprs-family-score">
                         <span class="sprs-label">SPRS Impact:</span>
                         <span class="sprs-value ${familySprs.lost > 0 ? 'has-loss' : ''}">${familySprs.lost > 0 ? '-' + familySprs.lost : '0'}</span>
                         <span class="sprs-max">/ -${familySprs.maxPossible}</span>
-                    </div>
+                    </div>` : ''}
                     <div class="dashboard-progress">
                         <div class="progress-met" style="width: ${(stats.met / familyTotal) * 100}%"></div>
                         <div class="progress-partial" style="width: ${(stats.partial / familyTotal) * 100}%"></div>
@@ -4351,22 +4760,24 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         
         const familyNumber = parts[1]; // e.g., "1" from "3.1.3"
         
-        // Map family numbers to family IDs
+        // Map family numbers to family IDs (Rev 2 and Rev 3 formats)
         const familyMap = {
-            '1': 'AC',   // Access Control
-            '2': 'AT',   // Awareness and Training
-            '3': 'AU',   // Audit and Accountability
-            '4': 'CM',   // Configuration Management
-            '5': 'IA',   // Identification and Authentication
-            '6': 'IR',   // Incident Response
-            '7': 'MA',   // Maintenance
-            '8': 'MP',   // Media Protection
-            '9': 'PS',   // Personnel Security
-            '10': 'PE',  // Physical Protection
-            '11': 'RA',  // Risk Assessment
-            '12': 'CA',  // Security Assessment
-            '13': 'SC',  // System and Communications Protection
-            '14': 'SI'   // System and Information Integrity
+            '1': 'AC',   '01': 'AC',   // Access Control
+            '2': 'AT',   '02': 'AT',   // Awareness and Training
+            '3': 'AU',   '03': 'AU',   // Audit and Accountability
+            '4': 'CM',   '04': 'CM',   // Configuration Management
+            '5': 'IA',   '05': 'IA',   // Identification and Authentication
+            '6': 'IR',   '06': 'IR',   // Incident Response
+            '7': 'MA',   '07': 'MA',   // Maintenance
+            '8': 'MP',   '08': 'MP',   // Media Protection
+            '9': 'PS',   '09': 'PS',   // Personnel Security
+            '10': 'PE',                 // Physical Protection
+            '11': 'RA',                 // Risk Assessment
+            '12': 'CA',                 // Security Assessment
+            '13': 'SC',                 // System and Communications Protection
+            '14': 'SI',                 // System and Information Integrity
+            '15': 'SR',                 // Supply Chain Risk Management (Rev 3)
+            '16': 'PL'                  // Planning (Rev 3)
         };
         
         const familyId = familyMap[familyNumber];
@@ -4440,7 +4851,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         }
         
         let count = 0;
-        CONTROL_FAMILIES.forEach(family => {
+        this.getActiveControlFamilies().forEach(family => {
             family.controls.forEach(control => {
                 control.objectives.forEach(objective => {
                     this.assessmentData[objective.id] = { status: 'not-met' };
@@ -4465,12 +4876,14 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         const oscName = this.orgData.oscName || '';
         const oscUrl = this.orgData.oscUrl || '';
         
-        CONTROL_FAMILIES.forEach(family => {
+        this.getActiveControlFamilies().forEach(family => {
             family.controls.forEach(control => {
                 // Filter controls based on assessment level
-                const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
-                const cmmcLevel = mapping?.cmmc?.level || 2;
-                if (isL1 && cmmcLevel !== 1) return;
+                if (this.assessmentRevision !== 'r3') {
+                    const mapping = typeof getFrameworkMappings === 'function' ? getFrameworkMappings(control.id) : null;
+                    const cmmcLevel = mapping?.cmmc?.level || 2;
+                    if (isL1 && cmmcLevel !== 1) return;
+                }
                 
                 control.objectives.forEach(objective => {
                     const assessment = this.assessmentData[objective.id] || {};
@@ -4552,7 +4965,8 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         const oscName = this.orgData.oscName || '';
         const oscUrl = this.orgData.oscUrl || '';
         
-        CONTROL_FAMILIES.forEach(family => {
+        const scoringRefExport = (this.assessmentRevision === 'r3' && typeof SPRS_SCORING_R3 !== 'undefined') ? SPRS_SCORING_R3 : (typeof SPRS_SCORING !== 'undefined' ? SPRS_SCORING : null);
+        this.getActiveControlFamilies().forEach(family => {
             family.controls.forEach(control => {
                 control.objectives.forEach(objective => {
                     const assessment = this.assessmentData[objective.id];
@@ -4561,7 +4975,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         const xrefId = typeof CTRL_XREF !== 'undefined' ? (CTRL_XREF[objective.id] || '') : '';
                         
                         // Get SPRS score from control ID
-                        const sprsScore = typeof SPRS_SCORING !== 'undefined' ? (SPRS_SCORING.pointValues[control.id] || 0) : 0;
+                        const sprsScore = scoringRefExport ? (scoringRefExport.pointValues[control.id] || 0) : 0;
                         const severity = sprsScore === 5 ? 'High' : sprsScore === 3 ? 'Medium' : 'Low';
                         
                         poamItems.push({
@@ -4979,6 +5393,10 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             <div class="impl-section">
                 <div class="impl-section-title">Machine-Readable Evidence Strategy</div>
                 <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px">Run these commands weekly to generate JSON evidence artifacts for your assessor.</p>
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:16px;background:rgba(79,70,229,0.06);border:1px solid rgba(79,70,229,0.15);border-radius:8px;font-size:0.78rem;color:var(--text-secondary)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>Each control in the <strong>Assessment</strong> view includes vendor-specific implementation guidance with CLI commands, Terraform examples, and verification steps.</span>
+                </div>
                 <table class="impl-table">
                     <thead><tr><th>Domain</th><th>Artifact</th><th>Source</th><th>PowerShell Command</th><th>Proves</th></tr></thead>
                     <tbody>${rows}</tbody>
@@ -5009,6 +5427,10 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             <div class="impl-section">
                 <div class="impl-section-title">Policy Templates</div>
                 <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px">Copy and customize these policy templates for your organization.</p>
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:16px;background:rgba(79,70,229,0.06);border:1px solid rgba(79,70,229,0.15);border-radius:8px;font-size:0.78rem;color:var(--text-secondary)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>For per-control policy requirements, expand any objective in the <strong>Assessment</strong> view to see implementation guidance mapped to specific vendors and platforms.</span>
+                </div>
                 ${policies}
             </div>
         `;
@@ -5029,6 +5451,10 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             <div class="impl-section">
                 <div class="impl-section-title">SSP Conformity Statements</div>
                 <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:16px">Copy these statements directly into your System Security Plan (SSP).</p>
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:16px;background:rgba(79,70,229,0.06);border:1px solid rgba(79,70,229,0.15);border-radius:8px;font-size:0.78rem;color:var(--text-secondary)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>Detailed control-level implementation steps are available per vendor in the <strong>Assessment</strong> view — use those to validate and refine your SSP statements.</span>
+                </div>
                 ${items}
             </div>
         `;
@@ -5097,6 +5523,10 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         Native cloud services and FedRAMP-authorized third-party integrations organized by CMMC control family. 
                         Click each family to expand and view available options.
                     </p>
+                    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:16px;background:rgba(79,70,229,0.06);border:1px solid rgba(79,70,229,0.15);border-radius:8px;font-size:0.78rem;color:var(--text-secondary)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <span>For detailed per-control configuration steps, see the <strong>Security Stack</strong> category or expand objectives in the <strong>Assessment</strong> view for vendor-specific CLI commands and Terraform examples.</span>
+                    </div>
                     <div class="service-families-container">${familyCards}</div>
                 </div>
             `;

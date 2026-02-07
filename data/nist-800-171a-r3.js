@@ -7,12 +7,13 @@ const NIST_171A_R3_CONFIG = {
     version: "3.0.0",
     framework: "NIST SP 800-171A Rev 3",
     title: "Assessing Security Requirements for Protecting CUI",
-    publicationDate: "2024-05-14",
-    effectiveDate: "2024-05-14",
+    publicationDate: "2024-11-19",
+    effectiveDate: "2024-11-19",
     transitionPeriod: "24 months",
-    rev2SunsetDate: "2026-05-14",
+    rev2SunsetDate: "2026-11-19",
     totalRequirements: 97,
-    totalObjectives: 290,
+    totalObjectives: 422,
+    totalFamilies: 17,
     description: "Updated assessment procedures aligned with NIST SP 800-53 Rev 5 and CMMC 2.0"
 };
 
@@ -32,21 +33,21 @@ const REV2_TO_REV3_MIGRATION = {
     "3.1.10": { rev3Id: "03.01.10", changeType: "enhanced", notes: "Added session lock timeout ODP" },
     "3.1.11": { rev3Id: "03.01.11", changeType: "enhanced", notes: "Added session termination conditions ODP" },
     "3.1.12": { rev3Id: "03.01.12", changeType: "renumbered", notes: "No significant changes" },
-    "3.1.13": { rev3Id: "03.01.13", changeType: "renumbered", notes: "No significant changes" },
-    "3.1.14": { rev3Id: "03.01.14", changeType: "renumbered", notes: "No significant changes" },
-    "3.1.15": { rev3Id: "03.01.15", changeType: "renumbered", notes: "No significant changes" },
+    "3.1.13": { rev3Id: "03.01.12", changeType: "withdrawn", notes: "Incorporated into 03.01.12" },
+    "3.1.14": { rev3Id: "03.01.01", changeType: "withdrawn", notes: "Incorporated into 03.01.01" },
+    "3.1.15": { rev3Id: "03.01.12", changeType: "withdrawn", notes: "Incorporated into 03.01.12" },
     "3.1.16": { rev3Id: "03.01.16", changeType: "renumbered", notes: "No significant changes" },
-    "3.1.17": { rev3Id: "03.01.17", changeType: "renumbered", notes: "No significant changes" },
+    "3.1.17": { rev3Id: "03.01.16", changeType: "withdrawn", notes: "Incorporated into 03.01.16" },
     "3.1.18": { rev3Id: "03.01.18", changeType: "renumbered", notes: "No significant changes" },
-    "3.1.19": { rev3Id: "03.01.19", changeType: "renumbered", notes: "No significant changes" },
+    "3.1.19": { rev3Id: "03.01.01", changeType: "withdrawn", notes: "Incorporated into 03.01.01" },
     "3.1.20": { rev3Id: "03.01.20", changeType: "renumbered", notes: "No significant changes" },
-    "3.1.21": { rev3Id: "03.01.21", changeType: "renumbered", notes: "No significant changes" },
+    "3.1.21": { rev3Id: "03.01.20", changeType: "withdrawn", notes: "Incorporated into 03.01.20" },
     "3.1.22": { rev3Id: "03.01.22", changeType: "renumbered", notes: "No significant changes" },
 
     // Awareness and Training (AT) - 3 controls
     "3.2.1": { rev3Id: "03.02.01", changeType: "enhanced", notes: "Added training frequency ODP" },
     "3.2.2": { rev3Id: "03.02.02", changeType: "enhanced", notes: "Added role-based training content ODP" },
-    "3.2.3": { rev3Id: "03.02.03", changeType: "renumbered", notes: "No significant changes" },
+    "3.2.3": { rev3Id: "03.02.01", changeType: "withdrawn", notes: "Incorporated into 03.02.01" },
 
     // Audit and Accountability (AU) - 9 controls
     "3.3.1": { rev3Id: "03.03.01", changeType: "enhanced", notes: "Added audit event types ODP" },
@@ -57,7 +58,7 @@ const REV2_TO_REV3_MIGRATION = {
     "3.3.6": { rev3Id: "03.03.06", changeType: "renumbered", notes: "No significant changes" },
     "3.3.7": { rev3Id: "03.03.07", changeType: "renumbered", notes: "No significant changes" },
     "3.3.8": { rev3Id: "03.03.08", changeType: "renumbered", notes: "No significant changes" },
-    "3.3.9": { rev3Id: "03.03.09", changeType: "renumbered", notes: "No significant changes" },
+    "3.3.9": { rev3Id: "03.03.01", changeType: "withdrawn", notes: "Addressed by 03.03.01" },
 
     // Configuration Management (CM) - 9 controls
     "3.4.1": { rev3Id: "03.04.01", changeType: "enhanced", notes: "Added baseline components ODP" },
@@ -66,9 +67,9 @@ const REV2_TO_REV3_MIGRATION = {
     "3.4.4": { rev3Id: "03.04.04", changeType: "renumbered", notes: "No significant changes" },
     "3.4.5": { rev3Id: "03.04.05", changeType: "renumbered", notes: "No significant changes" },
     "3.4.6": { rev3Id: "03.04.06", changeType: "enhanced", notes: "Added essential capabilities ODP" },
-    "3.4.7": { rev3Id: "03.04.07", changeType: "enhanced", notes: "Added prohibited functions ODP" },
+    "3.4.7": { rev3Id: "03.04.06", changeType: "withdrawn", notes: "Addressed by 03.04.06 and 03.04.08" },
     "3.4.8": { rev3Id: "03.04.08", changeType: "enhanced", notes: "Added authorized software ODP" },
-    "3.4.9": { rev3Id: "03.04.09", changeType: "renumbered", notes: "No significant changes" },
+    "3.4.9": { rev3Id: "03.04.02", changeType: "withdrawn", notes: "Incorporated into 03.04.02" },
 
     // Identification and Authentication (IA) - 11 controls
     "3.5.1": { rev3Id: "03.05.01", changeType: "renumbered", notes: "No significant changes" },
@@ -76,11 +77,11 @@ const REV2_TO_REV3_MIGRATION = {
     "3.5.3": { rev3Id: "03.05.03", changeType: "enhanced", notes: "Expanded MFA requirements" },
     "3.5.4": { rev3Id: "03.05.04", changeType: "renumbered", notes: "No significant changes" },
     "3.5.5": { rev3Id: "03.05.05", changeType: "enhanced", notes: "Added identifier reuse period ODP" },
-    "3.5.6": { rev3Id: "03.05.06", changeType: "enhanced", notes: "Added inactivity period ODP" },
+    "3.5.6": { rev3Id: "03.05.01", changeType: "withdrawn", notes: "Incorporated into 03.05.01" },
     "3.5.7": { rev3Id: "03.05.07", changeType: "enhanced", notes: "Added complexity requirements ODP" },
-    "3.5.8": { rev3Id: "03.05.08", changeType: "enhanced", notes: "Added password history ODP" },
-    "3.5.9": { rev3Id: "03.05.09", changeType: "renumbered", notes: "No significant changes" },
-    "3.5.10": { rev3Id: "03.05.10", changeType: "renumbered", notes: "No significant changes" },
+    "3.5.8": { rev3Id: "03.05.07", changeType: "withdrawn", notes: "Incorporated into 03.05.07" },
+    "3.5.9": { rev3Id: "03.05.07", changeType: "withdrawn", notes: "Incorporated into 03.05.07" },
+    "3.5.10": { rev3Id: "03.05.03", changeType: "withdrawn", notes: "Incorporated into 03.05.03" },
     "3.5.11": { rev3Id: "03.05.11", changeType: "renumbered", notes: "No significant changes" },
 
     // Incident Response (IR) - 3 controls
@@ -89,9 +90,9 @@ const REV2_TO_REV3_MIGRATION = {
     "3.6.3": { rev3Id: "03.06.03", changeType: "enhanced", notes: "Added testing frequency ODP" },
 
     // Maintenance (MA) - 6 controls
-    "3.7.1": { rev3Id: "03.07.01", changeType: "enhanced", notes: "Added maintenance schedule ODP" },
-    "3.7.2": { rev3Id: "03.07.02", changeType: "renumbered", notes: "No significant changes" },
-    "3.7.3": { rev3Id: "03.07.03", changeType: "renumbered", notes: "No significant changes" },
+    "3.7.1": { rev3Id: "03.07.04", changeType: "withdrawn", notes: "Addressed by 03.07.04, 03.07.05, 03.07.06" },
+    "3.7.2": { rev3Id: "03.07.04", changeType: "withdrawn", notes: "Incorporated into 03.07.04" },
+    "3.7.3": { rev3Id: "03.07.05", changeType: "withdrawn", notes: "Incorporated into 03.07.05" },
     "3.7.4": { rev3Id: "03.07.04", changeType: "renumbered", notes: "No significant changes" },
     "3.7.5": { rev3Id: "03.07.05", changeType: "renumbered", notes: "No significant changes" },
     "3.7.6": { rev3Id: "03.07.06", changeType: "renumbered", notes: "No significant changes" },
@@ -102,9 +103,9 @@ const REV2_TO_REV3_MIGRATION = {
     "3.8.3": { rev3Id: "03.08.03", changeType: "enhanced", notes: "Added sanitization methods ODP" },
     "3.8.4": { rev3Id: "03.08.04", changeType: "renumbered", notes: "No significant changes" },
     "3.8.5": { rev3Id: "03.08.05", changeType: "renumbered", notes: "No significant changes" },
-    "3.8.6": { rev3Id: "03.08.06", changeType: "renumbered", notes: "No significant changes" },
+    "3.8.6": { rev3Id: "03.08.03", changeType: "withdrawn", notes: "Incorporated into 03.08.03" },
     "3.8.7": { rev3Id: "03.08.07", changeType: "renumbered", notes: "No significant changes" },
-    "3.8.8": { rev3Id: "03.08.08", changeType: "renumbered", notes: "No significant changes" },
+    "3.8.8": { rev3Id: "03.08.04", changeType: "withdrawn", notes: "Incorporated into 03.08.04" },
     "3.8.9": { rev3Id: "03.08.09", changeType: "renumbered", notes: "No significant changes" },
 
     // Personnel Security (PS) - 2 controls
@@ -114,132 +115,73 @@ const REV2_TO_REV3_MIGRATION = {
     // Physical Protection (PE) - 6 controls
     "3.10.1": { rev3Id: "03.10.01", changeType: "renumbered", notes: "No significant changes" },
     "3.10.2": { rev3Id: "03.10.02", changeType: "renumbered", notes: "No significant changes" },
-    "3.10.3": { rev3Id: "03.10.03", changeType: "renumbered", notes: "No significant changes" },
-    "3.10.4": { rev3Id: "03.10.04", changeType: "renumbered", notes: "No significant changes" },
-    "3.10.5": { rev3Id: "03.10.05", changeType: "renumbered", notes: "No significant changes" },
+    "3.10.3": { rev3Id: "03.10.07", changeType: "withdrawn", notes: "Incorporated into 03.10.07" },
+    "3.10.4": { rev3Id: "03.10.07", changeType: "withdrawn", notes: "Incorporated into 03.10.07" },
+    "3.10.5": { rev3Id: "03.10.07", changeType: "withdrawn", notes: "Incorporated into 03.10.07" },
     "3.10.6": { rev3Id: "03.10.06", changeType: "renumbered", notes: "No significant changes" },
 
     // Risk Assessment (RA) - 3 controls
     "3.11.1": { rev3Id: "03.11.01", changeType: "enhanced", notes: "Added risk assessment frequency ODP" },
     "3.11.2": { rev3Id: "03.11.02", changeType: "enhanced", notes: "Added vulnerability scanning ODP" },
-    "3.11.3": { rev3Id: "03.11.03", changeType: "enhanced", notes: "Added remediation timeframes ODP" },
+    "3.11.3": { rev3Id: "03.11.02", changeType: "withdrawn", notes: "Incorporated into 03.11.02" },
 
     // Security Assessment (CA) - 4 controls
     "3.12.1": { rev3Id: "03.12.01", changeType: "enhanced", notes: "Added assessment frequency ODP" },
     "3.12.2": { rev3Id: "03.12.02", changeType: "renumbered", notes: "No significant changes" },
     "3.12.3": { rev3Id: "03.12.03", changeType: "enhanced", notes: "Added continuous monitoring ODP" },
-    "3.12.4": { rev3Id: "03.12.04", changeType: "renumbered", notes: "No significant changes" },
+    "3.12.4": { rev3Id: "03.15.02", changeType: "withdrawn", notes: "Incorporated into 03.15.02" },
 
     // System and Communications Protection (SC) - 16 controls
     "3.13.1": { rev3Id: "03.13.01", changeType: "renumbered", notes: "No significant changes" },
-    "3.13.2": { rev3Id: "03.13.02", changeType: "renumbered", notes: "No significant changes" },
-    "3.13.3": { rev3Id: "03.13.03", changeType: "renumbered", notes: "No significant changes" },
+    "3.13.2": { rev3Id: "03.13.02", changeType: "withdrawn", notes: "Recategorized as NCO" },
+    "3.13.3": { rev3Id: "03.01.01", changeType: "withdrawn", notes: "Addressed by 03.01.01-07" },
     "3.13.4": { rev3Id: "03.13.04", changeType: "renumbered", notes: "No significant changes" },
-    "3.13.5": { rev3Id: "03.13.05", changeType: "renumbered", notes: "No significant changes" },
+    "3.13.5": { rev3Id: "03.13.01", changeType: "withdrawn", notes: "Incorporated into 03.13.01" },
     "3.13.6": { rev3Id: "03.13.06", changeType: "renumbered", notes: "No significant changes" },
-    "3.13.7": { rev3Id: "03.13.07", changeType: "renumbered", notes: "No significant changes" },
+    "3.13.7": { rev3Id: "03.01.12", changeType: "withdrawn", notes: "Addressed by 03.01.12, 03.04.02, 03.04.06" },
     "3.13.8": { rev3Id: "03.13.08", changeType: "renumbered", notes: "No significant changes" },
     "3.13.9": { rev3Id: "03.13.09", changeType: "renumbered", notes: "No significant changes" },
     "3.13.10": { rev3Id: "03.13.10", changeType: "enhanced", notes: "Added key management ODP" },
     "3.13.11": { rev3Id: "03.13.11", changeType: "enhanced", notes: "Added FIPS-validated crypto ODP" },
     "3.13.12": { rev3Id: "03.13.12", changeType: "renumbered", notes: "No significant changes" },
     "3.13.13": { rev3Id: "03.13.13", changeType: "renumbered", notes: "No significant changes" },
-    "3.13.14": { rev3Id: "03.13.14", changeType: "renumbered", notes: "No significant changes" },
+    "3.13.14": { rev3Id: "03.13.14", changeType: "withdrawn", notes: "Technology-specific" },
     "3.13.15": { rev3Id: "03.13.15", changeType: "renumbered", notes: "No significant changes" },
-    "3.13.16": { rev3Id: "03.13.16", changeType: "renumbered", notes: "No significant changes" },
+    "3.13.16": { rev3Id: "03.13.08", changeType: "withdrawn", notes: "Incorporated into 03.13.08" },
 
     // System and Information Integrity (SI) - 7 controls
     "3.14.1": { rev3Id: "03.14.01", changeType: "enhanced", notes: "Added malware scanning frequency ODP" },
     "3.14.2": { rev3Id: "03.14.02", changeType: "enhanced", notes: "Added signature update frequency ODP" },
     "3.14.3": { rev3Id: "03.14.03", changeType: "enhanced", notes: "Added monitoring locations ODP" },
-    "3.14.4": { rev3Id: "03.14.04", changeType: "renumbered", notes: "No significant changes" },
-    "3.14.5": { rev3Id: "03.14.05", changeType: "renumbered", notes: "No significant changes" },
+    "3.14.4": { rev3Id: "03.14.02", changeType: "withdrawn", notes: "Incorporated into 03.14.02" },
+    "3.14.5": { rev3Id: "03.14.02", changeType: "withdrawn", notes: "Addressed by 03.14.02" },
     "3.14.6": { rev3Id: "03.14.06", changeType: "enhanced", notes: "Added input validation ODP" },
-    "3.14.7": { rev3Id: "03.14.07", changeType: "renumbered", notes: "No significant changes" }
+    "3.14.7": { rev3Id: "03.14.06", changeType: "withdrawn", notes: "Incorporated into 03.14.06" }
 };
 
 // New controls added in Rev 3 (not present in Rev 2)
+// Updated to match official NIST 800-171r3 family numbering
 const REV3_NEW_CONTROLS = [
-    {
-        id: "03.01.23",
-        family: "AC",
-        name: "Access Control for Mobile Devices",
-        requirement: "Establish usage restrictions, implementation guidance, and monitoring for organization-controlled mobile devices.",
-        newInRev3: true,
-        rationale: "Expanded mobile device security requirements"
-    },
-    {
-        id: "03.04.10",
-        family: "CM",
-        name: "System Component Inventory",
-        requirement: "Develop and document an inventory of system components.",
-        newInRev3: true,
-        rationale: "Explicit inventory requirement for asset management"
-    },
-    {
-        id: "03.04.11",
-        family: "CM",
-        name: "Information Location",
-        requirement: "Identify and document the location of CUI and the system components on which it resides.",
-        newInRev3: true,
-        rationale: "Data mapping for CUI boundary definition"
-    },
-    {
-        id: "03.11.04",
-        family: "RA",
-        name: "Supply Chain Risk Assessment",
-        requirement: "Assess supply chain risks associated with system components.",
-        newInRev3: true,
-        rationale: "Supply chain risk management requirements"
-    },
-    {
-        id: "03.14.08",
-        family: "SI",
-        name: "Spam Protection",
-        requirement: "Implement spam protection mechanisms at system entry and exit points.",
-        newInRev3: true,
-        rationale: "Email security baseline requirement"
-    },
-    {
-        id: "03.15.01",
-        family: "SR",
-        name: "Supply Chain Risk Management Policy",
-        requirement: "Develop and implement a supply chain risk management plan.",
-        newInRev3: true,
-        rationale: "New SR family for supply chain"
-    },
-    {
-        id: "03.15.02",
-        family: "SR",
-        name: "Supply Chain Controls",
-        requirement: "Employ supply chain controls to protect against supply chain risks.",
-        newInRev3: true,
-        rationale: "Supply chain protection controls"
-    },
-    {
-        id: "03.15.03",
-        family: "SR",
-        name: "Component Authenticity",
-        requirement: "Employ anti-counterfeit techniques to detect counterfeit components.",
-        newInRev3: true,
-        rationale: "Hardware/software authenticity verification"
-    },
-    {
-        id: "03.16.01",
-        family: "PL",
-        name: "Security and Privacy Planning",
-        requirement: "Develop and maintain a system security plan that describes security requirements.",
-        newInRev3: true,
-        rationale: "Formalized SSP requirement"
-    },
-    {
-        id: "03.16.02",
-        family: "PL",
-        name: "Rules of Behavior",
-        requirement: "Establish rules of behavior for individuals requiring access to CUI.",
-        newInRev3: true,
-        rationale: "User responsibility requirements"
-    }
+    { id: "03.04.10", family: "CM", name: "System Component Inventory", newInRev3: true },
+    { id: "03.04.11", family: "CM", name: "Information Location", newInRev3: true },
+    { id: "03.04.12", family: "CM", name: "Software Usage Restrictions", newInRev3: true },
+    { id: "03.05.12", family: "IA", name: "Authenticator Management", newInRev3: true },
+    { id: "03.06.04", family: "IR", name: "Incident Response Training", newInRev3: true },
+    { id: "03.06.05", family: "IR", name: "Incident Response Plan", newInRev3: true },
+    { id: "03.10.07", family: "PE", name: "Physical Access Control", newInRev3: true },
+    { id: "03.10.08", family: "PE", name: "Access Control for Transmission", newInRev3: true },
+    { id: "03.11.04", family: "RA", name: "Risk Response", newInRev3: true },
+    { id: "03.12.05", family: "CA", name: "Information Exchange", newInRev3: true },
+    { id: "03.14.08", family: "SI", name: "Information Management and Retention", newInRev3: true },
+    { id: "03.15.01", family: "PL", name: "Policy and Procedures", newInRev3: true },
+    { id: "03.15.02", family: "PL", name: "System Security Plan", newInRev3: true },
+    { id: "03.15.03", family: "PL", name: "Rules of Behavior", newInRev3: true },
+    { id: "03.16.01", family: "SA", name: "Systems Security Engineering Principles", newInRev3: true },
+    { id: "03.16.02", family: "SA", name: "Unsupported System Components", newInRev3: true },
+    { id: "03.16.03", family: "SA", name: "External System Services", newInRev3: true },
+    { id: "03.17.01", family: "SR", name: "Supply Chain Risk Management Plan", newInRev3: true },
+    { id: "03.17.02", family: "SR", name: "Acquisition Strategies, Tools, and Methods", newInRev3: true },
+    { id: "03.17.03", family: "SR", name: "Supply Chain Requirements and Processes", newInRev3: true }
 ];
 
 // Controls merged or consolidated in Rev 3
@@ -252,9 +194,41 @@ const REV3_MERGED_CONTROLS = [
     }
 ];
 
-// Controls withdrawn in Rev 3
+// Controls withdrawn in Rev 3 (with disposition)
 const REV3_WITHDRAWN_CONTROLS = [
-    // No controls were fully withdrawn, but some were consolidated
+    { rev2Id: "3.1.13", rev3Id: "03.01.13", disposition: "Incorporated into 03.01.12" },
+    { rev2Id: "3.1.14", rev3Id: "03.01.14", disposition: "Incorporated into 03.01.01" },
+    { rev2Id: "3.1.15", rev3Id: "03.01.15", disposition: "Incorporated into 03.01.12" },
+    { rev2Id: "3.1.17", rev3Id: "03.01.17", disposition: "Incorporated into 03.01.16" },
+    { rev2Id: "3.1.19", rev3Id: "03.01.19", disposition: "Incorporated into 03.01.01" },
+    { rev2Id: "3.1.21", rev3Id: "03.01.21", disposition: "Incorporated into 03.01.20" },
+    { rev2Id: "3.2.3", rev3Id: "03.02.03", disposition: "Incorporated into 03.02.01" },
+    { rev2Id: "3.3.9", rev3Id: "03.03.09", disposition: "Addressed by 03.03.01" },
+    { rev2Id: "3.4.7", rev3Id: "03.04.07", disposition: "Addressed by 03.04.06 and 03.04.08" },
+    { rev2Id: "3.4.9", rev3Id: "03.04.09", disposition: "Incorporated into 03.04.02" },
+    { rev2Id: "3.5.6", rev3Id: "03.05.06", disposition: "Incorporated into 03.05.01" },
+    { rev2Id: "3.5.8", rev3Id: "03.05.08", disposition: "Incorporated into 03.05.07" },
+    { rev2Id: "3.5.9", rev3Id: "03.05.09", disposition: "Incorporated into 03.05.07" },
+    { rev2Id: "3.5.10", rev3Id: "03.05.10", disposition: "Incorporated into 03.05.03" },
+    { rev2Id: "3.7.1", rev3Id: "03.07.01", disposition: "Addressed by 03.07.04, 03.07.05, 03.07.06" },
+    { rev2Id: "3.7.2", rev3Id: "03.07.02", disposition: "Incorporated into 03.07.04" },
+    { rev2Id: "3.7.3", rev3Id: "03.07.03", disposition: "Incorporated into 03.07.05" },
+    { rev2Id: "3.8.6", rev3Id: "03.08.06", disposition: "Incorporated into 03.08.03" },
+    { rev2Id: "3.8.8", rev3Id: "03.08.08", disposition: "Incorporated into 03.08.04" },
+    { rev2Id: "3.10.3", rev3Id: "03.10.03", disposition: "Incorporated into 03.10.07" },
+    { rev2Id: "3.10.4", rev3Id: "03.10.04", disposition: "Incorporated into 03.10.07" },
+    { rev2Id: "3.10.5", rev3Id: "03.10.05", disposition: "Incorporated into 03.10.07" },
+    { rev2Id: "3.11.3", rev3Id: "03.11.03", disposition: "Incorporated into 03.11.02" },
+    { rev2Id: "3.12.4", rev3Id: "03.12.04", disposition: "Incorporated into 03.15.02" },
+    { rev2Id: "3.13.2", rev3Id: "03.13.02", disposition: "Recategorized as NCO" },
+    { rev2Id: "3.13.3", rev3Id: "03.13.03", disposition: "Addressed by 03.01.01-07" },
+    { rev2Id: "3.13.5", rev3Id: "03.13.05", disposition: "Incorporated into 03.13.01" },
+    { rev2Id: "3.13.7", rev3Id: "03.13.07", disposition: "Addressed by 03.01.12, 03.04.02, 03.04.06" },
+    { rev2Id: "3.13.14", rev3Id: "03.13.14", disposition: "Technology-specific" },
+    { rev2Id: "3.13.16", rev3Id: "03.13.16", disposition: "Incorporated into 03.13.08" },
+    { rev2Id: "3.14.4", rev3Id: "03.14.04", disposition: "Incorporated into 03.14.02" },
+    { rev2Id: "3.14.5", rev3Id: "03.14.05", disposition: "Addressed by 03.14.02" },
+    { rev2Id: "3.14.7", rev3Id: "03.14.07", disposition: "Incorporated into 03.14.06" }
 ];
 
 // Organization-Defined Parameters (ODPs) introduced in Rev 3

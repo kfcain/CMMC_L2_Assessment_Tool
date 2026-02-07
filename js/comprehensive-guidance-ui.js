@@ -101,12 +101,67 @@ const ComprehensiveGuidanceUI = {
         dotnet: '.NET',
         general: 'General',
         sentinelone: 'SentinelOne',
+        crowdstrike: 'CrowdStrike Falcon',
+        carbon_black: 'VMware Carbon Black',
+        huntress: 'Huntress',
+        sophos: 'Sophos',
         ninjaone: 'NinjaOne',
+        datto_rmm: 'Datto RMM',
+        connectwise: 'ConnectWise Automate',
+        nable: 'N-able',
         splunk: 'Splunk',
         elk: 'Elastic Stack (ELK)',
         sentinel: 'Microsoft Sentinel',
+        sumo_logic: 'Sumo Logic',
+        blumira: 'Blumira',
         tenable: 'Tenable',
+        qualys: 'Qualys',
+        rapid7: 'Rapid7 InsightVM',
         openvas: 'OpenVAS',
+        okta: 'Okta',
+        cyberark: 'CyberArk',
+        delinea: 'Delinea Secret Server',
+        beyondtrust: 'BeyondTrust',
+        jumpcloud: 'JumpCloud',
+        duo: 'Cisco Duo',
+        keeper: 'Keeper Security',
+        proofpoint: 'Proofpoint',
+        mimecast: 'Mimecast',
+        abnormal: 'Abnormal Security',
+        knowbe4: 'KnowBe4',
+        ninjio: 'Ninjio',
+        purview: 'Microsoft Purview',
+        netskope: 'Netskope',
+        code42: 'Code42 Incydr',
+        zscaler: 'Zscaler',
+        veeam: 'Veeam',
+        druva: 'Druva',
+        datto_bcdr: 'Datto BCDR',
+        acronis: 'Acronis',
+        vanta: 'Vanta',
+        drata: 'Drata',
+        secureframe: 'Secureframe',
+        archer: 'RSA Archer',
+        servicenow: 'ServiceNow',
+        intune: 'Microsoft Intune',
+        jamf: 'Jamf Pro',
+        kandji: 'Kandji',
+        workspace_one: 'VMware Workspace ONE',
+        darktrace: 'Darktrace',
+        vectra: 'Vectra AI',
+        prisma_cloud: 'Palo Alto Prisma Cloud',
+        wiz: 'Wiz',
+        orca: 'Orca Security',
+        cortex_xsoar: 'Palo Alto Cortex XSOAR',
+        splunk_soar: 'Splunk SOAR',
+        tines: 'Tines',
+        swimlane: 'Swimlane',
+        verkada: 'Verkada',
+        brivo: 'Brivo',
+        jira: 'Jira Service Management',
+        freshservice: 'Freshservice',
+        teams_gcc: 'Microsoft Teams (GCC High)',
+        slack_grid: 'Slack Enterprise Grid',
         ios: 'Apple iOS',
         android: 'Android',
         manufacturing: 'Manufacturing',
@@ -121,13 +176,26 @@ const ComprehensiveGuidanceUI = {
         'Cloud Platforms': ['aws', 'azure', 'gcp', 'oracle', 'nutanix'],
         'Containers & Orchestration': ['kubernetes', 'docker', 'openshift', 'rancher', 'eks', 'aks', 'gke', 'ecs'],
         'SaaS Platforms': ['microsoft365', 'google_workspace', 'salesforce'],
+        'Identity & Access (IAM/PAM)': ['okta', 'cyberark', 'delinea', 'beyondtrust', 'jumpcloud', 'duo', 'keeper'],
+        'XDR / EDR': ['sentinelone', 'crowdstrike', 'carbon_black', 'huntress', 'sophos'],
+        'SIEM & Monitoring': ['splunk', 'elk', 'sentinel', 'sumo_logic', 'blumira'],
+        'SOAR / Automation': ['cortex_xsoar', 'splunk_soar', 'tines', 'swimlane'],
+        'Vulnerability Management': ['tenable', 'qualys', 'rapid7', 'openvas'],
+        'Firewalls & Network': ['paloalto', 'cisco', 'fortinet', 'zscaler', 'firewall'],
+        'Email Security': ['proofpoint', 'mimecast', 'abnormal'],
+        'DLP & Data Protection': ['purview', 'netskope', 'code42'],
+        'Security Awareness': ['knowbe4', 'ninjio'],
+        'RMM & Endpoint Mgmt': ['ninjaone', 'datto_rmm', 'connectwise', 'nable'],
+        'MDM / UEM': ['intune', 'jamf', 'kandji', 'workspace_one'],
+        'Backup & Recovery': ['veeam', 'druva', 'datto_bcdr', 'acronis'],
+        'GRC & Compliance': ['vanta', 'drata', 'secureframe', 'archer', 'servicenow'],
+        'NDR / Network Detection': ['darktrace', 'vectra'],
+        'CSPM / Cloud Security': ['prisma_cloud', 'wiz', 'orca'],
+        'Physical Security': ['verkada', 'brivo'],
+        'Ticketing / ITSM': ['jira', 'freshservice'],
+        'Secure Communications': ['teams_gcc', 'slack_grid'],
         'Operating Systems': ['windows', 'linux', 'macos'],
         'Databases': ['postgresql', 'mysql', 'sqlserver', 'mongodb'],
-        'Firewalls & Network': ['paloalto', 'cisco', 'fortinet', 'firewall'],
-        'XDR / EDR': ['sentinelone'],
-        'RMM & Endpoint Mgmt': ['ninjaone'],
-        'Vulnerability Management': ['tenable', 'openvas'],
-        'SIEM & Monitoring': ['splunk', 'elk', 'sentinel'],
         'Application & Code': ['nodejs', 'python', 'java', 'dotnet', 'general', 'software'],
         'Mobile': ['ios', 'android'],
         'Industry & Business': ['manufacturing', 'small_business', 'physical', 'process']
@@ -154,12 +222,36 @@ const ComprehensiveGuidanceUI = {
     // Get guidance data for an objective
     getGuidanceForObjective: function(objectiveId) {
         const controlId = objectiveId.replace(/\[.*\]$/, '');
-        const families = ['AC','AT','AU','CM','IA','IR','MA','MP','PE','PS','RE','RA','CA','SC','SI','SA'];
+        const families = ['AC','AT','AU','CM','IA','IR','MA','MP','PE','PS','RE','RA','CA','SC','SI','SA','SR','PL','PM'];
         const levels = ['L1','L2','L3'];
         const guidanceKeys = [];
         for (const fam of families) {
             for (const lvl of levels) {
                 guidanceKeys.push(fam + '.' + lvl + '-' + controlId);
+            }
+        }
+
+        // For Rev 3 IDs (03.XX.YY format), also try the mapped Rev 2 ID
+        const isRev3 = /^0\d\.\d{2}\.\d{2}/.test(controlId);
+        if (isRev3) {
+            // Map Rev 3 ID back to Rev 2 ID for existing guidance lookup
+            var rev2Id = null;
+            if (typeof REV3_TO_REV2_MAP !== 'undefined' && REV3_TO_REV2_MAP[controlId]) {
+                rev2Id = REV3_TO_REV2_MAP[controlId];
+            } else if (typeof REV2_TO_REV3_MIGRATION !== 'undefined') {
+                for (var r2 in REV2_TO_REV3_MIGRATION) {
+                    if (REV2_TO_REV3_MIGRATION[r2].rev3Id === controlId) {
+                        rev2Id = r2;
+                        break;
+                    }
+                }
+            }
+            if (rev2Id) {
+                for (const fam of families) {
+                    for (const lvl of levels) {
+                        guidanceKeys.push(fam + '.' + lvl + '-' + rev2Id);
+                    }
+                }
             }
         }
 
@@ -169,16 +261,39 @@ const ComprehensiveGuidanceUI = {
             typeof COMPREHENSIVE_GUIDANCE_PART3 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART3 : null,
             typeof COMPREHENSIVE_GUIDANCE_PART4 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART4 : null,
             typeof COMPREHENSIVE_GUIDANCE_PART5 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART5 : null,
-            typeof COMPREHENSIVE_GUIDANCE_L3 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_L3 : null
+            typeof COMPREHENSIVE_GUIDANCE_L3 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_L3 : null,
+            typeof COMPREHENSIVE_GUIDANCE_R3 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_R3 : null,
+            typeof COMPREHENSIVE_GUIDANCE_SPA !== 'undefined' ? COMPREHENSIVE_GUIDANCE_SPA : null
         ];
 
+        // Merge guidance from all sources (SPA data supplements existing guidance)
+        var merged = null;
         for (const source of dataSources) {
             if (!source || !source.objectives) continue;
             for (const key of guidanceKeys) {
-                if (source.objectives[key]) return source.objectives[key];
+                if (source.objectives[key]) {
+                    if (!merged) {
+                        merged = Object.assign({}, source.objectives[key]);
+                    } else {
+                        // Merge section-level keys (cloud, firewalls, iam_pam, siem, etc.)
+                        var extra = source.objectives[key];
+                        for (var sk in extra) {
+                            if (sk === 'objective') continue;
+                            if (!merged[sk]) {
+                                merged[sk] = extra[sk];
+                            } else if (typeof merged[sk] === 'object' && typeof extra[sk] === 'object') {
+                                // Merge tech keys within section
+                                for (var tk in extra[sk]) {
+                                    if (!merged[sk][tk]) merged[sk][tk] = extra[sk][tk];
+                                }
+                            }
+                        }
+                    }
+                    break; // only one key per source
+                }
             }
         }
-        return null;
+        return merged;
     },
 
     // Extract all individual technology entries from a guidance object
@@ -197,6 +312,20 @@ const ComprehensiveGuidanceUI = {
             xdr_edr: null,
             rmm: null,
             vuln_mgmt: null,
+            iam_pam: null,
+            siem: null,
+            soar: null,
+            email_security: null,
+            dlp: null,
+            security_awareness: null,
+            mdm_uem: null,
+            backup: null,
+            grc: null,
+            ndr: null,
+            cspm: null,
+            physical_security: null,
+            itsm: null,
+            secure_comms: null,
             application: null,
             mobile: null,
             security_tools: null,
@@ -247,10 +376,19 @@ const ComprehensiveGuidanceUI = {
         return html;
     },
 
-    // Render cost/effort badges on the summary line
+    // Render cost/effort/FedRAMP/SPA badges on the summary line
     renderBadges: function(data) {
         const impl = data.implementation || data;
         let html = '<span class="cg-badges">';
+        if (data.fedrampStatus && data.fedrampStatus !== 'N/A') {
+            var fc = data.fedrampStatus === 'High' ? 'cg-badge-fedramp-high' : data.fedrampStatus === 'Moderate' ? 'cg-badge-fedramp-mod' : 'cg-badge-fedramp-ip';
+            html += '<span class="cg-badge ' + fc + '">FedRAMP ' + data.fedrampStatus + '</span>';
+        }
+        if (data.assetType) {
+            var ac = data.assetType === 'Security Protection Asset' ? 'cg-badge-spa' : data.assetType === 'CUI Asset' ? 'cg-badge-cui' : 'cg-badge-crma';
+            var label = data.assetType === 'Security Protection Asset' ? 'SPA' : data.assetType === 'CUI Asset' ? 'CUI Asset' : 'CRMA';
+            html += '<span class="cg-badge ' + ac + '">' + label + '</span>';
+        }
         if (impl.cost_estimate) {
             html += '<span class="cg-badge cg-badge-cost">' + impl.cost_estimate + '</span>';
         }

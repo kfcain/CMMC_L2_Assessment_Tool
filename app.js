@@ -1831,16 +1831,23 @@ class AssessmentApp {
         const currentCloud = this.implGuideCloud || 'azure';
         this.archGuideSection = this.archGuideSection || null;
         
-        // Calculate assessment progress stats
-        const totalObjectives = 320;
+        // Calculate assessment progress stats dynamically from active control families
+        const families = typeof this.getActiveControlFamilies === 'function' ? this.getActiveControlFamilies() : CONTROL_FAMILIES;
+        let totalObjectives = 0, totalControls = 0;
+        families.forEach(family => {
+            family.controls.forEach(control => {
+                totalControls++;
+                totalObjectives += control.objectives.length;
+            });
+        });
         const metCount = Object.values(this.assessmentData).filter(s => s === 'met').length;
         const notMetCount = Object.values(this.assessmentData).filter(s => s === 'not-met').length;
         const partialCount = Object.values(this.assessmentData).filter(s => s === 'partial').length;
         const naCount = Object.values(this.assessmentData).filter(s => s === 'na').length;
         const assessedCount = metCount + notMetCount + partialCount + naCount;
         const remainingCount = totalObjectives - assessedCount;
-        const progressPct = Math.round((metCount / totalObjectives) * 100);
-        const assessedPct = Math.round((assessedCount / totalObjectives) * 100);
+        const progressPct = totalObjectives > 0 ? Math.round((metCount / totalObjectives) * 100) : 0;
+        const assessedPct = totalObjectives > 0 ? Math.round((assessedCount / totalObjectives) * 100) : 0;
         
         // Determine readiness status
         let readinessStatus, readinessClass;
@@ -1915,12 +1922,18 @@ class AssessmentApp {
     }
     
     renderArchGuideCategories(guide) {
+        // Dynamic counts from active revision
+        const activeFamilies = typeof this.getActiveControlFamilies === 'function' ? this.getActiveControlFamilies() : CONTROL_FAMILIES;
+        let dynControls = 0, dynObjectives = 0;
+        activeFamilies.forEach(f => f.controls.forEach(c => { dynControls++; dynObjectives += c.objectives.length; }));
+
         const categories = [
             { id: 'project-plan', name: 'Project Plan', desc: 'Implementation timeline, milestones, and task tracking for your CMMC journey', icon: 'clipboard-list', items: guide?.phases?.length || 8 },
-            { id: 'evidence', name: 'Evidence Collection', desc: 'Artifact requirements and evidence gathering guidance for each control', icon: 'folder-check', items: 110 },
+            { id: 'evidence', name: 'Evidence Collection', desc: 'Artifact requirements and evidence gathering guidance for each control', icon: 'folder-check', items: dynControls },
             { id: 'policies', name: 'Policies & Procedures', desc: 'Required policy documents and procedure templates mapped to controls', icon: 'file-text', items: 24 },
             { id: 'ssp', name: 'System Security Plan', desc: 'SSP structure, control responsibility matrix, and documentation guidance', icon: 'shield', items: 14 },
             { id: 'services', name: 'Cloud Services', desc: 'FedRAMP-authorized services and configuration guidance for your platform', icon: 'cloud', items: 45 },
+            { id: 'security-stack', name: 'Security Stack', desc: 'Vendor-specific implementation guidance — Palo Alto, SentinelOne, NinjaOne, Tenable, and cloud platforms', icon: 'layers', items: dynControls },
             { id: 'architecture', name: 'Reference Architecture', desc: 'Network diagrams, enclave patterns, and VDI deployment options', icon: 'layout', items: 12 },
             { id: 'cui-discovery', name: 'CUI Discovery', desc: 'Native tools for identifying and classifying CUI in your environment', icon: 'search', items: 6 },
             { id: 'extras', name: 'Extras & Deep Dives', desc: 'Advanced topics, ITAR guidance, and platform-specific configurations', icon: 'layers', items: 8 }
@@ -1939,10 +1952,10 @@ class AssessmentApp {
         
         return `
             <div class="arch-quick-stats">
-                <div class="arch-quick-stat"><div class="value">110</div><div class="label">Controls</div></div>
-                <div class="arch-quick-stat"><div class="value">320</div><div class="label">Objectives</div></div>
-                <div class="arch-quick-stat"><div class="value">8</div><div class="label">Categories</div></div>
-                <div class="arch-quick-stat"><div class="value">45+</div><div class="label">Services</div></div>
+                <div class="arch-quick-stat"><div class="value">${dynControls}</div><div class="label">Controls</div></div>
+                <div class="arch-quick-stat"><div class="value">${dynObjectives}</div><div class="label">Objectives</div></div>
+                <div class="arch-quick-stat"><div class="value">${activeFamilies.length}</div><div class="label">Families</div></div>
+                <div class="arch-quick-stat"><div class="value">${categories.length}</div><div class="label">Categories</div></div>
             </div>
             <div class="arch-category-grid">
                 ${categories.map(cat => `
@@ -1976,6 +1989,7 @@ class AssessmentApp {
             case 'policies': return backBtn + this.renderImplPolicies(guide);
             case 'ssp': return backBtn + this.renderImplSSP(guide);
             case 'services': return backBtn + this.renderImplServices(guide);
+            case 'security-stack': return backBtn + (typeof this.renderSecurityStack === 'function' ? this.renderSecurityStack() : '<p style="padding:20px;color:var(--text-muted)">Security Stack guidance requires app-main.js</p>');
             case 'architecture': return backBtn + this.renderImplArchitecture();
             case 'cui-discovery': return backBtn + this.renderCUIDiscovery();
             case 'extras': return backBtn + this.renderImplExtras(guide);

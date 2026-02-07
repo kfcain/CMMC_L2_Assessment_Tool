@@ -1143,6 +1143,183 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    },
+
+    // ==================== MSSP PLAYBOOK VIEW ====================
+    'mssp-playbook': function(portal) {
+        const data = typeof MSSP_PLAYBOOK_DATA !== 'undefined' ? MSSP_PLAYBOOK_DATA : null;
+        if (!data) return '<div class="msp-empty-state"><h3>MSSP Playbook data not loaded</h3></div>';
+        return `
+        <div class="mssp-playbook-view">
+            <div class="msp-intro-banner security">
+                <div class="banner-content">
+                    <h2>MSSP Playbook</h2>
+                    <p>Technical and tactical guidance for Managed Security Service Providers supporting CMMC compliance. Includes asset scoping, tool selection, SOC playbooks, and incident response procedures.</p>
+                </div>
+            </div>
+            <div class="mssp-pb-tabs">
+                <button class="mssp-pb-tab active" data-pb-tab="scoping">Asset Scoping</button>
+                <button class="mssp-pb-tab" data-pb-tab="tools">Tool Matrix</button>
+                <button class="mssp-pb-tab" data-pb-tab="playbooks">SOC Playbooks</button>
+                <button class="mssp-pb-tab" data-pb-tab="onboarding">Client Onboarding</button>
+                <button class="mssp-pb-tab" data-pb-tab="dfars">DFARS 7012</button>
+            </div>
+            <div class="mssp-pb-content" id="mssp-pb-content">
+                ${this.renderPlaybookScoping(data)}
+            </div>
+        </div>`;
+    },
+
+    renderPlaybookScoping: function(data) {
+        const m = data.scopingDecisionMatrix;
+        return `
+        <div class="mssp-pb-section">
+            <h3>${m.title}</h3>
+            <p class="section-desc">${m.description}</p>
+            <div class="scoping-decision-tree">
+                <h4>Decision Tree</h4>
+                <div class="decision-flow">
+                    ${m.decisionTree.map((step, i) => `
+                        <div class="decision-node">
+                            <div class="decision-question">${step.question}</div>
+                            <div class="decision-branches">
+                                <div class="decision-yes"><span class="branch-label">YES</span> <span class="branch-result">${step.yes}</span></div>
+                                <div class="decision-no"><span class="branch-label">NO</span> <span class="branch-result">${step.no === 'next' ? 'Continue ↓' : step.no}</span></div>
+                            </div>
+                        </div>
+                    `).join('<div class="decision-connector">↓</div>')}
+                </div>
+            </div>
+            <div class="scoping-categories">
+                ${m.categories.map(cat => `
+                    <div class="scoping-card" style="border-left: 4px solid ${cat.color}">
+                        <div class="scoping-card-header"><h4>${cat.type}</h4></div>
+                        <p class="scoping-def">${cat.definition}</p>
+                        <div class="scoping-details">
+                            <div class="scoping-col"><strong>Examples</strong><ul>${cat.examples.map(e => '<li>' + e + '</li>').join('')}</ul></div>
+                            <div class="scoping-col"><strong>Requirements</strong><ul>${cat.requirements.map(r => '<li>' + r + '</li>').join('')}</ul></div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+
+    renderPlaybookTools: function(data) {
+        const tm = data.toolMatrix;
+        return `
+        <div class="mssp-pb-section">
+            <h3>Security Tool Comparison Matrix</h3>
+            <p class="section-desc">Comprehensive comparison of security tools across all categories. FedRAMP status indicates authorization level for CUI asset use.</p>
+            ${tm.categories.map(cat => `
+                <div class="tool-category-section">
+                    <h4>${cat.name}</h4>
+                    <div class="tool-comparison-table-wrap">
+                        <table class="msp-comparison-table tool-matrix-table">
+                            <thead><tr><th>Tool</th><th>FedRAMP</th><th>Best For</th><th>MSSP Fit</th><th>Cost</th><th>Notes</th></tr></thead>
+                            <tbody>
+                                ${cat.tools.map(t => `
+                                    <tr>
+                                        <td><strong>${t.name}</strong></td>
+                                        <td><span class="fedramp-badge ${t.fedramp === 'High' ? 'high' : t.fedramp === 'Moderate' ? 'mod' : 'na'}">${t.fedramp}</span></td>
+                                        <td>${t.bestFor}</td>
+                                        <td><span class="fit-badge ${t.msspFit.toLowerCase()}">${t.msspFit}</span></td>
+                                        <td class="cost-cell">${t.cost}</td>
+                                        <td class="notes-cell">${t.notes}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `).join('')}
+        </div>`;
+    },
+
+    renderPlaybookSOC: function(data) {
+        return `
+        <div class="mssp-pb-section">
+            <h3>SOC Operational Playbooks</h3>
+            <p class="section-desc">Pre-built detection and response playbooks with Splunk SPL and Sentinel KQL queries. Each playbook maps to specific CMMC controls.</p>
+            <div class="soc-playbooks">
+                ${data.socPlaybooks.map(pb => `
+                    <details class="soc-playbook-card">
+                        <summary class="pb-summary">
+                            <span class="pb-severity ${pb.severity.toLowerCase()}">${pb.severity}</span>
+                            <span class="pb-title">${pb.title}</span>
+                            <span class="pb-controls">${pb.cmmcControls.map(c => '<span class="pb-ctrl">' + c + '</span>').join('')}</span>
+                            <svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <div class="pb-body">
+                            <div class="pb-trigger"><strong>Trigger:</strong> ${pb.triggerEvent}</div>
+                            <div class="pb-sources"><strong>Detection Sources:</strong> ${pb.detectionSources.join(', ')}</div>
+                            <div class="pb-queries">
+                                <details class="pb-query-block"><summary><span class="query-icon">S</span> Splunk SPL Query</summary><pre><code>${this.escapeHtml(pb.splunkQuery)}</code></pre></details>
+                                <details class="pb-query-block"><summary><span class="query-icon">K</span> Sentinel KQL Query</summary><pre><code>${this.escapeHtml(pb.sentinelKQL)}</code></pre></details>
+                            </div>
+                            <div class="pb-response"><strong>Response Steps:</strong><ol>${pb.responseSteps.map(s => '<li>' + s + '</li>').join('')}</ol></div>
+                            <div class="pb-automation"><strong>Automation Opportunities:</strong><ul>${pb.automationOpportunities.map(a => '<li>' + a + '</li>').join('')}</ul></div>
+                            <div class="pb-escalation"><strong>Escalation:</strong> ${pb.escalationCriteria}</div>
+                        </div>
+                    </details>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+
+    renderPlaybookOnboarding: function(data) {
+        const ob = data.onboardingChecklist;
+        return `
+        <div class="mssp-pb-section">
+            <h3>Client Onboarding Checklist</h3>
+            <p class="section-desc">Structured onboarding process for new CMMC clients. Follow phases sequentially for optimal results.</p>
+            <div class="onboarding-phases">
+                ${ob.phases.map((phase, pi) => `
+                    <div class="onboarding-phase">
+                        <div class="phase-header">
+                            <span class="phase-num">${pi + 1}</span>
+                            <div class="phase-info"><h4>${phase.name}</h4><span class="phase-duration">${phase.duration}</span></div>
+                        </div>
+                        <div class="phase-tasks">
+                            ${phase.tasks.map(t => `
+                                <div class="phase-task ${t.critical ? 'critical' : ''}">
+                                    <span class="task-indicator">${t.critical ? '!' : '○'}</span>
+                                    <div class="task-content">
+                                        <span class="task-name">${t.task}</span>
+                                        <div class="task-tools">${t.tools.map(tool => '<span class="task-tool">' + tool + '</span>').join('')}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+
+    renderPlaybookDFARS: function(data) {
+        const ir = data.incidentReporting;
+        return `
+        <div class="mssp-pb-section">
+            <h3>${ir.title}</h3>
+            <p class="section-desc">Mandatory 72-hour reporting requirement for cyber incidents affecting CUI on contractor systems.</p>
+            <div class="dfars-timeline">
+                <h4>Incident Response Timeline</h4>
+                ${ir.timeline.map(t => `
+                    <div class="timeline-step">
+                        <div class="timeline-time">${t.time}</div>
+                        <div class="timeline-content"><strong>${t.action}</strong><p>${t.details}</p></div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="dfars-required-data">
+                <h4>Required Data for DIBNet Report</h4>
+                <ul>${ir.requiredData.map(d => '<li>' + d + '</li>').join('')}</ul>
+            </div>
+            <div class="dfars-important">
+                <strong>Important:</strong> Forensic images must be preserved for a minimum of 90 days. Report via <a href="https://dibnet.dod.mil" target="_blank" rel="noopener">DIBNet</a>. Failure to report within 72 hours may result in contract penalties.
+            </div>
+        </div>`;
     }
 };
 

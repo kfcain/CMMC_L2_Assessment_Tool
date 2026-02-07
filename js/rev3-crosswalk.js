@@ -287,8 +287,18 @@ const Rev3Crosswalk = {
         { id: '03.16.01', family: 'SA', title: 'Supply Chain Risk Management Policy', description: 'Develop supply chain risk management policy' },
         { id: '03.16.02', family: 'SA', title: 'Acquisition Process', description: 'Include security requirements in acquisition process' },
         { id: '03.16.03', family: 'SA', title: 'Supply Chain Protection', description: 'Protect against supply chain threats' },
-        { id: '03.17.01', family: 'SR', title: 'Supply Chain Risk Assessment', description: 'Assess supply chain risks' },
-        { id: '03.17.02', family: 'SR', title: 'Acquisition Strategies', description: 'Employ acquisition strategies for supply chain protection' }
+        { id: '03.17.01', family: 'SR', title: 'Supply Chain Risk Management Plan', description: 'Develop, review, update, and protect a plan for managing supply chain risks' },
+        { id: '03.17.02', family: 'SR', title: 'Acquisition Strategies, Tools, and Methods', description: 'Develop and implement acquisition strategies to identify, protect against, and mitigate supply chain risks' },
+        { id: '03.17.03', family: 'SR', title: 'Supply Chain Requirements and Processes', description: 'Establish processes for identifying and addressing supply chain weaknesses and enforce security requirements' },
+        { id: '03.04.12', family: 'CM', title: 'Software Usage Restrictions', description: 'Track, control, and verify the use of software and associated installation policies' },
+        { id: '03.05.12', family: 'IA', title: 'Authenticator Management', description: 'Manage system authenticators by verifying identity and protecting authenticator content' },
+        { id: '03.06.04', family: 'IR', title: 'Incident Response Training', description: 'Provide incident response training to system users' },
+        { id: '03.06.05', family: 'IR', title: 'Incident Response Plan', description: 'Develop, review, update, and protect an incident response plan' },
+        { id: '03.10.07', family: 'PE', title: 'Physical Access Control', description: 'Enforce physical access authorizations and maintain access audit logs' },
+        { id: '03.10.08', family: 'PE', title: 'Access Control for Transmission', description: 'Control physical access to system distribution and transmission lines' },
+        { id: '03.11.04', family: 'RA', title: 'Risk Response', description: 'Respond to findings from security assessments, monitoring, and audits' },
+        { id: '03.12.05', family: 'CA', title: 'Information Exchange', description: 'Approve and manage the exchange of CUI between systems using exchange agreements' },
+        { id: '03.14.08', family: 'SI', title: 'Information Management and Retention', description: 'Manage and retain CUI in accordance with applicable requirements' }
     ],
 
     init: function() {
