@@ -3,35 +3,35 @@
 
 /* ==================== CSS Variables ==================== */
 :root {
-    --ef-primary: #1e40af;
-    --ef-primary-light: #3b82f6;
-    --ef-primary-dark: #1e3a8a;
-    --ef-success: #10b981;
-    --ef-success-light: #d1fae5;
-    --ef-warning: #f59e0b;
-    --ef-warning-light: #fef3c7;
-    --ef-danger: #ef4444;
-    --ef-danger-light: #fee2e2;
-    --ef-neutral: #6b7280;
-    --ef-neutral-light: #f3f4f6;
-    --ef-bg: #ffffff;
-    --ef-bg-alt: #f8fafc;
-    --ef-border: #e2e8f0;
-    --ef-text: #1f2937;
-    --ef-text-muted: #6b7280;
-    --ef-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --ef-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --ef-radius: 8px;
-    --ef-radius-lg: 12px;
+    --ef-primary: #6c8aff;
+    --ef-primary-light: #8ba2ff;
+    --ef-primary-dark: #5470e0;
+    --ef-success: #34d399;
+    --ef-success-light: rgba(52, 211, 153, 0.1);
+    --ef-warning: #fbbf24;
+    --ef-warning-light: rgba(251, 191, 36, 0.1);
+    --ef-danger: #f87171;
+    --ef-danger-light: rgba(248, 113, 113, 0.1);
+    --ef-neutral: #8b8fa3;
+    --ef-neutral-light: rgba(255, 255, 255, 0.03);
+    --ef-bg: #0f1117;
+    --ef-bg-alt: #161822;
+    --ef-border: rgba(255, 255, 255, 0.05);
+    --ef-text: #e4e5ea;
+    --ef-text-muted: #8b8fa3;
+    --ef-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --ef-shadow-lg: 0 10px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(108, 138, 255, 0.04);
+    --ef-radius: 10px;
+    --ef-radius-lg: 14px;
 }
 
-/* Dark theme overrides */
+/* Dark theme overrides (no-op, already dark) */
 [data-theme="dark"] {
-    --ef-bg: #1a1a2e;
-    --ef-bg-alt: #16213e;
-    --ef-border: #2d3748;
-    --ef-text: #e2e8f0;
-    --ef-text-muted: #a0aec0;
+    --ef-bg: #0f1117;
+    --ef-bg-alt: #161822;
+    --ef-border: rgba(255, 255, 255, 0.05);
+    --ef-text: #e4e5ea;
+    --ef-text-muted: #8b8fa3;
 }
 
 /* ==================== Modal Enhancements ==================== */
