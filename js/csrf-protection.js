@@ -129,7 +129,7 @@ const CSRFProtection = {
                 }
             }
             
-            return originalFetch.apply(this, args);
+            return originalFetch.apply(window, args);
         };
 
         // Intercept XMLHttpRequest
