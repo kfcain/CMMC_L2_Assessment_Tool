@@ -1,0 +1,122 @@
+# Security Scanning Workflow
+# Runs on every push/PR to catch security issues early:
+# 1. Secret detection (Gitleaks) — prevents API keys from being committed
+# 2. CDN integrity check — verifies external scripts have SRI hashes
+# 3. CSP validation — ensures Content-Security-Policy is present and correct
+# 4. HTML/JS linting for common security anti-patterns
+
+name: "Security Scan"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  secrets-scan:
+    name: Secret Detection (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  web-security:
+    name: Web Security Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for inline event handlers (XSS risk)
+        run: |
+          echo "=== Checking for inline event handlers in HTML ==="
+          # Look for onclick, onchange, onerror, etc. in HTML files (CSP blocks these)
+          INLINE=$(grep -rn 'on[a-z]*="' index.html --include="*.html" || true)
+          if [ -n "$INLINE" ]; then
+            echo "::warning::Found inline event handlers that CSP will block:"
+            echo "$INLINE"
+          else
+            echo "✅ No inline event handlers found"
+          fi
+
+      - name: Check CSP meta tag exists
+        run: |
+          echo "=== Checking Content-Security-Policy ==="
+          if grep -q 'Content-Security-Policy' index.html; then
+            echo "✅ CSP meta tag found"
+            # Extract and display the CSP for review
+            grep 'Content-Security-Policy' index.html | head -1 | sed 's/.*content="//' | sed 's/".*//' | tr ';' '\n' | while read -r directive; do
+              echo "  $directive"
+            done
+          else
+            echo "::error::No Content-Security-Policy meta tag found in index.html"
+            exit 1
+          fi
+
+      - name: Check external scripts for SRI hashes
+        run: |
+          echo "=== Checking Subresource Integrity (SRI) ==="
+          MISSING_SRI=0
+          # Find all external script tags (https://)
+          grep -n 'src="https://' index.html | while read -r line; do
+            if ! echo "$line" | grep -q 'integrity='; then
+              echo "::warning::Missing SRI hash: $line"
+              MISSING_SRI=1
+            fi
+          done
+          if [ "$MISSING_SRI" = "0" ]; then
+            echo "ℹ️  SRI check complete — review warnings above if any"
+          fi
+
+      - name: Check for hardcoded secrets
+        run: |
+          echo "=== Checking for hardcoded secrets ==="
+          # Common patterns for API keys, tokens, passwords
+          PATTERNS='(api[_-]?key|api[_-]?secret|access[_-]?token|auth[_-]?token|password|secret[_-]?key)\s*[:=]\s*["\x27][A-Za-z0-9+/=_-]{16,}'
+          FOUND=$(grep -rniE "$PATTERNS" js/ data/ --include="*.js" | grep -v '// ' | grep -v 'placeholder' | grep -v 'example' | grep -v 'sessionStorage' | grep -v 'localStorage' || true)
+          if [ -n "$FOUND" ]; then
+            echo "::warning::Possible hardcoded secrets found (review manually):"
+            echo "$FOUND"
+          else
+            echo "✅ No hardcoded secrets detected"
+          fi
+
+      - name: Check for dangerous JS patterns
+        run: |
+          echo "=== Checking for dangerous JavaScript patterns ==="
+          # innerHTML with user input, eval(), document.write()
+          EVAL_COUNT=$(grep -rn 'eval(' js/ --include="*.js" | grep -v '// ' | wc -l || echo "0")
+          DOCWRITE_COUNT=$(grep -rn 'document\.write(' js/ --include="*.js" | grep -v '// ' | wc -l || echo "0")
+
+          if [ "$EVAL_COUNT" -gt 0 ]; then
+            echo "::warning::Found $EVAL_COUNT uses of eval() — review for safety:"
+            grep -rn 'eval(' js/ --include="*.js" | grep -v '// '
+          fi
+
+          if [ "$DOCWRITE_COUNT" -gt 0 ]; then
+            echo "::warning::Found $DOCWRITE_COUNT uses of document.write() — review for safety:"
+            grep -rn 'document\.write(' js/ --include="*.js" | grep -v '// '
+          fi
+
+          if [ "$EVAL_COUNT" = "0" ] && [ "$DOCWRITE_COUNT" = "0" ]; then
+            echo "✅ No eval() or document.write() found"
+          fi
+
+      - name: Check target="_blank" has rel="noopener"
+        run: |
+          echo "=== Checking target=_blank links ==="
+          UNSAFE=$(grep -rn 'target="_blank"' js/ --include="*.js" | grep -v 'noopener' || true)
+          if [ -n "$UNSAFE" ]; then
+            echo "::warning::Found target=_blank without rel=noopener:"
+            echo "$UNSAFE"
+          else
+            echo "✅ All target=_blank links have rel=noopener"
+          fi
