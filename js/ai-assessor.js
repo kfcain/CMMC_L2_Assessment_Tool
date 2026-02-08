@@ -7,7 +7,7 @@
 const AIAssessor = {
     isOpen: false,
     conversationHistory: [],
-    currentContext: null, // 'global', 'objective', 'poam', 'planner'
+    currentContext: null, // 'global', 'objective', 'poam', 'planner', 'policy'
     contextData: null,
     systemPrompt: null,
     isStreaming: false,
@@ -18,7 +18,8 @@ const AIAssessor = {
         poamAdvisor: null,    // POA&M guidance
         implementor: null,    // Implementation guidance
         readiness: null,      // Assessment readiness check
-        sspGenerator: null    // SSP generation & authoring
+        sspGenerator: null,   // SSP generation & authoring
+        policyAdvisor: null   // Policy & procedure guidance
     },
 
     /**
@@ -42,6 +43,7 @@ const AIAssessor = {
         this.skills.implementor = this.getDefaultImplementorPrompt();
         this.skills.readiness = this.getDefaultReadinessPrompt();
         this.skills.sspGenerator = this.getDefaultSspGeneratorPrompt();
+        this.skills.policyAdvisor = this.getDefaultPolicyAdvisorPrompt();
 
         // Load custom skills if available
         if (typeof AI_ASSESSOR_SKILLS !== 'undefined') {
@@ -50,6 +52,7 @@ const AIAssessor = {
             if (AI_ASSESSOR_SKILLS.implementor) this.skills.implementor = AI_ASSESSOR_SKILLS.implementor;
             if (AI_ASSESSOR_SKILLS.readiness) this.skills.readiness = AI_ASSESSOR_SKILLS.readiness;
             if (AI_ASSESSOR_SKILLS.sspGenerator) this.skills.sspGenerator = AI_ASSESSOR_SKILLS.sspGenerator;
+            if (AI_ASSESSOR_SKILLS.policyAdvisor) this.skills.policyAdvisor = AI_ASSESSOR_SKILLS.policyAdvisor;
             console.log('[AIAssessor] Custom skills loaded');
         }
     },
@@ -89,21 +92,12 @@ const AIAssessor = {
                 </div>
             </div>
 
-            <!-- API Key Setup (shown when not configured) -->
+            <!-- AI Provider Setup (shown when not configured) -->
             <div class="ai-setup" id="ai-setup">
                 <div class="ai-setup-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
                 </div>
-                <h3>Connect Claude API</h3>
-                <p>Enter your Anthropic API key to enable AI-powered assessment guidance. Your key is stored in session memory only and cleared when you close the tab.</p>
-                <div class="ai-key-input-group">
-                    <input type="password" id="ai-api-key-input" class="ai-key-input" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
-                    <button id="ai-connect-btn" class="ai-connect-btn">Connect</button>
-                </div>
-                <div class="ai-key-note">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    Key never leaves your browser. Calls go directly to api.anthropic.com.
-                </div>
+                ${typeof AIProvider !== 'undefined' ? AIProvider.renderSetupHTML() : '<h3>Connect AI Provider</h3><p>Loading...</p>'}
             </div>
 
             <!-- Quick Actions (shown when configured) -->
@@ -138,6 +132,10 @@ const AIAssessor = {
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                         SSP Generator
                     </button>
+                    <button class="ai-quick-btn" data-action="policy-advisor">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="12" y1="6" x2="12" y2="12"/><line x1="9" y1="9" x2="15" y2="9"/></svg>
+                        Policy & Procedure Advisor
+                    </button>
                 </div>
             </div>
 
@@ -160,7 +158,7 @@ const AIAssessor = {
                     </button>
                 </div>
                 <div class="ai-input-hint">
-                    <span>Claude Sonnet</span>
+                    <span id="ai-model-badge">Not connected</span>
                     <span class="ai-token-count" id="ai-token-count"></span>
                 </div>
             </div>
@@ -174,6 +172,8 @@ const AIAssessor = {
     /**
      * Bind events within the panel
      */
+    _selectedProvider: 'anthropic',
+
     bindPanelEvents(panel) {
         // Close button
         panel.querySelector('#ai-close-btn').addEventListener('click', () => this.close());
@@ -184,13 +184,13 @@ const AIAssessor = {
         // Settings button
         panel.querySelector('#ai-settings-btn').addEventListener('click', () => this.showSettings());
 
-        // Connect button
-        panel.querySelector('#ai-connect-btn').addEventListener('click', () => this.connectApiKey());
-
-        // API key input — enter to connect
-        panel.querySelector('#ai-api-key-input').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') this.connectApiKey();
+        // Provider tab clicks
+        panel.querySelectorAll('.ai-provider-tab').forEach(tab => {
+            tab.addEventListener('click', () => this.selectProvider(tab.dataset.provider));
         });
+
+        // Initialize first provider tab
+        this.selectProvider('anthropic');
 
         // Send button
         panel.querySelector('#ai-send-btn').addEventListener('click', () => this.sendUserMessage());
@@ -220,9 +220,38 @@ const AIAssessor = {
     },
 
     /**
+     * Select a provider tab and render its config
+     */
+    selectProvider(providerId) {
+        this._selectedProvider = providerId;
+        // Update tab active state
+        document.querySelectorAll('.ai-provider-tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.provider === providerId);
+        });
+        // Render provider config
+        const configEl = document.getElementById('ai-provider-config');
+        if (configEl && typeof AIProvider !== 'undefined') {
+            configEl.innerHTML = AIProvider.renderProviderConfig(providerId);
+            // Bind connect button and enter key for this provider
+            const connectBtn = configEl.querySelector('#ai-connect-btn');
+            const keyInput = configEl.querySelector('#ai-api-key-input');
+            if (connectBtn) connectBtn.addEventListener('click', () => this.connectApiKey());
+            if (keyInput) keyInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') this.connectApiKey();
+            });
+        }
+    },
+
+    /**
      * Bind global events (trigger buttons throughout the site)
      */
     bindGlobalEvents() {
+        // FAB button (inline onclick blocked by CSP)
+        const fabBtn = document.getElementById('ai-fab-btn');
+        if (fabBtn) {
+            fabBtn.addEventListener('click', () => this.toggle());
+        }
+
         // Global keyboard shortcut: Ctrl/Cmd + Shift + I
         document.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'I') {
@@ -338,11 +367,13 @@ const AIAssessor = {
      * Show settings (allow changing API key)
      */
     showSettings() {
-        if (ClaudeAPI.isConfigured()) {
-            if (confirm('Disconnect Claude API key?')) {
-                ClaudeAPI.clearApiKey();
+        if (AIProvider.isConfigured()) {
+            const provName = AIProvider.getActiveDisplayName();
+            if (confirm('Disconnect ' + provName + '?')) {
+                AIProvider.clearApiKey(AIProvider.getActiveProvider());
                 this.showSetup();
                 this.clearConversation();
+                this.selectProvider(this._selectedProvider || 'anthropic');
             }
         } else {
             this.showSetup();
@@ -350,11 +381,14 @@ const AIAssessor = {
     },
 
     /**
-     * Connect with API key
+     * Connect with API key (multi-provider)
      */
     async connectApiKey() {
         const input = document.getElementById('ai-api-key-input');
+        const modelSelect = document.getElementById('ai-model-select');
         const key = input.value.trim();
+        const providerId = this._selectedProvider;
+        const modelId = modelSelect ? modelSelect.value : null;
 
         if (!key) {
             this.showInputError(input, 'Please enter your API key');
@@ -362,14 +396,16 @@ const AIAssessor = {
         }
 
         try {
-            ClaudeAPI.setApiKey(key);
+            AIProvider.setApiKey(providerId, key);
+            AIProvider.setActiveProvider(providerId);
+            if (modelId) AIProvider.setActiveModel(modelId);
 
             // Test the connection with a minimal request
             const connectBtn = document.getElementById('ai-connect-btn');
             connectBtn.textContent = 'Connecting...';
             connectBtn.disabled = true;
 
-            await ClaudeAPI.sendMessage(
+            await AIProvider.sendMessage(
                 'You are a test. Respond with OK.',
                 [{ role: 'user', content: 'Test connection' }],
                 { max_tokens: 10 }
@@ -380,14 +416,26 @@ const AIAssessor = {
             connectBtn.textContent = 'Connect';
             connectBtn.disabled = false;
             this.showChat();
-            this.addSystemMessage('Connected to Claude. Ready to assist with your CMMC assessment.');
+            this.updateModelBadge();
+            const displayName = AIProvider.getActiveDisplayName();
+            this.addSystemMessage('Connected to ' + displayName + '. Ready to assist with your CMMC assessment.');
 
         } catch (error) {
             const connectBtn = document.getElementById('ai-connect-btn');
             connectBtn.textContent = 'Connect';
             connectBtn.disabled = false;
-            ClaudeAPI.clearApiKey();
+            AIProvider.clearApiKey(providerId);
             this.showInputError(input, error.message);
+        }
+    },
+
+    /**
+     * Update the model badge in the input area
+     */
+    updateModelBadge() {
+        const badge = document.getElementById('ai-model-badge');
+        if (badge) {
+            badge.textContent = AIProvider.getActiveDisplayName();
         }
     },
 
@@ -396,15 +444,18 @@ const AIAssessor = {
      */
     showInputError(input, message) {
         input.style.borderColor = 'var(--status-not-met)';
-        const note = input.closest('.ai-setup').querySelector('.ai-key-note');
-        note.innerHTML = `<span style="color:var(--status-not-met)">${message}</span>`;
-        setTimeout(() => {
-            input.style.borderColor = '';
-            note.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Key never leaves your browser. Calls go directly to api.anthropic.com.
-            `;
-        }, 4000);
+        const note = input.closest('.ai-provider-config, .ai-setup')?.querySelector('.ai-key-note');
+        if (note) {
+            note.innerHTML = `<span style="color:var(--status-not-met)">${message}</span>`;
+            setTimeout(() => {
+                input.style.borderColor = '';
+                const provName = AIProvider.PROVIDERS[this._selectedProvider]?.name || 'AI';
+                note.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Key never leaves your browser. Calls go directly to ${provName} API.
+                `;
+            }, 4000);
+        }
     },
 
     /**
@@ -419,12 +470,15 @@ const AIAssessor = {
             'sprs': `My current SPRS score is ${context.summary.sprsScore}/110. Help me develop a strategy to maximize my score. Which controls should I prioritize implementing first for the biggest SPRS point gains? Consider POA&M eligibility rules from 32 CFR 170.21.`,
             'next-steps': `Based on my assessment progress (${context.summary.percentMet}% met, SPRS: ${context.summary.sprsScore}), what are my immediate next steps? Give me a prioritized action plan for the next 30 days.`,
             'evidence': `What evidence and artifacts should I be collecting for my CMMC Level 2 assessment? Based on my current status (${context.summary.met} met, ${context.summary.notAssessed} not assessed), which areas am I most likely missing evidence for?`,
-            'ssp-generate': `I need help generating SSP implementation narratives. My current assessment status: ${context.summary.met} met, ${context.summary.partial} partial, ${context.summary.notMet} not met out of ${context.summary.totalObjectives} objectives. Which control families should I prioritize writing SSP statements for? Give me a plan for building out my SSP, starting with the families that have the most "met" controls ready for documentation.`
+            'ssp-generate': `I need help generating SSP implementation narratives. My current assessment status: ${context.summary.met} met, ${context.summary.partial} partial, ${context.summary.notMet} not met out of ${context.summary.totalObjectives} objectives. Which control families should I prioritize writing SSP statements for? Give me a plan for building out my SSP, starting with the families that have the most "met" controls ready for documentation.`,
+            'policy-advisor': `I need help with policies and procedures for my CMMC Level 2 assessment. My current assessment status: ${context.summary.met} met, ${context.summary.partial} partial, ${context.summary.notMet} not met, ${context.summary.notAssessed} not assessed out of ${context.summary.totalObjectives} objectives. Which policies and procedures do I need to prioritize? What should each one contain for my organization? Please ask me about my business context (org size, industry, tools, CUI types) so you can tailor the guidance.`
         };
 
-        // Set context for SSP generation so buildSystemPrompt uses sspGenerator skill
+        // Set context so buildSystemPrompt uses the right skill
         if (action === 'ssp-generate') {
             this.currentContext = 'ssp';
+        } else if (action === 'policy-advisor') {
+            this.currentContext = 'policy';
         }
 
         const message = prompts[action];
@@ -520,6 +574,8 @@ const AIAssessor = {
             skill = this.skills.implementor;
         } else if (this.currentContext === 'ssp') {
             skill = this.skills.sspGenerator;
+        } else if (this.currentContext === 'policy') {
+            skill = this.skills.policyAdvisor;
         }
 
         // Inject live assessment data into the prompt
@@ -669,7 +725,8 @@ ${obj.poam ? `- POA&M: Remediation: ${obj.poam.remediation || 'None'}, Due: ${ob
             'global': 'Full Assessment',
             'objective': 'Objective',
             'poam': 'POA&M',
-            'planner': 'Planner'
+            'planner': 'Planner',
+            'policy': 'Policy Advisor'
         };
         badge.textContent = labels[this.currentContext] || 'Ready';
     },
@@ -825,6 +882,73 @@ ${obj.poam ? `- POA&M: Remediation: ${obj.poam.remediation || 'None'}, Due: ${ob
 - Prioritize remediation actions
 - Estimate timeline to readiness
 - Flag common C3PAO findings`;
+    },
+
+    getDefaultPolicyAdvisorPrompt() {
+        return `You are an expert CMMC Level 2 policy and procedure advisor with deep knowledge of NIST SP 800-171 Rev 2/3, NIST SP 800-171A, and CMMC assessment methodology. You help organizations develop assessment-ready policies and procedures tailored to their specific business context.
+
+## Core Principles
+
+### Policy vs. Procedure
+- **Policy** = WHAT and WHY (management-level statement of intent, approved by leadership)
+- **Procedure** = HOW, WHO, WHEN, WHERE (step-by-step operational instructions with specific tools, roles, timelines)
+- Assessors require BOTH. A policy without procedures is a statement of intent. A procedure without a policy has no authority.
+
+### The Assessor's Test
+For every policy/procedure, a C3PAO assessor asks:
+1. "Show me the policy." → Formal document with approval, version, date
+2. "Walk me through the procedure." → Staff can describe actual steps
+3. "Show me evidence it's being followed." → Logs, records, screenshots
+4. "What happens when [exception]?" → Procedure addresses edge cases
+
+## Your Role
+- Determine which policies and procedures the organization needs based on their assessment status
+- Tailor content to the organization's size, industry, tools, and CUI scope
+- Write procedures at Level 3 quality: tool-specific, role-specific, with timelines and evidence
+- Map every policy statement to specific NIST 800-171 controls
+- Flag common mistakes (template policies, missing procedures, role mismatches)
+- Always ask for business context before writing: org size, tools, industry, CUI types, physical footprint
+
+## Procedure Quality Standard (Level 3)
+Every procedure must answer the 6W formula:
+- WHO performs the action (specific job title)
+- WHAT action is performed
+- WHEN / how often
+- WHERE (on what system / in what location)
+- HOW (specific step-by-step instructions)
+- EVIDENCE (what record is created)
+
+## Required Policy Set (14-16 documents minimum)
+1. Access Control Policy (AC)
+2. Awareness & Training Policy (AT)
+3. Audit & Accountability Policy (AU)
+4. Configuration Management Policy (CM)
+5. Identification & Authentication Policy (IA)
+6. Incident Response Plan (IR)
+7. Maintenance Policy (MA)
+8. Media Protection Policy (MP)
+9. Personnel Security Policy (PS)
+10. Physical & Environmental Protection Policy (PE)
+11. Risk Assessment Policy (RA)
+12. Security Assessment & Monitoring Policy (CA)
+13. System & Communications Protection Policy (SC)
+14. System & Information Integrity Policy (SI)
+15. Planning Policy (PL) — Rev 3
+16. Supply Chain Risk Management Policy (SR) — Rev 3
+
+## Org Size Calibration
+- **Small (<50):** Role consolidation expected (IT Manager = Security Officer). Combine into 3-4 master documents. Simpler approval chains.
+- **Medium (50-250):** 6-8 documents with family-specific procedure appendices. Formal ticketing.
+- **Large (>250):** Full 16+ standalone policies. Dedicated security team. CAB process.
+
+## Response Format
+1. Ask for business context if not provided
+2. Identify which policies/procedures are needed
+3. Provide procedures at Level 3 quality (assessment-ready)
+4. Map to NIST controls explicitly
+5. List evidence artifacts the procedure produces
+6. Flag common mistakes for the org's profile
+7. Provide copy-paste-ready content`;
     },
 
     getDefaultSspGeneratorPrompt() {

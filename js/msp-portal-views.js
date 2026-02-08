@@ -139,8 +139,8 @@ const MSPPortalViews = {
                     ${(overview.keyPoints || []).map(p => `<div class="key-point">• ${p}</div>`).join('')}
                 </div>
                 <div class="env-links">
-                    <a href="${overview.portalUrl || 'https://portal.azure.us'}" target="_blank" class="env-link">Azure Gov Portal ↗</a>
-                    <a href="${overview.entraUrl || 'https://entra.microsoft.us'}" target="_blank" class="env-link">Entra Admin Center ↗</a>
+                    <a href="${overview.portalUrl || 'https://portal.azure.us'}" target="_blank" rel="noopener noreferrer" class="env-link">Azure Gov Portal ↗</a>
+                    <a href="${overview.entraUrl || 'https://entra.microsoft.us'}" target="_blank" rel="noopener noreferrer" class="env-link">Entra Admin Center ↗</a>
                 </div>
             </div>
             
@@ -271,7 +271,7 @@ const MSPPortalViews = {
                     ]).map(p => `<div class="key-point">• ${p}</div>`).join('')}
                 </div>
                 <div class="env-links">
-                    <a href="${overview.consoleUrl || 'https://console.amazonaws-us-gov.com'}" target="_blank" class="env-link">GovCloud Console ↗</a>
+                    <a href="${overview.consoleUrl || 'https://console.amazonaws-us-gov.com'}" target="_blank" rel="noopener noreferrer" class="env-link">GovCloud Console ↗</a>
                 </div>
             </div>
             
@@ -393,7 +393,7 @@ const MSPPortalViews = {
                     ]).map(p => `<div class="key-point">• ${p}</div>`).join('')}
                 </div>
                 <div class="env-links">
-                    <a href="https://console.cloud.google.com" target="_blank" class="env-link">GCP Console ↗</a>
+                    <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" class="env-link">GCP Console ↗</a>
                 </div>
             </div>
             
@@ -808,7 +808,7 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
                 <h4>${platform.name}</h4>
                 <span class="fedramp-badge ${fedrampClass}">${platform.fedrampStatus || 'Unknown'}</span>
             </div>
-            ${platform.url ? `<a href="${platform.url}" target="_blank" class="platform-link">Documentation ↗</a>` : ''}
+            ${platform.url ? `<a href="${platform.url}" target="_blank" rel="noopener noreferrer" class="platform-link">Documentation ↗</a>` : ''}
             ${platform.encryptionMethod ? `<div class="platform-meta"><strong>Encryption:</strong> ${platform.encryptionMethod}</div>` : ''}
             ${platform.features ? `
                 <div class="platform-features">
@@ -853,7 +853,7 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
         
         let html = `<div class="data-section"><h3>${section.title || provider.toUpperCase()}</h3>`;
         if (section.consoleUrl) {
-            html += `<p><a href="${section.consoleUrl}" target="_blank" class="platform-link">Open Console ↗</a></p>`;
+            html += `<p><a href="${section.consoleUrl}" target="_blank" rel="noopener noreferrer" class="platform-link">Open Console ↗</a></p>`;
         }
         
         // Iterate through all keys in the section that are objects (templates)
@@ -1623,6 +1623,155 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
                 `).join('')}
             </div>
         </div>`;
+    },
+
+    // ==================== TECHNICAL SCRIPTS VIEW ====================
+    'tech-scripts': function(portal) {
+        const sources = this._getTechScriptSources();
+        if (sources.length === 0) return '<div class="msp-empty-state"><h3>Technical Scripts Not Loaded</h3><p>Script data files are loading. Please refresh.</p></div>';
+
+        const tabs = [
+            { key: 'identity', label: 'Identity & Access', icon: '🔑' },
+            { key: 'audit', label: 'Audit & Logging', icon: '📋' },
+            { key: 'endpoints', label: 'Endpoint Hardening', icon: '🖥️' },
+            { key: 'network', label: 'Network Security', icon: '🌐' },
+            { key: 'ir', label: 'Incident Response', icon: '🚨' },
+            { key: 'evidence', label: 'Evidence Collection', icon: '📁' },
+            { key: 'media', label: 'Media & Maintenance', icon: '💾' }
+        ];
+
+        const availableTabs = tabs.filter(t => this._getTechScriptSection(t.key));
+
+        return `
+        <div class="msp-data-view tech-scripts-view">
+            <div class="msp-intro-banner security">
+                <div class="banner-content">
+                    <h2>Technical Scripts & Automation Library</h2>
+                    <p>Full runnable scripts for every CMMC control domain. PowerShell, Bash, KQL, SPL, YARA-L — ready to deploy across Azure GCC High, AWS GovCloud, GCP, and on-prem.</p>
+                    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+                        <span class="scuba-platform-badge">PowerShell</span>
+                        <span class="scuba-platform-badge">Bash</span>
+                        <span class="scuba-platform-badge">KQL</span>
+                        <span class="scuba-platform-badge">SPL</span>
+                        <span class="scuba-platform-badge">YARA-L</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tech-scripts-search" style="margin:12px 0;">
+                <input type="search" class="msp-search-input" id="tech-scripts-search" placeholder="Search scripts by name, control, platform, language..." style="width:100%;max-width:500px;">
+            </div>
+            <div class="mssp-pb-tabs">
+                ${availableTabs.map((t, i) => `<button class="mssp-pb-tab tech-script-tab ${i === 0 ? 'active' : ''}" data-ts-tab="${t.key}">${t.icon} ${t.label}</button>`).join('')}
+            </div>
+            <div class="mssp-pb-content" id="tech-scripts-content">
+                ${availableTabs.length > 0 ? this.renderTechScriptSection(availableTabs[0].key) : '<p>No scripts available</p>'}
+            </div>
+        </div>`;
+    },
+
+    _getTechScriptSources: function() {
+        const sources = [];
+        if (typeof MSP_TECHNICAL_SCRIPTS !== 'undefined') sources.push(MSP_TECHNICAL_SCRIPTS);
+        if (typeof MSP_TECHNICAL_SCRIPTS_AUDIT !== 'undefined') sources.push(MSP_TECHNICAL_SCRIPTS_AUDIT);
+        if (typeof MSP_TECHNICAL_SCRIPTS_ENDPOINTS !== 'undefined') sources.push(MSP_TECHNICAL_SCRIPTS_ENDPOINTS);
+        if (typeof MSP_TECHNICAL_SCRIPTS_NETWORK !== 'undefined') sources.push(MSP_TECHNICAL_SCRIPTS_NETWORK);
+        if (typeof MSP_TECHNICAL_SCRIPTS_IR !== 'undefined') sources.push(MSP_TECHNICAL_SCRIPTS_IR);
+        if (typeof MSP_TECHNICAL_SCRIPTS_EVIDENCE !== 'undefined') sources.push(MSP_TECHNICAL_SCRIPTS_EVIDENCE);
+        if (typeof MSP_TECHNICAL_SCRIPTS_MEDIA !== 'undefined') sources.push(MSP_TECHNICAL_SCRIPTS_MEDIA);
+        return sources;
+    },
+
+    _getTechScriptSection: function(key) {
+        const map = {
+            identity: () => typeof MSP_TECHNICAL_SCRIPTS !== 'undefined' ? MSP_TECHNICAL_SCRIPTS.identity : null,
+            audit: () => typeof MSP_TECHNICAL_SCRIPTS_AUDIT !== 'undefined' ? MSP_TECHNICAL_SCRIPTS_AUDIT.audit : null,
+            endpoints: () => typeof MSP_TECHNICAL_SCRIPTS_ENDPOINTS !== 'undefined' ? MSP_TECHNICAL_SCRIPTS_ENDPOINTS.endpoints : null,
+            network: () => typeof MSP_TECHNICAL_SCRIPTS_NETWORK !== 'undefined' ? MSP_TECHNICAL_SCRIPTS_NETWORK.network : null,
+            ir: () => typeof MSP_TECHNICAL_SCRIPTS_IR !== 'undefined' ? MSP_TECHNICAL_SCRIPTS_IR.ir : null,
+            evidence: () => typeof MSP_TECHNICAL_SCRIPTS_EVIDENCE !== 'undefined' ? MSP_TECHNICAL_SCRIPTS_EVIDENCE.evidence : null,
+            media: () => typeof MSP_TECHNICAL_SCRIPTS_MEDIA !== 'undefined' ? MSP_TECHNICAL_SCRIPTS_MEDIA.media : null
+        };
+        return map[key] ? map[key]() : null;
+    },
+
+    renderTechScriptSection: function(sectionKey, searchTerm) {
+        const section = this._getTechScriptSection(sectionKey);
+        if (!section) return '<div class="msp-empty-state"><p>Section not loaded</p></div>';
+
+        const subsections = section.subsections || [];
+        const filtered = searchTerm
+            ? subsections.filter(s => {
+                const term = searchTerm.toLowerCase();
+                return (s.title || '').toLowerCase().includes(term) ||
+                       (s.platform || '').toLowerCase().includes(term) ||
+                       (s.language || '').toLowerCase().includes(term) ||
+                       (s.cmmcControls || []).some(c => c.includes(term)) ||
+                       (s.script || '').toLowerCase().includes(term);
+            })
+            : subsections;
+
+        return `
+        <div class="tech-scripts-section">
+            <div class="section-header" style="margin-bottom:16px;">
+                <h3>${section.title}</h3>
+                <p class="section-desc">${section.description}</p>
+                <span style="font-size:0.8rem;opacity:0.6;">${filtered.length} script${filtered.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div class="tech-scripts-list">
+                ${filtered.map((s, i) => this.renderTechScriptCard(s, i)).join('')}
+            </div>
+        </div>`;
+    },
+
+    renderTechScriptCard: function(script, index) {
+        const langColors = {
+            'PowerShell': '#012456', 'Bash': '#2d3436', 'KQL': '#0078d4',
+            'SPL': '#65a637', 'YARA-L': '#ff6b35', 'JSON': '#f7df1e'
+        };
+        const bgColor = langColors[script.language] || '#333';
+        const controls = (script.cmmcControls || []).slice(0, 6);
+        const prereqs = script.prerequisites || [];
+        const evidence = script.evidence || [];
+        const scriptId = `ts-${script.id || index}`;
+
+        return `
+        <details class="tech-script-card" id="${scriptId}">
+            <summary class="ts-summary">
+                <div class="ts-summary-left">
+                    <span class="ts-lang-badge" style="background:${bgColor}">${script.language || 'Script'}</span>
+                    <span class="ts-title">${script.title}</span>
+                </div>
+                <div class="ts-summary-right">
+                    <span class="ts-platform">${script.platform || ''}</span>
+                    <div class="ts-controls">${controls.map(c => '<span class="pb-ctrl">' + c + '</span>').join('')}</div>
+                    <svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+            </summary>
+            <div class="ts-body">
+                ${prereqs.length > 0 ? `<div class="ts-prereqs"><strong>Prerequisites:</strong> ${prereqs.join(' · ')}</div>` : ''}
+                ${evidence.length > 0 ? `<div class="ts-evidence"><strong>Evidence Produced:</strong> ${evidence.join(' · ')}</div>` : ''}
+                <div class="ts-code-wrap">
+                    <div class="ts-code-header">
+                        <span>${script.language || 'Script'} — ${script.platform || ''}</span>
+                        <button class="ts-copy-btn" onclick="MSPPortalViews._copyTechScript(this)" data-script-id="${scriptId}">Copy Script</button>
+                    </div>
+                    <pre class="ts-code-block"><code>${this.escapeHtml(script.script || '# No script content')}</code></pre>
+                </div>
+            </div>
+        </details>`;
+    },
+
+    _copyTechScript: function(btn) {
+        const card = btn.closest('.tech-script-card');
+        if (!card) return;
+        const code = card.querySelector('.ts-code-block code');
+        if (!code) return;
+        navigator.clipboard.writeText(code.textContent).then(() => {
+            const orig = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.style.background = '#22c55e';
+            setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+        });
     }
 };
 

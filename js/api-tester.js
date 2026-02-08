@@ -58,6 +58,12 @@ const APITester = {
 
     // Bind global keyboard shortcuts
     bindGlobalEvents: function() {
+        // FAB button (inline onclick blocked by CSP)
+        const fabBtn = document.getElementById('api-tester-fab-btn');
+        if (fabBtn) {
+            fabBtn.addEventListener('click', () => this.toggle());
+        }
+
         document.addEventListener('keydown', (e) => {
             // Ctrl/Cmd + Shift + A to open API Tester
             if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
@@ -431,7 +437,7 @@ const APITester = {
             html += `
                 <div class="template-category">
                     <h4>${platform.name} <span class="platform-category">${platform.category}</span></h4>
-                    <p class="platform-docs"><a href="${platform.apiDocs}" target="_blank">📖 API Documentation</a></p>
+                    <p class="platform-docs"><a href="${platform.apiDocs}" target="_blank" rel="noopener noreferrer">📖 API Documentation</a></p>
                     <div class="template-list">
             `;
             platform.endpoints.forEach(endpoint => {

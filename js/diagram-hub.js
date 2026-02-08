@@ -3,6 +3,9 @@
 // Supports import from Figma, Draw.io, LucidChart, Visio, and image files
 
 const DiagramHub = {
+    // XSS-safe HTML escaping for user-stored data
+    esc(s) { return typeof Sanitize !== 'undefined' ? Sanitize.html(s) : String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'})[c]); },
+
     config: {
         version: '1.0.0',
         storageKey: 'cmmc_diagram_hub',
@@ -46,6 +49,29 @@ const DiagramHub = {
             color: '#5c6370',
             icon: 'x-circle'
         }
+    },
+
+    // Asset types (hardware, software, network, cloud — beyond just 'applications')
+    ASSET_TYPES: {
+        'server':      { name: 'Server',            icon: '🖥️',  category: 'infrastructure' },
+        'workstation': { name: 'Workstation',        icon: '💻',  category: 'endpoint' },
+        'laptop':      { name: 'Laptop',             icon: '💻',  category: 'endpoint' },
+        'mobile':      { name: 'Mobile Device',      icon: '📱',  category: 'endpoint' },
+        'printer':     { name: 'Printer / MFP',      icon: '🖨️',  category: 'endpoint' },
+        'firewall':    { name: 'Firewall',           icon: '🛡️',  category: 'network' },
+        'router':      { name: 'Router',             icon: '📡',  category: 'network' },
+        'switch':      { name: 'Switch',             icon: '🔀',  category: 'network' },
+        'wap':         { name: 'Wireless AP',        icon: '📶',  category: 'network' },
+        'vpn':         { name: 'VPN Gateway',        icon: '🔒',  category: 'network' },
+        'ids-ips':     { name: 'IDS / IPS',          icon: '🔍',  category: 'security' },
+        'siem':        { name: 'SIEM',               icon: '📊',  category: 'security' },
+        'cloud':       { name: 'Cloud Service',      icon: '☁️',  category: 'cloud' },
+        'saas':        { name: 'SaaS Application',   icon: '🌐',  category: 'cloud' },
+        'database':    { name: 'Database',           icon: '🗄️',  category: 'infrastructure' },
+        'storage':     { name: 'Storage / NAS',      icon: '💾',  category: 'infrastructure' },
+        'iot':         { name: 'IoT Device',         icon: '📟',  category: 'specialized' },
+        'ot':          { name: 'OT / ICS',           icon: '⚙️',  category: 'specialized' },
+        'other':       { name: 'Other',              icon: '📦',  category: 'other' }
     },
 
     // Diagram types
@@ -96,6 +122,7 @@ const DiagramHub = {
         }
         // Ensure all arrays exist
         if (!this.data.applications) this.data.applications = [];
+        if (!this.data.assets) this.data.assets = [];
         if (!this.data.diagrams) this.data.diagrams = [];
         if (!this.data.connections) this.data.connections = [];
         if (!this.data.zones) this.data.zones = [];
@@ -115,8 +142,9 @@ const DiagramHub = {
     getDefaultData() {
         return {
             applications: [],
+            assets: [],       // Generic assets (servers, devices, network gear, cloud, etc.)
             diagrams: [],
-            connections: [],  // Links between applications
+            connections: [],  // Links between applications/assets
             zones: [],        // Security zones / enclaves
             metadata: {
                 createdAt: new Date().toISOString(),
@@ -177,6 +205,54 @@ const DiagramHub = {
 
     getApplicationDiagrams(appId) {
         return this.data.diagrams.filter(d => d.applicationId === appId || d.applicationId === 'global');
+    },
+
+    // =========================================================================
+    // Asset Management (generic hardware/software/network assets)
+    // =========================================================================
+
+    addAsset(assetData) {
+        const asset = {
+            id: 'asset-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+            name: assetData.name,
+            description: assetData.description || '',
+            assetType: assetData.assetType || 'other',
+            scopeCategory: assetData.scopeCategory || 'cui',
+            hostname: assetData.hostname || '',
+            ipAddress: assetData.ipAddress || '',
+            location: assetData.location || '',
+            owner: assetData.owner || '',
+            quantity: assetData.quantity || 1,
+            zone: assetData.zone || '',
+            tags: assetData.tags || [],
+            applicationId: assetData.applicationId || '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        this.data.assets.push(asset);
+        this.data.metadata.lastModified = new Date().toISOString();
+        this.save();
+        return asset;
+    },
+
+    updateAsset(assetId, updates) {
+        const asset = this.data.assets.find(a => a.id === assetId);
+        if (!asset) return null;
+        Object.assign(asset, updates, { updatedAt: new Date().toISOString() });
+        this.data.metadata.lastModified = new Date().toISOString();
+        this.save();
+        return asset;
+    },
+
+    removeAsset(assetId) {
+        this.data.assets = this.data.assets.filter(a => a.id !== assetId);
+        this.data.connections = this.data.connections.filter(c => c.sourceAssetId !== assetId && c.targetAssetId !== assetId);
+        this.data.metadata.lastModified = new Date().toISOString();
+        this.save();
+    },
+
+    getAsset(assetId) {
+        return this.data.assets.find(a => a.id === assetId) || null;
     },
 
     // =========================================================================
@@ -470,6 +546,10 @@ const DiagramHub = {
                     <p class="dh-subtitle">Manage network diagrams, CUI data flows, and application scoping for CMMC assessment</p>
                 </div>
                 <div class="dh-header-actions">
+                    <button class="dh-btn dh-btn-accent" id="dh-visualize-btn" title="Open Interactive Topology Diagram">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        Visualize Topology
+                    </button>
                     <button class="dh-btn dh-btn-primary" id="dh-add-app-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         Add Application
@@ -486,6 +566,10 @@ const DiagramHub = {
                 <div class="dh-stat-card">
                     <div class="dh-stat-value">${stats.totalApplications}</div>
                     <div class="dh-stat-label">Applications</div>
+                </div>
+                <div class="dh-stat-card">
+                    <div class="dh-stat-value">${(this.data.assets || []).length}</div>
+                    <div class="dh-stat-label">Assets</div>
                 </div>
                 <div class="dh-stat-card">
                     <div class="dh-stat-value">${stats.totalDiagrams}</div>
@@ -521,6 +605,10 @@ const DiagramHub = {
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
                     Scope Overview
                 </button>
+                <button class="dh-tab ${this.currentView === 'assets' ? 'active' : ''}" data-view="assets">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                    Assets
+                </button>
                 <button class="dh-tab ${this.currentView === 'connections' ? 'active' : ''}" data-view="connections">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                     Data Flows
@@ -539,11 +627,73 @@ const DiagramHub = {
     renderCurrentView() {
         switch (this.currentView) {
             case 'applications': return this.renderApplicationsView();
+            case 'assets': return this.renderAssetsView();
             case 'diagrams': return this.renderDiagramsView();
             case 'scoping': return this.renderScopingView();
             case 'connections': return this.renderConnectionsView();
             default: return this.renderApplicationsView();
         }
+    },
+
+    // ---- Assets View ----
+    renderAssetsView() {
+        const assets = this.data.assets || [];
+        if (assets.length === 0) {
+            return `
+                <div class="dh-empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                    <h3>No Assets Added</h3>
+                    <p>Add servers, workstations, network devices, cloud services, and other assets to map your CUI environment.</p>
+                    <button class="dh-btn dh-btn-primary" id="dh-empty-add-asset">Add First Asset</button>
+                </div>
+            `;
+        }
+
+        // Group by category
+        const grouped = {};
+        assets.forEach(a => {
+            const cat = a.scopeCategory || 'cui';
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push(a);
+        });
+
+        return `
+            <div class="dh-asset-toolbar">
+                <button class="dh-btn dh-btn-primary" id="dh-add-asset-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add Asset
+                </button>
+            </div>
+            <div class="dh-app-grid">
+                ${assets.map(asset => {
+                    const typeInfo = this.ASSET_TYPES[asset.assetType] || { name: asset.assetType, icon: '📦' };
+                    const cat = this.ASSET_CATEGORIES[asset.scopeCategory] || this.ASSET_CATEGORIES.cui;
+                    return `
+                    <div class="dh-app-card" data-asset-id="${asset.id}">
+                        <div class="dh-app-card-header" style="border-top: 3px solid ${cat.color};">
+                            <div class="dh-app-name">${typeInfo.icon} ${this.esc(asset.name)}</div>
+                            <span class="dh-app-cat-badge" style="background: ${cat.color}20; color: ${cat.color}; border: 1px solid ${cat.color}40;">${cat.name}</span>
+                        </div>
+                        <div class="dh-app-card-body">
+                            <div class="dh-app-meta">
+                                <span class="dh-meta-item"><strong>Type:</strong> ${typeInfo.name}</span>
+                                ${asset.hostname ? `<span class="dh-meta-item"><strong>Host:</strong> ${this.esc(asset.hostname)}</span>` : ''}
+                                ${asset.ipAddress ? `<span class="dh-meta-item"><strong>IP:</strong> ${this.esc(asset.ipAddress)}</span>` : ''}
+                                ${asset.location ? `<span class="dh-meta-item"><strong>Location:</strong> ${this.esc(asset.location)}</span>` : ''}
+                                ${asset.owner ? `<span class="dh-meta-item"><strong>Owner:</strong> ${this.esc(asset.owner)}</span>` : ''}
+                                ${asset.quantity > 1 ? `<span class="dh-meta-item"><strong>Qty:</strong> ${asset.quantity}</span>` : ''}
+                            </div>
+                            ${asset.description ? `<p class="dh-app-desc">${this.esc(asset.description)}</p>` : ''}
+                        </div>
+                        <div class="dh-app-card-actions">
+                            <button class="dh-btn-sm dh-btn-ghost dh-edit-asset" data-asset-id="${asset.id}">Edit</button>
+                            <button class="dh-btn-sm dh-btn-danger dh-delete-asset" data-asset-id="${asset.id}">Delete</button>
+                        </div>
+                    </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
     },
 
     // ---- Applications View ----
@@ -568,14 +718,14 @@ const DiagramHub = {
                     return `
                     <div class="dh-app-card" data-app-id="${app.id}">
                         <div class="dh-app-card-header" style="border-top: 3px solid ${cat.color};">
-                            <div class="dh-app-name">${app.name}</div>
+                            <div class="dh-app-name">${this.esc(app.name)}</div>
                             <span class="dh-app-cat-badge" style="background: ${cat.color}20; color: ${cat.color}; border: 1px solid ${cat.color}40;">${cat.name}</span>
                         </div>
                         <div class="dh-app-card-body">
-                            ${app.description ? `<p class="dh-app-desc">${app.description}</p>` : ''}
+                            ${app.description ? `<p class="dh-app-desc">${this.esc(app.description)}</p>` : ''}
                             <div class="dh-app-meta">
-                                ${app.owner ? `<span class="dh-meta-item"><strong>Owner:</strong> ${app.owner}</span>` : ''}
-                                ${app.team ? `<span class="dh-meta-item"><strong>Team:</strong> ${app.team}</span>` : ''}
+                                ${app.owner ? `<span class="dh-meta-item"><strong>Owner:</strong> ${this.esc(app.owner)}</span>` : ''}
+                                ${app.team ? `<span class="dh-meta-item"><strong>Team:</strong> ${this.esc(app.team)}</span>` : ''}
                                 ${app.environment ? `<span class="dh-meta-item"><strong>Env:</strong> ${app.environment}</span>` : ''}
                             </div>
                             <div class="dh-app-stats">
@@ -644,13 +794,13 @@ const DiagramHub = {
                       `<div class="dh-embed-badge dh-no-file"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>No preview</span></div>`}
                 </div>
                 <div class="dh-diagram-info">
-                    <div class="dh-diagram-name">${diagram.name}</div>
+                    <div class="dh-diagram-name">${this.esc(diagram.name)}</div>
                     <div class="dh-diagram-meta-row">
                         <span class="dh-diagram-type-badge">${typeInfo.name}</span>
                         <span class="dh-diagram-source-badge">${sourceInfo.name}</span>
                         ${diagram.version ? `<span class="dh-diagram-version">v${diagram.version}</span>` : ''}
                     </div>
-                    ${app ? `<div class="dh-diagram-app-link">App: ${app.name}</div>` : ''}
+                    ${app ? `<div class="dh-diagram-app-link">App: ${this.esc(app.name)}</div>` : ''}
                     ${diagram.assetCategories.length > 0 ? `
                         <div class="dh-diagram-cats">
                             ${diagram.assetCategories.map(cat => {
@@ -771,16 +921,16 @@ const DiagramHub = {
                             return `
                             <div class="dh-connection-row" data-conn-id="${conn.id}">
                                 <div class="dh-conn-apps">
-                                    <span class="dh-conn-app">${srcApp?.name || 'Unknown'}</span>
+                                    <span class="dh-conn-app">${this.esc(srcApp?.name || 'Unknown')}</span>
                                     <span class="dh-conn-arrow">${conn.direction === 'bidirectional' ? '&#8596;' : '&#8594;'}</span>
-                                    <span class="dh-conn-app">${tgtApp?.name || 'Unknown'}</span>
+                                    <span class="dh-conn-app">${this.esc(tgtApp?.name || 'Unknown')}</span>
                                 </div>
                                 <div class="dh-conn-details">
-                                    <span class="dh-conn-data-type">${conn.dataType}</span>
-                                    ${conn.protocol ? `<span class="dh-conn-protocol">${conn.protocol}</span>` : ''}
+                                    <span class="dh-conn-data-type">${this.esc(conn.dataType)}</span>
+                                    ${conn.protocol ? `<span class="dh-conn-protocol">${this.esc(conn.protocol)}</span>` : ''}
                                     <span class="dh-conn-encrypted ${conn.encrypted ? 'yes' : 'no'}">${conn.encrypted ? 'Encrypted' : 'Unencrypted'}</span>
                                 </div>
-                                ${conn.description ? `<div class="dh-conn-desc">${conn.description}</div>` : ''}
+                                ${conn.description ? `<div class="dh-conn-desc">${this.esc(conn.description)}</div>` : ''}
                                 <button class="dh-btn-sm dh-btn-danger dh-delete-conn" data-conn-id="${conn.id}">Remove</button>
                             </div>
                             `;
@@ -867,6 +1017,95 @@ const DiagramHub = {
 
         document.body.insertAdjacentHTML('beforeend', html);
         this.bindModalEvents('application');
+    },
+
+    showAddAssetModal(editAssetId) {
+        const existing = editAssetId ? this.getAsset(editAssetId) : null;
+        const title = existing ? 'Edit Asset' : 'Add Asset';
+
+        const html = `
+        <div class="dh-modal-overlay" id="dh-modal">
+            <div class="dh-modal">
+                <div class="dh-modal-header">
+                    <h3>${title}</h3>
+                    <button class="dh-modal-close" id="dh-modal-close">&times;</button>
+                </div>
+                <div class="dh-modal-body">
+                    <div class="dh-form-group">
+                        <label>Asset Name *</label>
+                        <input type="text" id="dh-f-asset-name" value="${existing?.name || ''}" placeholder="e.g., Perimeter Firewall, File Server" required>
+                    </div>
+                    <div class="dh-form-row">
+                        <div class="dh-form-group">
+                            <label>Asset Type *</label>
+                            <select id="dh-f-asset-type">
+                                ${Object.entries(this.ASSET_TYPES).map(([key, at]) =>
+                                    `<option value="${key}" ${existing?.assetType === key ? 'selected' : ''}>${at.icon} ${at.name}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                        <div class="dh-form-group">
+                            <label>Scope Category *</label>
+                            <select id="dh-f-asset-scope">
+                                ${Object.entries(this.ASSET_CATEGORIES).map(([key, cat]) =>
+                                    `<option value="${key}" ${existing?.scopeCategory === key ? 'selected' : ''}>${cat.name}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="dh-form-row">
+                        <div class="dh-form-group">
+                            <label>Hostname</label>
+                            <input type="text" id="dh-f-asset-hostname" value="${existing?.hostname || ''}" placeholder="e.g., fw-01.corp.local">
+                        </div>
+                        <div class="dh-form-group">
+                            <label>IP Address</label>
+                            <input type="text" id="dh-f-asset-ip" value="${existing?.ipAddress || ''}" placeholder="e.g., 10.0.1.1">
+                        </div>
+                    </div>
+                    <div class="dh-form-row">
+                        <div class="dh-form-group">
+                            <label>Location</label>
+                            <input type="text" id="dh-f-asset-location" value="${existing?.location || ''}" placeholder="e.g., HQ Server Room">
+                        </div>
+                        <div class="dh-form-group">
+                            <label>Owner</label>
+                            <input type="text" id="dh-f-asset-owner" value="${existing?.owner || ''}" placeholder="e.g., IT Security Team">
+                        </div>
+                    </div>
+                    <div class="dh-form-row">
+                        <div class="dh-form-group">
+                            <label>Quantity</label>
+                            <input type="number" id="dh-f-asset-qty" value="${existing?.quantity || 1}" min="1">
+                        </div>
+                        <div class="dh-form-group">
+                            <label>Associated Application</label>
+                            <select id="dh-f-asset-app">
+                                <option value="">— None —</option>
+                                ${this.data.applications.map(a =>
+                                    `<option value="${a.id}" ${existing?.applicationId === a.id ? 'selected' : ''}>${a.name}</option>`
+                                ).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="dh-form-group">
+                        <label>Description</label>
+                        <textarea id="dh-f-asset-desc" placeholder="Brief description of this asset...">${existing?.description || ''}</textarea>
+                    </div>
+                    <div class="dh-form-group">
+                        <label>Tags (comma-separated)</label>
+                        <input type="text" id="dh-f-asset-tags" value="${existing?.tags?.join(', ') || ''}" placeholder="e.g., encrypted, backup, dmz">
+                    </div>
+                </div>
+                <div class="dh-modal-footer">
+                    <button class="dh-btn dh-btn-ghost" id="dh-modal-cancel">Cancel</button>
+                    <button class="dh-btn dh-btn-primary" id="dh-modal-save-asset" data-edit-id="${editAssetId || ''}">${existing ? 'Update' : 'Add Asset'}</button>
+                </div>
+            </div>
+        </div>`;
+
+        document.body.insertAdjacentHTML('beforeend', html);
+        this.bindModalEvents('asset');
     },
 
     showAddDiagramModal(preselectedAppId) {
@@ -1062,7 +1301,7 @@ const DiagramHub = {
                 : this.parseLucidChartUrl(diagram.sourceUrl).embedUrl;
             contentHtml = `<iframe src="${embedUrl}" class="dh-viewer-iframe" allowfullscreen></iframe>`;
         } else if (diagram.source === 'mermaid' && diagram.mermaidCode) {
-            contentHtml = `<div class="dh-mermaid-preview"><pre><code>${diagram.mermaidCode}</code></pre><p class="dh-mermaid-note">Mermaid.js rendering requires a Mermaid renderer. Copy the code above to preview at <a href="https://mermaid.live" target="_blank">mermaid.live</a></p></div>`;
+            contentHtml = `<div class="dh-mermaid-preview"><pre><code>${diagram.mermaidCode}</code></pre><p class="dh-mermaid-note">Mermaid.js rendering requires a Mermaid renderer. Copy the code above to preview at <a href="https://mermaid.live" target="_blank" rel="noopener noreferrer">mermaid.live</a></p></div>`;
         } else if (diagram.fileData) {
             contentHtml = `<div class="dh-viewer-file"><p>File: ${diagram.fileName}</p><a href="${diagram.fileData}" download="${diagram.fileName}" class="dh-btn dh-btn-primary">Download File</a></div>`;
         } else {
@@ -1084,9 +1323,9 @@ const DiagramHub = {
                 <div class="dh-modal-body dh-viewer-body">
                     ${contentHtml}
                 </div>
-                ${diagram.description ? `<div class="dh-viewer-desc">${diagram.description}</div>` : ''}
+                ${diagram.description ? `<div class="dh-viewer-desc">${this.esc(diagram.description)}</div>` : ''}
                 <div class="dh-modal-footer">
-                    ${diagram.sourceUrl ? `<a href="${diagram.sourceUrl}" target="_blank" class="dh-btn dh-btn-ghost">Open Original</a>` : ''}
+                    ${diagram.sourceUrl ? `<a href="${this.esc(diagram.sourceUrl)}" target="_blank" rel="noopener noreferrer" class="dh-btn dh-btn-ghost">Open Original</a>` : ''}
                     <button class="dh-btn dh-btn-ghost" id="dh-modal-close-btn">Close</button>
                 </div>
             </div>
@@ -1165,6 +1404,19 @@ const DiagramHub = {
         container.querySelector('#dh-add-app-btn')?.addEventListener('click', () => this.showAddApplicationModal());
         container.querySelector('#dh-empty-add-app')?.addEventListener('click', () => this.showAddApplicationModal());
 
+        // Visualize Topology
+        container.querySelector('#dh-visualize-btn')?.addEventListener('click', () => {
+            if (typeof DiagramVisualizer !== 'undefined') {
+                DiagramVisualizer.open();
+            } else {
+                alert('Diagram Visualizer is not loaded.');
+            }
+        });
+
+        // Add asset
+        container.querySelector('#dh-add-asset-btn')?.addEventListener('click', () => this.showAddAssetModal());
+        container.querySelector('#dh-empty-add-asset')?.addEventListener('click', () => this.showAddAssetModal());
+
         // Add diagram
         container.querySelector('#dh-add-diagram-btn')?.addEventListener('click', () => this.showAddDiagramModal());
         container.querySelector('#dh-empty-add-diagram')?.addEventListener('click', () => this.showAddDiagramModal());
@@ -1227,6 +1479,20 @@ const DiagramHub = {
                 }
             });
         });
+
+        // Asset card actions
+        container.querySelectorAll('.dh-edit-asset').forEach(btn => {
+            btn.addEventListener('click', (e) => { e.stopPropagation(); this.showAddAssetModal(btn.dataset.assetId); });
+        });
+        container.querySelectorAll('.dh-delete-asset').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm('Delete this asset?')) {
+                    this.removeAsset(btn.dataset.assetId);
+                    this.render();
+                }
+            });
+        });
     },
 
     closeModal() {
@@ -1260,6 +1526,35 @@ const DiagramHub = {
                     this.updateApplication(editId, appData);
                 } else {
                     this.addApplication(appData);
+                }
+                this.closeModal();
+                this.render();
+            });
+        }
+
+        if (type === 'asset') {
+            document.getElementById('dh-modal-save-asset')?.addEventListener('click', () => {
+                const editId = document.getElementById('dh-modal-save-asset').dataset.editId;
+                const assetData = {
+                    name: document.getElementById('dh-f-asset-name')?.value?.trim(),
+                    assetType: document.getElementById('dh-f-asset-type')?.value,
+                    scopeCategory: document.getElementById('dh-f-asset-scope')?.value,
+                    hostname: document.getElementById('dh-f-asset-hostname')?.value?.trim(),
+                    ipAddress: document.getElementById('dh-f-asset-ip')?.value?.trim(),
+                    location: document.getElementById('dh-f-asset-location')?.value?.trim(),
+                    owner: document.getElementById('dh-f-asset-owner')?.value?.trim(),
+                    quantity: parseInt(document.getElementById('dh-f-asset-qty')?.value) || 1,
+                    applicationId: document.getElementById('dh-f-asset-app')?.value || '',
+                    description: document.getElementById('dh-f-asset-desc')?.value?.trim(),
+                    tags: (document.getElementById('dh-f-asset-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean)
+                };
+
+                if (!assetData.name) { alert('Asset name is required.'); return; }
+
+                if (editId) {
+                    this.updateAsset(editId, assetData);
+                } else {
+                    this.addAsset(assetData);
                 }
                 this.closeModal();
                 this.render();

@@ -2,36 +2,28 @@
 /* Portfolio Dashboard, Evidence Builder, Inherited Controls, Reports */
 
 /* ==================== CSS Variables ==================== */
+/* These map to the main theme variables for consistent theming */
 :root {
-    --ef-primary: #6c8aff;
-    --ef-primary-light: #8ba2ff;
-    --ef-primary-dark: #5470e0;
-    --ef-success: #34d399;
+    --ef-primary: var(--accent-blue, #6c8aff);
+    --ef-primary-light: var(--accent-blue, #8ba2ff);
+    --ef-primary-dark: var(--accent-blue-hover, #5470e0);
+    --ef-success: var(--status-met, #34d399);
     --ef-success-light: rgba(52, 211, 153, 0.1);
-    --ef-warning: #fbbf24;
+    --ef-warning: var(--status-partial, #fbbf24);
     --ef-warning-light: rgba(251, 191, 36, 0.1);
-    --ef-danger: #f87171;
+    --ef-danger: var(--status-not-met, #f87171);
     --ef-danger-light: rgba(248, 113, 113, 0.1);
-    --ef-neutral: #8b8fa3;
+    --ef-neutral: var(--text-secondary, #8b8fa3);
     --ef-neutral-light: rgba(255, 255, 255, 0.03);
-    --ef-bg: #0f1117;
-    --ef-bg-alt: #161822;
-    --ef-border: rgba(255, 255, 255, 0.05);
-    --ef-text: #e4e5ea;
-    --ef-text-muted: #8b8fa3;
+    --ef-bg: var(--bg-secondary, #0f1117);
+    --ef-bg-alt: var(--bg-tertiary, #161822);
+    --ef-border: var(--glass-border, rgba(255, 255, 255, 0.05));
+    --ef-text: var(--text-primary, #e4e5ea);
+    --ef-text-muted: var(--text-secondary, #8b8fa3);
     --ef-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    --ef-shadow-lg: 0 10px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(108, 138, 255, 0.04);
+    --ef-shadow-lg: var(--card-hover-shadow, 0 10px 32px rgba(0, 0, 0, 0.3));
     --ef-radius: 10px;
     --ef-radius-lg: 14px;
-}
-
-/* Dark theme overrides (no-op, already dark) */
-[data-theme="dark"] {
-    --ef-bg: #0f1117;
-    --ef-bg-alt: #161822;
-    --ef-border: rgba(255, 255, 255, 0.05);
-    --ef-text: #e4e5ea;
-    --ef-text-muted: #8b8fa3;
 }
 
 /* ==================== Modal Enhancements ==================== */

@@ -3,6 +3,9 @@
 // Extends existing POA&M functionality in app-main.js
 
 const POAMEnhancements = {
+    // XSS-safe HTML escaping for user-stored data
+    esc(s) { return typeof Sanitize !== 'undefined' ? Sanitize.html(s) : String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'})[c]); },
+
     config: {
         version: "1.0.0",
         storageKey: "nist-poam-enhanced",
@@ -324,12 +327,12 @@ const POAMEnhancements = {
 
                         <div class="form-group">
                             <label>Risk Description</label>
-                            <textarea id="risk-description" class="form-control" rows="3" placeholder="Describe the specific risk...">${existing.description || ''}</textarea>
+                            <textarea id="risk-description" class="form-control" rows="3" placeholder="Describe the specific risk..." maxlength="5000">${this.esc(existing.description || '')}</textarea>
                         </div>
 
                         <div class="form-group">
                             <label>Mitigation Strategy</label>
-                            <textarea id="risk-mitigation" class="form-control" rows="3" placeholder="How will this risk be mitigated?">${existing.mitigation || ''}</textarea>
+                            <textarea id="risk-mitigation" class="form-control" rows="3" placeholder="How will this risk be mitigated?" maxlength="5000">${this.esc(existing.mitigation || '')}</textarea>
                         </div>
                     </form>
                 </div>
@@ -416,7 +419,7 @@ const POAMEnhancements = {
                                     ${enhanced.costBreakdown.map(cost => `
                                         <tr>
                                             <td>${cost.category}</td>
-                                            <td>${cost.description}</td>
+                                            <td>${this.esc(cost.description)}</td>
                                             <td>$${cost.estimated.toLocaleString()}</td>
                                             <td>${cost.actual ? '$' + cost.actual.toLocaleString() : 'Pending'}</td>
                                         </tr>
@@ -602,7 +605,7 @@ const POAMEnhancements = {
                 name: step,
                 targetDate: targetDate.toISOString().split('T')[0],
                 status: 'pending',
-                description: `From ${template.name} template`,
+                description: `From ${this.esc(template.name)} template`,
                 createdAt: Date.now()
             });
         });
@@ -610,7 +613,7 @@ const POAMEnhancements = {
         // Add cost estimate
         enhanced.costBreakdown.push({
             category: 'consulting',
-            description: `${template.name} - Template Estimate`,
+            description: `${this.esc(template.name)} - Template Estimate`,
             estimated: template.estimatedCost,
             actual: null,
             addedAt: Date.now()
@@ -619,7 +622,7 @@ const POAMEnhancements = {
         enhanced.updated = Date.now();
         this.saveToStorage();
 
-        this.showToast(`Applied template: ${template.name}`, 'success');
+        this.showToast(`Applied template: ${this.esc(template.name)}`, 'success');
     },
 
     calculateRiskScore: function(riskAssessment) {

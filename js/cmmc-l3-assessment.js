@@ -515,6 +515,7 @@ const CMMCL3Assessment = {
 
     renderObjective: function(control, objective, index) {
         const objId = `${control.id}[${String.fromCharCode(97 + index)}]`;
+        const guidancePlaceholderId = `l3-guidance-${control.id}-${index}`;
         return `
         <div class="l3-objective-item" data-objective="${objId}">
             <div class="objective-header" onclick="CMMCL3Assessment.toggleObjective(this)">
@@ -525,14 +526,7 @@ const CMMCL3Assessment = {
                 <svg class="objective-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
             <div class="objective-guidance collapsed">
-                <div class="guidance-section technologies">
-                    <h6>Technology Solutions</h6>
-                    <div class="tech-grid">
-                        <div class="tech-provider azure"><div class="provider-label">🔷 Azure</div><ul>${control.technologies.azure.map(t => `<li>${t}</li>`).join('')}</ul></div>
-                        <div class="tech-provider aws"><div class="provider-label">🟠 AWS</div><ul>${control.technologies.aws.map(t => `<li>${t}</li>`).join('')}</ul></div>
-                        <div class="tech-provider gcp"><div class="provider-label">🔵 GCP</div><ul>${control.technologies.gcp.map(t => `<li>${t}</li>`).join('')}</ul></div>
-                    </div>
-                </div>
+                <div id="${guidancePlaceholderId}" class="l3-comprehensive-guidance-slot" data-objective-id="${objId}"></div>
                 <div class="guidance-section automation">
                     <h6>Automation Mechanisms</h6>
                     <div class="automation-tags">${control.automation.map(a => `<span class="auto-tag">${a}</span>`).join('')}</div>
@@ -565,7 +559,15 @@ const CMMCL3Assessment = {
     },
 
     attachL3Events: function() {
-        // Additional event handlers
+        // Populate comprehensive guidance into each objective slot
+        if (typeof ComprehensiveGuidanceUI !== 'undefined') {
+            document.querySelectorAll('.l3-comprehensive-guidance-slot').forEach(slot => {
+                const objId = slot.dataset.objectiveId;
+                if (objId) {
+                    ComprehensiveGuidanceUI.renderGuidance(objId, slot);
+                }
+            });
+        }
     },
 
     // Get control by ID

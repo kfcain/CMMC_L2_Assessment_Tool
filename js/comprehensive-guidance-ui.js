@@ -50,14 +50,24 @@ const ComprehensiveGuidanceUI = {
         ninjaone: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="4" fill="#00AEEF"/><path d="M8 8h3v8H8V8zm5 3h3v5h-3v-5z" fill="#fff"/></svg>',
         // Security Tools
         splunk: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M4 6l8 5-8 5V6z" fill="#65A637"/><path d="M20 6l-8 5 8 5V6z" fill="#65A637"/></svg>',
+        splunk_es: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M4 6l8 5-8 5V6z" fill="#65A637"/><path d="M20 6l-8 5 8 5V6z" fill="#65A637"/><circle cx="18" cy="6" r="3" fill="#F90"/></svg>',
         elk: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#005571"/><text x="12" y="14" text-anchor="middle" fill="#F8B700" font-size="5.5" font-weight="bold">ELK</text></svg>',
+        elastic_siem: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5z" fill="#005571"/><path d="M12 6a6 6 0 100 12 6 6 0 000-12z" fill="#F8B700"/><path d="M12 9a3 3 0 100 6 3 3 0 000-6z" fill="#fff"/></svg>',
         sentinel: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#0078D4"/><path d="M12 6a6 6 0 100 12 6 6 0 000-12z" fill="#50E6FF"/><path d="M12 9a3 3 0 100 6 3 3 0 000-6z" fill="#fff"/></svg>',
+        chronicle: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#4285F4"/><path d="M8 10h8v2H8v-2zm2 3h4v2h-4v-2z" fill="#fff"/></svg>',
+        qradar: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#054ADA"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="bold">QR</text></svg>',
+        logrhythm: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#00A4E4"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="bold">LR</text></svg>',
+        exabeam: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#1A1F71"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="bold">EX</text></svg>',
+        securonix: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#FF6600"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="bold">SX</text></svg>',
+        arctic_wolf: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#1B365D"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="bold">AW</text></svg>',
         // Vulnerability Management
         tenable: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><circle cx="12" cy="12" r="10" fill="#00B1E1"/><path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         openvas: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><circle cx="12" cy="12" r="10" fill="#66C430"/><path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         // Mobile
         ios: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.81-1.31.05-2.3-1.32-3.14-2.53C4.25 16.76 3 12.55 4.78 9.75a4.69 4.69 0 013.95-2.4c1.3-.03 2.52.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83l.1-.47z" fill="#555"/></svg>',
         android: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 10v6a1 1 0 001 1h1v3.5a1.5 1.5 0 003 0V17h2v3.5a1.5 1.5 0 003 0V17h1a1 1 0 001-1v-6H6z" fill="#3DDC84"/><path d="M3.5 10a1.5 1.5 0 00-1.5 1.5v5a1.5 1.5 0 003 0v-5A1.5 1.5 0 003.5 10zm17 0a1.5 1.5 0 00-1.5 1.5v5a1.5 1.5 0 003 0v-5a1.5 1.5 0 00-1.5-1.5z" fill="#3DDC84"/><path d="M6 10a6 6 0 0112 0H6z" fill="#3DDC84"/><circle cx="9.5" cy="7" r=".75" fill="#fff"/><circle cx="14.5" cy="7" r=".75" fill="#fff"/><path d="M7.5 3l1.5 2M16.5 3l-1.5 2" stroke="#3DDC84" stroke-width=".75" stroke-linecap="round"/></svg>',
+        // Access Review Program
+        access_review_program: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
         // Industry / Misc
         manufacturing: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M5 20V8l5 4V8l5 4V4l5 4v12"/></svg>',
         small_business: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></svg>',
@@ -110,9 +120,17 @@ const ComprehensiveGuidanceUI = {
         connectwise: 'ConnectWise Automate',
         nable: 'N-able',
         splunk: 'Splunk',
+        splunk_es: 'Splunk Enterprise Security',
         elk: 'Elastic Stack (ELK)',
+        elastic_siem: 'Elastic Security (SIEM)',
         sentinel: 'Microsoft Sentinel',
+        chronicle: 'Google Chronicle SIEM',
+        qradar: 'IBM QRadar',
+        logrhythm: 'LogRhythm SIEM',
         sumo_logic: 'Sumo Logic',
+        exabeam: 'Exabeam Fusion SIEM',
+        securonix: 'Securonix UEBA/SIEM',
+        arctic_wolf: 'Arctic Wolf MDR',
         blumira: 'Blumira',
         tenable: 'Tenable',
         qualys: 'Qualys',
@@ -164,6 +182,7 @@ const ComprehensiveGuidanceUI = {
         slack_grid: 'Slack Enterprise Grid',
         ios: 'Apple iOS',
         android: 'Android',
+        access_review_program: 'Access Review Program',
         manufacturing: 'Manufacturing',
         small_business: 'Small Business',
         physical: 'Physical Security',
@@ -178,7 +197,8 @@ const ComprehensiveGuidanceUI = {
         'SaaS Platforms': ['microsoft365', 'google_workspace', 'salesforce'],
         'Identity & Access (IAM/PAM)': ['okta', 'cyberark', 'delinea', 'beyondtrust', 'jumpcloud', 'duo', 'keeper'],
         'XDR / EDR': ['sentinelone', 'crowdstrike', 'carbon_black', 'huntress', 'sophos'],
-        'SIEM & Monitoring': ['splunk', 'elk', 'sentinel', 'sumo_logic', 'blumira'],
+        'SIEM & Monitoring': ['splunk', 'splunk_es', 'elk', 'elastic_siem', 'sentinel', 'chronicle', 'qradar', 'logrhythm', 'sumo_logic', 'exabeam', 'securonix', 'blumira'],
+        'MDR / Managed SOC': ['arctic_wolf'],
         'SOAR / Automation': ['cortex_xsoar', 'splunk_soar', 'tines', 'swimlane'],
         'Vulnerability Management': ['tenable', 'qualys', 'rapid7', 'openvas'],
         'Firewalls & Network': ['paloalto', 'cisco', 'fortinet', 'zscaler', 'firewall'],
@@ -198,6 +218,7 @@ const ComprehensiveGuidanceUI = {
         'Databases': ['postgresql', 'mysql', 'sqlserver', 'mongodb'],
         'Application & Code': ['nodejs', 'python', 'java', 'dotnet', 'general', 'software'],
         'Mobile': ['ios', 'android'],
+        'Access Review': ['access_review_program'],
         'Industry & Business': ['manufacturing', 'small_business', 'physical', 'process']
     },
 
@@ -263,7 +284,11 @@ const ComprehensiveGuidanceUI = {
             typeof COMPREHENSIVE_GUIDANCE_PART5 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_PART5 : null,
             typeof COMPREHENSIVE_GUIDANCE_L3 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_L3 : null,
             typeof COMPREHENSIVE_GUIDANCE_R3 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_R3 : null,
-            typeof COMPREHENSIVE_GUIDANCE_SPA !== 'undefined' ? COMPREHENSIVE_GUIDANCE_SPA : null
+            typeof COMPREHENSIVE_GUIDANCE_R3_NEW !== 'undefined' ? COMPREHENSIVE_GUIDANCE_R3_NEW : null,
+            typeof COMPREHENSIVE_GUIDANCE_R3_NEW2 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_R3_NEW2 : null,
+            typeof COMPREHENSIVE_GUIDANCE_SPA !== 'undefined' ? COMPREHENSIVE_GUIDANCE_SPA : null,
+            typeof COMPREHENSIVE_GUIDANCE_SOC !== 'undefined' ? COMPREHENSIVE_GUIDANCE_SOC : null,
+            typeof ACCESS_REVIEW_GUIDE !== 'undefined' ? ACCESS_REVIEW_GUIDE : null
         ];
 
         // Merge guidance from all sources (SPA data supplements existing guidance)
@@ -329,7 +354,8 @@ const ComprehensiveGuidanceUI = {
             application: null,
             mobile: null,
             security_tools: null,
-            industry_specific: null
+            industry_specific: null,
+            access_review: null
         };
 
         for (const section of Object.keys(sectionMap)) {
@@ -473,7 +499,11 @@ const ComprehensiveGuidanceUI = {
             ['javascript_example', 'JavaScript'],
             ['filebeat_yml', 'Filebeat Config'],
             ['inputs_conf', 'Splunk inputs.conf'],
+            ['splunk_inputs_conf', 'Splunk inputs.conf'],
             ['indexes_conf', 'Splunk indexes.conf'],
+            ['spl_query', 'SPL Query'],
+            ['kql_query', 'KQL Query'],
+            ['yara_l_rule', 'YARA-L Rule'],
             ['policy_example', 'Policy'],
             ['custom_role_yaml', 'Custom Role YAML'],
             ['role_example', 'Role YAML'],
@@ -497,6 +527,24 @@ const ComprehensiveGuidanceUI = {
             html += '<div class="cg-verify"><div class="cg-verify-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Verification</div><ul>';
             for (var v = 0; v < impl.verification.length; v++) {
                 html += '<li>' + impl.verification[v] + '</li>';
+            }
+            html += '</ul></div>';
+        }
+
+        // Evidence Artifacts (Access Review Guide)
+        if (data.evidenceArtifacts && data.evidenceArtifacts.length > 0) {
+            html += '<div class="cg-verify"><div class="cg-verify-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Evidence Artifacts for C3PAO</div><ul>';
+            for (var ea = 0; ea < data.evidenceArtifacts.length; ea++) {
+                html += '<li>' + data.evidenceArtifacts[ea] + '</li>';
+            }
+            html += '</ul></div>';
+        }
+
+        // Common Pitfalls (Access Review Guide)
+        if (data.pitfalls && data.pitfalls.length > 0) {
+            html += '<div class="cg-verify"><div class="cg-verify-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Common Pitfalls</div><ul>';
+            for (var pf = 0; pf < data.pitfalls.length; pf++) {
+                html += '<li>' + data.pitfalls[pf] + '</li>';
             }
             html += '</ul></div>';
         }

@@ -2,6 +2,9 @@
 // MSP/Consultant view for managing multiple OSC assessments
 
 const PortfolioDashboard = {
+    // XSS-safe HTML escaping for user-stored data
+    esc(s) { return typeof Sanitize !== 'undefined' ? Sanitize.html(s) : String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'})[c]); },
+
     config: {
         version: "1.0.0"
     },
@@ -633,7 +636,7 @@ const PortfolioDashboard = {
                     ${client.notes ? `
                     <div class="detail-notes">
                         <label>Notes</label>
-                        <p>${client.notes}</p>
+                        <p>${this.esc(client.notes)}</p>
                     </div>
                     ` : ''}
                 </div>

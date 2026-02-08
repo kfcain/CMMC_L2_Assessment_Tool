@@ -2,6 +2,9 @@
 // Tracks policies, procedures, SSP, assets, and FIPS certificates
 
 const OSCInventory = {
+    // XSS-safe HTML escaping for user-stored data
+    esc(s) { return typeof Sanitize !== 'undefined' ? Sanitize.html(s) : String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'})[c]); },
+
     data: null,
     currentTab: 'overview',
     assetFilter: 'all',
@@ -663,16 +666,16 @@ const OSCInventory = {
     
     getModalForm(type, item) {
         const forms = {
-            policy: `<div class="osc-form-group"><label>Name *</label><input type="text" id="osc-f-name" value="${item.name||''}" required></div>
-                <div class="osc-form-group"><label>Description</label><textarea id="osc-f-description">${item.description||''}</textarea></div>
-                <div class="osc-form-group"><label>Version</label><input type="text" id="osc-f-version" value="${item.version||'1.0'}"></div>`,
-            procedure: `<div class="osc-form-group"><label>Name *</label><input type="text" id="osc-f-name" value="${item.name||''}" required></div>
-                <div class="osc-form-group"><label>Description</label><textarea id="osc-f-description">${item.description||''}</textarea></div>
-                <div class="osc-form-group"><label>Related Policy</label><input type="text" id="osc-f-relatedPolicy" value="${item.relatedPolicy||''}"></div>`,
-            ssp: `<div class="osc-form-group"><label>Document Name *</label><input type="text" id="osc-f-name" value="${item.name||''}" required></div>
-                <div class="osc-form-group"><label>Version</label><input type="text" id="osc-f-version" value="${item.version||'1.0'}"></div>
+            policy: `<div class="osc-form-group"><label>Name *</label><input type="text" id="osc-f-name" value="${this.esc(item.name||'')}" maxlength="500" required></div>
+                <div class="osc-form-group"><label>Description</label><textarea id="osc-f-description" maxlength="5000">${this.esc(item.description||'')}</textarea></div>
+                <div class="osc-form-group"><label>Version</label><input type="text" id="osc-f-version" value="${this.esc(item.version||'1.0')}" maxlength="50"></div>`,
+            procedure: `<div class="osc-form-group"><label>Name *</label><input type="text" id="osc-f-name" value="${this.esc(item.name||'')}" maxlength="500" required></div>
+                <div class="osc-form-group"><label>Description</label><textarea id="osc-f-description" maxlength="5000">${this.esc(item.description||'')}</textarea></div>
+                <div class="osc-form-group"><label>Related Policy</label><input type="text" id="osc-f-relatedPolicy" value="${this.esc(item.relatedPolicy||'')}" maxlength="500"></div>`,
+            ssp: `<div class="osc-form-group"><label>Document Name *</label><input type="text" id="osc-f-name" value="${this.esc(item.name||'')}" maxlength="500" required></div>
+                <div class="osc-form-group"><label>Version</label><input type="text" id="osc-f-version" value="${this.esc(item.version||'1.0')}" maxlength="50"></div>
                 <div class="osc-form-group"><label>Last Updated</label><input type="date" id="osc-f-lastUpdated" value="${item.lastUpdated||''}"></div>`,
-            asset: `<div class="osc-form-group"><label>Asset Name *</label><input type="text" id="osc-f-name" value="${item.name||''}" required></div>
+            asset: `<div class="osc-form-group"><label>Asset Name *</label><input type="text" id="osc-f-name" value="${this.esc(item.name||'')}" maxlength="500" required></div>
                 <div class="osc-form-group"><label>Category *</label><select id="osc-f-category">
                     <option value="cui" ${item.category==='cui'?'selected':''}>CUI Asset (Purple)</option>
                     <option value="spa" ${item.category==='spa'?'selected':''}>Security Protection Asset (Yellow)</option>
@@ -690,13 +693,13 @@ const OSCInventory = {
                     <option value="cloud" ${item.assetType==='cloud'?'selected':''}>Cloud Resource</option>
                     <option value="other" ${item.assetType==='other'?'selected':''}>Other</option>
                 </select></div>
-                <div class="osc-form-group"><label>Hostname</label><input type="text" id="osc-f-hostname" value="${item.hostname||''}"></div>
-                <div class="osc-form-group"><label>IP Address</label><input type="text" id="osc-f-ipAddress" value="${item.ipAddress||''}"></div>
-                <div class="osc-form-group"><label>Owner</label><input type="text" id="osc-f-owner" value="${item.owner||''}"></div>
-                <div class="osc-form-group"><label>Location</label><input type="text" id="osc-f-location" value="${item.location||''}"></div>`,
-            fips: `<div class="osc-form-group"><label>Certificate # *</label><input type="text" id="osc-f-certNumber" value="${item.certNumber||''}" placeholder="#4282" required></div>
-                <div class="osc-form-group"><label>Module Name *</label><input type="text" id="osc-f-moduleName" value="${item.moduleName||''}" required></div>
-                <div class="osc-form-group"><label>Vendor</label><input type="text" id="osc-f-vendor" value="${item.vendor||''}"></div>
+                <div class="osc-form-group"><label>Hostname</label><input type="text" id="osc-f-hostname" value="${this.esc(item.hostname||'')}" maxlength="255"></div>
+                <div class="osc-form-group"><label>IP Address</label><input type="text" id="osc-f-ipAddress" value="${this.esc(item.ipAddress||'')}" maxlength="45"></div>
+                <div class="osc-form-group"><label>Owner</label><input type="text" id="osc-f-owner" value="${this.esc(item.owner||'')}" maxlength="200"></div>
+                <div class="osc-form-group"><label>Location</label><input type="text" id="osc-f-location" value="${this.esc(item.location||'')}" maxlength="200"></div>`,
+            fips: `<div class="osc-form-group"><label>Certificate # *</label><input type="text" id="osc-f-certNumber" value="${this.esc(item.certNumber||'')}" maxlength="20" placeholder="#4282" required></div>
+                <div class="osc-form-group"><label>Module Name *</label><input type="text" id="osc-f-moduleName" value="${this.esc(item.moduleName||'')}" maxlength="500" required></div>
+                <div class="osc-form-group"><label>Vendor</label><input type="text" id="osc-f-vendor" value="${this.esc(item.vendor||'')}" maxlength="200"></div>
                 <div class="osc-form-group"><label>Standard</label><select id="osc-f-standard">
                     <option value="FIPS 140-2" ${item.standard==='FIPS 140-2'?'selected':''}>FIPS 140-2</option>
                     <option value="FIPS 140-3" ${item.standard==='FIPS 140-3'?'selected':''}>FIPS 140-3</option>
@@ -712,21 +715,21 @@ const OSCInventory = {
                     <option value="historical" ${item.status==='historical'?'selected':''}>Historical</option>
                     <option value="revoked" ${item.status==='revoked'?'selected':''}>Revoked</option>
                 </select></div>`,
-            dataflow: `<div class="osc-form-group"><label>Diagram Name *</label><input type="text" id="osc-f-name" value="${item.name||''}" placeholder="CUI Data Flow Diagram" required></div>
-                <div class="osc-form-group"><label>Description</label><textarea id="osc-f-description" placeholder="Describe what this diagram shows...">${item.description||''}</textarea></div>
-                <div class="osc-form-group"><label>Version</label><input type="text" id="osc-f-version" value="${item.version||'1.0'}"></div>
+            dataflow: `<div class="osc-form-group"><label>Diagram Name *</label><input type="text" id="osc-f-name" value="${this.esc(item.name||'')}" maxlength="500" placeholder="CUI Data Flow Diagram" required></div>
+                <div class="osc-form-group"><label>Description</label><textarea id="osc-f-description" placeholder="Describe what this diagram shows..." maxlength="5000">${this.esc(item.description||'')}</textarea></div>
+                <div class="osc-form-group"><label>Version</label><input type="text" id="osc-f-version" value="${this.esc(item.version||'1.0')}" maxlength="50"></div>
                 <div class="osc-form-group">
                     <label>Upload File (Image or PDF)</label>
                     <input type="file" id="osc-f-file" accept="image/*,.pdf,.vsd,.vsdx,.drawio">
-                    ${item.fileName ? `<div style="margin-top:8px;font-size:0.8rem;color:var(--text-muted)">Current: ${item.fileName}</div>` : ''}
+                    ${item.fileName ? `<div style="margin-top:8px;font-size:0.8rem;color:var(--text-muted)">Current: ${this.esc(item.fileName)}</div>` : ''}
                 </div>`,
-            network: `<div class="osc-form-group"><label>Diagram Name *</label><input type="text" id="osc-f-name" value="${item.name||''}" placeholder="Network Architecture Diagram" required></div>
-                <div class="osc-form-group"><label>Description</label><textarea id="osc-f-description" placeholder="Describe the network architecture...">${item.description||''}</textarea></div>
-                <div class="osc-form-group"><label>Version</label><input type="text" id="osc-f-version" value="${item.version||'1.0'}"></div>
+            network: `<div class="osc-form-group"><label>Diagram Name *</label><input type="text" id="osc-f-name" value="${this.esc(item.name||'')}" maxlength="500" placeholder="Network Architecture Diagram" required></div>
+                <div class="osc-form-group"><label>Description</label><textarea id="osc-f-description" placeholder="Describe the network architecture..." maxlength="5000">${this.esc(item.description||'')}</textarea></div>
+                <div class="osc-form-group"><label>Version</label><input type="text" id="osc-f-version" value="${this.esc(item.version||'1.0')}" maxlength="50"></div>
                 <div class="osc-form-group">
                     <label>Upload File (Image or PDF)</label>
                     <input type="file" id="osc-f-file" accept="image/*,.pdf,.vsd,.vsdx,.drawio">
-                    ${item.fileName ? `<div style="margin-top:8px;font-size:0.8rem;color:var(--text-muted)">Current: ${item.fileName}</div>` : ''}
+                    ${item.fileName ? `<div style="margin-top:8px;font-size:0.8rem;color:var(--text-muted)">Current: ${this.esc(item.fileName)}</div>` : ''}
                 </div>`
         };
         return forms[type] || '';

@@ -294,7 +294,7 @@ const EvidenceCollector = {
                         ${evidence.url ? `
                             <div class="detail-row">
                                 <span class="detail-label">Location:</span>
-                                <span class="detail-value"><a href="${evidence.url}" target="_blank">${evidence.url}</a></span>
+                                <span class="detail-value"><a href="${evidence.url}" target="_blank" rel="noopener noreferrer">${evidence.url}</a></span>
                             </div>
                         ` : ''}
                         ${evidence.linkedControls && evidence.linkedControls.length > 0 ? `

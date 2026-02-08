@@ -30,6 +30,12 @@ const CrosswalkVisualizer = {
     },
     
     bindEvents() {
+        // Export buttons (CSP blocks inline onclick)
+        document.getElementById('export-ksi-json-btn')?.addEventListener('click', () => this.exportKSIJSON());
+        document.getElementById('export-ksi-csv-btn')?.addEventListener('click', () => this.exportKSICSV());
+        document.getElementById('export-53-json-btn')?.addEventListener('click', () => this.export80053JSON());
+        document.getElementById('export-53-csv-btn')?.addEventListener('click', () => this.export80053CSV());
+
         // View toggle
         document.querySelectorAll('.crosswalk-view-toggle .toggle-btn').forEach(btn => {
             btn.addEventListener('click', () => {

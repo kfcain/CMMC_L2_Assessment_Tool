@@ -55,7 +55,7 @@
 .cc-btn-primary:hover {
     background: var(--accent-blue-hover, #5470e0);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(108, 138, 255, 0.3);
+    box-shadow: 0 4px 12px var(--accent-glow, rgba(108, 138, 255, 0.3));
 }
 .cc-btn-ghost {
     background: rgba(255,255,255,0.04);
@@ -129,8 +129,8 @@
     flex-direction: column;
 }
 .cc-panel:hover {
-    border-color: rgba(108, 138, 255, 0.15);
-    box-shadow: 0 0 20px rgba(108, 138, 255, 0.05);
+    border-color: var(--hover-border, rgba(108, 138, 255, 0.15));
+    box-shadow: 0 0 20px var(--hover-glow, rgba(108, 138, 255, 0.05));
 }
 .cc-panel-2x {
     grid-column: span 2;
@@ -442,7 +442,7 @@
     letter-spacing: 0.04em;
     margin-bottom: 6px;
 }
-.cc-doc-ssp { background: rgba(108, 138, 255, 0.12); color: var(--accent-blue, #6c8aff); }
+.cc-doc-ssp { background: var(--hover-bg, rgba(108, 138, 255, 0.12)); color: var(--accent-blue, #6c8aff); }
 .cc-doc-policy { background: rgba(198, 120, 221, 0.12); color: #c678dd; }
 .cc-doc-proc { background: rgba(229, 192, 123, 0.12); color: #e5c07b; }
 .cc-doc-count {
@@ -835,7 +835,7 @@
     color: var(--text-secondary, #8b8fa3);
 }
 .cc-format-table code {
-    background: rgba(108, 138, 255, 0.08);
+    background: var(--hover-bg, rgba(108, 138, 255, 0.08));
     padding: 1px 5px;
     border-radius: 3px;
     font-size: 0.72rem;
@@ -864,7 +864,7 @@
 .cc-upload-area:hover,
 .cc-upload-area.drag-over {
     border-color: var(--accent-blue, #6c8aff);
-    background: rgba(108, 138, 255, 0.04);
+    background: var(--hover-bg, rgba(108, 138, 255, 0.04));
     color: var(--text-secondary, #8b8fa3);
 }
 .cc-upload-area p {

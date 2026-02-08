@@ -2,8 +2,51 @@
 // Handles theme switching and persistence across the site
 
 const ThemePicker = {
-    // Available themes based on popular VS Code themes
+    // Available themes — Deep Obsidian is the premium default
     themes: {
+        // Deep Obsidian — Premium dark theme with animated purple background
+        deepObsidian: {
+            name: 'Deep Obsidian',
+            icon: 'gem',
+            category: 'premium',
+            hasPurpleBg: true,
+            colors: {
+                '--bg-primary': '#0a0a0f',
+                '--bg-secondary': '#0f1117',
+                '--bg-tertiary': '#161822',
+                '--bg-elevated': '#1a1d2b',
+                '--text-primary': '#e4e5ea',
+                '--text-secondary': '#8b8fa3',
+                '--text-muted': '#4e5263',
+                '--border-color': '#1e2030',
+                '--border-subtle': 'rgba(255, 255, 255, 0.04)',
+                '--accent-blue': '#6c8aff',
+                '--accent-blue-hover': '#5470e0',
+                '--accent-glow': 'rgba(108, 138, 255, 0.15)',
+                '--input-bg': '#0d0e14',
+                '--card-bg': '#0f1117',
+                '--modal-bg': '#0f1117',
+                '--shadow-color': 'rgba(0, 0, 0, 0.6)',
+                '--glass-bg': 'rgba(15, 17, 23, 0.72)',
+                '--glass-border': 'rgba(255, 255, 255, 0.05)',
+                '--glow-primary': 'rgba(108, 138, 255, 0.08)',
+                '--glow-accent': 'rgba(139, 92, 246, 0.06)',
+                '--hover-bg': 'rgba(108, 138, 255, 0.06)',
+                '--hover-border': 'rgba(108, 138, 255, 0.15)',
+                '--hover-glow': 'rgba(108, 138, 255, 0.08)',
+                '--focus-border': 'rgba(108, 138, 255, 0.3)',
+                '--focus-glow': 'rgba(108, 138, 255, 0.08)',
+                '--card-hover-border': 'rgba(108, 138, 255, 0.1)',
+                '--card-hover-shadow': '0 4px 24px rgba(0, 0, 0, 0.2), 0 0 20px rgba(108, 138, 255, 0.04)',
+                '--table-hover-bg': 'rgba(108, 138, 255, 0.03)',
+                '--table-border': 'rgba(255, 255, 255, 0.03)',
+                '--table-header-bg': 'rgba(255, 255, 255, 0.02)',
+                '--accent-line': 'linear-gradient(90deg, transparent, rgba(108, 138, 255, 0.15), transparent)',
+                '--nav-active-bg': 'linear-gradient(135deg, rgba(108, 138, 255, 0.15), rgba(139, 92, 246, 0.1))',
+                '--nav-active-border': 'rgba(108, 138, 255, 0.2)',
+                '--nav-active-bar': 'linear-gradient(180deg, #6c8aff, #8b5cf6)'
+            }
+        },
         // One Dark Pro - Most popular VS Code theme (Atom One Dark inspired)
         oneDarkPro: {
             name: 'One Dark Pro',
@@ -12,6 +55,7 @@ const ThemePicker = {
                 '--bg-primary': '#282c34',
                 '--bg-secondary': '#21252b',
                 '--bg-tertiary': '#2c313a',
+                '--bg-elevated': '#353b45',
                 '--text-primary': '#abb2bf',
                 '--text-secondary': '#828997',
                 '--text-muted': '#5c6370',
@@ -21,7 +65,20 @@ const ThemePicker = {
                 '--input-bg': '#1d1f23',
                 '--card-bg': '#21252b',
                 '--modal-bg': '#21252b',
-                '--shadow-color': 'rgba(0, 0, 0, 0.4)'
+                '--shadow-color': 'rgba(0, 0, 0, 0.4)',
+                '--glass-bg': 'rgba(33, 37, 43, 0.8)',
+                '--glass-border': 'rgba(255, 255, 255, 0.06)',
+                '--glow-primary': 'rgba(97, 175, 239, 0.08)',
+                '--glow-accent': 'rgba(97, 175, 239, 0.06)',
+                '--hover-bg': 'rgba(97, 175, 239, 0.06)',
+                '--hover-border': 'rgba(97, 175, 239, 0.15)',
+                '--card-hover-border': 'rgba(97, 175, 239, 0.12)',
+                '--card-hover-shadow': '0 4px 24px rgba(0, 0, 0, 0.2), 0 0 16px rgba(97, 175, 239, 0.04)',
+                '--table-hover-bg': 'rgba(97, 175, 239, 0.04)',
+                '--accent-line': 'linear-gradient(90deg, transparent, rgba(97, 175, 239, 0.15), transparent)',
+                '--nav-active-bg': 'linear-gradient(135deg, rgba(97, 175, 239, 0.15), rgba(97, 175, 239, 0.08))',
+                '--nav-active-border': 'rgba(97, 175, 239, 0.2)',
+                '--nav-active-bar': 'linear-gradient(180deg, #61afef, #528bcc)'
             }
         },
         // Dracula - Popular purple/pink vampire theme
@@ -32,6 +89,7 @@ const ThemePicker = {
                 '--bg-primary': '#282a36',
                 '--bg-secondary': '#21222c',
                 '--bg-tertiary': '#343746',
+                '--bg-elevated': '#3d4058',
                 '--text-primary': '#f8f8f2',
                 '--text-secondary': '#bd93f9',
                 '--text-muted': '#6272a4',
@@ -41,7 +99,20 @@ const ThemePicker = {
                 '--input-bg': '#21222c',
                 '--card-bg': '#21222c',
                 '--modal-bg': '#21222c',
-                '--shadow-color': 'rgba(0, 0, 0, 0.5)'
+                '--shadow-color': 'rgba(0, 0, 0, 0.5)',
+                '--glass-bg': 'rgba(33, 34, 44, 0.8)',
+                '--glass-border': 'rgba(255, 255, 255, 0.06)',
+                '--glow-primary': 'rgba(189, 147, 249, 0.08)',
+                '--glow-accent': 'rgba(255, 121, 198, 0.06)',
+                '--hover-bg': 'rgba(189, 147, 249, 0.06)',
+                '--hover-border': 'rgba(189, 147, 249, 0.15)',
+                '--card-hover-border': 'rgba(189, 147, 249, 0.12)',
+                '--card-hover-shadow': '0 4px 24px rgba(0, 0, 0, 0.2), 0 0 16px rgba(189, 147, 249, 0.06)',
+                '--table-hover-bg': 'rgba(189, 147, 249, 0.04)',
+                '--accent-line': 'linear-gradient(90deg, transparent, rgba(189, 147, 249, 0.15), transparent)',
+                '--nav-active-bg': 'linear-gradient(135deg, rgba(189, 147, 249, 0.15), rgba(255, 121, 198, 0.1))',
+                '--nav-active-border': 'rgba(189, 147, 249, 0.2)',
+                '--nav-active-bar': 'linear-gradient(180deg, #bd93f9, #ff79c6)'
             }
         },
         // GitHub Dark - Official GitHub dark theme
@@ -52,6 +123,7 @@ const ThemePicker = {
                 '--bg-primary': '#0d1117',
                 '--bg-secondary': '#161b22',
                 '--bg-tertiary': '#21262d',
+                '--bg-elevated': '#2d333b',
                 '--text-primary': '#e6edf3',
                 '--text-secondary': '#8b949e',
                 '--text-muted': '#6e7681',
@@ -61,7 +133,19 @@ const ThemePicker = {
                 '--input-bg': '#0d1117',
                 '--card-bg': '#161b22',
                 '--modal-bg': '#161b22',
-                '--shadow-color': 'rgba(0, 0, 0, 0.4)'
+                '--shadow-color': 'rgba(0, 0, 0, 0.4)',
+                '--glass-bg': 'rgba(22, 27, 34, 0.8)',
+                '--glass-border': 'rgba(255, 255, 255, 0.06)',
+                '--glow-primary': 'rgba(88, 166, 255, 0.08)',
+                '--hover-bg': 'rgba(88, 166, 255, 0.06)',
+                '--hover-border': 'rgba(88, 166, 255, 0.15)',
+                '--card-hover-border': 'rgba(88, 166, 255, 0.12)',
+                '--card-hover-shadow': '0 4px 24px rgba(0, 0, 0, 0.2), 0 0 16px rgba(88, 166, 255, 0.04)',
+                '--table-hover-bg': 'rgba(88, 166, 255, 0.04)',
+                '--accent-line': 'linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.15), transparent)',
+                '--nav-active-bg': 'linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(88, 166, 255, 0.08))',
+                '--nav-active-border': 'rgba(88, 166, 255, 0.2)',
+                '--nav-active-bar': 'linear-gradient(180deg, #58a6ff, #1f6feb)'
             }
         },
         // GitHub Light - Official GitHub light theme
@@ -72,6 +156,7 @@ const ThemePicker = {
                 '--bg-primary': '#ffffff',
                 '--bg-secondary': '#f6f8fa',
                 '--bg-tertiary': '#eaeef2',
+                '--bg-elevated': '#ffffff',
                 '--text-primary': '#1f2328',
                 '--text-secondary': '#656d76',
                 '--text-muted': '#8b949e',
@@ -81,7 +166,19 @@ const ThemePicker = {
                 '--input-bg': '#ffffff',
                 '--card-bg': '#ffffff',
                 '--modal-bg': '#ffffff',
-                '--shadow-color': 'rgba(31, 35, 40, 0.12)'
+                '--shadow-color': 'rgba(31, 35, 40, 0.12)',
+                '--glass-bg': 'rgba(255, 255, 255, 0.85)',
+                '--glass-border': 'rgba(0, 0, 0, 0.1)',
+                '--glow-primary': 'rgba(9, 105, 218, 0.06)',
+                '--hover-bg': 'rgba(9, 105, 218, 0.04)',
+                '--hover-border': 'rgba(9, 105, 218, 0.2)',
+                '--card-hover-border': 'rgba(9, 105, 218, 0.15)',
+                '--card-hover-shadow': '0 4px 16px rgba(31, 35, 40, 0.1)',
+                '--table-hover-bg': 'rgba(9, 105, 218, 0.03)',
+                '--accent-line': 'linear-gradient(90deg, transparent, rgba(9, 105, 218, 0.15), transparent)',
+                '--nav-active-bg': 'linear-gradient(135deg, rgba(9, 105, 218, 0.1), rgba(9, 105, 218, 0.05))',
+                '--nav-active-border': 'rgba(9, 105, 218, 0.25)',
+                '--nav-active-bar': 'linear-gradient(180deg, #0969da, #0550ae)'
             }
         },
         // Night Owl - Sarah Drasner's popular theme for night coders
@@ -423,6 +520,7 @@ const ThemePicker = {
     
     // Theme categories for organized display
     themeCategories: {
+        premium: { name: 'Premium', themes: ['deepObsidian'] },
         popular: { name: 'Popular', themes: ['oneDarkPro', 'dracula', 'githubDark', 'githubLight', 'tokyoNight'] },
         classic: { name: 'Classic', themes: ['nightOwl', 'nord', 'catppuccin', 'gruvbox', 'solarized'] },
         neon: { name: 'Neon & Cyber', themes: ['cyberpunk', 'synthwave', 'neonNoir'] },
@@ -431,11 +529,61 @@ const ThemePicker = {
         warm: { name: 'Warm', themes: ['sunset', 'lava'] }
     },
 
-    currentTheme: 'oneDarkPro',
+    currentTheme: 'deepObsidian',
     storageKey: 'cmmc-theme-preference',
+
+    // Auto-fill extended CSS variables for themes that only define the basic set
+    _fillDefaults() {
+        Object.entries(this.themes).forEach(([key, theme]) => {
+            const c = theme.colors;
+            // Skip themes that already have the full extended set
+            if (c['--glass-bg'] && c['--hover-bg'] && c['--nav-active-bg']) return;
+
+            // Parse accent color hex to RGB for rgba() generation
+            const accent = c['--accent-blue'] || '#6c8aff';
+            const accentHover = c['--accent-blue-hover'] || accent;
+            const bgSec = c['--bg-secondary'] || '#0f1117';
+            const isLight = theme.name === 'GitHub Light';
+
+            // Helper: hex to r,g,b string
+            const hexToRgb = (hex) => {
+                hex = hex.replace('#', '');
+                if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+                const n = parseInt(hex, 16);
+                return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+            };
+
+            const ar = hexToRgb(accent);
+            const bgR = hexToRgb(bgSec);
+
+            // Fill in missing extended variables
+            if (!c['--bg-elevated']) c['--bg-elevated'] = c['--bg-tertiary'] || '#1a1d2b';
+            if (!c['--border-subtle']) c['--border-subtle'] = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.04)';
+            if (!c['--accent-glow']) c['--accent-glow'] = `rgba(${ar}, 0.15)`;
+            if (!c['--glass-bg']) c['--glass-bg'] = isLight ? 'rgba(255, 255, 255, 0.85)' : `rgba(${bgR}, 0.8)`;
+            if (!c['--glass-border']) c['--glass-border'] = isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.06)';
+            if (!c['--glow-primary']) c['--glow-primary'] = `rgba(${ar}, 0.08)`;
+            if (!c['--glow-accent']) c['--glow-accent'] = `rgba(${ar}, 0.06)`;
+            if (!c['--hover-bg']) c['--hover-bg'] = `rgba(${ar}, 0.06)`;
+            if (!c['--hover-border']) c['--hover-border'] = `rgba(${ar}, 0.15)`;
+            if (!c['--hover-glow']) c['--hover-glow'] = `rgba(${ar}, 0.08)`;
+            if (!c['--focus-border']) c['--focus-border'] = `rgba(${ar}, 0.3)`;
+            if (!c['--focus-glow']) c['--focus-glow'] = `rgba(${ar}, 0.08)`;
+            if (!c['--card-hover-border']) c['--card-hover-border'] = `rgba(${ar}, 0.12)`;
+            if (!c['--card-hover-shadow']) c['--card-hover-shadow'] = `0 4px 24px rgba(0, 0, 0, 0.2), 0 0 16px rgba(${ar}, 0.04)`;
+            if (!c['--table-hover-bg']) c['--table-hover-bg'] = `rgba(${ar}, 0.04)`;
+            if (!c['--table-border']) c['--table-border'] = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.03)';
+            if (!c['--table-header-bg']) c['--table-header-bg'] = isLight ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)';
+            if (!c['--accent-line']) c['--accent-line'] = `linear-gradient(90deg, transparent, rgba(${ar}, 0.15), transparent)`;
+            if (!c['--nav-active-bg']) c['--nav-active-bg'] = `linear-gradient(135deg, rgba(${ar}, 0.15), rgba(${ar}, 0.08))`;
+            if (!c['--nav-active-border']) c['--nav-active-border'] = `rgba(${ar}, 0.2)`;
+            if (!c['--nav-active-bar']) c['--nav-active-bar'] = `linear-gradient(180deg, ${accent}, ${accentHover})`;
+        });
+    },
 
     // Initialize the theme picker
     init() {
+        this._fillDefaults();
         this.loadSavedTheme();
         this.renderPicker();
         this.bindEvents();
@@ -465,6 +613,12 @@ const ThemePicker = {
             root.style.setProperty(property, value);
         });
 
+        // Toggle purple background canvas based on theme
+        this._updatePurpleBackground(theme.hasPurpleBg);
+
+        // Set html background color to match theme
+        document.documentElement.style.backgroundColor = theme.hasPurpleBg ? '#08070f' : theme.colors['--bg-primary'];
+
         this.currentTheme = themeName;
         this.saveTheme(themeName);
         this.updatePickerUI();
@@ -473,6 +627,15 @@ const ThemePicker = {
         document.dispatchEvent(new CustomEvent('themechange', {
             detail: { theme: themeName, colors: theme.colors }
         }));
+    },
+
+    // Show/hide the animated purple background canvas
+    _updatePurpleBackground(show) {
+        const canvas = document.getElementById('purple-bg-canvas');
+        if (!canvas) return;
+        canvas.style.display = show ? '' : 'none';
+        // Also set body background for non-canvas themes
+        document.body.style.backgroundColor = show ? 'transparent' : 'var(--bg-primary)';
     },
 
     // Get SVG icon for theme
@@ -491,7 +654,8 @@ const ThemePicker = {
             terminal: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>',
             tree: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7"></path><path d="M9 22h6"></path><path d="M12 15l-5-5 3.5-.5-1.5-3 4-3 4 3-1.5 3L19 10z"></path></svg>',
             waves: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>',
-            flame: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>'
+            flame: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>',
+            gem: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>'
         };
         return icons[iconName] || icons.palette;
     },

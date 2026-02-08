@@ -121,11 +121,21 @@ class AssessmentApp {
     }
 
     saveData() {
-        localStorage.setItem('nist-assessment-data', JSON.stringify(this.assessmentData));
-        localStorage.setItem('nist-poam-data', JSON.stringify(this.poamData));
-        localStorage.setItem('nist-deficiency-data', JSON.stringify(this.deficiencyData));
-        localStorage.setItem('nist-implementation-data', JSON.stringify(this.implementationData));
-        localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
+        try {
+            localStorage.setItem('nist-assessment-data', JSON.stringify(this.assessmentData));
+            localStorage.setItem('nist-poam-data', JSON.stringify(this.poamData));
+            localStorage.setItem('nist-deficiency-data', JSON.stringify(this.deficiencyData));
+            localStorage.setItem('nist-implementation-data', JSON.stringify(this.implementationData));
+            localStorage.setItem('nist-org-data', JSON.stringify(this.orgData));
+        } catch (e) {
+            console.error('[SaveData] localStorage write failed:', e);
+            this.showToast('Storage full — export your data to avoid data loss', 'error');
+            return;
+        }
+        if (typeof Sanitize !== 'undefined' && Sanitize.storage.isNearLimit()) {
+            console.warn(`[SaveData] localStorage usage: ${Sanitize.storage.getUsageMB()} MB — approaching limit`);
+            this.showToast(`Storage ${Sanitize.storage.getUsageMB()} MB — consider exporting data`, 'warning');
+        }
         this.showToast('Progress saved successfully', 'success');
     }
 
@@ -4232,48 +4242,158 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     }
 
     exportPOAMCSV() {
+        // =====================================================================
+        // Client-Ready POA&M Export
+        // Merges base POA&M data with POAMEnhancements (risk, cost, milestones)
+        // Produces a professional multi-sheet workbook ready for delivery
+        // =====================================================================
         const poamItems = [];
+        const riskRows = [];
+        const milestoneRows = [];
+        const costRows = [];
         
-        // Get org info for export
+        // Get org info
         const assessorName = this.orgData.assessorName || '';
         const assessorUrl = this.orgData.assessorUrl || '';
         const oscName = this.orgData.oscName || '';
         const oscUrl = this.orgData.oscUrl || '';
+        const exportDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const exportTimestamp = new Date().toLocaleString();
+        
+        // POAMEnhancements integration
+        const hasEnhancements = typeof POAMEnhancements !== 'undefined';
+        const enhancedStore = hasEnhancements ? POAMEnhancements.enhancedData : {};
+        
+        // SPRS scoring reference
+        const scoringRefExport = typeof SPRS_SCORING !== 'undefined' ? SPRS_SCORING : null;
+        
+        // Determine POA&M eligibility helpers
+        const neverPoamList = scoringRefExport?.neverPoam || [];
+        
+        // Collect SPRS score for summary
+        let totalSPRSDeduction = 0;
+        let controlsMet = 0;
+        let controlsTotal = 0;
         
         CONTROL_FAMILIES.forEach(family => {
             family.controls.forEach(control => {
+                controlsTotal++;
+                const isNeverPoam = neverPoamList.includes(control.id);
+                const isFipsException = control.id === '3.13.11';
+                let controlHasGap = false;
+                
                 control.objectives.forEach(objective => {
                     const assessment = this.assessmentData[objective.id];
                     if (assessment && (assessment.status === 'not-met' || assessment.status === 'partial')) {
+                        controlHasGap = true;
                         const poam = this.poamData[objective.id] || {};
+                        const enhanced = enhancedStore[objective.id] || {};
                         const xrefId = typeof CTRL_XREF !== 'undefined' ? (CTRL_XREF[objective.id] || '') : '';
+                        const sprsScore = scoringRefExport ? (scoringRefExport.pointValues[control.id] || 0) : 0;
+                        const severity = sprsScore >= 5 ? 'High' : sprsScore >= 3 ? 'Medium' : 'Low';
+                        const cmmcId = control.cmmcPracticeId || control.id;
                         
-                        // Get SPRS score from control ID
-                        const sprsScore = typeof SPRS_SCORING !== 'undefined' ? (SPRS_SCORING.pointValues[control.id] || 0) : 0;
-                        const severity = sprsScore === 5 ? 'High' : sprsScore === 3 ? 'Medium' : 'Low';
+                        // POA&M eligibility
+                        let poamEligibility = 'Yes';
+                        if (isNeverPoam) poamEligibility = 'NO - Cannot POA&M';
+                        else if (sprsScore > 1 && !isFipsException) poamEligibility = 'Warning - High Value';
+                        else if (isFipsException) poamEligibility = 'FIPS Exception';
                         
+                        // Risk data from enhancements
+                        let riskScore = 0, riskLevel = 'Not Assessed', likelihood = '', impact = '', riskDesc = '', mitigation = '';
+                        if (enhanced.riskAssessment && hasEnhancements) {
+                            riskScore = POAMEnhancements.calculateRiskScore(enhanced.riskAssessment);
+                            riskLevel = POAMEnhancements.getRiskLevel(riskScore).toUpperCase();
+                            likelihood = enhanced.riskAssessment.likelihood || '';
+                            impact = enhanced.riskAssessment.impact || '';
+                            riskDesc = enhanced.riskAssessment.description || '';
+                            mitigation = enhanced.riskAssessment.mitigation || '';
+                        }
+                        
+                        // Cost data from enhancements
+                        const costBreakdown = enhanced.costBreakdown || [];
+                        const totalEstCost = costBreakdown.reduce((s, c) => s + (c.estimated || 0), 0);
+                        const totalActCost = costBreakdown.reduce((s, c) => s + (c.actual || 0), 0);
+                        
+                        // Milestones from enhancements
+                        const milestones = enhanced.milestones || [];
+                        const progress = milestones.length > 0 ? Math.round((milestones.filter(m => m.status === 'completed').length / milestones.length) * 100) : 0;
+                        
+                        // Main POA&M row
                         poamItems.push({
-                            'Control Family': `${family.id} - ${family.name}`,
+                            'POA&M ID': `POAM-${poamItems.length + 1}`,
+                            'CMMC Practice': cmmcId,
                             'Control ID': control.id,
                             'Control Name': control.name,
                             'Objective ID': objective.id,
-                            'External Ref': xrefId,
                             'Objective': objective.text,
                             'Status': assessment.status === 'not-met' ? 'Not Met' : 'Partial',
-                            'SPRS Score': sprsScore,
+                            'POA&M Eligible': poamEligibility,
+                            'SPRS Pts': sprsScore,
                             'Severity': severity,
+                            'Risk Score': riskScore || '',
+                            'Risk Level': riskLevel,
                             'Weakness Description': poam.weakness || objective.text,
-                            'Weakness Identifying Party': poam.identifyingParty || '',
+                            'Identifying Party': poam.identifyingParty || '',
                             'Remediation Plan': poam.remediation || '',
+                            'Milestones': milestones.length > 0 ? milestones.map(m => m.name).join('; ') : '',
+                            'Progress': progress > 0 ? progress + '%' : '',
                             'Scheduled Completion': poam.scheduledDate || '',
                             'Responsible Party': poam.responsible || '',
-                            'Responsible Party Lead': poam.responsibleLead || '',
-                            'Risk Level': poam.risk || '',
-                            'Estimated Cost': poam.cost || '',
+                            'Responsible Lead': poam.responsibleLead || '',
+                            'Est. Cost': totalEstCost > 0 ? '$' + totalEstCost.toLocaleString() : poam.cost || '',
+                            'Actual Cost': totalActCost > 0 ? '$' + totalActCost.toLocaleString() : '',
                             'Notes': poam.notes || ''
+                        });
+                        
+                        // Risk register row
+                        riskRows.push({
+                            'POA&M ID': `POAM-${poamItems.length}`,
+                            'CMMC Practice': cmmcId,
+                            'Objective ID': objective.id,
+                            'Weakness': poam.weakness || objective.text,
+                            'Likelihood': likelihood ? likelihood.charAt(0).toUpperCase() + likelihood.slice(1) : 'Not Assessed',
+                            'Impact': impact ? impact.charAt(0).toUpperCase() + impact.slice(1) : 'Not Assessed',
+                            'Risk Score': riskScore || 'N/A',
+                            'Risk Level': riskLevel,
+                            'Risk Description': riskDesc,
+                            'Mitigation Strategy': mitigation,
+                            'Responsible Party': poam.responsible || '',
+                            'Target Date': poam.scheduledDate || ''
+                        });
+                        
+                        // Milestone rows
+                        milestones.forEach((ms, idx) => {
+                            milestoneRows.push({
+                                'POA&M ID': `POAM-${poamItems.length}`,
+                                'CMMC Practice': cmmcId,
+                                'Objective ID': objective.id,
+                                'Milestone #': idx + 1,
+                                'Milestone Name': ms.name,
+                                'Target Date': ms.targetDate || '',
+                                'Status': ms.status ? ms.status.charAt(0).toUpperCase() + ms.status.slice(1).replace('-', ' ') : 'Pending',
+                                'Description': ms.description || '',
+                                'Responsible Party': poam.responsible || ''
+                            });
+                        });
+                        
+                        // Cost breakdown rows
+                        costBreakdown.forEach(cb => {
+                            costRows.push({
+                                'POA&M ID': `POAM-${poamItems.length}`,
+                                'CMMC Practice': cmmcId,
+                                'Objective ID': objective.id,
+                                'Cost Category': cb.category ? cb.category.charAt(0).toUpperCase() + cb.category.slice(1) : '',
+                                'Description': cb.description || '',
+                                'Estimated Cost': cb.estimated ? '$' + cb.estimated.toLocaleString() : '',
+                                'Actual Cost': cb.actual ? '$' + cb.actual.toLocaleString() : 'Pending',
+                                'Responsible Party': poam.responsible || ''
+                            });
                         });
                     }
                 });
+                
+                if (!controlHasGap) controlsMet++;
             });
         });
 
@@ -4281,234 +4401,243 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             this.showToast('No POA&M items to export', 'error');
             return;
         }
+        
+        // Calculate summary stats
+        totalSPRSDeduction = poamItems.reduce((s, i) => s + (parseInt(i['SPRS Pts']) || 0), 0);
+        const sprsScore = 110 - totalSPRSDeduction;
+        const highRiskCount = riskRows.filter(r => r['Risk Level'] === 'HIGH').length;
+        const medRiskCount = riskRows.filter(r => r['Risk Level'] === 'MEDIUM').length;
+        const lowRiskCount = riskRows.filter(r => r['Risk Level'] === 'LOW').length;
+        const totalEstimatedCost = costRows.reduce((s, c) => {
+            const v = String(c['Estimated Cost']).replace(/[$,]/g, '');
+            return s + (parseFloat(v) || 0);
+        }, 0);
+        const uniqueControls = [...new Set(poamItems.map(i => i['Control ID']))];
+        const meetsConditional = controlsMet >= 88;
 
-        // Create workbook with SheetJS
+        // =====================================================================
+        // Build Workbook
+        // =====================================================================
         const wb = XLSX.utils.book_new();
         
-        // Create org info header
-        const orgInfo = `${assessorName}${assessorUrl ? ' (' + assessorUrl + ')' : ''} | ${oscName}${oscUrl ? ' (' + oscUrl + ')' : ''}`;
+        // ----- Sheet 1: Cover Page -----
+        const coverData = [
+            ['PLAN OF ACTION & MILESTONES (POA&M)'],
+            [''],
+            ['Organization (OSC):', oscName || 'N/A'],
+            ['Organization URL:', oscUrl || 'N/A'],
+            ['Assessor / C3PAO:', assessorName || 'N/A'],
+            ['Assessor URL:', assessorUrl || 'N/A'],
+            ['Assessment Revision:', 'NIST SP 800-171 Rev 2'],
+            ['Export Date:', exportDate],
+            [''],
+            ['EXECUTIVE SUMMARY'],
+            [''],
+            ['Total POA&M Items:', poamItems.length],
+            ['Unique Controls Affected:', uniqueControls.length],
+            ['Controls Implemented:', controlsMet + ' / ' + controlsTotal],
+            ['Estimated SPRS Score:', sprsScore],
+            ['CMMC Conditional Status:', meetsConditional ? 'ELIGIBLE (>= 80%)' : 'NOT ELIGIBLE (< 80%)'],
+            [''],
+            ['RISK BREAKDOWN'],
+            ['High Risk Items:', highRiskCount],
+            ['Medium Risk Items:', medRiskCount],
+            ['Low / Not Assessed:', lowRiskCount + ' / ' + riskRows.filter(r => r['Risk Level'] === 'NOT ASSESSED').length],
+            [''],
+            ['COST SUMMARY'],
+            ['Total Estimated Remediation Cost:', totalEstimatedCost > 0 ? '$' + totalEstimatedCost.toLocaleString() : 'Not estimated'],
+            ['Cost Line Items:', costRows.length],
+            [''],
+            ['MILESTONE SUMMARY'],
+            ['Total Milestones:', milestoneRows.length],
+            ['Completed:', milestoneRows.filter(m => m['Status'] === 'Completed').length],
+            ['In Progress:', milestoneRows.filter(m => m['Status'] === 'In progress').length],
+            ['Pending:', milestoneRows.filter(m => m['Status'] === 'Pending').length],
+            ['Delayed:', milestoneRows.filter(m => m['Status'] === 'Delayed').length],
+            [''],
+            ['REGULATORY REFERENCES'],
+            ['32 CFR 170.21 — CMMC Level 2 POA&M requirements'],
+            ['NIST SP 800-171A — Assessment procedures for CUI security requirements'],
+            ['DFARS 252.204-7012 — Safeguarding Covered Defense Information'],
+            [''],
+            ['CONFIDENTIALITY NOTICE'],
+            ['This document contains sensitive security assessment information.'],
+            ['Distribution is limited to authorized personnel only.']
+        ];
+        const wsCover = XLSX.utils.aoa_to_sheet(coverData);
+        wsCover['!cols'] = [{wch: 35}, {wch: 50}];
+        wsCover['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:1}}];
+        XLSX.utils.book_append_sheet(wb, wsCover, 'Cover Page');
         
-        // Active POA&M sheet with header row
-        const activeData = [
-            [orgInfo],
-            Object.keys(poamItems[0]),
+        // ----- Sheet 2: Active POA&M -----
+        const activeHeaders = Object.keys(poamItems[0]);
+        const activeSheetData = [
+            [oscName + ' — Plan of Action & Milestones (POA&M) — ' + exportDate],
+            activeHeaders,
             ...poamItems.map(item => Object.values(item))
         ];
-        const wsActive = XLSX.utils.aoa_to_sheet(activeData);
-        
-        // Set column widths (18 columns with new identifying party and lead columns)
+        const wsActive = XLSX.utils.aoa_to_sheet(activeSheetData);
         wsActive['!cols'] = [
-            {wch: 25}, {wch: 12}, {wch: 30}, {wch: 12}, {wch: 12}, {wch: 50},
-            {wch: 12}, {wch: 12}, {wch: 10}, {wch: 40}, {wch: 25}, {wch: 40}, 
-            {wch: 15}, {wch: 20}, {wch: 20}, {wch: 12}, {wch: 15}, {wch: 30}
+            {wch: 10}, {wch: 16}, {wch: 10}, {wch: 28}, {wch: 12}, {wch: 45},
+            {wch: 10}, {wch: 18}, {wch: 8}, {wch: 10}, {wch: 10}, {wch: 12},
+            {wch: 40}, {wch: 18}, {wch: 40}, {wch: 35}, {wch: 10}, {wch: 15},
+            {wch: 18}, {wch: 18}, {wch: 14}, {wch: 14}, {wch: 30}
         ];
-        
-        // Build merge ranges for SPRS Score (column H, index 7) and Severity (column I, index 8) by Control ID
-        const merges = [{s: {r: 0, c: 0}, e: {r: 0, c: Object.keys(poamItems[0]).length - 1}}]; // org info merge
-        
-        // Group consecutive rows by Control ID for SPRS/Severity merging
-        let currentControlId = null;
-        let mergeStartRow = 3; // Data starts at row 3 (1-indexed: row 1 = org info, row 2 = headers)
-        
-        poamItems.forEach((item, index) => {
-            const rowNum = index + 3; // Excel row (1-indexed, data starts row 3)
-            if (item['Control ID'] !== currentControlId) {
-                // Close previous merge if it spans multiple rows
-                if (currentControlId !== null && rowNum - 1 > mergeStartRow) {
-                    // SPRS Score column (H = index 7)
-                    merges.push({s: {r: mergeStartRow - 1, c: 7}, e: {r: rowNum - 2, c: 7}});
-                    // Severity column (I = index 8)
-                    merges.push({s: {r: mergeStartRow - 1, c: 8}, e: {r: rowNum - 2, c: 8}});
-                }
-                currentControlId = item['Control ID'];
-                mergeStartRow = rowNum;
-            }
-        });
-        // Close final merge group
-        if (poamItems.length > 0 && poamItems.length + 2 > mergeStartRow) {
-            merges.push({s: {r: mergeStartRow - 1, c: 7}, e: {r: poamItems.length + 1, c: 7}});
-            merges.push({s: {r: mergeStartRow - 1, c: 8}, e: {r: poamItems.length + 1, c: 8}});
-        }
-        
-        wsActive['!merges'] = merges;
-        
-        // Add data validation for Status column (column G, index 6) with dropdown
-        const statusColIndex = 6; // Status column
-        const lastRow = poamItems.length + 2; // +2 for header rows
-        wsActive['!dataValidation'] = [{
-            sqref: `G3:G${lastRow}`,
-            type: 'list',
-            formula1: '"Met,Not Met,Partial"'
-        }];
-        
+        wsActive['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:activeHeaders.length - 1}}];
+        wsActive['!autofilter'] = {ref: `A2:${String.fromCharCode(64 + activeHeaders.length)}${poamItems.length + 2}`};
         XLSX.utils.book_append_sheet(wb, wsActive, 'Active POA&M');
         
-        // Completed POA&M sheet (empty with headers)
+        // ----- Sheet 3: Risk Register -----
+        if (riskRows.length > 0) {
+            const riskHeaders = Object.keys(riskRows[0]);
+            const riskSheetData = [
+                ['Risk Register — ' + oscName + ' — ' + exportDate],
+                riskHeaders,
+                ...riskRows.map(r => Object.values(r))
+            ];
+            const wsRisk = XLSX.utils.aoa_to_sheet(riskSheetData);
+            wsRisk['!cols'] = [
+                {wch: 10}, {wch: 16}, {wch: 12}, {wch: 40}, {wch: 14}, {wch: 14},
+                {wch: 10}, {wch: 12}, {wch: 40}, {wch: 40}, {wch: 18}, {wch: 14}
+            ];
+            wsRisk['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:riskHeaders.length - 1}}];
+            wsRisk['!autofilter'] = {ref: `A2:${String.fromCharCode(64 + riskHeaders.length)}${riskRows.length + 2}`};
+            XLSX.utils.book_append_sheet(wb, wsRisk, 'Risk Register');
+        }
+        
+        // ----- Sheet 4: Milestones & Timeline -----
+        if (milestoneRows.length > 0) {
+            const msHeaders = Object.keys(milestoneRows[0]);
+            const msSheetData = [
+                ['Milestones & Timeline — ' + oscName + ' — ' + exportDate],
+                msHeaders,
+                ...milestoneRows.map(m => Object.values(m))
+            ];
+            const wsMs = XLSX.utils.aoa_to_sheet(msSheetData);
+            wsMs['!cols'] = [
+                {wch: 10}, {wch: 16}, {wch: 12}, {wch: 12}, {wch: 35},
+                {wch: 14}, {wch: 14}, {wch: 40}, {wch: 18}
+            ];
+            wsMs['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:msHeaders.length - 1}}];
+            wsMs['!autofilter'] = {ref: `A2:${String.fromCharCode(64 + msHeaders.length)}${milestoneRows.length + 2}`};
+            XLSX.utils.book_append_sheet(wb, wsMs, 'Milestones');
+        }
+        
+        // ----- Sheet 5: Cost Summary -----
+        if (costRows.length > 0) {
+            const costHeaders = Object.keys(costRows[0]);
+            const costSheetData = [
+                ['Cost Summary — ' + oscName + ' — ' + exportDate],
+                costHeaders,
+                ...costRows.map(c => Object.values(c)),
+                [],
+                ['', '', '', '', 'TOTAL ESTIMATED:', totalEstimatedCost > 0 ? '$' + totalEstimatedCost.toLocaleString() : 'N/A']
+            ];
+            const wsCost = XLSX.utils.aoa_to_sheet(costSheetData);
+            wsCost['!cols'] = [
+                {wch: 10}, {wch: 16}, {wch: 12}, {wch: 16}, {wch: 35},
+                {wch: 16}, {wch: 16}, {wch: 18}
+            ];
+            wsCost['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:costHeaders.length - 1}}];
+            XLSX.utils.book_append_sheet(wb, wsCost, 'Cost Summary');
+        }
+        
+        // ----- Sheet 6: Completed POA&M (empty template) -----
         const completedData = [
-            [orgInfo],
-            Object.keys(poamItems[0])
+            [oscName + ' — Completed POA&M Items — ' + exportDate],
+            activeHeaders
         ];
         const wsCompleted = XLSX.utils.aoa_to_sheet(completedData);
         wsCompleted['!cols'] = wsActive['!cols'];
-        wsCompleted['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: Object.keys(poamItems[0]).length - 1}}];
-        
-        // Add data validation for Status column in Completed sheet (for 500 future rows)
-        wsCompleted['!dataValidation'] = [{
-            sqref: 'G3:G500',
-            type: 'list',
-            formula1: '"Met,Not Met,Partial"'
-        }];
-        
+        wsCompleted['!merges'] = [{s:{r:0,c:0}, e:{r:0,c:activeHeaders.length - 1}}];
         XLSX.utils.book_append_sheet(wb, wsCompleted, 'Completed POA&M');
         
-        // Instructions sheet with VBA macro code
+        // ----- Sheet 7: Instructions -----
         const instructions = [
-            ['POA&M Management Instructions'],
+            ['POA&M WORKBOOK INSTRUCTIONS'],
             [''],
-            ['STATUS DROPDOWN:'],
-            ['The Status column (G) has a dropdown with Met, Not Met, and Partial options.'],
-            ['SPRS Score (H) and Severity (I) are merged by Control ID.'],
-            [''],
-            ['IMPORTANT: Use the VBA macros below to move rows - they handle merged cell resizing.'],
-            [''],
-            ['EXCEL VBA MACROS - Copy ALL code below into a VBA Module (Alt+F11 > Insert > Module):'],
-            [''],
-            ['\'=== Helper: Fill merged cell values before unmerging ==='],
-            ['Sub FillMergedValues(ws As Worksheet)'],
-            ['    Dim lastRow As Long, cell As Range, mergeArea As Range'],
-            ['    Dim sprsVal As Variant, sevVal As Variant'],
-            ['    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row'],
-            ['    If lastRow < 3 Then Exit Sub'],
-            ['    For Each cell In ws.Range("H3:H" & lastRow)'],
-            ['        If cell.MergeCells Then'],
-            ['            Set mergeArea = cell.MergeArea'],
-            ['            sprsVal = mergeArea.Cells(1, 1).Value'],
-            ['            mergeArea.UnMerge'],
-            ['            mergeArea.Value = sprsVal'],
-            ['        End If'],
-            ['    Next cell'],
-            ['    For Each cell In ws.Range("I3:I" & lastRow)'],
-            ['        If cell.MergeCells Then'],
-            ['            Set mergeArea = cell.MergeArea'],
-            ['            sevVal = mergeArea.Cells(1, 1).Value'],
-            ['            mergeArea.UnMerge'],
-            ['            mergeArea.Value = sevVal'],
-            ['        End If'],
-            ['    Next cell'],
-            ['End Sub'],
-            [''],
-            ['\'=== Helper: Re-merge SPRS/Severity cells by Control ID ==='],
-            ['Sub ReMergeSPRS(ws As Worksheet)'],
-            ['    Dim lastRow As Long, i As Long, startRow As Long'],
-            ['    Dim currentCtrl As String, rng As Range, j As Long'],
-            ['    Dim sprsVal As Variant, sevVal As Variant'],
-            ['    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row'],
-            ['    If lastRow < 3 Then Exit Sub'],
-            ['    \'Unmerge columns H and I first'],
-            ['    On Error Resume Next'],
-            ['    ws.Range("H3:I" & lastRow).UnMerge'],
-            ['    On Error GoTo 0'],
-            ['    \'Sort by Control ID (B) then Objective ID (D) for proper grouping and order'],
-            ['    Set rng = ws.Range("A3:R" & lastRow)'],
-            ['    rng.Sort Key1:=ws.Range("B3"), Order1:=xlAscending, Key2:=ws.Range("D3"), Order2:=xlAscending, Header:=xlNo'],
-            ['    \'Re-merge by Control ID (column B)'],
-            ['    currentCtrl = ""'],
-            ['    startRow = 3'],
-            ['    Application.DisplayAlerts = False'],
-            ['    For i = 3 To lastRow + 1'],
-            ['        If i > lastRow Or ws.Cells(i, 2).Value <> currentCtrl Then'],
-            ['            If currentCtrl <> "" And i - 1 >= startRow Then'],
-            ['                If i - 1 > startRow Then'],
-            ['                    sprsVal = ws.Cells(startRow, 8).Value'],
-            ['                    sevVal = ws.Cells(startRow, 9).Value'],
-            ['                    For j = startRow + 1 To i - 1'],
-            ['                        ws.Cells(j, 8).ClearContents'],
-            ['                        ws.Cells(j, 9).ClearContents'],
-            ['                    Next j'],
-            ['                    ws.Range(ws.Cells(startRow, 8), ws.Cells(i - 1, 8)).Merge'],
-            ['                    ws.Range(ws.Cells(startRow, 9), ws.Cells(i - 1, 9)).Merge'],
-            ['                    ws.Cells(startRow, 8).Value = sprsVal'],
-            ['                    ws.Cells(startRow, 9).Value = sevVal'],
-            ['                End If'],
-            ['            End If'],
-            ['            If i <= lastRow Then'],
-            ['                currentCtrl = ws.Cells(i, 2).Value'],
-            ['                startRow = i'],
-            ['            End If'],
-            ['        End If'],
-            ['    Next i'],
-            ['    Application.DisplayAlerts = True'],
-            ['End Sub'],
-            [''],
-            ['\'=== Move Met items to Completed sheet ==='],
-            ['Sub MoveMetItems()'],
-            ['    Dim wsActive As Worksheet, wsCompleted As Worksheet'],
-            ['    Dim lastRowActive As Long, lastRowCompleted As Long, i As Long'],
-            ['    Set wsActive = Sheets("Active POA&M")'],
-            ['    Set wsCompleted = Sheets("Completed POA&M")'],
-            ['    \'Fill values before unmerging to preserve SPRS data'],
-            ['    FillMergedValues wsActive'],
-            ['    FillMergedValues wsCompleted'],
-            ['    lastRowActive = wsActive.Cells(wsActive.Rows.Count, "A").End(xlUp).Row'],
-            ['    For i = lastRowActive To 3 Step -1'],
-            ['        If wsActive.Cells(i, 7).Value = "Met" Then'],
-            ['            lastRowCompleted = wsCompleted.Cells(wsCompleted.Rows.Count, "A").End(xlUp).Row + 1'],
-            ['            If lastRowCompleted < 3 Then lastRowCompleted = 3'],
-            ['            wsActive.Rows(i).Copy wsCompleted.Rows(lastRowCompleted)'],
-            ['            wsActive.Rows(i).Delete'],
-            ['        End If'],
-            ['    Next i'],
-            ['    \'Re-merge both sheets'],
-            ['    ReMergeSPRS wsActive'],
-            ['    ReMergeSPRS wsCompleted'],
-            ['End Sub'],
-            [''],
-            ['\'=== Move Not Met/Partial items back to Active sheet ==='],
-            ['Sub MoveNotMetItems()'],
-            ['    Dim wsActive As Worksheet, wsCompleted As Worksheet'],
-            ['    Dim lastRowCompleted As Long, lastRowActive As Long, i As Long'],
-            ['    Set wsActive = Sheets("Active POA&M")'],
-            ['    Set wsCompleted = Sheets("Completed POA&M")'],
-            ['    \'Fill values before unmerging to preserve SPRS data'],
-            ['    FillMergedValues wsActive'],
-            ['    FillMergedValues wsCompleted'],
-            ['    lastRowCompleted = wsCompleted.Cells(wsCompleted.Rows.Count, "A").End(xlUp).Row'],
-            ['    For i = lastRowCompleted To 3 Step -1'],
-            ['        If wsCompleted.Cells(i, 7).Value = "Not Met" Or wsCompleted.Cells(i, 7).Value = "Partial" Then'],
-            ['            lastRowActive = wsActive.Cells(wsActive.Rows.Count, "A").End(xlUp).Row + 1'],
-            ['            If lastRowActive < 3 Then lastRowActive = 3'],
-            ['            wsCompleted.Rows(i).Copy wsActive.Rows(lastRowActive)'],
-            ['            wsCompleted.Rows(i).Delete'],
-            ['        End If'],
-            ['    Next i'],
-            ['    \'Re-merge both sheets'],
-            ['    ReMergeSPRS wsActive'],
-            ['    ReMergeSPRS wsCompleted'],
-            ['End Sub'],
-            [''],
-            ['HOW TO USE:'],
-            ['1. Press Alt+F11 to open VBA Editor'],
-            ['2. Insert > Module'],
-            ['3. Paste ALL the code above'],
-            ['4. Close VBA Editor'],
-            ['5. Press Alt+F8, select MoveMetItems or MoveNotMetItems, click Run'],
+            ['SHEET DESCRIPTIONS:'],
+            ['Cover Page — Executive summary with risk, cost, and milestone statistics'],
+            ['Active POA&M — All open items with full detail (filter/sort as needed)'],
+            ['Risk Register — Risk assessment detail for each POA&M item (likelihood x impact scoring)'],
+            ['Milestones — Granular milestone tracking with target dates and status'],
+            ['Cost Summary — Itemized cost breakdown by category with estimated and actual costs'],
+            ['Completed POA&M — Move resolved items here for audit trail'],
             [''],
             ['STATUS DEFINITIONS:'],
-            ['• Met: Objective fully implemented - move to Completed sheet'],
-            ['• Not Met: Objective not implemented'],
-            ['• Partial: Objective partially implemented'],
+            ['Not Met — Objective is not implemented'],
+            ['Partial — Objective is partially implemented'],
+            ['Met — Objective is fully implemented (move to Completed sheet)'],
             [''],
-            ['Generated: ' + new Date().toLocaleString()]
+            ['POA&M ELIGIBILITY (32 CFR 170.21):'],
+            ['Yes — Control can be on POA&M for Conditional Level 2 status'],
+            ['NO - Cannot POA&M — Control is listed in 170.21(a)(2)(iii) and must be implemented before assessment'],
+            ['Warning - High Value — Control has SPRS point value > 1; cannot be on POA&M per 170.21(a)(2)(ii)'],
+            ['FIPS Exception — SC.L2-3.13.11 may be on POA&M if encryption is employed but not FIPS-validated'],
+            [''],
+            ['RISK SCORING:'],
+            ['Risk Score = Likelihood x Impact (each rated 1-5)'],
+            ['HIGH = Score >= 15 | MEDIUM = Score 6-14 | LOW = Score 1-5'],
+            [''],
+            ['REGULATORY REFERENCES:'],
+            ['32 CFR Part 170 — Cybersecurity Maturity Model Certification (CMMC) Program'],
+            ['NIST SP 800-171 — Protecting Controlled Unclassified Information in Nonfederal Systems'],
+            ['NIST SP 800-171A — Assessing Security Requirements for CUI'],
+            ['DFARS 252.204-7012 — Safeguarding Covered Defense Information'],
+            ['DFARS 252.204-7021 — CMMC Requirements'],
+            [''],
+            ['EXCEL VBA MACROS (optional — for moving rows between Active/Completed):'],
+            [''],
+            ['Sub MoveMetItems()'],
+            ['    Dim wsA As Worksheet, wsC As Worksheet'],
+            ['    Dim lr As Long, lrC As Long, i As Long'],
+            ['    Set wsA = Sheets("Active POA&M")'],
+            ['    Set wsC = Sheets("Completed POA&M")'],
+            ['    lr = wsA.Cells(wsA.Rows.Count, "A").End(xlUp).Row'],
+            ['    For i = lr To 3 Step -1'],
+            ['        If wsA.Cells(i, 7).Value = "Met" Then'],
+            ['            lrC = wsC.Cells(wsC.Rows.Count, "A").End(xlUp).Row + 1'],
+            ['            If lrC < 3 Then lrC = 3'],
+            ['            wsA.Rows(i).Copy wsC.Rows(lrC)'],
+            ['            wsA.Rows(i).Delete'],
+            ['        End If'],
+            ['    Next i'],
+            ['End Sub'],
+            [''],
+            ['Sub MoveNotMetItems()'],
+            ['    Dim wsA As Worksheet, wsC As Worksheet'],
+            ['    Dim lr As Long, lrA As Long, i As Long'],
+            ['    Set wsA = Sheets("Active POA&M")'],
+            ['    Set wsC = Sheets("Completed POA&M")'],
+            ['    lr = wsC.Cells(wsC.Rows.Count, "A").End(xlUp).Row'],
+            ['    For i = lr To 3 Step -1'],
+            ['        If wsC.Cells(i, 7).Value = "Not Met" Or wsC.Cells(i, 7).Value = "Partial" Then'],
+            ['            lrA = wsA.Cells(wsA.Rows.Count, "A").End(xlUp).Row + 1'],
+            ['            If lrA < 3 Then lrA = 3'],
+            ['            wsC.Rows(i).Copy wsA.Rows(lrA)'],
+            ['            wsC.Rows(i).Delete'],
+            ['        End If'],
+            ['    Next i'],
+            ['End Sub'],
+            [''],
+            ['HOW TO USE MACROS:'],
+            ['1. Press Alt+F11 to open VBA Editor'],
+            ['2. Insert > Module, paste the code above'],
+            ['3. Close VBA Editor'],
+            ['4. Press Alt+F8, select MoveMetItems or MoveNotMetItems, click Run'],
+            [''],
+            ['Generated: ' + exportTimestamp],
+            ['Tool: CMMC Assessment Tool — POA&M Export']
         ];
         const wsInstructions = XLSX.utils.aoa_to_sheet(instructions);
-        wsInstructions['!cols'] = [{wch: 80}];
+        wsInstructions['!cols'] = [{wch: 90}];
         XLSX.utils.book_append_sheet(wb, wsInstructions, 'Instructions');
         
         // Export workbook
         const oscSlug = oscName ? oscName.replace(/[^a-z0-9]/gi, '-').toLowerCase() + '-' : '';
         XLSX.writeFile(wb, `POAM-${oscSlug}${new Date().toISOString().split('T')[0]}.xlsx`);
 
-        this.showToast(`Exported ${poamItems.length} POA&M items to Excel`, 'success');
+        this.showToast(`Exported ${poamItems.length} POA&M items across ${Object.keys(wb.Sheets).length} sheets`, 'success');
     }
 
     showToast(message, type = 'success') {

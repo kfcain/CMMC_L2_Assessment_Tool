@@ -3,6 +3,9 @@
 // Works entirely with localStorage
 
 const SystemInventory = {
+    // XSS-safe HTML escaping for user-stored data
+    esc(s) { return typeof Sanitize !== 'undefined' ? Sanitize.html(s) : String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'})[c]); },
+
     config: {
         version: "1.0.0",
         storageKey: "nist-system-inventory",
@@ -240,14 +243,14 @@ const SystemInventory = {
                             <td>
                                 <div class="asset-name">
                                     <span class="asset-icon">${this.config.assetTypes[asset.type].icon}</span>
-                                    ${asset.name}
+                                    ${this.esc(asset.name)}
                                 </div>
                             </td>
                             <td><span class="asset-type-badge" style="background: ${this.config.assetTypes[asset.type].color}">${this.config.assetTypes[asset.type].label}</span></td>
                             <td>${asset.processesCUI ? '<span class="cui-badge">✓ CUI</span>' : '<span class="no-cui-badge">No CUI</span>'}</td>
                             <td><span class="boundary-badge ${asset.boundary}">${this.config.boundaries[asset.boundary].label}</span></td>
                             <td><span class="criticality-badge ${asset.criticality}">${this.config.criticality[asset.criticality].label}</span></td>
-                            <td>${asset.owner || 'N/A'}</td>
+                            <td>${this.esc(asset.owner || 'N/A')}</td>
                             <td class="asset-actions">
                                 <button class="icon-btn view-asset-btn" data-asset-id="${asset.id}" title="View Details">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -293,7 +296,7 @@ const SystemInventory = {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Asset Name *</label>
-                                <input type="text" id="asset-name" class="form-control" required value="${asset?.name || ''}" placeholder="e.g., File Server 01">
+                                <input type="text" id="asset-name" class="form-control" required value="${this.esc(asset?.name || '')}" maxlength="500" placeholder="e.g., File Server 01">
                             </div>
                             <div class="form-group">
                                 <label>Asset Type *</label>
@@ -334,35 +337,35 @@ const SystemInventory = {
                             </div>
                             <div class="form-group">
                                 <label>Owner/Responsible Party</label>
-                                <input type="text" id="asset-owner" class="form-control" value="${asset?.owner || ''}" placeholder="e.g., IT Admin">
+                                <input type="text" id="asset-owner" class="form-control" value="${this.esc(asset?.owner || '')}" maxlength="200" placeholder="e.g., IT Admin">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Location</label>
-                            <input type="text" id="asset-location" class="form-control" value="${asset?.location || ''}" placeholder="e.g., On-Premises Data Center, AWS us-east-1">
+                            <input type="text" id="asset-location" class="form-control" value="${this.esc(asset?.location || '')}" maxlength="500" placeholder="e.g., On-Premises Data Center, AWS us-east-1">
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
                                 <label>IP Address / Hostname</label>
-                                <input type="text" id="asset-ip" class="form-control" value="${asset?.ipAddress || ''}" placeholder="e.g., 10.0.1.50">
+                                <input type="text" id="asset-ip" class="form-control" value="${this.esc(asset?.ipAddress || '')}" maxlength="45" placeholder="e.g., 10.0.1.50">
                             </div>
                             <div class="form-group">
                                 <label>Operating System / Version</label>
-                                <input type="text" id="asset-os" class="form-control" value="${asset?.os || ''}" placeholder="e.g., Windows Server 2022">
+                                <input type="text" id="asset-os" class="form-control" value="${this.esc(asset?.os || '')}" maxlength="200" placeholder="e.g., Windows Server 2022">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Related Controls</label>
-                            <input type="text" id="asset-controls" class="form-control" value="${asset?.relatedControls?.join(', ') || ''}" placeholder="e.g., 3.1.1, 3.4.1, 3.13.1">
+                            <input type="text" id="asset-controls" class="form-control" value="${this.esc(asset?.relatedControls?.join(', ') || '')}" maxlength="500" placeholder="e.g., 3.1.1, 3.4.1, 3.13.1">
                             <small style="color: var(--text-muted);">Comma-separated list of control IDs</small>
                         </div>
 
                         <div class="form-group">
                             <label>Notes</label>
-                            <textarea id="asset-notes" class="form-control" rows="3" placeholder="Additional information about this asset...">${asset?.notes || ''}</textarea>
+                            <textarea id="asset-notes" class="form-control" rows="3" maxlength="5000" placeholder="Additional information about this asset...">${this.esc(asset?.notes || '')}</textarea>
                         </div>
                     </form>
                 </div>
@@ -446,7 +449,7 @@ const SystemInventory = {
         modal.innerHTML = `
             <div class="modal-content" style="max-width: 600px;">
                 <div class="modal-header">
-                    <h2>${this.config.assetTypes[asset.type].icon} ${asset.name}</h2>
+                    <h2>${this.config.assetTypes[asset.type].icon} ${this.esc(asset.name)}</h2>
                     <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
                 </div>
                 <div class="modal-body">
@@ -469,19 +472,19 @@ const SystemInventory = {
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Owner:</span>
-                            <span class="detail-value">${asset.owner || 'N/A'}</span>
+                            <span class="detail-value">${this.esc(asset.owner || 'N/A')}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Location:</span>
-                            <span class="detail-value">${asset.location || 'N/A'}</span>
+                            <span class="detail-value">${this.esc(asset.location || 'N/A')}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">IP/Hostname:</span>
-                            <span class="detail-value">${asset.ipAddress || 'N/A'}</span>
+                            <span class="detail-value">${this.esc(asset.ipAddress || 'N/A')}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">OS/Version:</span>
-                            <span class="detail-value">${asset.os || 'N/A'}</span>
+                            <span class="detail-value">${this.esc(asset.os || 'N/A')}</span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Related Controls:</span>
@@ -490,7 +493,7 @@ const SystemInventory = {
                         ${asset.notes ? `
                             <div class="detail-row">
                                 <span class="detail-label">Notes:</span>
-                                <span class="detail-value">${asset.notes}</span>
+                                <span class="detail-value">${this.esc(asset.notes)}</span>
                             </div>
                         ` : ''}
                         <div class="detail-row">
@@ -719,9 +722,9 @@ Firewall,network,10.0.0.1,dmz,high,Perimeter firewall,Security Team,no</pre>
                             <tbody>
                                 ${validAssets.slice(0, 10).map(asset => `
                                     <tr>
-                                        <td>${asset.name}</td>
-                                        <td>${asset.type}</td>
-                                        <td>${asset.boundary}</td>
+                                        <td>${this.esc(asset.name)}</td>
+                                        <td>${this.esc(asset.type)}</td>
+                                        <td>${this.esc(asset.boundary)}</td>
                                         <td>${asset.criticality || 'N/A'}</td>
                                         <td>${asset.cuiProcessed ? 'Yes' : 'No'}</td>
                                     </tr>
@@ -926,7 +929,7 @@ External API,api.example.com,outside,cloud,Third-party API service</pre>
                             <div class="boundary-group">
                                 <h5>${this.config.boundaries[boundary].label}</h5>
                                 <ul>
-                                    ${items.slice(0, 5).map(item => `<li>${item.name} ${item.ipAddress ? `(${item.ipAddress})` : ''}</li>`).join('')}
+                                    ${items.slice(0, 5).map(item => `<li>${this.esc(item.name)} ${item.ipAddress ? `(${this.esc(item.ipAddress)})` : ''}</li>`).join('')}
                                     ${items.length > 5 ? `<li><em>... and ${items.length - 5} more</em></li>` : ''}
                                 </ul>
                             </div>

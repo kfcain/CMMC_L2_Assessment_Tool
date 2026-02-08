@@ -12,28 +12,37 @@ const AIAssistant = {
                 name: "Claude (Anthropic)",
                 endpoint: "https://api.anthropic.com/v1/messages",
                 models: [
-                    { id: "claude-3-5-sonnet-20241022", name: "Claude 3.5 Sonnet (Recommended)", inputCost: 0.003, outputCost: 0.015 },
-                    { id: "claude-3-opus-20240229", name: "Claude 3 Opus", inputCost: 0.015, outputCost: 0.075 }
+                    { id: "claude-sonnet-4-20250514", name: "Claude Sonnet 4 (Recommended)", inputCost: 0.003, outputCost: 0.015 },
+                    { id: "claude-opus-4-20250514", name: "Claude Opus 4", inputCost: 0.015, outputCost: 0.075 },
+                    { id: "claude-3-7-sonnet-20250219", name: "Claude 3.7 Sonnet", inputCost: 0.003, outputCost: 0.015 },
+                    { id: "claude-3-5-haiku-20241022", name: "Claude 3.5 Haiku (Fast)", inputCost: 0.001, outputCost: 0.005 }
                 ],
-                defaultModel: "claude-3-5-sonnet-20241022"
+                defaultModel: "claude-sonnet-4-20250514"
             },
             openai: {
                 name: "OpenAI",
                 endpoint: "https://api.openai.com/v1/chat/completions",
                 models: [
-                    { id: "gpt-4-turbo", name: "GPT-4 Turbo (Recommended)", inputCost: 0.01, outputCost: 0.03 },
-                    { id: "gpt-4", name: "GPT-4", inputCost: 0.03, outputCost: 0.06 },
-                    { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo", inputCost: 0.0005, outputCost: 0.0015 }
+                    { id: "gpt-4.1", name: "GPT-4.1 (Recommended)", inputCost: 0.002, outputCost: 0.008 },
+                    { id: "gpt-4.1-mini", name: "GPT-4.1 Mini", inputCost: 0.0004, outputCost: 0.0016 },
+                    { id: "gpt-4.1-nano", name: "GPT-4.1 Nano (Fast)", inputCost: 0.0001, outputCost: 0.0004 },
+                    { id: "o3", name: "o3 (Reasoning)", inputCost: 0.01, outputCost: 0.04 },
+                    { id: "o4-mini", name: "o4-mini (Reasoning)", inputCost: 0.001, outputCost: 0.004 },
+                    { id: "gpt-4o", name: "GPT-4o", inputCost: 0.005, outputCost: 0.015 },
+                    { id: "gpt-4o-mini", name: "GPT-4o Mini", inputCost: 0.00015, outputCost: 0.0006 }
                 ],
-                defaultModel: "gpt-4-turbo"
+                defaultModel: "gpt-4.1"
             },
             gemini: {
                 name: "Google Gemini",
                 endpoint: "https://generativelanguage.googleapis.com/v1beta/models",
                 models: [
-                    { id: "gemini-pro", name: "Gemini Pro", inputCost: 0.00025, outputCost: 0.0005 }
+                    { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro (Recommended)", inputCost: 0.00125, outputCost: 0.01 },
+                    { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", inputCost: 0.00015, outputCost: 0.0006 },
+                    { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", inputCost: 0.0001, outputCost: 0.0004 },
+                    { id: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash Lite (Fast)", inputCost: 0.00005, outputCost: 0.0002 }
                 ],
-                defaultModel: "gemini-pro"
+                defaultModel: "gemini-2.5-pro"
             }
         }
     },
@@ -272,7 +281,7 @@ const AIAssistant = {
             claude: `
                 <h4>How to get your Claude API Key:</h4>
                 <ol>
-                    <li>Go to <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a></li>
+                    <li>Go to <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer">console.anthropic.com</a></li>
                     <li>Sign in or create an account</li>
                     <li>Navigate to "API Keys" in the settings</li>
                     <li>Click "Create Key" and copy the key</li>
@@ -283,7 +292,7 @@ const AIAssistant = {
             openai: `
                 <h4>How to get your OpenAI API Key:</h4>
                 <ol>
-                    <li>Go to <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a></li>
+                    <li>Go to <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">platform.openai.com/api-keys</a></li>
                     <li>Sign in or create an account</li>
                     <li>Click "Create new secret key"</li>
                     <li>Copy the key (you won't be able to see it again)</li>
@@ -294,7 +303,7 @@ const AIAssistant = {
             gemini: `
                 <h4>How to get your Gemini API Key:</h4>
                 <ol>
-                    <li>Go to <a href="https://makersuite.google.com/app/apikey" target="_blank">makersuite.google.com/app/apikey</a></li>
+                    <li>Go to <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer">makersuite.google.com/app/apikey</a></li>
                     <li>Sign in with your Google account</li>
                     <li>Click "Create API Key"</li>
                     <li>Copy the key</li>

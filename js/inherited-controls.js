@@ -2,6 +2,9 @@
 // Manages CSP inheritance for GCC High, AWS GovCloud, and other FedRAMP environments
 
 const InheritedControls = {
+    // XSS-safe HTML escaping for user-stored data
+    esc(s) { return typeof Sanitize !== 'undefined' ? Sanitize.html(s) : String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'})[c]); },
+
     config: {
         version: "1.0.0"
     },
@@ -1143,7 +1146,7 @@ const InheritedControls = {
                     ${type.icon} ${type.label}
                 </span>
                 ${cspName ? `<span class="inheritance-csp-name">${cspName}</span>` : ''}
-                ${inheritance.notes ? `<span class="inheritance-notes">${inheritance.notes}</span>` : ''}
+                ${inheritance.notes ? `<span class="inheritance-notes">${this.esc(inheritance.notes)}</span>` : ''}
                 ${inheritance.srmSource ? `<span class="inheritance-srm-source" title="Imported from SRM">SRM</span>` : ''}
                 <button class="set-inheritance-btn-inline" data-control-id="${controlId}" title="Edit inheritance">Edit</button>
             </span>
@@ -1363,7 +1366,7 @@ const InheritedControls = {
         };
 
         const result = this.applySrmData(srmData, profileId);
-        alert(`Applied ${profile.name}: Mapped ${result.matched} NIST 800-171 controls.\nRefresh the assessment view to see updated inheritance badges.`);
+        alert(`Applied ${Sanitize ? Sanitize.stripTags(profile.name) : profile.name}: Mapped ${result.matched} NIST 800-171 controls.\nRefresh the assessment view to see updated inheritance badges.`);
 
         // Refresh matrix if visible
         const grid = document.getElementById('inheritance-matrix-grid');

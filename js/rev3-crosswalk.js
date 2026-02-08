@@ -312,6 +312,11 @@ const Rev3Crosswalk = {
                 this.showView();
             }
         });
+
+        // Crosswalk tab buttons (CSP blocks inline onclick)
+        document.querySelectorAll('.xwalk-tab[data-tab]').forEach(tab => {
+            tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
+        });
     },
 
     showView: function() {

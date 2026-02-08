@@ -29,6 +29,7 @@ const MSPPortal = {
         { id: 'cloud-templates', name: 'Cloud Templates', icon: 'database', section: 'tools' },
         { id: 'evidence-lists', name: 'Evidence Collection Lists', icon: 'list', section: 'tools' },
         { id: 'data-protection', name: 'Data Protection Guide', icon: 'shield', section: 'tools' },
+        { id: 'tech-scripts', name: 'Technical Scripts', icon: 'terminal', section: 'tools' },
         { id: 'documentation', name: 'Best Practices', icon: 'book', section: 'resources' }
     ],
 
@@ -44,6 +45,7 @@ const MSPPortal = {
         'monitor': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
         'activity': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
         'cpu': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/></svg>',
+        'terminal': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>',
         'book': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>',
         'x': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
         'check-circle': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
@@ -303,6 +305,38 @@ const MSPPortal = {
                     MSPPortal.bindScubaInteractions();
                 });
             });
+
+            // Technical Scripts tabs + search
+            document.querySelectorAll('.tech-script-tab').forEach(tab => {
+                const newTab = tab.cloneNode(true);
+                tab.parentNode.replaceChild(newTab, tab);
+                newTab.addEventListener('click', (e) => {
+                    const tabId = e.target.dataset.tsTab;
+                    if (!tabId) return;
+                    document.querySelectorAll('.tech-script-tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    const contentEl = document.getElementById('tech-scripts-content');
+                    if (!contentEl) return;
+                    const searchEl = document.getElementById('tech-scripts-search');
+                    const searchTerm = searchEl ? searchEl.value : '';
+                    contentEl.innerHTML = MSPPortalViews.renderTechScriptSection(tabId, searchTerm);
+                });
+            });
+            const tsSearch = document.getElementById('tech-scripts-search');
+            if (tsSearch) {
+                const newSearch = tsSearch.cloneNode(true);
+                tsSearch.parentNode.replaceChild(newSearch, tsSearch);
+                let tsDebounce;
+                newSearch.addEventListener('input', (e) => {
+                    clearTimeout(tsDebounce);
+                    tsDebounce = setTimeout(() => {
+                        const activeTab = document.querySelector('.tech-script-tab.active');
+                        const tabId = activeTab ? activeTab.dataset.tsTab : 'identity';
+                        const contentEl = document.getElementById('tech-scripts-content');
+                        if (contentEl) contentEl.innerHTML = MSPPortalViews.renderTechScriptSection(tabId, e.target.value);
+                    }, 300);
+                });
+            }
 
             // SCuBA expand/copy interactions
             this.bindScubaInteractions();
