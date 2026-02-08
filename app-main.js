@@ -4626,27 +4626,67 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             `;
         }
 
+        // SVG progress ring helper
+        const progressPct = totalObjectives > 0 ? Math.round((totalMet / totalObjectives) * 100) : 0;
+        const ringRadius = 54;
+        const ringCirc = 2 * Math.PI * ringRadius;
+        const ringOffset = ringCirc - (progressPct / 100) * ringCirc;
+
+        // Partial + met combined for "addressed" percentage
+        const addressedPct = totalObjectives > 0 ? Math.round(((totalMet + totalPartial) / totalObjectives) * 100) : 0;
+
         let html = `
-            <div class="dashboard-card summary-card">
-                <div class="summary-stat">
-                    <div class="summary-stat-value">${totalObjectives}</div>
-                    <div class="summary-stat-label">Total Objectives</div>
+            <div class="dash-hero">
+                <div class="dash-hero-ring">
+                    <svg viewBox="0 0 120 120" class="dash-ring-svg">
+                        <circle cx="60" cy="60" r="${ringRadius}" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="8"/>
+                        <circle cx="60" cy="60" r="${ringRadius}" fill="none" stroke="url(#dashGrad)" stroke-width="8" stroke-linecap="round"
+                            stroke-dasharray="${ringCirc}" stroke-dashoffset="${ringOffset}"
+                            transform="rotate(-90 60 60)" class="dash-ring-progress"/>
+                        <defs>
+                            <linearGradient id="dashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#34d399"/>
+                                <stop offset="100%" stop-color="#6c8aff"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="dash-ring-label">
+                        <span class="dash-ring-pct">${progressPct}%</span>
+                        <span class="dash-ring-sub">Compliant</span>
+                    </div>
                 </div>
-                <div class="summary-stat">
-                    <div class="summary-stat-value" style="color: var(--status-met)">${totalMet}</div>
-                    <div class="summary-stat-label">Met</div>
-                </div>
-                <div class="summary-stat">
-                    <div class="summary-stat-value" style="color: var(--status-partial)">${totalPartial}</div>
-                    <div class="summary-stat-label">Partial</div>
-                </div>
-                <div class="summary-stat">
-                    <div class="summary-stat-value" style="color: var(--status-not-met)">${totalNotMet}</div>
-                    <div class="summary-stat-label">Not Met</div>
-                </div>
-                <div class="summary-stat">
-                    <div class="summary-stat-value" style="color: var(--text-muted)">${totalNotAssessed}</div>
-                    <div class="summary-stat-label">Not Assessed</div>
+                <div class="dash-hero-stats">
+                    <div class="dash-hero-row">
+                        <div class="dash-hero-metric">
+                            <span class="dash-metric-value">${totalObjectives}</span>
+                            <span class="dash-metric-label">Total Objectives</span>
+                        </div>
+                        <div class="dash-hero-metric">
+                            <span class="dash-metric-value" style="color:var(--status-met)">${totalMet}</span>
+                            <span class="dash-metric-label">Met</span>
+                        </div>
+                        <div class="dash-hero-metric">
+                            <span class="dash-metric-value" style="color:var(--status-partial)">${totalPartial}</span>
+                            <span class="dash-metric-label">Partial</span>
+                        </div>
+                        <div class="dash-hero-metric">
+                            <span class="dash-metric-value" style="color:var(--status-not-met)">${totalNotMet}</span>
+                            <span class="dash-metric-label">Not Met</span>
+                        </div>
+                        <div class="dash-hero-metric">
+                            <span class="dash-metric-value" style="color:var(--text-muted)">${totalNotAssessed}</span>
+                            <span class="dash-metric-label">Pending</span>
+                        </div>
+                    </div>
+                    <div class="dash-hero-bar">
+                        <div class="dash-bar-segment met" style="width:${totalObjectives ? (totalMet/totalObjectives)*100 : 0}%"></div>
+                        <div class="dash-bar-segment partial" style="width:${totalObjectives ? (totalPartial/totalObjectives)*100 : 0}%"></div>
+                        <div class="dash-bar-segment not-met" style="width:${totalObjectives ? (totalNotMet/totalObjectives)*100 : 0}%"></div>
+                    </div>
+                    <div class="dash-hero-footer">
+                        <span class="dash-addressed">${addressedPct}% addressed</span>
+                        <span class="dash-remaining">${totalNotAssessed} remaining</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -4657,13 +4697,31 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             let familyTotal = 0;
             family.controls.forEach(c => familyTotal += c.objectives.length);
             const notAssessed = familyTotal - stats.met - stats.partial - stats.notMet;
+            const famPct = familyTotal > 0 ? Math.round((stats.met / familyTotal) * 100) : 0;
 
             // Calculate SPRS score for this family
             const familySprs = this.calculateFamilySPRS(family);
 
+            // Mini ring for each family
+            const miniR = 20;
+            const miniC = 2 * Math.PI * miniR;
+            const miniOff = miniC - (famPct / 100) * miniC;
+            const ringColor = famPct === 100 ? '#34d399' : famPct >= 50 ? '#6c8aff' : famPct > 0 ? '#fbbf24' : 'rgba(255,255,255,0.08)';
+
             html += `
                 <div class="dashboard-card">
-                    <h3 class="dashboard-family-link" data-family-id="${family.id}"><span class="family-id">${family.id}</span> ${family.name}</h3>
+                    <div class="dash-card-header">
+                        <div class="dash-card-ring">
+                            <svg viewBox="0 0 48 48" width="42" height="42">
+                                <circle cx="24" cy="24" r="${miniR}" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4"/>
+                                <circle cx="24" cy="24" r="${miniR}" fill="none" stroke="${ringColor}" stroke-width="4" stroke-linecap="round"
+                                    stroke-dasharray="${miniC}" stroke-dashoffset="${miniOff}"
+                                    transform="rotate(-90 24 24)" style="transition:stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1)"/>
+                            </svg>
+                            <span class="dash-card-ring-pct">${famPct}</span>
+                        </div>
+                        <h3 class="dashboard-family-link" data-family-id="${family.id}"><span class="family-id">${family.id}</span> ${family.name}</h3>
+                    </div>
                     <div class="dashboard-card-stats">
                         <div class="dashboard-stat">
                             <div class="dashboard-stat-value met">${stats.met}</div>

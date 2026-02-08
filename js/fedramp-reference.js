@@ -266,47 +266,150 @@ const FedRAMPReference = {
 
         const rscs = FEDRAMP_KSI_REFERENCE.awsRSC;
         const categories = [...new Set(rscs.map(r => r.category))];
+        const totalSteps = rscs.reduce((s, r) => s + (r.implementation?.steps?.length || 0), 0);
+        const totalCLI = rscs.reduce((s, r) => s + (r.implementation?.cliExamples?.length || 0), 0);
 
         let html = `
             <div class="cmvp-context-note">
                 <strong>AWS FedRAMP Rev5 Recommended Secure Configuration (FRR-RSC):</strong>
-                AWS provides comprehensive security configuration guidance aligned with FedRAMP Revision 5 across 10 RSC requirements covering 161 AWS services. This guidance includes OSCAL-formatted artifacts, API commands, and CloudFormation templates for automated compliance.
+                AWS provides comprehensive security configuration guidance aligned with FedRAMP Revision 5 across 10 RSC requirements covering 161 AWS services. Each requirement below includes detailed implementation steps, CLI commands, verification checklists, and architecture guidance.
             </div>
             <div class="cmvp-stats-bar">
                 <div class="cmvp-stat"><span class="cmvp-stat-value">${rscs.length}</span><span class="cmvp-stat-label">RSC Requirements</span></div>
-                <div class="cmvp-stat"><span class="cmvp-stat-value">161</span><span class="cmvp-stat-label">AWS Services Covered</span></div>
-                <div class="cmvp-stat"><span class="cmvp-stat-value">${categories.length}</span><span class="cmvp-stat-label">Categories</span></div>
-                <div class="cmvp-stat"><span class="cmvp-stat-value">OSCAL 1.1.2</span><span class="cmvp-stat-label">Machine-Readable Format</span></div>
+                <div class="cmvp-stat"><span class="cmvp-stat-value">161</span><span class="cmvp-stat-label">AWS Services</span></div>
+                <div class="cmvp-stat"><span class="cmvp-stat-value">${totalSteps}</span><span class="cmvp-stat-label">Implementation Steps</span></div>
+                <div class="cmvp-stat"><span class="cmvp-stat-value">${totalCLI}</span><span class="cmvp-stat-label">CLI Examples</span></div>
             </div>
             <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
-                <a href="https://docs.aws.amazon.com/fedramp/latest/userguide/introduction.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;border-radius:8px;font-size:0.8rem;font-weight:600;text-decoration:none;transition:opacity 0.2s;">View Full AWS Guidance ↗</a>
-                <a href="https://docs.aws.amazon.com/fedramp/latest/userguide/samples/FRR-RSC.zip" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-primary);border-radius:8px;font-size:0.8rem;font-weight:600;text-decoration:none;transition:border-color 0.2s;">Download OSCAL Artifacts ↓</a>
+                <a href="https://docs.aws.amazon.com/fedramp/latest/userguide/introduction.html" target="_blank" rel="noopener" class="rsc-action-btn primary">View Full AWS Guidance ↗</a>
+                <a href="https://docs.aws.amazon.com/fedramp/latest/userguide/samples/FRR-RSC.zip" target="_blank" rel="noopener" class="rsc-action-btn secondary">Download OSCAL Artifacts ↓</a>
             </div>
         `;
 
         for (const cat of categories) {
             const catRSCs = rscs.filter(r => r.category === cat);
-            html += `<h3 style="margin:16px 0 8px;font-size:0.9rem;color:var(--text-primary);">${this.esc(cat)}</h3>`;
-            html += '<div class="fedramp-ksi-grid">';
+            const catIcon = { Administrative: '🔐', Configuration: '⚙️', Monitoring: '📡', Automation: '🤖', Documentation: '📋' }[cat] || '📦';
+            html += `<h3 class="rsc-category-heading"><span class="rsc-cat-icon">${catIcon}</span> ${this.esc(cat)}</h3>`;
 
             for (const rsc of catRSCs) {
+                const impl = rsc.implementation;
                 const serviceTags = rsc.awsServices.map(s =>
                     `<span class="cmvp-tag type">${this.esc(s)}</span>`
                 ).join('');
+                const controlTags = (impl?.relatedControls || []).map(c =>
+                    `<span class="cmvp-tag fips2">${this.esc(c)}</span>`
+                ).join('');
 
                 html += `
-                    <div class="fedramp-ksi-card">
-                        <span class="fedramp-ksi-id" style="background:rgba(245,158,11,0.12);color:#fbbf24;">${this.esc(rsc.id)}</span>
-                        <div class="fedramp-ksi-title">${this.esc(rsc.title)}</div>
-                        <div class="fedramp-ksi-desc">${this.esc(rsc.description)}</div>
-                        <div class="cmvp-module-tags" style="margin-bottom:0;">${serviceTags}</div>
-                    </div>
+                    <div class="rsc-impl-card" data-rsc-id="${rsc.id}">
+                        <div class="rsc-impl-header">
+                            <div class="rsc-impl-header-left">
+                                <span class="fedramp-ksi-id" style="background:rgba(245,158,11,0.12);color:#fbbf24;">${this.esc(rsc.id)}</span>
+                                <div>
+                                    <div class="rsc-impl-title">${this.esc(rsc.title)}</div>
+                                    <div class="rsc-impl-desc">${this.esc(rsc.description)}</div>
+                                </div>
+                            </div>
+                            <button class="rsc-expand-btn" aria-label="Expand details">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                        </div>
+                        <div class="cmvp-module-tags" style="margin:8px 0 0;">${serviceTags} ${controlTags}</div>
+                        <div class="rsc-impl-details" style="display:none;">
                 `;
+
+                if (impl) {
+                    // Overview
+                    html += `<div class="rsc-detail-section">
+                        <div class="rsc-detail-label">Overview</div>
+                        <p class="rsc-overview-text">${this.esc(impl.overview)}</p>
+                    </div>`;
+
+                    // Implementation Steps
+                    if (impl.steps?.length) {
+                        html += `<div class="rsc-detail-section">
+                            <div class="rsc-detail-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                Implementation Steps
+                            </div>
+                            <ol class="rsc-steps-list">
+                                ${impl.steps.map(s => `<li>${this.esc(s)}</li>`).join('')}
+                            </ol>
+                        </div>`;
+                    }
+
+                    // CLI Examples
+                    if (impl.cliExamples?.length) {
+                        html += `<div class="rsc-detail-section">
+                            <div class="rsc-detail-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                                CLI / API Examples
+                            </div>
+                            <div class="rsc-cli-examples">
+                                ${impl.cliExamples.map(ex => `
+                                    <div class="rsc-cli-block">
+                                        <div class="rsc-cli-title">${this.esc(ex.title)}</div>
+                                        <pre class="rsc-cli-code"><code>${this.esc(ex.cmd)}</code></pre>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                    }
+
+                    // Verification
+                    if (impl.verification?.length) {
+                        html += `<div class="rsc-detail-section">
+                            <div class="rsc-detail-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                Verification Checklist
+                            </div>
+                            <ul class="rsc-verification-list">
+                                ${impl.verification.map(v => `<li><span class="rsc-check-icon">☐</span> ${this.esc(v)}</li>`).join('')}
+                            </ul>
+                        </div>`;
+                    }
+
+                    // Architecture Notes
+                    if (impl.architectureNotes) {
+                        html += `<div class="rsc-detail-section rsc-arch-notes">
+                            <div class="rsc-detail-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                Architecture Notes
+                            </div>
+                            <p class="rsc-arch-text">${this.esc(impl.architectureNotes)}</p>
+                        </div>`;
+                    }
+                }
+
+                html += `</div></div>`;
             }
-            html += '</div>';
         }
 
+        // Bind expand/collapse after render
+        setTimeout(() => this.bindRSCExpanders(), 0);
         return html;
+    },
+
+    bindRSCExpanders() {
+        const cards = document.querySelectorAll('.rsc-impl-card');
+        cards.forEach(card => {
+            const btn = card.querySelector('.rsc-expand-btn');
+            const details = card.querySelector('.rsc-impl-details');
+            if (!btn || !details) return;
+            btn.addEventListener('click', () => {
+                const isOpen = details.style.display !== 'none';
+                details.style.display = isOpen ? 'none' : 'block';
+                card.classList.toggle('expanded', !isOpen);
+                btn.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+            // Also allow clicking the header area
+            const header = card.querySelector('.rsc-impl-header');
+            header.style.cursor = 'pointer';
+            header.addEventListener('click', (e) => {
+                if (e.target.closest('.rsc-expand-btn')) return;
+                btn.click();
+            });
+        });
     },
 
     bindTerminalToggle() {
