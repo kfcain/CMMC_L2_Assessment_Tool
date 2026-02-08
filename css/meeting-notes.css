@@ -1,0 +1,831 @@
+/* ============================================
+   Meeting Notes Integration Styles
+   ============================================ */
+
+/* Settings Panel */
+.meeting-notes-settings {
+    padding: 8px 0;
+}
+
+.mn-settings-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.mn-settings-header svg {
+    color: var(--accent-blue);
+    flex-shrink: 0;
+}
+
+.mn-settings-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    flex: 1;
+}
+
+.mn-status-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.mn-status-badge.connected {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.mn-status-badge.disconnected {
+    background: rgba(107, 114, 128, 0.15);
+    color: var(--text-muted);
+    border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.mn-settings-desc {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin: 0 0 16px;
+    line-height: 1.5;
+}
+
+/* Provider Selection Grid */
+.mn-provider-select {
+    margin-bottom: 16px;
+}
+
+.mn-provider-select label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.mn-provider-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+}
+
+.mn-provider-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: all 0.15s;
+    position: relative;
+}
+
+.mn-provider-btn:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-blue);
+}
+
+.mn-provider-btn.active {
+    background: rgba(79, 70, 229, 0.12);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+.mn-provider-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.mn-api-badge {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 0.55rem;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+/* API Key Config */
+.mn-api-config {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.mn-api-config label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.mn-api-key-row {
+    display: flex;
+    gap: 8px;
+}
+
+.mn-api-key-input {
+    flex: 1;
+    padding: 8px 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.mn-api-key-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+}
+
+.mn-test-btn {
+    padding: 8px 16px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.mn-test-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+.mn-api-help {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.mn-test-result {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+}
+
+.mn-test-success {
+    color: #10b981;
+}
+
+.mn-test-error {
+    color: #ef4444;
+}
+
+/* Settings Actions */
+.mn-settings-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+/* Stats */
+.mn-stats {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.mn-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.mn-stat {
+    text-align: center;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.mn-stat-value {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+}
+
+.mn-stat-label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* ============================================
+   Objective Panel — Quote Linking
+   ============================================ */
+.mn-objective-panel {
+    padding: 4px 0;
+}
+
+.mn-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.mn-section-header h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.mn-quote-count {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+
+.mn-add-quote-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(79, 70, 229, 0.1);
+    border: 1px solid rgba(79, 70, 229, 0.3);
+    border-radius: 6px;
+    color: var(--accent-blue);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+.mn-add-quote-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+/* Empty State */
+.mn-empty-quotes {
+    text-align: center;
+    padding: 24px 16px;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+
+.mn-empty-quotes p {
+    margin: 4px 0;
+}
+
+.mn-empty-hint {
+    font-size: 0.75rem;
+}
+
+/* Setup Prompt */
+.mn-setup-prompt {
+    text-align: center;
+    padding: 32px 16px;
+}
+
+.mn-setup-prompt h4 {
+    margin: 12px 0 6px;
+    font-size: 0.95rem;
+}
+
+.mn-setup-prompt p {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin: 0 0 16px;
+}
+
+/* Quote Items */
+.mn-quote-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: border-color 0.15s;
+}
+
+.mn-quote-item:hover {
+    border-color: var(--accent-blue);
+}
+
+.mn-quote-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.mn-quote-text {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-primary);
+    font-style: italic;
+    padding: 8px 12px;
+    background: rgba(79, 70, 229, 0.06);
+    border-left: 3px solid var(--accent-blue);
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 8px;
+}
+
+.mn-quote-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    align-items: center;
+}
+
+.mn-quote-speaker {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.mn-speaker-role {
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.mn-quote-meeting {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mn-quote-provider {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mn-quote-assessor-note {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.mn-quote-linked-meta {
+    margin-top: 6px;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.mn-quote-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.mn-quote-actions button {
+    padding: 6px;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.mn-quote-actions button:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.mn-unlink-btn:hover {
+    color: #ef4444 !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+/* ============================================
+   Add Quote Form
+   ============================================ */
+.mn-add-quote-form {
+    padding: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.mn-add-quote-form h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    font-size: 0.9rem;
+}
+
+.mn-form-group {
+    margin-bottom: 12px;
+}
+
+.mn-form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.mn-form-group label .required {
+    color: #ef4444;
+}
+
+.mn-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.mn-quote-input,
+.mn-input {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-family: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.mn-quote-input:focus,
+.mn-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+}
+
+.mn-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.mn-save-quote-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Divider */
+.mn-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+}
+
+.mn-divider::before,
+.mn-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+
+/* ============================================
+   Granola Browse / Transcript Viewer
+   ============================================ */
+.mn-granola-browse {
+    margin-bottom: 8px;
+}
+
+.mn-browse-controls {
+    margin-bottom: 12px;
+}
+
+.mn-fetch-meetings-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+}
+
+.mn-meetings-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.mn-meeting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    background: var(--bg-primary);
+    transition: border-color 0.15s;
+}
+
+.mn-meeting-item:hover {
+    border-color: var(--accent-blue);
+}
+
+.mn-meeting-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.mn-meeting-info strong {
+    font-size: 0.82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mn-meeting-date,
+.mn-meeting-owner {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.mn-view-transcript-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    flex-shrink: 0;
+}
+
+.mn-no-meetings {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    padding: 16px;
+}
+
+/* Transcript Viewer */
+.mn-transcript-viewer {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.mn-transcript-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mn-transcript-header h5 {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.mn-close-transcript-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.mn-close-transcript-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.mn-transcript-search {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mn-transcript-search-input {
+    width: 100%;
+    padding: 6px 10px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    box-sizing: border-box;
+}
+
+.mn-transcript-search-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.mn-transcript-content {
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.mn-transcript-line {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    position: relative;
+    transition: background 0.15s;
+}
+
+.mn-transcript-line:hover {
+    background: var(--bg-secondary);
+}
+
+.mn-transcript-line.mn-highlight {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.mn-transcript-line-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 3px;
+}
+
+.mn-transcript-speaker {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.mn-transcript-speaker.self {
+    color: var(--accent-blue);
+}
+
+.mn-transcript-time {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.mn-transcript-line-text {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    padding-right: 60px;
+}
+
+.mn-select-quote-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: rgba(79, 70, 229, 0.1);
+    border: 1px solid rgba(79, 70, 229, 0.3);
+    border-radius: 5px;
+    color: var(--accent-blue);
+    cursor: pointer;
+    font-size: 0.68rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.15s;
+}
+
+.mn-transcript-line:hover .mn-select-quote-btn {
+    opacity: 1;
+}
+
+.mn-select-quote-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+}
+
+.mn-no-transcript {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    padding: 24px;
+}
+
+/* ============================================
+   Inline Badge (on objective row)
+   ============================================ */
+.mn-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 7px;
+    background: rgba(79, 70, 229, 0.12);
+    border: 1px solid rgba(79, 70, 229, 0.25);
+    border-radius: 10px;
+    color: var(--accent-blue);
+    font-size: 0.62rem;
+    font-weight: 700;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+
+/* Tab count badge */
+.mn-tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: rgba(79, 70, 229, 0.15);
+    color: var(--accent-blue);
+    border-radius: 9px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.mn-tab-count:empty {
+    display: none;
+}
+
+/* Spinner animation for loading */
+@keyframes mn-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.mn-spin {
+    animation: mn-spin 1s linear infinite;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 640px) {
+    .mn-provider-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .mn-form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .mn-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mn-quote-meta {
+        flex-direction: column;
+        gap: 4px;
+    }
+}

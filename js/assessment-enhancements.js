@@ -385,6 +385,7 @@ const AssessmentEnhancements = {
                     <div class="impl-details-tabs">
                         <button class="impl-tab active" data-tab="implementation">Implementation</button>
                         <button class="impl-tab" data-tab="evidence">Evidence</button>
+                        <button class="impl-tab" data-tab="meeting-evidence">Meeting Evidence${typeof MeetingNotesIntegration !== 'undefined' ? (' <span class="mn-tab-count">' + MeetingNotesIntegration.getQuoteCount(objectiveId) + '</span>') : ''}</button>
                         <button class="impl-tab" data-tab="assessor">Assessor Notes</button>
                     </div>
                     
@@ -430,6 +431,10 @@ const AssessmentEnhancements = {
                         </div>
                     </div>
                     
+                    <div class="impl-tab-content" data-tab-content="meeting-evidence">
+                        ${typeof MeetingNotesIntegration !== 'undefined' ? MeetingNotesIntegration.renderObjectivePanel(objectiveId) : '<p style="color:var(--text-muted);text-align:center;padding:20px;">Meeting Notes module not loaded.</p>'}
+                    </div>
+                    
                     <div class="impl-tab-content" data-tab-content="assessor">
                         <div class="form-group">
                             <label>Assessor Comments</label>
@@ -466,6 +471,14 @@ const AssessmentEnhancements = {
                 modal.querySelector(`[data-tab-content="${tab.dataset.tab}"]`).classList.add('active');
             });
         });
+
+        // Bind Meeting Notes Integration events
+        if (typeof MeetingNotesIntegration !== 'undefined') {
+            const mnPanel = modal.querySelector('.mn-objective-panel');
+            if (mnPanel) {
+                MeetingNotesIntegration.bindObjectivePanelEvents(mnPanel, objectiveId);
+            }
+        }
     },
 
     saveImplementationDetails: function() {

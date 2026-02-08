@@ -726,7 +726,7 @@ switch ($Target) {
         aws s3api put-object-retention \\
             --bucket cmmc-log-archive \\
             --key "$archiveName.tar.gz" \\
-            --retention "Mode=COMPLIANCE,RetainUntilDate=$(date -d "+${RetentionDays} days" +%Y-%m-%dT00:00:00Z)" \\
+            --retention "Mode=COMPLIANCE,RetainUntilDate=${'$'}(date -d "+${'$'}{RetentionDays} days" +%Y-%m-%dT00:00:00Z)" \\
             --region us-gov-west-1
         
         Write-Host "Archived to S3 Glacier IR with $RetentionDays-day Object Lock" -FG Green

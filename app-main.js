@@ -1197,9 +1197,15 @@ class AssessmentApp {
         // Determine planner revision
         this.implPlannerRevision = localStorage.getItem('impl-planner-revision') || 'r2';
         const isR3 = this.implPlannerRevision === 'r3';
-        const planner = isR3
-            ? (typeof IMPLEMENTATION_PLANNER_R3 !== 'undefined' ? IMPLEMENTATION_PLANNER_R3 : null)
-            : (typeof IMPLEMENTATION_PLANNER !== 'undefined' ? IMPLEMENTATION_PLANNER : null);
+        const isL3 = this.implPlannerRevision === 'l3';
+        let planner;
+        if (isL3) {
+            planner = typeof IMPLEMENTATION_PLANNER_L3 !== 'undefined' ? IMPLEMENTATION_PLANNER_L3 : null;
+        } else if (isR3) {
+            planner = typeof IMPLEMENTATION_PLANNER_R3 !== 'undefined' ? IMPLEMENTATION_PLANNER_R3 : null;
+        } else {
+            planner = typeof IMPLEMENTATION_PLANNER !== 'undefined' ? IMPLEMENTATION_PLANNER : null;
+        }
         console.log('Planner revision:', this.implPlannerRevision, 'Data available:', !!planner);
         
         if (!planner) {
@@ -1208,8 +1214,8 @@ class AssessmentApp {
         }
         
         // Load saved progress (revision-specific keys)
-        const progressKey = isR3 ? 'impl-planner-r3-progress' : 'impl-planner-progress';
-        const phaseKey = isR3 ? 'impl-planner-r3-phase' : 'impl-planner-phase';
+        const progressKey = isL3 ? 'impl-planner-l3-progress' : (isR3 ? 'impl-planner-r3-progress' : 'impl-planner-progress');
+        const phaseKey = isL3 ? 'impl-planner-l3-phase' : (isR3 ? 'impl-planner-r3-phase' : 'impl-planner-phase');
         this.implPlannerProgress = JSON.parse(localStorage.getItem(progressKey) || '{}');
         this.implPlannerCurrentPhase = localStorage.getItem(phaseKey) || planner.phases[0].id;
         const storedView = localStorage.getItem('impl-planner-view');
@@ -1246,12 +1252,14 @@ class AssessmentApp {
                         CMMC Implementation Planner
                     </h1>
                     <div class="impl-planner-rev-toggle">
-                        <button class="impl-rev-btn ${!isR3 ? 'active' : ''}" data-rev="r2">Rev 2</button>
-                        <button class="impl-rev-btn ${isR3 ? 'active' : ''}" data-rev="r3">Rev 3</button>
+                        <button class="impl-rev-btn ${!isR3 && !isL3 ? 'active' : ''}" data-rev="r2">L1/L2 Rev 2</button>
+                        <button class="impl-rev-btn ${isR3 ? 'active' : ''}" data-rev="r3">L1/L2 Rev 3</button>
+                        <button class="impl-rev-btn impl-rev-btn-l3 ${isL3 ? 'active' : ''}" data-rev="l3">Level 3</button>
                     </div>
                 </div>
                 <p>${planner.description}</p>
                 ${isR3 ? '<div class="impl-planner-r3-badge"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Rev 3 Edition &mdash; 17 families &bull; 97 controls &bull; 422 objectives &bull; ODPs &bull; New: SR, PL</div>' : ''}
+                ${isL3 ? '<div class="impl-planner-r3-badge" style="background:rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.3);color:#ec4899"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Level 3 Enhanced &mdash; NIST 800-172 &bull; 23 controls &bull; 59 objectives &bull; APT Defense &bull; DIBCAC Assessment</div>' : ''}
             </div>
             
             <!-- Progress Overview -->
@@ -1811,8 +1819,8 @@ class AssessmentApp {
             tab.addEventListener('click', (e) => {
                 const phaseId = e.currentTarget.dataset.phase;
                 this.implPlannerCurrentPhase = phaseId;
-                const isR3 = this.implPlannerRevision === 'r3';
-                localStorage.setItem(isR3 ? 'impl-planner-r3-phase' : 'impl-planner-phase', phaseId);
+                const pKey = this.implPlannerRevision === 'l3' ? 'impl-planner-l3-phase' : (this.implPlannerRevision === 'r3' ? 'impl-planner-r3-phase' : 'impl-planner-phase');
+                localStorage.setItem(pKey, phaseId);
                 this.renderImplPlanner();
             });
         });
@@ -1832,8 +1840,7 @@ class AssessmentApp {
                 const taskId = e.currentTarget.dataset.taskId;
                 if (taskId) {
                     this.implPlannerProgress[taskId] = !this.implPlannerProgress[taskId];
-                    const isR3 = this.implPlannerRevision === 'r3';
-                    const progressKey = isR3 ? 'impl-planner-r3-progress' : 'impl-planner-progress';
+                    const progressKey = this.implPlannerRevision === 'l3' ? 'impl-planner-l3-progress' : (this.implPlannerRevision === 'r3' ? 'impl-planner-r3-progress' : 'impl-planner-progress');
                     localStorage.setItem(progressKey, JSON.stringify(this.implPlannerProgress));
                     this.renderImplPlanner();
                 }
@@ -1875,7 +1882,8 @@ class AssessmentApp {
                 if (taskInfo) {
                     this.implPlannerCurrentPhase = taskInfo.phaseId;
                     this.implPlannerView = 'phases';
-                    localStorage.setItem('impl-planner-phase', taskInfo.phaseId);
+                    const pKey = this.implPlannerRevision === 'l3' ? 'impl-planner-l3-phase' : (this.implPlannerRevision === 'r3' ? 'impl-planner-r3-phase' : 'impl-planner-phase');
+                    localStorage.setItem(pKey, taskInfo.phaseId);
                     localStorage.setItem('impl-planner-view', 'phases');
                     this.renderImplPlanner();
                     // Expand milestone after render
@@ -3101,6 +3109,7 @@ class AssessmentApp {
                         ${objective.id}
                         <span class="impl-status-badge" data-objective-id="${objective.id}" style="display: none;"></span>
                         <span class="evidence-count-badge" data-objective-id="${objective.id}" style="display: none;"></span>
+                        <span class="mn-badge-slot" data-objective-id="${objective.id}">${typeof MeetingNotesIntegration !== 'undefined' ? MeetingNotesIntegration.renderQuoteBadge(objective.id) : ''}</span>
                         ${typeof InheritedControls !== 'undefined' ? InheritedControls.renderObjectiveBadge(controlId) : ''}
                         ${transitionHtml}
                     </div>

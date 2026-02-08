@@ -9,6 +9,7 @@ const PurpleBackground = {
     timeRef: 0,
     _paused: false,
     _reduced: false,
+    _lightMode: false,
 
     // Blob definitions — organic flowing shapes
     blobs: [
@@ -22,7 +23,7 @@ const PurpleBackground = {
     ],
 
     // Deep Obsidian–tuned purple palette (shifted toward blue-purple to match accent-blue #6c8aff)
-    colors: [
+    darkColors: [
         "rgba(108, 80, 210, 0.40)",   // blue-violet
         "rgba(90, 60, 190, 0.35)",    // deep violet
         "rgba(139, 92, 246, 0.32)",   // vivid purple (matches --glow-accent)
@@ -31,6 +32,21 @@ const PurpleBackground = {
         "rgba(80, 50, 180, 0.35)",    // dark violet
         "rgba(108, 138, 255, 0.25)"   // accent-blue tint (matches --accent-blue)
     ],
+
+    // Polar White–tuned palette — soft lavender/violet on white, lower opacity for readability
+    lightColors: [
+        "rgba(124, 92, 220, 0.12)",   // soft violet
+        "rgba(139, 92, 246, 0.10)",   // lavender
+        "rgba(108, 80, 210, 0.09)",   // muted blue-violet
+        "rgba(160, 120, 255, 0.08)",  // light periwinkle
+        "rgba(100, 70, 200, 0.10)",   // mid violet
+        "rgba(130, 100, 240, 0.07)",  // pale periwinkle
+        "rgba(108, 138, 255, 0.08)"   // accent-blue tint
+    ],
+
+    get colors() {
+        return this._lightMode ? this.lightColors : this.darkColors;
+    },
 
     init: function() {
         this.canvas = document.getElementById('purple-bg-canvas');
@@ -136,12 +152,12 @@ const PurpleBackground = {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, w, h);
 
-        // Background fill — matches --bg-primary #0a0a0f with slight purple tint
-        ctx.fillStyle = '#08070f';
+        // Background fill — dark or light base
+        ctx.fillStyle = this._lightMode ? '#f8f7fc' : '#08070f';
         ctx.fillRect(0, 0, w, h);
 
-        // Draw blobs
-        var baseAlpha = 0.55;
+        // Draw blobs — lower alpha in light mode for readability
+        var baseAlpha = this._lightMode ? 0.85 : 0.55;
         var self = this;
         this.blobs.forEach(function(blob, i) {
             var cx = blob.x * w + Math.sin(timestamp * blob.speed + blob.phase) * w * blob.drift;
@@ -153,7 +169,7 @@ const PurpleBackground = {
 
         // Subtle wave overlay
         ctx.save();
-        ctx.globalAlpha = 0.06;
+        ctx.globalAlpha = this._lightMode ? 0.03 : 0.06;
 
         for (var j = 0; j < 5; j++) {
             ctx.beginPath();
@@ -172,21 +188,30 @@ const PurpleBackground = {
             ctx.closePath();
 
             var waveGrad = ctx.createLinearGradient(0, waveY - 60, 0, waveY + 200);
-            waveGrad.addColorStop(0, 'rgba(108, 100, 220, 0.5)');
-            waveGrad.addColorStop(1, 'rgba(80, 60, 180, 0)');
+            if (this._lightMode) {
+                waveGrad.addColorStop(0, 'rgba(124, 92, 220, 0.15)');
+                waveGrad.addColorStop(1, 'rgba(139, 92, 246, 0)');
+            } else {
+                waveGrad.addColorStop(0, 'rgba(108, 100, 220, 0.5)');
+                waveGrad.addColorStop(1, 'rgba(80, 60, 180, 0)');
+            }
             ctx.fillStyle = waveGrad;
             ctx.fill();
         }
         ctx.restore();
 
-        // Vignette — darkens edges, keeps center clear
+        // Vignette — softens edges
         ctx.save();
         var vignetteGrad = ctx.createRadialGradient(
             w / 2, h / 2, Math.min(w, h) * 0.3,
             w / 2, h / 2, Math.max(w, h) * 0.75
         );
         vignetteGrad.addColorStop(0, 'transparent');
-        vignetteGrad.addColorStop(1, 'rgba(5, 3, 12, 0.45)');
+        if (this._lightMode) {
+            vignetteGrad.addColorStop(1, 'rgba(240, 238, 248, 0.35)');
+        } else {
+            vignetteGrad.addColorStop(1, 'rgba(5, 3, 12, 0.45)');
+        }
         ctx.fillStyle = vignetteGrad;
         ctx.fillRect(0, 0, w, h);
         ctx.restore();
@@ -195,6 +220,11 @@ const PurpleBackground = {
         if (!this._reduced) {
             this.animationId = requestAnimationFrame(this._animate.bind(this));
         }
+    },
+
+    // Switch between dark and light mode palettes
+    setMode: function(mode) {
+        this._lightMode = (mode === 'light');
     },
 
     destroy: function() {

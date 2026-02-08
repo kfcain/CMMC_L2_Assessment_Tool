@@ -153,6 +153,25 @@ if (typeof ClaudeAPI !== 'undefined') {
             status: c.status
         }));
 
+        // Get meeting notes quotes linked to this objective
+        let meetingQuotes = [];
+        if (typeof MeetingNotesIntegration !== 'undefined') {
+            meetingQuotes = MeetingNotesIntegration.getQuotesForObjective(objectiveId).map(q => ({
+                text: q.text,
+                speaker: q.speaker,
+                speakerRole: q.speakerRole,
+                meetingTitle: q.meetingTitle,
+                meetingDate: q.meetingDate,
+                assessorNote: q.assessorNote
+            }));
+        }
+
+        // Get automated evidence from Integrations Hub
+        let integrationEvidence = [];
+        if (typeof IntegrationsHub !== 'undefined') {
+            integrationEvidence = IntegrationsHub.getControlEvidence(control.id);
+        }
+
         return {
             objectiveId: objective.id,
             objectiveText: objective.text,
@@ -168,7 +187,9 @@ if (typeof ClaudeAPI !== 'undefined') {
             implementation: implementationData[objectiveId] || null,
             canBeOnPoam: !(typeof SPRS_SCORING !== 'undefined' && SPRS_SCORING.neverPoam?.includes(control.id)),
             inheritance: inheritance,
-            fipsCerts: linkedFipsCerts
+            fipsCerts: linkedFipsCerts,
+            meetingQuotes: meetingQuotes,
+            integrationEvidence: integrationEvidence
         };
     };
 

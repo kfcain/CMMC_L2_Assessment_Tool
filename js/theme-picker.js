@@ -47,6 +47,60 @@ const ThemePicker = {
                 '--nav-active-bar': 'linear-gradient(180deg, #6c8aff, #8b5cf6)'
             }
         },
+        // Polar White — Premium light theme with animated purple background
+        polarWhite: {
+            name: 'Polar White',
+            icon: 'gem',
+            category: 'premium',
+            isLight: true,
+            hasPurpleBg: true,
+            colors: {
+                // Backgrounds — warm white with faint violet undertone
+                '--bg-primary': '#f8f7fc',
+                '--bg-secondary': '#f1f0f7',
+                '--bg-tertiary': '#eae8f3',
+                '--bg-elevated': '#ffffff',
+                // Text — WCAG AA compliant (4.5:1+ on #f8f7fc)
+                '--text-primary': '#1b1530',
+                '--text-secondary': '#44395e',
+                '--text-muted': '#6e6488',
+                // Borders
+                '--border-color': '#d6d1e4',
+                '--border-subtle': 'rgba(87, 70, 184, 0.08)',
+                // Accent — blue-violet to match Deep Obsidian purple identity
+                '--accent-blue': '#5746b8',
+                '--accent-blue-hover': '#4636a0',
+                '--accent-glow': 'rgba(87, 70, 184, 0.12)',
+                // Inputs & cards
+                '--input-bg': '#ffffff',
+                '--card-bg': 'rgba(255, 255, 255, 0.85)',
+                '--modal-bg': 'rgba(255, 255, 255, 0.95)',
+                '--shadow-color': 'rgba(87, 70, 184, 0.08)',
+                // Glass — frosted with violet tint
+                '--glass-bg': 'rgba(255, 255, 255, 0.82)',
+                '--glass-border': 'rgba(87, 70, 184, 0.10)',
+                // Glows — purple-tinted
+                '--glow-primary': 'rgba(87, 70, 184, 0.06)',
+                '--glow-accent': 'rgba(139, 92, 246, 0.05)',
+                // Interactions
+                '--hover-bg': 'rgba(87, 70, 184, 0.05)',
+                '--hover-border': 'rgba(87, 70, 184, 0.18)',
+                '--hover-glow': 'rgba(87, 70, 184, 0.06)',
+                '--focus-border': 'rgba(87, 70, 184, 0.40)',
+                '--focus-glow': 'rgba(87, 70, 184, 0.10)',
+                '--card-hover-border': 'rgba(87, 70, 184, 0.16)',
+                '--card-hover-shadow': '0 4px 20px rgba(87, 70, 184, 0.08), 0 0 0 1px rgba(87, 70, 184, 0.10)',
+                // Tables
+                '--table-hover-bg': 'rgba(87, 70, 184, 0.04)',
+                '--table-border': 'rgba(87, 70, 184, 0.08)',
+                '--table-header-bg': 'rgba(87, 70, 184, 0.03)',
+                // Decorative
+                '--accent-line': 'linear-gradient(90deg, transparent, rgba(87, 70, 184, 0.14), transparent)',
+                '--nav-active-bg': 'linear-gradient(135deg, rgba(87, 70, 184, 0.10), rgba(139, 92, 246, 0.06))',
+                '--nav-active-border': 'rgba(87, 70, 184, 0.24)',
+                '--nav-active-bar': 'linear-gradient(180deg, #5746b8, #8b5cf6)'
+            }
+        },
         // One Dark Pro - Most popular VS Code theme (Atom One Dark inspired)
         oneDarkPro: {
             name: 'One Dark Pro',
@@ -520,7 +574,7 @@ const ThemePicker = {
     
     // Theme categories for organized display
     themeCategories: {
-        premium: { name: 'Premium', themes: ['deepObsidian'] },
+        premium: { name: 'Premium', themes: ['deepObsidian', 'polarWhite'] },
         popular: { name: 'Popular', themes: ['oneDarkPro', 'dracula', 'githubDark', 'githubLight', 'tokyoNight'] },
         classic: { name: 'Classic', themes: ['nightOwl', 'nord', 'catppuccin', 'gruvbox', 'solarized'] },
         neon: { name: 'Neon & Cyber', themes: ['cyberpunk', 'synthwave', 'neonNoir'] },
@@ -543,7 +597,7 @@ const ThemePicker = {
             const accent = c['--accent-blue'] || '#6c8aff';
             const accentHover = c['--accent-blue-hover'] || accent;
             const bgSec = c['--bg-secondary'] || '#0f1117';
-            const isLight = theme.name === 'GitHub Light';
+            const isLight = theme.name === 'GitHub Light' || theme.isLight === true;
 
             // Helper: hex to r,g,b string
             const hexToRgb = (hex) => {
@@ -616,8 +670,18 @@ const ThemePicker = {
         // Toggle purple background canvas based on theme
         this._updatePurpleBackground(theme.hasPurpleBg);
 
+        // Set purple background light/dark mode
+        if (typeof PurpleBackground !== 'undefined' && PurpleBackground.setMode) {
+            PurpleBackground.setMode(theme.isLight ? 'light' : 'dark');
+        }
+
+        // Toggle light-theme class for CSS overrides on hardcoded dark elements
+        document.documentElement.classList.toggle('light-theme', theme.isLight === true);
+
         // Set html background color to match theme
-        document.documentElement.style.backgroundColor = theme.hasPurpleBg ? '#08070f' : theme.colors['--bg-primary'];
+        document.documentElement.style.backgroundColor = theme.hasPurpleBg
+            ? (theme.isLight ? '#f8f7fc' : '#08070f')
+            : theme.colors['--bg-primary'];
 
         this.currentTheme = themeName;
         this.saveTheme(themeName);
@@ -807,7 +871,8 @@ const ThemePicker = {
 
     // Check if current theme is a light theme
     isLightTheme() {
-        return this.currentTheme === 'githubLight';
+        const t = this.themes[this.currentTheme];
+        return this.currentTheme === 'githubLight' || this.currentTheme === 'polarWhite' || (t && t.isLight === true);
     },
 
     // Get list of all available themes

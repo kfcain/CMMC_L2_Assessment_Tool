@@ -8,10 +8,10 @@
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com; frame-src 'self' https://www.figma.com https://lucid.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://public-api.granola.ai https://graph.microsoft.com https://login.microsoftonline.com https://*.api.knowbe4.com https://cloud.tenable.com https://*.atlassian.net; frame-src 'self' https://www.figma.com https://lucid.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
     <title>CMMC 2.0 Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260208b">
+    <link rel="stylesheet" href="styles.css?v=20260208c">
     <link rel="stylesheet" href="css/theme-picker.css?v=1">
     <link rel="stylesheet" href="css/comprehensive-guidance.css?v=20260207f">
     <link rel="stylesheet" href="css/crosswalk.css?v=20260208b">
@@ -28,6 +28,8 @@
     <link rel="stylesheet" href="css/purple-background.css?v=1">
     <link rel="stylesheet" href="css/markitdown.css?v=1">
     <link rel="stylesheet" href="css/diagram-visualizer.css?v=1">
+    <link rel="stylesheet" href="css/meeting-notes.css?v=1">
+    <link rel="stylesheet" href="css/integrations-hub.css?v=1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -134,7 +136,7 @@
                         <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
                         <span class="hb-label">Crosswalk Viewer</span>
                     </button>
-                    <button class="hamburger-nav-btn" id="open-rev3-crosswalk-btn">
+                    <button class="hamburger-nav-btn" data-view="rev3-crosswalk">
                         <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="M3 21l7-7"/></svg></span>
                         <span class="hb-label">Rev2 &rarr; Rev3 Crosswalk</span>
                     </button>
@@ -150,6 +152,14 @@
                     <button class="hamburger-nav-btn" data-view="fedramp-reference">
                         <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
                         <span class="hb-label">FedRAMP Reference</span>
+                    </button>
+                    <button class="hamburger-nav-btn" id="open-meeting-notes-btn">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+                        <span class="hb-label">Meeting Notes</span>
+                    </button>
+                    <button class="hamburger-nav-btn" id="open-integrations-hub-btn">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></span>
+                        <span class="hb-label">Integrations Hub</span>
                     </button>
                 </div>
 
@@ -767,7 +777,8 @@
     
     <!-- Implementation planner data -->
     <script src="data/implementation-planner-clean.js?v=4" defer></script>
-    <script src="data/implementation-planner-r3.js?v=1" defer></script>
+    <script src="data/implementation-planner-r3.js?v=2" defer></script>
+    <script src="data/implementation-planner-l3.js?v=1" defer></script>
     
     <!-- Core app scripts -->
     <script src="js/sanitize.js?v=20260208a"></script>
@@ -802,7 +813,7 @@
     <script src="app-main.js?v=20260208b"></script>
     <script src="js/supabase-client.js?v=1" defer></script>
     <script src="js/evidence-ui.js?v=1" defer></script>
-    <script src="js/theme-picker.js?v=5"></script>
+    <script src="js/theme-picker.js?v=20260208c"></script>
     
     <!-- Enhanced Features -->
     <script src="js/report-generator.js?v=1" defer></script>
@@ -845,6 +856,12 @@
     
     <!-- Interactive Diagram Visualizer -->
     <script src="js/diagram-visualizer.js?v=1" defer></script>
+    
+    <!-- Meeting Notes Integration (Granola + manual paste) -->
+    <script src="js/meeting-notes-integration.js?v=1" defer></script>
+    
+    <!-- Integrations Hub (Entra ID, KnowBe4, Tenable, Jira, OSCAL) -->
+    <script src="js/integrations-hub.js?v=1" defer></script>
     
     <!-- Assessment Enhancements -->
     <script src="js/assessment-enhancements.js?v=1" defer></script>

@@ -307,33 +307,11 @@ const Rev3Crosswalk = {
     },
 
     bindEvents: function() {
+        // Crosswalk tab buttons — delegated so they work even after re-render
         document.addEventListener('click', (e) => {
-            if (e.target.closest('#open-rev3-crosswalk-btn')) {
-                this.showView();
-            }
+            const tab = e.target.closest('.rev3-xwalk-tabs .xwalk-tab[data-tab]');
+            if (tab) this.switchTab(tab.dataset.tab);
         });
-
-        // Crosswalk tab buttons (CSP blocks inline onclick)
-        document.querySelectorAll('.xwalk-tab[data-tab]').forEach(tab => {
-            tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
-        });
-    },
-
-    showView: function() {
-        // Switch to the rev3-crosswalk-view using the app's view switching mechanism
-        if (typeof window.app !== 'undefined' && window.app.switchView) {
-            window.app.switchView('rev3-crosswalk');
-        } else {
-            // Fallback: manually switch views
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            const view = document.getElementById('rev3-crosswalk-view');
-            if (view) view.classList.add('active');
-        }
-        // Render the content
-        this.renderView();
-        // Close hamburger menu if open
-        const hamburger = document.querySelector('.hamburger-dropdown');
-        if (hamburger) hamburger.classList.remove('active');
     },
 
     renderView: function() {
@@ -358,6 +336,9 @@ const Rev3Crosswalk = {
         document.querySelectorAll('.rev3-xwalk-tabs .xwalk-tab').forEach(t => {
             t.classList.toggle('active', t.dataset.tab === 'mapping');
         });
+
+        // Bind filter/toggle events (replaces inline onchange handlers blocked by CSP)
+        this.bindContentEvents();
     },
 
     renderCrosswalkContent: function() {
@@ -395,6 +376,29 @@ const Rev3Crosswalk = {
         else if (tab === 'sp53') content.innerHTML = this.render53To171Mapping();
         else if (tab === 'odps') content.innerHTML = this.renderODPsTable();
         else if (tab === 'new') content.innerHTML = this.renderNewControls();
+        // Re-bind events for dynamically rendered content
+        this.bindContentEvents();
+    },
+
+    // Bind events for dynamically rendered filter selects and toggles
+    // (replaces inline onchange handlers that CSP blocks)
+    bindContentEvents: function() {
+        const familyFilter = document.getElementById('family-filter');
+        if (familyFilter) {
+            familyFilter.addEventListener('change', () => this.filterByFamily(familyFilter.value));
+        }
+        const statusFilter = document.getElementById('status-filter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', () => this.filterByStatus(statusFilter.value));
+        }
+        const odpToggle = document.getElementById('xwalk-show-odps');
+        if (odpToggle) {
+            odpToggle.addEventListener('change', () => this.toggleInlineOdps(odpToggle.checked));
+        }
+        const sp53FamilyFilter = document.getElementById('sp53-family-filter');
+        if (sp53FamilyFilter) {
+            sp53FamilyFilter.addEventListener('change', () => this.filter53Family(sp53FamilyFilter.value));
+        }
     },
 
     renderMappingTable: function() {
@@ -412,16 +416,16 @@ const Rev3Crosswalk = {
         
         return `
         <div class="mapping-filters">
-            <select id="family-filter" onchange="Rev3Crosswalk.filterByFamily(this.value)">
+            <select id="family-filter">
                 <option value="all">All Families</option>
                 ${Object.keys(families).map(f => `<option value="${f}">${f}</option>`).join('')}
             </select>
-            <select id="status-filter" onchange="Rev3Crosswalk.filterByStatus(this.value)">
+            <select id="status-filter">
                 <option value="all">All Status</option>
                 <option value="modified">Modified Only</option>
                 <option value="unchanged">Unchanged Only</option>
             </select>
-            <label class="xwalk-toggle"><input type="checkbox" id="xwalk-show-odps" checked onchange="Rev3Crosswalk.toggleInlineOdps(this.checked)"> Show ODPs inline</label>
+            <label class="xwalk-toggle"><input type="checkbox" id="xwalk-show-odps" checked> Show ODPs inline</label>
         </div>
         <div class="mapping-cards-container" id="mapping-cards">
             ${this.CONTROL_MAPPING.map(c => this.renderMappingCard(c, withdrawnMap)).join('')}
@@ -631,7 +635,7 @@ const Rev3Crosswalk = {
                 <p class="sp53-source">Source: NIST SP 800-171r3 IPD CUI Overlay</p>
             </div>
             <div class="sp53-filter">
-                <select id="sp53-family-filter" onchange="Rev3Crosswalk.filter53Family(this.value)">
+                <select id="sp53-family-filter">
                     <option value="all">All Families</option>
                     ${Object.entries(families).map(([code, name]) => 
                         `<option value="${code}">${code} - ${name}</option>`

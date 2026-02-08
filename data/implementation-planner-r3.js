@@ -594,12 +594,41 @@ const IMPLEMENTATION_PLANNER_R3 = {
                             }
                         }
                     ]
+                },
+                {
+                    id: "r3-m1-3", name: "Awareness & Training (AT)",
+                    description: "Deploy security awareness and CUI handling training immediately after policies are established — personnel must understand requirements before technical controls are rolled out",
+                    tasks: [
+                        {
+                            id: "r3-t1-3-1", name: "Develop and deploy security awareness training program",
+                            description: "Create CUI-focused training with ODP-defined frequency — deploy early so all personnel understand policies before technical implementation begins",
+                            controls: ["03.02.01[a]", "03.02.01[b]", "03.02.02[a]", "03.02.02[b]", "03.02.03[a]"],
+                            priority: "critical", effort: "high", isODPTask: true,
+                            projectPlan: { category: "Governance", subcategory: "Training", week: 8, taskId: "R3-T1.7", owner: "CMMC Lead", accountable: "HR Mgr", deliverable: "Training Program" },
+                            guidance: {
+                                steps: [
+                                    "Develop security awareness content covering CUI handling, phishing, social engineering",
+                                    "Set training frequency per ODP (suggested: annually + upon significant changes)",
+                                    "Create role-based training for IT admins, developers, managers per 03.02.02",
+                                    "Include insider threat awareness per 03.02.03",
+                                    "Deploy training platform (KnowBe4, Proofpoint, SANS)",
+                                    "Track completion and maintain training records",
+                                    "Conduct phishing simulations quarterly",
+                                    "Ensure all personnel complete initial training BEFORE technical controls go live"
+                                ],
+                                odpValues: [
+                                    { control: "03.02.01", param: "training_frequency", suggested: "Annually + upon significant changes" }
+                                ],
+                                artifacts: ["Training Content", "Training Records", "Phishing Simulation Results"]
+                            }
+                        }
+                    ]
                 }
             ]
         },
         {
-            id: "r3-phase-3", name: "Audit, Awareness & Configuration (AU, AT, CM)",
-            description: "Implement audit logging, security awareness training, and configuration management controls with Rev 3 ODPs for audit events, review frequency, training cadence, and baseline components.",
+            id: "r3-phase-3", name: "Audit & Configuration (AU, CM)",
+            description: "Implement audit logging and configuration management controls with Rev 3 ODPs for audit events, review frequency, and baseline components.",
             duration: "4-5 weeks", icon: "audit", color: "#60a5fa",
             milestones: [
                 {
@@ -674,35 +703,7 @@ const IMPLEMENTATION_PLANNER_R3 = {
                     ]
                 },
                 {
-                    id: "r3-m3-2", name: "Awareness & Training (AT)",
-                    description: "Implement security awareness and training with ODP frequency",
-                    tasks: [
-                        {
-                            id: "r3-t3-2-1", name: "Develop and deploy security awareness training program",
-                            description: "Create CUI-focused training with ODP-defined frequency",
-                            controls: ["03.02.01[a]", "03.02.01[b]", "03.02.02[a]", "03.02.02[b]", "03.02.03[a]"],
-                            priority: "critical", effort: "high", isODPTask: true,
-                            projectPlan: { category: "Governance", subcategory: "Training", week: 15, taskId: "R3-T3.4", owner: "CMMC Lead", accountable: "HR Mgr", deliverable: "Training Program" },
-                            guidance: {
-                                steps: [
-                                    "Develop security awareness content covering CUI handling, phishing, social engineering",
-                                    "Set training frequency per ODP (suggested: annually + upon significant changes)",
-                                    "Create role-based training for IT admins, developers, managers per 03.02.02",
-                                    "Include insider threat awareness per 03.02.03",
-                                    "Deploy training platform (KnowBe4, Proofpoint, SANS)",
-                                    "Track completion and maintain training records",
-                                    "Conduct phishing simulations quarterly"
-                                ],
-                                odpValues: [
-                                    { control: "03.02.01", param: "training_frequency", suggested: "Annually + upon significant changes" }
-                                ],
-                                artifacts: ["Training Content", "Training Records", "Phishing Simulation Results"]
-                            }
-                        }
-                    ]
-                },
-                {
-                    id: "r3-m3-3", name: "Configuration Management (CM)",
+                    id: "r3-m3-2", name: "Configuration Management (CM)",
                     description: "Implement all 9 CM controls including new Rev 3 controls",
                     tasks: [
                         {

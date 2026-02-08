@@ -616,6 +616,12 @@ ${Object.entries(context.familyStats).map(([id, f]) =>
                 const objFips = (obj.fipsCerts || []).length > 0
                     ? `\n- FIPS Certificates for this control:\n${obj.fipsCerts.map(c => `  - #${c.certNumber}: ${c.moduleName} (${c.vendor}, ${c.standard}, Level ${c.level}, ${c.status})`).join('\n')}`
                     : '';
+                const objMeetingQuotes = (obj.meetingQuotes || []).length > 0
+                    ? `\n### Meeting Evidence (OSC Quotes from Assessment Interviews):\n${obj.meetingQuotes.map(q => `  - "${q.text}" — ${q.speaker}${q.speakerRole ? ' (' + q.speakerRole + ')' : ''}, ${q.meetingTitle || 'Meeting'}${q.meetingDate ? ' (' + new Date(q.meetingDate).toLocaleDateString() + ')' : ''}${q.assessorNote ? '\n    Assessor Note: ' + q.assessorNote : ''}`).join('\n')}\nUse these direct quotes from the OSC as evidence when evaluating this objective. Reference specific quotes in your assessment.`
+                    : '';
+                const objIntegrations = (obj.integrationEvidence || []).length > 0
+                    ? `\n### Automated Integration Evidence:\n${obj.integrationEvidence.map(e => `  - **${e.source}** (synced ${new Date(e.syncDate).toLocaleDateString()}): ${e.summary}`).join('\n')}\nThis data was pulled automatically from connected tools. Reference these metrics when evaluating compliance.`
+                    : '';
                 objectiveBlock = `
 
 ## CURRENT OBJECTIVE CONTEXT
@@ -628,7 +634,7 @@ ${Object.entries(context.familyStats).map(([id, f]) =>
 - Current Status: ${obj.status}
 - POA&M Eligible: ${obj.canBeOnPoam ? 'Yes' : 'No (32 CFR 170.21)'}
 ${obj.implementation ? `- Implementation Notes: ${obj.implementation.description}` : ''}
-${obj.poam ? `- POA&M: Remediation: ${obj.poam.remediation || 'None'}, Due: ${obj.poam.scheduledDate || 'Not set'}, Risk: ${obj.poam.risk || 'Not set'}` : ''}${objFips}
+${obj.poam ? `- POA&M: Remediation: ${obj.poam.remediation || 'None'}, Due: ${obj.poam.scheduledDate || 'Not set'}, Risk: ${obj.poam.risk || 'Not set'}` : ''}${objFips}${objMeetingQuotes}${objIntegrations}
 `;
             }
         }

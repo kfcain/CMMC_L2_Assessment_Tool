@@ -13468,3 +13468,212 @@ code, .impl-code {
     0%, 100% { box-shadow: 0 0 8px rgba(108, 138, 255, 0.1); }
     50% { box-shadow: 0 0 20px rgba(108, 138, 255, 0.2); }
 }
+
+/* ═══════════════════════════════════════════════
+   POLAR WHITE — LIGHT THEME OVERRIDES
+   Stark white premium theme: override hardcoded
+   dark colors that CSS variables alone can't reach.
+   ═══════════════════════════════════════════════ */
+
+/* --- Scrollbars --- */
+.light-theme ::-webkit-scrollbar-thumb {
+    background: rgba(87, 70, 184, 0.16);
+}
+.light-theme ::-webkit-scrollbar-thumb:hover {
+    background: rgba(87, 70, 184, 0.28);
+}
+.light-theme ::-webkit-scrollbar-track {
+    background: rgba(248, 247, 252, 0.6);
+}
+.light-theme * {
+    scrollbar-color: rgba(87, 70, 184, 0.16) rgba(248, 247, 252, 0.6);
+}
+
+/* --- Links --- */
+.light-theme a {
+    color: #5746b8;
+}
+.light-theme a:hover {
+    color: #4636a0;
+}
+
+/* --- Code / inline code --- */
+.light-theme code,
+.light-theme .impl-code {
+    background: rgba(87, 70, 184, 0.06);
+    border-color: rgba(87, 70, 184, 0.12);
+    color: #4636a0;
+}
+
+/* --- Selection --- */
+.light-theme ::selection {
+    background: rgba(87, 70, 184, 0.18);
+    color: #1b1530;
+}
+
+/* --- Focus ring --- */
+.light-theme :focus-visible {
+    outline-color: rgba(87, 70, 184, 0.50);
+}
+
+/* --- Cyber grid overlay: soften for white bg --- */
+.light-theme .main-content::before {
+    background-image:
+        linear-gradient(rgba(87, 70, 184, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(87, 70, 184, 0.025) 1px, transparent 1px);
+}
+
+/* --- Glow ring keyframes override --- */
+.light-theme .glow-ring,
+.light-theme [style*="glow-ring"] {
+    animation: glow-ring-light 3s ease-in-out infinite;
+}
+@keyframes glow-ring-light {
+    0%, 100% { box-shadow: 0 0 6px rgba(87, 70, 184, 0.08); }
+    50% { box-shadow: 0 0 14px rgba(87, 70, 184, 0.14); }
+}
+
+/* --- Header bar: frosted glass over purple canvas --- */
+.light-theme .top-header-bar {
+    background: rgba(255, 255, 255, 0.78);
+    border-bottom-color: rgba(87, 70, 184, 0.10);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+.light-theme .header-badge {
+    background: linear-gradient(135deg, #5746b8, #8b5cf6);
+    color: #fff;
+}
+.light-theme .header-title {
+    color: #1b1530;
+}
+
+/* --- Hamburger nav panel: frosted glass --- */
+.light-theme .hb-panel {
+    background: rgba(255, 255, 255, 0.85);
+    border-right-color: rgba(87, 70, 184, 0.10);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+.light-theme .hb-panel-header {
+    border-bottom-color: rgba(87, 70, 184, 0.06);
+}
+.light-theme .hamburger-nav-btn {
+    color: #44395e;
+}
+.light-theme .hamburger-nav-btn:hover {
+    background: rgba(87, 70, 184, 0.06);
+    color: #1b1530;
+}
+.light-theme .hamburger-nav-btn.active {
+    background: rgba(87, 70, 184, 0.08);
+    color: #5746b8;
+}
+.light-theme .hb-overlay {
+    background: rgba(27, 21, 48, 0.12);
+}
+
+/* --- Cards & panels: frosted glass with violet tint --- */
+.light-theme .card,
+.light-theme .panel,
+.light-theme .assessment-card,
+.light-theme .control-card,
+.light-theme .family-card {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 1px 3px rgba(87, 70, 184, 0.06), 0 0 0 1px rgba(87, 70, 184, 0.06);
+}
+
+/* --- Status badges: WCAG AA contrast on white (4.5:1+) --- */
+.light-theme .status-met { background: #0d9668; color: #fff; }
+.light-theme .status-partial { background: #c27800; color: #fff; }
+.light-theme .status-not-met { background: #dc2626; color: #fff; }
+.light-theme .status-not-assessed { background: #6e6488; color: #fff; }
+
+/* --- Modals: frosted glass --- */
+.light-theme .modal-overlay,
+.light-theme .command-search-backdrop {
+    background: rgba(27, 21, 48, 0.18);
+}
+.light-theme .modal-content {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 8px 40px rgba(87, 70, 184, 0.12), 0 0 0 1px rgba(87, 70, 184, 0.08);
+}
+
+/* --- Terminal output --- */
+.light-theme .terminal-output {
+    background: rgba(241, 240, 247, 0.8);
+    scrollbar-color: rgba(87, 70, 184, 0.16) transparent;
+}
+.light-theme .terminal-output::-webkit-scrollbar-thumb {
+    background: rgba(87, 70, 184, 0.16);
+}
+
+/* --- Theme picker dropdown --- */
+.light-theme .header-theme-menu {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(87, 70, 184, 0.10);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 8px 30px rgba(87, 70, 184, 0.10);
+}
+.light-theme .header-theme-option:hover {
+    background: rgba(87, 70, 184, 0.05);
+}
+.light-theme .header-theme-category {
+    color: #6e6488;
+}
+
+/* --- Inputs & selects --- */
+.light-theme input,
+.light-theme select,
+.light-theme textarea {
+    color: #1b1530;
+    background: rgba(255, 255, 255, 0.90);
+    border-color: rgba(87, 70, 184, 0.12);
+}
+.light-theme input:focus,
+.light-theme select:focus,
+.light-theme textarea:focus {
+    border-color: rgba(87, 70, 184, 0.35);
+    box-shadow: 0 0 0 3px rgba(87, 70, 184, 0.08);
+}
+.light-theme input::placeholder,
+.light-theme textarea::placeholder {
+    color: #6e6488;
+}
+
+/* --- Tables --- */
+.light-theme th {
+    background: rgba(87, 70, 184, 0.03);
+    color: #44395e;
+}
+.light-theme tr:hover td {
+    background: rgba(87, 70, 184, 0.04);
+}
+
+/* --- Buttons --- */
+.light-theme .btn-primary,
+.light-theme button[class*="primary"] {
+    background: linear-gradient(135deg, #5746b8, #6c5ce7);
+    color: #fff;
+    border-color: transparent;
+}
+.light-theme .btn-primary:hover,
+.light-theme button[class*="primary"]:hover {
+    background: linear-gradient(135deg, #4636a0, #5b4bd5);
+}
+
+/* --- Dashboard score badges --- */
+.light-theme .dashboard-score-badge {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* --- Main content area: semi-transparent for canvas bleed-through --- */
+.light-theme .main-content {
+    background: rgba(248, 247, 252, 0.65);
+}

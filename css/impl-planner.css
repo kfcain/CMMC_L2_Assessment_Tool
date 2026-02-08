@@ -1348,6 +1348,15 @@
     background: #10b981;
 }
 
+.impl-rev-btn.impl-rev-btn-l3 {
+    border-left: 1px solid var(--border-color);
+    margin-left: 2px;
+}
+
+.impl-rev-btn.active[data-rev="l3"] {
+    background: #ec4899;
+}
+
 .impl-planner-r3-badge {
     display: inline-flex;
     align-items: center;

@@ -2,6 +2,9 @@
 html {
     background-color: #08070f;
 }
+html.light-theme {
+    background-color: #f8f7fc;
+}
 
 #purple-bg-canvas {
     position: fixed;
