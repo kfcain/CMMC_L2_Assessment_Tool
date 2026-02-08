@@ -10193,11 +10193,11 @@ table td {
     font-weight: 700;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
     color: white;
     border-radius: 6px;
     margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
 }
 
 .hero-title {
@@ -10206,7 +10206,7 @@ table td {
     color: var(--text-primary);
     letter-spacing: -1px;
     margin-bottom: 4px;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-blue) 100%);
+    background: linear-gradient(135deg, var(--text-primary) 0%, #a78bfa 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -11873,6 +11873,18 @@ body.rev3-active .hb-org-section {
 
 body.rev3-active .hb-close:hover {
     color: #34d399;
+}
+
+body.rev3-active .hero-badge {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+body.rev3-active .hero-title {
+    background: linear-gradient(135deg, var(--text-primary) 0%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 /* ═══════════════════════════════════════════════

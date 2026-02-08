@@ -643,6 +643,10 @@ class AssessmentApp {
         
         document.getElementById('export-csv-btn')?.addEventListener('click', () => this.exportPOAMCSV());
         document.getElementById('export-assessment-btn')?.addEventListener('click', () => this.exportAssessmentCSV());
+        document.getElementById('export-ssp-btn')?.addEventListener('click', () => {
+            if (typeof SSPExportGenerator !== 'undefined') SSPExportGenerator.exportToWindow();
+            else alert('SSP Export Generator not loaded yet. Please try again.');
+        });
         document.getElementById('mark-all-not-met-btn')?.addEventListener('click', () => this.markAllNotMet());
 
         // POA&M Modal
