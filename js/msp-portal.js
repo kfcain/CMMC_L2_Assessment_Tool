@@ -23,6 +23,7 @@ const MSPPortal = {
         { id: 'vdi', name: 'VDI Solutions', icon: 'monitor', section: 'infrastructure' },
         { id: 'siem', name: 'SIEM/MSSP Operations', icon: 'activity', section: 'security' },
         { id: 'mssp-playbook', name: 'MSSP Playbook', icon: 'shield', section: 'security' },
+        { id: 'scuba-baselines', name: 'SCuBA Baselines & Drift', icon: 'shield', section: 'security' },
         { id: 'automation', name: 'Automation & Compliance', icon: 'cpu', section: 'security' },
         { id: 'automation-platforms', name: 'RMM & Automation Tools', icon: 'settings', section: 'tools' },
         { id: 'cloud-templates', name: 'Cloud Templates', icon: 'database', section: 'tools' },
@@ -279,7 +280,62 @@ const MSPPortal = {
                     }
                 });
             });
+            // SCuBA Baselines tabs
+            document.querySelectorAll('[data-scuba-tab]').forEach(tab => {
+                const newTab = tab.cloneNode(true);
+                tab.parentNode.replaceChild(newTab, tab);
+                newTab.addEventListener('click', (e) => {
+                    const tabId = e.target.dataset.scubaTab;
+                    const d = typeof SCUBA_CONFIG_DRIFT_DATA !== 'undefined' ? SCUBA_CONFIG_DRIFT_DATA : null;
+                    if (!d) return;
+                    document.querySelectorAll('[data-scuba-tab]').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    const contentEl = document.getElementById('scuba-tab-content');
+                    if (!contentEl) return;
+                    switch (tabId) {
+                        case 'utcm': contentEl.innerHTML = MSPPortalViews.renderScubaUTCM(d.utcm, MSPPortal); break;
+                        case 'scubagear': contentEl.innerHTML = MSPPortalViews.renderScubaGear(d.scubaGear, MSPPortal); break;
+                        case 'scubagoggles': contentEl.innerHTML = MSPPortalViews.renderScubaGoggles(d.scubaGoggles, MSPPortal); break;
+                        case 'mapping': contentEl.innerHTML = MSPPortalViews.renderScubaMapping(d.cmmcMapping, MSPPortal); break;
+                        case 'automation': contentEl.innerHTML = MSPPortalViews.renderScubaAutomation(d.automation, MSPPortal); break;
+                    }
+                    // Re-bind expand and copy after tab switch
+                    MSPPortal.bindScubaInteractions();
+                });
+            });
+
+            // SCuBA expand/copy interactions
+            this.bindScubaInteractions();
         }, 0);
+    },
+
+    bindScubaInteractions: function() {
+        // Baseline expand/collapse
+        document.querySelectorAll('.scuba-expand-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const expandId = e.currentTarget.dataset.expand;
+                const card = document.querySelector('[data-baseline-id="' + expandId + '"]');
+                if (!card) return;
+                const detail = card.querySelector('.scuba-baseline-detail');
+                if (!detail) return;
+                const isHidden = detail.style.display === 'none';
+                detail.style.display = isHidden ? 'block' : 'none';
+                e.currentTarget.classList.toggle('expanded', isHidden);
+            });
+        });
+
+        // Copy-to-clipboard
+        document.querySelectorAll('.scuba-copy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const text = e.currentTarget.dataset.copy;
+                if (!text) return;
+                navigator.clipboard.writeText(text.replace(/&quot;/g, '"')).then(() => {
+                    const orig = e.currentTarget.innerHTML;
+                    e.currentTarget.innerHTML = '<span style="font-size:11px;">Copied!</span>';
+                    setTimeout(() => { e.currentTarget.innerHTML = orig; }, 1500);
+                });
+            });
+        });
     },
 
     switchView: function(viewId) {

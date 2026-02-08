@@ -1,0 +1,866 @@
+/* SCuBA Baselines & Configuration Drift View Styles */
+
+.scuba-view {
+    padding: 0;
+}
+
+.scuba-intro {
+    margin-bottom: 20px;
+}
+
+.scuba-intro p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.scuba-tabs {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.scuba-section {
+    animation: scubaFadeIn 0.2s ease;
+}
+
+@keyframes scubaFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Cards */
+.scuba-header-card {
+    background: color-mix(in srgb, var(--card-bg) 80%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.scuba-header-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 8px 0;
+    letter-spacing: -0.02em;
+}
+
+.scuba-header-card p {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.scuba-header-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(109, 40, 217, 0.2));
+    color: #a78bfa;
+    border-radius: 5px;
+    border: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+.scuba-badge-cisa {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(29, 78, 216, 0.2));
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.15);
+}
+
+.scuba-badge-alpha {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.2));
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.15);
+}
+
+.scuba-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.scuba-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    color: var(--accent-blue, #60a5fa);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--accent-blue, #3b82f6) 8%, transparent);
+    transition: background 0.15s;
+}
+
+.scuba-link:hover {
+    background: color-mix(in srgb, var(--accent-blue, #3b82f6) 15%, transparent);
+}
+
+.scuba-link svg {
+    width: 12px;
+    height: 12px;
+}
+
+.scuba-link-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.scuba-link-sm:hover {
+    color: var(--accent-blue, #60a5fa);
+}
+
+.scuba-link-sm svg {
+    width: 11px;
+    height: 11px;
+}
+
+/* BOD Notice */
+.scuba-bod-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: color-mix(in srgb, #f59e0b 8%, transparent);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 8px;
+    font-size: 0.78rem;
+    color: #fbbf24;
+}
+
+.scuba-bod-notice svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.scuba-status-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: color-mix(in srgb, #f59e0b 6%, transparent);
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    border-radius: 8px;
+    font-size: 0.78rem;
+    color: #fbbf24;
+}
+
+.scuba-status-notice svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+/* Sub Titles */
+.scuba-sub-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 24px 0 12px;
+    letter-spacing: -0.01em;
+}
+
+/* Resource Grid (UTCM) */
+.scuba-resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.scuba-resource-card {
+    background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+    border-radius: 8px;
+    padding: 14px;
+    transition: border-color 0.15s;
+}
+
+.scuba-resource-card:hover {
+    border-color: color-mix(in srgb, var(--accent-blue, #3b82f6) 30%, transparent);
+}
+
+.scuba-resource-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent-blue, #60a5fa);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    margin-bottom: 6px;
+}
+
+.scuba-resource-card p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 8px;
+}
+
+.scuba-methods {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.scuba-method-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    background: color-mix(in srgb, var(--text-secondary) 10%, transparent);
+    color: var(--text-secondary);
+    border-radius: 4px;
+}
+
+/* Limits Grid */
+.scuba-limits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.scuba-limit-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    background: color-mix(in srgb, var(--card-bg) 50%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
+    border-radius: 6px;
+}
+
+.scuba-limit-key {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: capitalize;
+}
+
+.scuba-limit-val {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.scuba-limit-note {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+/* Steps */
+.scuba-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.scuba-step {
+    background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+    border-radius: 8px;
+    padding: 14px;
+}
+
+.scuba-step-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.scuba-step-header strong {
+    font-size: 0.82rem;
+    color: var(--text-primary);
+}
+
+.scuba-step-header p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 2px 0 0;
+}
+
+.scuba-step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.15));
+    color: #a78bfa;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+/* Code Blocks */
+.scuba-code-block {
+    position: relative;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.scuba-code-block pre {
+    padding: 12px 14px;
+    padding-right: 40px;
+    margin: 0;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: #e2e8f0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.scuba-copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 4px 6px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+}
+
+.scuba-copy-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+}
+
+.scuba-copy-btn svg {
+    width: 13px;
+    height: 13px;
+}
+
+/* CMMC Table */
+.scuba-cmmc-table {
+    overflow-x: auto;
+}
+
+.scuba-cmmc-table table,
+.scuba-mapping-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+}
+
+.scuba-cmmc-table th,
+.scuba-mapping-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 600;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+    background: color-mix(in srgb, var(--card-bg) 40%, transparent);
+}
+
+.scuba-cmmc-table td,
+.scuba-mapping-table td {
+    padding: 8px 12px;
+    color: var(--text-primary);
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 25%, transparent);
+    vertical-align: top;
+}
+
+.scuba-ctrl-id {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 600;
+    color: var(--accent-blue, #60a5fa) !important;
+    white-space: nowrap;
+    font-size: 0.75rem;
+}
+
+/* Baseline Grid */
+.scuba-baseline-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.scuba-baseline-card {
+    background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+    border-radius: 8px;
+    padding: 14px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.scuba-baseline-card:hover {
+    border-color: color-mix(in srgb, var(--accent-blue, #3b82f6) 25%, transparent);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.scuba-baseline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.scuba-baseline-header h5 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.scuba-policy-count {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    background: color-mix(in srgb, var(--accent-blue, #3b82f6) 12%, transparent);
+    color: var(--accent-blue, #60a5fa);
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.scuba-baseline-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 10px;
+}
+
+.scuba-baseline-detail {
+    padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
+    margin-bottom: 10px;
+}
+
+.scuba-baseline-detail h6 {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin: 10px 0 6px;
+}
+
+.scuba-baseline-detail h6:first-child {
+    margin-top: 0;
+}
+
+.scuba-baseline-detail ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.scuba-baseline-detail li {
+    font-size: 0.73rem;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.scuba-ctrl-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.scuba-ctrl-tag {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: color-mix(in srgb, var(--accent-blue, #3b82f6) 10%, transparent);
+    color: var(--accent-blue, #60a5fa);
+    border-radius: 4px;
+}
+
+.scuba-baseline-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.scuba-expand-btn {
+    background: none;
+    border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+    border-radius: 4px;
+    padding: 3px 6px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background 0.15s, transform 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.scuba-expand-btn:hover {
+    background: color-mix(in srgb, var(--text-secondary) 10%, transparent);
+}
+
+.scuba-expand-btn.expanded {
+    transform: rotate(180deg);
+}
+
+.scuba-expand-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Prerequisites */
+.scuba-prereqs {
+    background: color-mix(in srgb, var(--card-bg) 50%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.scuba-prereqs h6 {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin: 0 0 8px;
+}
+
+.scuba-prereqs ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.scuba-prereqs li {
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+
+/* Workflow */
+.scuba-workflow {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.scuba-workflow-step {
+    flex: 1;
+    min-width: 180px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px;
+    background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+    border-radius: 8px;
+}
+
+.scuba-wf-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.15));
+    color: #60a5fa;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.scuba-workflow-step strong {
+    font-size: 0.82rem;
+    color: var(--text-primary);
+}
+
+.scuba-workflow-step p {
+    font-size: 0.73rem;
+    color: var(--text-secondary);
+    margin: 2px 0 0;
+    line-height: 1.5;
+}
+
+/* Iterative Steps */
+.scuba-iterative {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.scuba-iter-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    background: color-mix(in srgb, var(--card-bg) 50%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
+    border-radius: 6px;
+}
+
+.scuba-iter-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--text-secondary) 15%, transparent);
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.scuba-iter-step strong {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+}
+
+.scuba-iter-step p {
+    font-size: 0.73rem;
+    color: var(--text-secondary);
+    margin: 2px 0 0;
+    line-height: 1.5;
+}
+
+/* Config Info */
+.scuba-config-info {
+    background: color-mix(in srgb, var(--card-bg) 50%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
+    border-radius: 8px;
+    padding: 14px;
+}
+
+.scuba-config-info p {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 8px;
+}
+
+.scuba-config-info ul {
+    margin: 0 0 12px;
+    padding-left: 18px;
+}
+
+.scuba-config-info li {
+    font-size: 0.73rem;
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+
+/* Auth Methods */
+.scuba-auth-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.scuba-auth-card {
+    padding: 14px;
+    background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+    border-radius: 8px;
+}
+
+.scuba-auth-card strong {
+    font-size: 0.82rem;
+    color: var(--text-primary);
+}
+
+.scuba-auth-card p {
+    font-size: 0.73rem;
+    color: var(--text-secondary);
+    margin: 4px 0 8px;
+    line-height: 1.5;
+}
+
+/* Drift Info */
+.scuba-drift-info {
+    padding: 14px;
+    background: color-mix(in srgb, var(--card-bg) 50%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 30%, transparent);
+    border-radius: 8px;
+}
+
+.scuba-drift-info p {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin: 0 0 10px;
+    line-height: 1.6;
+}
+
+/* Mapping Tables */
+.scuba-mapping-family {
+    margin-bottom: 24px;
+}
+
+.scuba-family-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid color-mix(in srgb, var(--accent-blue, #3b82f6) 20%, transparent);
+}
+
+.scuba-mapping-table {
+    overflow-x: auto;
+    display: block;
+}
+
+.scuba-tool-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.scuba-tool-tag {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 0.62rem;
+    font-weight: 500;
+    background: color-mix(in srgb, var(--text-secondary) 10%, transparent);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.scuba-evidence {
+    font-size: 0.72rem !important;
+    color: var(--text-secondary) !important;
+}
+
+/* Automation Grid */
+.scuba-auto-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.scuba-auto-card {
+    background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.scuba-auto-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.scuba-auto-header h5 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.scuba-platform-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background: color-mix(in srgb, var(--accent-blue, #3b82f6) 12%, transparent);
+    color: var(--accent-blue, #60a5fa);
+    border-radius: 4px;
+}
+
+.scuba-auto-card > p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 12px;
+}
+
+/* Rev3 Green Overrides */
+body.rev3-active .scuba-header-badge {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.2));
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.15);
+}
+
+body.rev3-active .scuba-step-num {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.15));
+    color: #34d399;
+}
+
+body.rev3-active .scuba-wf-num {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.15));
+    color: #34d399;
+}
+
+body.rev3-active .scuba-ctrl-id {
+    color: #34d399 !important;
+}
+
+body.rev3-active .scuba-ctrl-tag {
+    background: color-mix(in srgb, #10b981 10%, transparent);
+    color: #34d399;
+}
+
+body.rev3-active .scuba-policy-count {
+    background: color-mix(in srgb, #10b981 12%, transparent);
+    color: #34d399;
+}
+
+body.rev3-active .scuba-platform-badge {
+    background: color-mix(in srgb, #10b981 12%, transparent);
+    color: #34d399;
+}
+
+body.rev3-active .scuba-family-title {
+    border-bottom-color: color-mix(in srgb, #10b981 20%, transparent);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .scuba-resource-grid,
+    .scuba-baseline-grid,
+    .scuba-auth-methods {
+        grid-template-columns: 1fr;
+    }
+
+    .scuba-workflow {
+        flex-direction: column;
+    }
+
+    .scuba-limits-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .scuba-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .scuba-limits-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1320,6 +1320,309 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
                 <strong>Important:</strong> Forensic images must be preserved for a minimum of 90 days. Report via <a href="https://dibnet.dod.mil" target="_blank" rel="noopener">DIBNet</a>. Failure to report within 72 hours may result in contract penalties.
             </div>
         </div>`;
+    },
+
+    // ==================== SCuBA BASELINES & CONFIG DRIFT ====================
+    'scuba-baselines': function(portal) {
+        const d = typeof SCUBA_CONFIG_DRIFT_DATA !== 'undefined' ? SCUBA_CONFIG_DRIFT_DATA : null;
+        if (!d) return '<div class="msp-empty-state"><h3>SCuBA Data Not Loaded</h3><p>The SCuBA baselines data file has not loaded yet. Please refresh.</p></div>';
+
+        return `
+        <div class="scuba-view">
+            <div class="scuba-intro">
+                <p>Track configuration drift across M365, Azure, and Google Workspace using Microsoft's UTCM API and CISA's SCuBA assessment tools. These tools map directly to CMMC L2 / NIST 800-171 controls.</p>
+            </div>
+            <div class="msp-tabs scuba-tabs">
+                <button class="msp-tab active" data-scuba-tab="utcm">Config Drift (UTCM)</button>
+                <button class="msp-tab" data-scuba-tab="scubagear">ScubaGear (M365)</button>
+                <button class="msp-tab" data-scuba-tab="scubagoggles">ScubaGoggles (GWS)</button>
+                <button class="msp-tab" data-scuba-tab="mapping">CMMC Mapping</button>
+                <button class="msp-tab" data-scuba-tab="automation">Automation</button>
+            </div>
+            <div class="scuba-tab-content" id="scuba-tab-content">
+                ${this.renderScubaUTCM(d.utcm, portal)}
+            </div>
+        </div>`;
+    },
+
+    renderScubaUTCM: function(utcm, portal) {
+        return `
+        <div class="scuba-section">
+            <div class="scuba-header-card">
+                <div class="scuba-header-badge">PREVIEW API</div>
+                <h3>${utcm.title}</h3>
+                <p>${utcm.description}</p>
+                <div class="scuba-links">
+                    <a href="${utcm.docsUrl}" target="_blank" rel="noopener" class="scuba-link">${portal.getIcon('external-link')} API Documentation</a>
+                    <a href="${utcm.authSetupUrl}" target="_blank" rel="noopener" class="scuba-link">${portal.getIcon('external-link')} Authentication Setup</a>
+                </div>
+            </div>
+
+            <h4 class="scuba-sub-title">Core API Resources</h4>
+            <div class="scuba-resource-grid">
+                ${utcm.coreResources.map(r => `
+                    <div class="scuba-resource-card">
+                        <div class="scuba-resource-name">${r.name}</div>
+                        <p>${r.description}</p>
+                        <div class="scuba-methods">${r.methods.map(m => '<span class="scuba-method-badge">' + m + '</span>').join('')}</div>
+                        <a href="${r.docsUrl}" target="_blank" rel="noopener" class="scuba-link-sm">${portal.getIcon('external-link')} Docs</a>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 class="scuba-sub-title">API Limits</h4>
+            <div class="scuba-limits-grid">
+                ${Object.entries(utcm.limits).map(([k, v]) => `
+                    <div class="scuba-limit-item">
+                        <span class="scuba-limit-key">${k.replace(/([A-Z])/g, ' $1').trim()}</span>
+                        <span class="scuba-limit-val">${v.max ? v.max : '—'}</span>
+                        <span class="scuba-limit-note">${v.note}</span>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 class="scuba-sub-title">Setup Steps</h4>
+            <div class="scuba-steps">
+                ${utcm.setupSteps.map((s, i) => `
+                    <div class="scuba-step">
+                        <div class="scuba-step-header">
+                            <span class="scuba-step-num">${i + 1}</span>
+                            <div><strong>${s.title}</strong><p>${s.description}</p></div>
+                        </div>
+                        <div class="scuba-code-block"><pre>${s.commands.join('\n')}</pre><button class="scuba-copy-btn" data-copy="${s.commands.join('\n').replace(/"/g, '&quot;')}" title="Copy">${portal.getIcon('copy')}</button></div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 class="scuba-sub-title">CMMC Control Relevance</h4>
+            <div class="scuba-cmmc-table">
+                <table>
+                    <thead><tr><th>Control</th><th>Name</th><th>How UTCM Helps</th></tr></thead>
+                    <tbody>
+                        ${utcm.cmmcRelevance.map(c => `<tr><td class="scuba-ctrl-id">${c.control}</td><td>${c.name}</td><td>${c.description}</td></tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>`;
+    },
+
+    renderScubaGear: function(sg, portal) {
+        return `
+        <div class="scuba-section">
+            <div class="scuba-header-card">
+                <div class="scuba-header-badge scuba-badge-cisa">CISA OFFICIAL</div>
+                <h3>${sg.title}</h3>
+                <p>${sg.description}</p>
+                ${sg.bod2501 ? '<div class="scuba-bod-notice">' + portal.getIcon('alert-triangle') + ' <strong>BOD 25-01:</strong> ' + sg.bod2501Note + '</div>' : ''}
+                <div class="scuba-links">
+                    <a href="${sg.repoUrl}" target="_blank" rel="noopener" class="scuba-link">${portal.getIcon('external-link')} GitHub Repository</a>
+                    <a href="${sg.docsUrl}" target="_blank" rel="noopener" class="scuba-link">${portal.getIcon('external-link')} Documentation</a>
+                    <a href="${sg.mappingsUrl}" target="_blank" rel="noopener" class="scuba-link">${portal.getIcon('external-link')} NIST 800-53 Mappings</a>
+                </div>
+            </div>
+
+            <h4 class="scuba-sub-title">M365 Baselines (${sg.baselines.length} Products)</h4>
+            <div class="scuba-baseline-grid">
+                ${sg.baselines.map(b => `
+                    <div class="scuba-baseline-card" data-baseline-id="${b.id}">
+                        <div class="scuba-baseline-header">
+                            <h5>${b.name}</h5>
+                            <span class="scuba-policy-count">${b.policyCount} policies</span>
+                        </div>
+                        <p class="scuba-baseline-desc">${b.description}</p>
+                        <div class="scuba-baseline-detail" style="display:none;">
+                            <h6>Key Policies</h6>
+                            <ul>${b.keyPolicies.map(p => '<li>' + p + '</li>').join('')}</ul>
+                            <h6>CMMC Controls</h6>
+                            <div class="scuba-ctrl-tags">${b.cmmcControls.map(c => '<span class="scuba-ctrl-tag">' + c + '</span>').join('')}</div>
+                        </div>
+                        <div class="scuba-baseline-footer">
+                            <a href="${b.docsUrl}" target="_blank" rel="noopener" class="scuba-link-sm">${portal.getIcon('external-link')} Baseline Docs</a>
+                            <button class="scuba-expand-btn" data-expand="${b.id}">${portal.getIcon('chevron-down')}</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 class="scuba-sub-title">Installation & Quick Start</h4>
+            <div class="scuba-prereqs">
+                <h6>Prerequisites</h6>
+                <ul>${sg.installation.prerequisites.map(p => '<li>' + p + '</li>').join('')}</ul>
+            </div>
+            <div class="scuba-steps">
+                ${sg.installation.steps.map((s, i) => `
+                    <div class="scuba-step">
+                        <div class="scuba-step-header">
+                            <span class="scuba-step-num">${i + 1}</span>
+                            <strong>${s.title}</strong>
+                        </div>
+                        <div class="scuba-code-block"><pre>${s.command}</pre><button class="scuba-copy-btn" data-copy="${s.command.replace(/"/g, '&quot;')}" title="Copy">${portal.getIcon('copy')}</button></div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 class="scuba-sub-title">Assessment Workflow</h4>
+            <div class="scuba-workflow">
+                ${sg.workflow.steps.map(s => `
+                    <div class="scuba-workflow-step">
+                        <div class="scuba-wf-num">${s.step}</div>
+                        <div><strong>${s.name}</strong><p>${s.description}</p></div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 class="scuba-sub-title">Iterative Assessment Approach</h4>
+            <div class="scuba-iterative">
+                ${sg.iterativeApproach.map((a, i) => `
+                    <div class="scuba-iter-step">
+                        <span class="scuba-iter-num">${i + 1}</span>
+                        <div><strong>${a.run}</strong><p>${a.description}</p></div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 class="scuba-sub-title">YAML Configuration</h4>
+            <div class="scuba-config-info">
+                <p>${sg.installation.configFile.description}</p>
+                <ul>${sg.installation.configFile.purposes.map(p => '<li>' + p + '</li>').join('')}</ul>
+                <div class="scuba-links">
+                    <a href="${sg.installation.configFile.sampleUrl}" target="_blank" rel="noopener" class="scuba-link">${portal.getIcon('external-link')} Sample Config Files</a>
+                    <a href="${sg.installation.configFile.configDocsUrl}" target="_blank" rel="noopener" class="scuba-link">${portal.getIcon('external-link')} Configuration Guide</a>
+                </div>
+            </div>
+        </div>`;
+    },
+
+    renderScubaGoggles: function(sg, portal) {
+        return `
+        <div class="scuba-section">
+            <div class="scuba-header-card">
+                <div class="scuba-header-badge scuba-badge-alpha">ALPHA</div>
+                <h3>${sg.title}</h3>
+                <p>${sg.description}</p>
+                <div class="scuba-status-notice">${portal.getIcon('alert-triangle')} <strong>Status:</strong> ${sg.statusNote}</div>
+                <div class="scuba-links">
+                    <a href="${sg.repoUrl}" target="_blank" rel="noopener" class="scuba-link">${portal.getIcon('external-link')} GitHub Repository</a>
+                </div>
+            </div>
+
+            <h4 class="scuba-sub-title">Google Workspace Baselines (${sg.baselines.length} Products)</h4>
+            <div class="scuba-baseline-grid">
+                ${sg.baselines.map(b => `
+                    <div class="scuba-baseline-card" data-baseline-id="gg-${b.id}">
+                        <div class="scuba-baseline-header">
+                            <h5>${b.name}</h5>
+                        </div>
+                        <p class="scuba-baseline-desc">${b.description}</p>
+                        <div class="scuba-baseline-detail" style="display:none;">
+                            <h6>Key Policies</h6>
+                            <ul>${b.keyPolicies.map(p => '<li>' + p + '</li>').join('')}</ul>
+                            <h6>CMMC Controls</h6>
+                            <div class="scuba-ctrl-tags">${b.cmmcControls.map(c => '<span class="scuba-ctrl-tag">' + c + '</span>').join('')}</div>
+                        </div>
+                        <div class="scuba-baseline-footer">
+                            <a href="${b.docsUrl}" target="_blank" rel="noopener" class="scuba-link-sm">${portal.getIcon('external-link')} Baseline Docs</a>
+                            <button class="scuba-expand-btn" data-expand="gg-${b.id}">${portal.getIcon('chevron-down')}</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 class="scuba-sub-title">Installation & Quick Start</h4>
+            <div class="scuba-prereqs">
+                <h6>Prerequisites</h6>
+                <ul>${sg.installation.prerequisites.map(p => '<li>' + p + '</li>').join('')}</ul>
+            </div>
+            <div class="scuba-steps">
+                ${sg.installation.steps.map((s, i) => `
+                    <div class="scuba-step">
+                        <div class="scuba-step-header">
+                            <span class="scuba-step-num">${i + 1}</span>
+                            <strong>${s.title}</strong>
+                        </div>
+                        <div class="scuba-code-block"><pre>${s.command}</pre><button class="scuba-copy-btn" data-copy="${s.command.replace(/"/g, '&quot;')}" title="Copy">${portal.getIcon('copy')}</button></div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 class="scuba-sub-title">Authentication Methods</h4>
+            <div class="scuba-auth-methods">
+                ${sg.installation.authMethods.map(a => `
+                    <div class="scuba-auth-card">
+                        <strong>${a.method}</strong>
+                        <p>${a.description}</p>
+                        <a href="${a.docsUrl}" target="_blank" rel="noopener" class="scuba-link-sm">${portal.getIcon('external-link')} Setup Guide</a>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 class="scuba-sub-title">Assessment Workflow</h4>
+            <div class="scuba-workflow">
+                ${sg.workflow.steps.map(s => `
+                    <div class="scuba-workflow-step">
+                        <div class="scuba-wf-num">${s.step}</div>
+                        <div><strong>${s.name}</strong><p>${s.description}</p></div>
+                    </div>
+                `).join('')}
+            </div>
+
+            ${sg.driftRules ? `
+            <h4 class="scuba-sub-title">Drift Detection Rules</h4>
+            <div class="scuba-drift-info">
+                <p>${sg.driftRules.description}</p>
+                <a href="${sg.driftRules.docsUrl}" target="_blank" rel="noopener" class="scuba-link">${portal.getIcon('external-link')} View Drift Rules</a>
+            </div>` : ''}
+        </div>`;
+    },
+
+    renderScubaMapping: function(mapping, portal) {
+        return `
+        <div class="scuba-section">
+            <div class="scuba-header-card">
+                <h3>CMMC L2 / NIST 800-171 Control Mapping</h3>
+                <p>${mapping.description}</p>
+            </div>
+            ${mapping.families.map(fam => `
+                <div class="scuba-mapping-family">
+                    <h4 class="scuba-family-title">${fam.family}</h4>
+                    <table class="scuba-mapping-table">
+                        <thead><tr><th>Control</th><th>Name</th><th>Tools</th><th>Evidence</th></tr></thead>
+                        <tbody>
+                            ${fam.controls.map(c => `
+                                <tr>
+                                    <td class="scuba-ctrl-id">${c.id}</td>
+                                    <td>${c.name}</td>
+                                    <td><div class="scuba-tool-tags">${c.tools.map(t => '<span class="scuba-tool-tag">' + t + '</span>').join('')}</div></td>
+                                    <td class="scuba-evidence">${c.evidence}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `).join('')}
+        </div>`;
+    },
+
+    renderScubaAutomation: function(auto, portal) {
+        return `
+        <div class="scuba-section">
+            <div class="scuba-header-card">
+                <h3>${auto.title}</h3>
+                <p>Schedule recurring SCuBA assessments and leverage UTCM continuous monitoring for automated compliance tracking.</p>
+            </div>
+            <div class="scuba-auto-grid">
+                ${auto.strategies.map(s => `
+                    <div class="scuba-auto-card">
+                        <div class="scuba-auto-header">
+                            <h5>${s.name}</h5>
+                            <span class="scuba-platform-badge">${s.platform}</span>
+                        </div>
+                        <p>${s.description}</p>
+                        <div class="scuba-code-block"><pre>${s.commands.join('\n')}</pre><button class="scuba-copy-btn" data-copy="${s.commands.join('\n').replace(/"/g, '&quot;')}" title="Copy">${portal.getIcon('copy')}</button></div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
     }
 };
 
