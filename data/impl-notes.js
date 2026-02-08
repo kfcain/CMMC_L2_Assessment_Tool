@@ -1867,7 +1867,7 @@ const IMPL_NOTES = {
     },
     "3.5.7[a]": {
         azure: {
-            steps: ["1. Configure Entra ID password policy: min 14 chars, complexity", "2. Enable Password Protection with custom banned list", "3. For hybrid: Configure AD password policy via GPO", "4. Integrate with Azure AD Password Protection", "5. Document password requirements"],
+            steps: ["1. Configure Entra ID password policy: min 14 chars, complexity", "2. Enable Password Protection with custom banned list", "3. For hybrid: Configure AD password policy via GPO", "4. Integrate with Entra ID Password Protection", "5. Document password requirements"],
             quickWin: "Enable Entra ID Password Protection with custom banned words",
             evidenceArtifact: "PasswordPolicy_Config.json",
             humanInTheLoop: ["Security defines password complexity requirements", "IT implements technical controls", "Help desk assists with password changes"],

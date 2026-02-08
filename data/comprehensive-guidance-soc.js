@@ -1,5 +1,5 @@
 // SOC/NOC Platform Implementation Guidance for CMMC Assessment
-// Platforms: Splunk ES/SOAR, Sentinel, Chronicle, Elastic, QRadar, LogRhythm,
+// Platforms: Splunk ES/SOAR, Sentinel, Google SecOps, Elastic, QRadar, LogRhythm,
 //            Sumo Logic, Exabeam, Securonix, Arctic Wolf, Cortex XSOAR, Splunk SOAR
 // Version 1.0.0
 
@@ -54,21 +54,21 @@ const COMPREHENSIVE_GUIDANCE_SOC = {
                     }
                 },
                 chronicle: {
-                    services: ["Google Chronicle SIEM","Chronicle Forwarders","Chronicle Feeds","YARA-L Detection Engine"],
+                    services: ["Google SecOps SIEM","Google SecOps Forwarders","Google SecOps Feeds","YARA-L Detection Engine"],
                     implementation: {
                         steps: [
-                            "Deploy Chronicle SIEM instance with US data residency controls",
-                            "Install Chronicle Forwarders on-premises for syslog, Windows Event, and file-based log collection",
-                            "Configure Chronicle Feeds for cloud ingestion: AWS CloudTrail via S3, Azure via Event Hub, GCP via Pub/Sub",
-                            "Set up Chronicle Ingestion API for custom application logs and CUI access audit trails",
+                            "Deploy Google SecOps SIEM instance with US data residency controls",
+                            "Install Google SecOps Forwarders on-premises for syslog, Windows Event, and file-based log collection",
+                            "Configure Google SecOps Feeds for cloud ingestion: AWS CloudTrail via S3, Azure via Event Hub, GCP via Pub/Sub",
+                            "Set up Google SecOps Ingestion API for custom application logs and CUI access audit trails",
                             "Enable Unified Data Model (UDM) normalization for consistent cross-source querying",
                             "Configure default 12-month hot retention with configurable cold storage for compliance",
                             "Create Reference Lists for CUI assets, privileged accounts, and critical network segments",
                             "Deploy YARA-L rules for CMMC-specific threat detection patterns",
-                            "Set up Chronicle RBAC with data access scoping for multi-tenant MSSP operations",
+                            "Set up Google SecOps RBAC with data access scoping for multi-tenant MSSP operations",
                             "Integrate VirusTotal Enterprise for automated IOC enrichment on all ingested events"
                         ],
-                        verification: ["Verify all log sources in Chronicle > Ingestion & Health dashboard","Run UDM search across all asset types to confirm normalization","Check data retention by querying events from 90+ days ago","Validate YARA-L rules fire on test data","Review feed status for ingestion failures"],
+                        verification: ["Verify all log sources in Google SecOps > Ingestion & Health dashboard","Run UDM search across all asset types to confirm normalization","Check data retention by querying events from 90+ days ago","Validate YARA-L rules fire on test data","Review feed status for ingestion failures"],
                         cost_estimate: "$3-12/GB/day (generous retention included)",
                         effort_hours: 36
                     }
@@ -140,7 +140,7 @@ const COMPREHENSIVE_GUIDANCE_SOC = {
                             "Provision Sumo Logic Cloud SIEM with FedRAMP Moderate deployment option",
                             "Deploy Installed Collectors on on-prem servers for local log file and Windows Event collection",
                             "Configure Hosted Collectors with HTTP Sources for cloud-native and API-based log ingestion",
-                            "Set up Cloud-to-Cloud integrations for AWS CloudTrail, Azure AD, GCP Audit, M365",
+                            "Set up Cloud-to-Cloud integrations for AWS CloudTrail, Entra ID, GCP Audit, M365",
                             "Configure Field Extraction Rules (FERs) and parsing logic for custom log formats",
                             "Set retention tiers: 90d Continuous (searchable), 1yr Frequent, 3yr Infrequent",
                             "Enable Cloud SIEM Enterprise (CSE) for automated signal correlation and insight generation",
@@ -154,12 +154,12 @@ const COMPREHENSIVE_GUIDANCE_SOC = {
                     }
                 },
                 exabeam: {
-                    services: ["Exabeam Fusion SIEM","Advanced Analytics","Exabeam SOAR","Cloud Connectors"],
+                    services: ["Exabeam New-Scale SIEM","Advanced Analytics","Exabeam SOAR","Cloud Connectors"],
                     implementation: {
                         steps: [
-                            "Deploy Exabeam Fusion SIEM (cloud-native) or Security Operations Platform",
+                            "Deploy Exabeam New-Scale SIEM (cloud-native) or Security Operations Platform",
                             "Configure log collectors for on-prem sources via syslog and file-based collection",
-                            "Set up Cloud Connectors for AWS CloudTrail, Azure AD, GCP, M365, and SaaS apps",
+                            "Set up Cloud Connectors for AWS CloudTrail, Entra ID, GCP, M365, and SaaS apps",
                             "Enable Advanced Analytics for UEBA-driven threat detection and user risk scoring",
                             "Configure Smart Timelines for automated investigation context assembly",
                             "Set retention: 90 days hot search, 1 year warm, extended cold for compliance",
@@ -179,7 +179,7 @@ const COMPREHENSIVE_GUIDANCE_SOC = {
                         steps: [
                             "Engage Arctic Wolf MDR and deploy Arctic Wolf Agent on all endpoints",
                             "Configure Arctic Wolf Sensor for network traffic analysis at key network boundaries",
-                            "Set up cloud log integrations: AWS CloudTrail, Azure AD/Sentinel, GCP, M365, Okta",
+                            "Set up cloud log integrations: AWS CloudTrail, Entra ID/Sentinel, GCP, M365, Okta",
                             "Configure Log Retention for CMMC-compliant 1-year+ log storage",
                             "Work with Concierge Security Team (CST) to define CUI scope and alerting priorities",
                             "Set up Managed Risk for continuous vulnerability scanning and hardening guidance",
@@ -284,10 +284,10 @@ const COMPREHENSIVE_GUIDANCE_SOC = {
                     }
                 },
                 chronicle: {
-                    services: ["Chronicle SIEM","Chronicle UEBA","Entity Analytics","Reference Lists"],
+                    services: ["Google SecOps SIEM","Google SecOps UEBA","Entity Analytics","Reference Lists"],
                     implementation: {
                         steps: [
-                            "Configure Chronicle identity enrichment with AD, Okta, and cloud IdP log sources",
+                            "Configure Google SecOps identity enrichment with AD, Okta, and cloud IdP log sources",
                             "Set up Entity Analytics for automated user behavior profiling and risk scoring",
                             "Create Reference Lists for privileged users, service accounts, CUI system administrators",
                             "Build YARA-L detection rules for shared account usage and concurrent session anomalies",
@@ -295,11 +295,11 @@ const COMPREHENSIVE_GUIDANCE_SOC = {
                             "Set up Dashboards for user accountability and activity monitoring",
                             "Create automated reports for user audit trails exportable for CMMC assessment evidence",
                             "Configure alert rules for impossible travel and anomalous authentication patterns",
-                            "Set up Chronicle RBAC to ensure analyst access is logged and attributable",
+                            "Set up Google SecOps RBAC to ensure analyst access is logged and attributable",
                             "Integrate with HR systems for user lifecycle tracking (onboarding, role changes, offboarding)"
                         ],
-                        verification: ["Verify all user identities resolve correctly in Chronicle Entity view","Test UDM search returns complete activity for known test users","Validate shared account detection rules fire on test scenarios","Review user audit trail reports for completeness and accuracy","Check Entity Analytics risk scores reflect actual user behavior"],
-                        cost_estimate: "Included with Chronicle SIEM",
+                        verification: ["Verify all user identities resolve correctly in Google SecOps Entity view","Test UDM search returns complete activity for known test users","Validate shared account detection rules fire on test scenarios","Review user audit trail reports for completeness and accuracy","Check Entity Analytics risk scores reflect actual user behavior"],
+                        cost_estimate: "Included with Google SecOps SIEM",
                         effort_hours: 22
                     }
                 }
@@ -438,22 +438,22 @@ const COMPREHENSIVE_GUIDANCE_SOC = {
                     }
                 },
                 chronicle: {
-                    services: ["Chronicle SIEM","Detection Engine","YARA-L","Investigation Views"],
+                    services: ["Google SecOps SIEM","Detection Engine","YARA-L","Investigation Views"],
                     implementation: {
                         steps: [
-                            "Configure Chronicle Detection Engine with YARA-L rules for multi-source event correlation",
+                            "Configure Google SecOps Detection Engine with YARA-L rules for multi-source event correlation",
                             "Create detection rules spanning authentication, network, endpoint, and cloud data sources",
-                            "Set up Chronicle Investigation Views for analyst-driven timeline analysis and entity pivoting",
+                            "Set up Google SecOps Investigation Views for analyst-driven timeline analysis and entity pivoting",
                             "Configure alert severity and priority based on correlated signal strength and asset criticality",
-                            "Build Chronicle Dashboards for SOC operational metrics and correlation effectiveness",
+                            "Build Google SecOps Dashboards for SOC operational metrics and correlation effectiveness",
                             "Create YARA-L rules for CMMC-specific threat scenarios: CUI exfiltration, unauthorized access patterns",
                             "Set up automated enrichment with VirusTotal, MISP, and commercial threat intel feeds",
-                            "Configure Chronicle Cases for incident tracking with evidence attachment and analyst notes",
+                            "Configure Google SecOps Cases for incident tracking with evidence attachment and analyst notes",
                             "Build scheduled reports for weekly audit review and trend analysis",
                             "Set up SOC analyst workflow with investigation playbooks and escalation procedures"
                         ],
                         verification: ["Test YARA-L correlation rules with simulated multi-source attack","Validate Investigation Views assemble complete timelines","Review detection rule coverage against MITRE ATT&CK","Check automated enrichment adds correct context to alerts","Test SOC workflow end-to-end with simulated incident"],
-                        cost_estimate: "Included with Chronicle SIEM",
+                        cost_estimate: "Included with Google SecOps SIEM",
                         effort_hours: 26
                     }
                 }
@@ -504,22 +504,22 @@ const COMPREHENSIVE_GUIDANCE_SOC = {
                     }
                 },
                 chronicle: {
-                    services: ["Chronicle SIEM","Chronicle SOAR","Detection Engine","Case Management"],
+                    services: ["Google SecOps SIEM","Google SecOps SOAR","Detection Engine","Case Management"],
                     implementation: {
                         steps: [
-                            "Configure Chronicle SIEM as primary detection platform with all CUI data sources",
-                            "Deploy Chronicle SOAR for automated incident response playbooks and case management",
+                            "Configure Google SecOps SIEM as primary detection platform with all CUI data sources",
+                            "Deploy Google SecOps SOAR for automated incident response playbooks and case management",
                             "Create YARA-L detection rules for each incident type relevant to CUI environments",
                             "Build SOAR playbooks for incident lifecycle: detection, triage, analysis, containment, recovery",
                             "Configure automated containment actions via SOAR integrations with EDR, firewall, IdP",
-                            "Set up Chronicle Cases for structured incident tracking with evidence and timeline",
+                            "Set up Google SecOps Cases for structured incident tracking with evidence and timeline",
                             "Create incident classification aligned with CMMC severity levels",
                             "Configure escalation procedures and notification channels for 24/7 SOC operations",
                             "Build post-incident review workflow with detection rule updates and playbook improvements",
                             "Set up SOC operational dashboards for incident metrics and SLA tracking"
                         ],
-                        verification: ["Run tabletop exercise for each incident type","Test SOAR containment playbooks in staging","Validate Chronicle Cases track full incident lifecycle","Review detection rule coverage against MITRE ATT&CK","Test escalation procedures reach correct personnel"],
-                        cost_estimate: "$3-12/GB/day + Chronicle SOAR licensing",
+                        verification: ["Run tabletop exercise for each incident type","Test SOAR containment playbooks in staging","Validate Google SecOps Cases track full incident lifecycle","Review detection rule coverage against MITRE ATT&CK","Test escalation procedures reach correct personnel"],
+                        cost_estimate: "$3-12/GB/day + Google SecOps SOAR licensing",
                         effort_hours: 52
                     }
                 },
@@ -810,22 +810,22 @@ const COMPREHENSIVE_GUIDANCE_SOC = {
                     }
                 },
                 chronicle: {
-                    services: ["Chronicle SIEM","Chronicle NDR","YARA-L","VirusTotal Integration"],
+                    services: ["Google SecOps SIEM","Google SecOps NDR","YARA-L","VirusTotal Integration"],
                     implementation: {
                         steps: [
-                            "Configure firewall and proxy log ingestion into Chronicle via Forwarders and Feeds",
-                            "Deploy Chronicle NDR capabilities for network traffic metadata analysis",
+                            "Configure firewall and proxy log ingestion into Google SecOps via Forwarders and Feeds",
+                            "Deploy Google SecOps NDR capabilities for network traffic metadata analysis",
                             "Create YARA-L detection rules for C2 beaconing, DNS tunneling, and data exfiltration patterns",
                             "Configure UDM network event normalization for cross-source traffic correlation",
                             "Set up VirusTotal integration for automated domain and IP reputation checking",
-                            "Build Chronicle Dashboards for inbound/outbound traffic monitoring and anomaly detection",
+                            "Build Google SecOps Dashboards for inbound/outbound traffic monitoring and anomaly detection",
                             "Create Reference Lists for known-good destinations and baseline traffic patterns",
                             "Configure alert rules for traffic to/from sanctioned countries or known-bad infrastructure",
-                            "Set up automated response via Chronicle SOAR: block IP, sinkhole domain, isolate endpoint",
+                            "Set up automated response via Google SecOps SOAR: block IP, sinkhole domain, isolate endpoint",
                             "Build 24/7 SOC monitoring views with real-time network threat visibility"
                         ],
                         verification: ["Test C2 detection rules with simulated beaconing traffic","Validate DNS tunneling detection with test scenarios","Review VirusTotal enrichment accuracy for suspicious domains","Test SOAR containment playbooks in staging","Verify 24/7 monitoring dashboards update in real-time"],
-                        cost_estimate: "Included with Chronicle SIEM",
+                        cost_estimate: "Included with Google SecOps SIEM",
                         effort_hours: 30
                     }
                 },

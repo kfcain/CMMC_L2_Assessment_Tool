@@ -97,7 +97,7 @@ const FAMILY_AC_ENHANCED = {
             implementationGuidance: {
                 azure: [
                     "Configure Azure PIM with approval workflows requiring 2 approvers",
-                    "Implement Azure AD Privileged Access Groups with multiple owners",
+                    "Implement Entra ID Privileged Access Groups with multiple owners",
                     "Use Privileged Access Management for sensitive operations"
                 ],
                 aws: [

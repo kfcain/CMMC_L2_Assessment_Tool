@@ -300,7 +300,7 @@ const COMPREHENSIVE_GUIDANCE_PART4 = {
             },
             cloud: {
                 aws: {"implementation":{"steps":["Document AWS account structure","Create network diagrams with VPCs","List all AWS services used","Document IAM structure","Describe data flows","Document connections to on-premises","Use AWS Systems Manager for inventory","Update SSP annually"],"cost_estimate":"$0-2000 (consultant)","effort_hours":24}},
-                azure: {"implementation":{"steps":["Document Azure subscription structure","Create network diagrams with VNets","List all Azure services used","Document Azure AD structure","Describe data flows","Document hybrid connections","Use Azure Resource Graph for inventory","Update SSP annually"],"cost_estimate":"$0-2000 (consultant)","effort_hours":24}},
+                azure: {"implementation":{"steps":["Document Azure subscription structure","Create network diagrams with VNets","List all Azure services used","Document Entra ID structure","Describe data flows","Document hybrid connections","Use Azure Resource Graph for inventory","Update SSP annually"],"cost_estimate":"$0-2000 (consultant)","effort_hours":24}},
                 gcp: {"implementation":{"steps":["Document GCP project structure","Create network diagrams with VPCs","List all GCP services used","Document Cloud Identity structure","Describe data flows","Document hybrid connections","Use Cloud Asset Inventory","Update SSP annually"],"cost_estimate":"$0-2000 (consultant)","effort_hours":24}}
             },
             small_business: {

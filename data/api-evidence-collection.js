@@ -11,7 +11,7 @@ const API_EVIDENCE_COLLECTION = {
         baseUrl: "https://graph.microsoft.us",  // GCC High
         commercialUrl: "https://graph.microsoft.com",
         documentation: "https://learn.microsoft.com/en-us/graph/api/overview",
-        authMethod: "OAuth 2.0 / Azure AD App Registration",
+        authMethod: "OAuth 2.0 / Entra ID App Registration",
         
         authentication: {
             flows: ["Client Credentials", "Authorization Code", "Device Code"],
@@ -287,7 +287,7 @@ Write-Host "Evidence collection complete. Files saved to: $evidenceFolder"`
         baseUrl: "https://management.usgovcloudapi.net",  // Azure Government
         commercialUrl: "https://management.azure.com",
         documentation: "https://learn.microsoft.com/en-us/rest/api/azure/",
-        authMethod: "OAuth 2.0 / Azure AD",
+        authMethod: "OAuth 2.0 / Entra ID",
 
         authentication: {
             tokenEndpoint: "https://login.microsoftonline.us/{tenantId}/oauth2/v2.0/token",

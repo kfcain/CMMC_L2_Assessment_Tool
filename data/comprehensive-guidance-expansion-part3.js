@@ -13,7 +13,7 @@ const COMPREHENSIVE_GUIDANCE_PART3 = {
             cloud: {
                 aws: {"services":["Security Hub","GuardDuty","Detective","Systems Manager"],"implementation":{"steps":["Enable AWS Security Hub for centralized findings","Deploy GuardDuty for threat detection","Use Amazon Detective for investigation","Create EventBridge rules for automated response","Implement SNS for incident notifications","Use Systems Manager for containment actions","Document IR procedures in wiki"],"cost_estimate":"$100-500/month","effort_hours":24}},
                 azure: {"services":["Sentinel","Defender","Logic Apps"],"implementation":{"steps":["Deploy Microsoft Sentinel as SIEM","Enable Defender for Cloud for detection","Create Sentinel playbooks for automated response","Configure incident creation rules","Implement Teams/email notifications","Use Azure Automation for containment","Document IR procedures"],"cost_estimate":"$200-800/month","effort_hours":24}},
-                gcp: {"services":["Chronicle","Security Command Center","Cloud Functions"],"implementation":{"steps":["Use Chronicle SIEM for detection","Enable Security Command Center Premium","Create Cloud Functions for automated response","Configure alerting policies","Implement Pub/Sub for notifications","Document IR procedures"],"cost_estimate":"$500-2000/month","effort_hours":24}}
+                gcp: {"services":["Google SecOps","Security Command Center","Cloud Functions"],"implementation":{"steps":["Use Google SecOps SIEM for detection","Enable Security Command Center Premium","Create Cloud Functions for automated response","Configure alerting policies","Implement Pub/Sub for notifications","Document IR procedures"],"cost_estimate":"$500-2000/month","effort_hours":24}}
             },
             small_business: {
                 approach: "Create basic IR plan, designate IR team members, use cloud provider security tools, document procedures in SharePoint",
@@ -48,7 +48,7 @@ const COMPREHENSIVE_GUIDANCE_PART3 = {
             cloud: {
                 aws: {"services":["Security Hub","Systems Manager"],"implementation":{"steps":["Use Security Hub for incident tracking","Create incident tickets in ServiceNow/Jira","Configure SNS notifications to management","Document reporting procedures for FBI/CISA","Maintain incident log in S3","Generate incident reports with QuickSight"],"cost_estimate":"$20-100/month","effort_hours":12}},
                 azure: {"services":["Sentinel","DevOps"],"implementation":{"steps":["Use Sentinel incidents for tracking","Create work items in Azure DevOps","Configure email/Teams notifications","Document reporting procedures","Maintain incident log in Log Analytics","Generate reports with Power BI"],"cost_estimate":"$20-80/month","effort_hours":12}},
-                gcp: {"services":["Chronicle","Cloud Logging"],"implementation":{"steps":["Use Chronicle for incident tracking","Create tickets in Jira/ServiceNow","Configure Pub/Sub notifications","Document reporting procedures","Maintain incident log in BigQuery","Generate reports with Data Studio"],"cost_estimate":"$20-100/month","effort_hours":12}}
+                gcp: {"services":["Google SecOps","Cloud Logging"],"implementation":{"steps":["Use Google SecOps for incident tracking","Create tickets in Jira/ServiceNow","Configure Pub/Sub notifications","Document reporting procedures","Maintain incident log in BigQuery","Generate reports with Data Studio"],"cost_estimate":"$20-100/month","effort_hours":12}}
             },
             process: {
                 general: {"implementation":{"steps":["Create incident tracking spreadsheet/database","Define incident severity levels","Establish reporting timelines (72 hours for CUI incidents)","Identify reporting contacts (FBI, CISA, DIBNet)","Create incident report template","Document chain of custody procedures"],"effort_hours":8}}
@@ -89,7 +89,7 @@ const COMPREHENSIVE_GUIDANCE_PART3 = {
             cloud: {
                 aws: {"implementation":{"steps":["Simulate security incidents in test environment","Test GuardDuty detection","Test EventBridge automation","Test SNS notifications","Test containment procedures","Document test results","Update runbooks"],"cost_estimate":"$10-50/month (test environment)","effort_hours":12}},
                 azure: {"implementation":{"steps":["Simulate security incidents in test environment","Test Sentinel detection rules","Test playbook automation","Test notification procedures","Test containment actions","Document test results","Update procedures"],"cost_estimate":"$10-50/month","effort_hours":12}},
-                gcp: {"implementation":{"steps":["Simulate security incidents in test environment","Test Chronicle detection","Test Cloud Functions automation","Test alerting","Test containment procedures","Document test results"],"cost_estimate":"$10-50/month","effort_hours":12}}
+                gcp: {"implementation":{"steps":["Simulate security incidents in test environment","Test Google SecOps detection","Test Cloud Functions automation","Test alerting","Test containment procedures","Document test results"],"cost_estimate":"$10-50/month","effort_hours":12}}
             },
             small_business: {
                 approach: "Conduct annual tabletop exercise with IR team, test key procedures, document lessons learned",
@@ -279,7 +279,7 @@ const COMPREHENSIVE_GUIDANCE_PART3 = {
             },
             cloud: {
                 aws: {"implementation":{"steps":["Create temporary IAM users for vendors","Use CloudTrail to monitor vendor activities","Restrict vendor access with IAM policies","Require escort during cloud console access","Delete vendor accounts after maintenance","Review CloudTrail logs"],"cost_estimate":"$0","effort_hours":4}},
-                azure: {"implementation":{"steps":["Create temporary Azure AD guest accounts","Monitor vendor activities with Activity Log","Restrict vendor access with RBAC","Require escort during portal access","Delete guest accounts after maintenance","Review Activity Log"],"cost_estimate":"$0","effort_hours":4}},
+                azure: {"implementation":{"steps":["Create temporary Entra ID guest accounts","Monitor vendor activities with Activity Log","Restrict vendor access with RBAC","Require escort during portal access","Delete guest accounts after maintenance","Review Activity Log"],"cost_estimate":"$0","effort_hours":4}},
                 gcp: {"implementation":{"steps":["Create temporary Cloud Identity accounts","Monitor vendor activities with Cloud Audit Logs","Restrict vendor access with IAM","Require escort during console access","Delete accounts after maintenance","Review audit logs"],"cost_estimate":"$0","effort_hours":4}}
             },
             small_business: {
@@ -337,7 +337,7 @@ const COMPREHENSIVE_GUIDANCE_PART3 = {
             summary: "Access controls on file shares, encrypted drives, need-to-know basis",
             cloud: {
                 aws: {"implementation":{"steps":["Use S3 bucket policies to restrict access","Implement IAM policies for least privilege","Enable S3 Block Public Access","Use VPC endpoints for private access","Enable CloudTrail to monitor access","Use S3 Access Points for granular control"],"cost_estimate":"$0-20/month","effort_hours":8}},
-                azure: {"implementation":{"steps":["Use Azure RBAC to restrict storage access","Implement SAS tokens for time-limited access","Disable public access to storage accounts","Use Private Endpoints","Enable Storage Analytics logging","Use Azure AD authentication for storage"],"cost_estimate":"$0-20/month","effort_hours":8}},
+                azure: {"implementation":{"steps":["Use Azure RBAC to restrict storage access","Implement SAS tokens for time-limited access","Disable public access to storage accounts","Use Private Endpoints","Enable Storage Analytics logging","Use Entra ID authentication for storage"],"cost_estimate":"$0-20/month","effort_hours":8}},
                 gcp: {"implementation":{"steps":["Use Cloud Storage IAM to restrict access","Implement signed URLs for time-limited access","Disable public access to buckets","Use Private Google Access","Enable Cloud Storage audit logs"],"cost_estimate":"$0-20/month","effort_hours":8}}
             },
             operating_system: {
@@ -462,7 +462,7 @@ const COMPREHENSIVE_GUIDANCE_PART3 = {
                 gcp: {"implementation":{"steps":["Enable Cloud Storage encryption at rest and in transit","Use disk encryption","Use Transfer Appliance with encryption","Enable TLS 1.2+ for all transfers","Use Cloud KMS for key management"],"cost_estimate":"$1-20/month","effort_hours":6}}
             },
             operating_system: {
-                windows: {"implementation":{"steps":["Enable BitLocker on all laptops","Use BitLocker To Go for USB drives","Enable BitLocker for backup tapes","Store recovery keys in Azure AD or on-premises AD"],"effort_hours":4}},
+                windows: {"implementation":{"steps":["Enable BitLocker on all laptops","Use BitLocker To Go for USB drives","Enable BitLocker for backup tapes","Store recovery keys in Entra ID or on-premises AD"],"effort_hours":4}},
                 macos: {"implementation":{"steps":["Enable FileVault on all Macs","Encrypt external drives with FileVault","Store recovery keys securely"],"effort_hours":3}},
                 linux: {"implementation":{"steps":["Use LUKS for full disk encryption","Encrypt external drives with LUKS","Use encrypted backup solutions"],"effort_hours":4}}
             },
@@ -696,7 +696,7 @@ const COMPREHENSIVE_GUIDANCE_PART3 = {
             },
             cloud: {
                 aws: {"implementation":{"steps":["Require AWS SSO with MFA for remote access","Use WorkSpaces for secure remote desktop","Implement VPN with MFA","Monitor remote access with CloudTrail"],"cost_estimate":"$25-75/user/month (WorkSpaces)","effort_hours":6}},
-                azure: {"implementation":{"steps":["Require Azure AD with MFA for remote access","Use Azure Virtual Desktop for secure remote desktop","Implement VPN with MFA","Use Conditional Access for location-based policies"],"cost_estimate":"$25-75/user/month (AVD)","effort_hours":6}}
+                azure: {"implementation":{"steps":["Require Entra ID with MFA for remote access","Use Azure Virtual Desktop for secure remote desktop","Implement VPN with MFA","Use Conditional Access for location-based policies"],"cost_estimate":"$25-75/user/month (AVD)","effort_hours":6}}
             },
             small_business: {
                 approach: "Require VPN for remote access, enable BitLocker on laptops, prohibit printing CUI at home, require locked home office",
@@ -742,7 +742,7 @@ const COMPREHENSIVE_GUIDANCE_PART3 = {
             },
             cloud: {
                 aws: {"implementation":{"steps":["Disable IAM user immediately","Remove from AWS SSO","Review CloudTrail for final activities","Transfer ownership of resources","Remove MFA devices","Document in ticketing system"],"cost_estimate":"$0","effort_hours":2}},
-                azure: {"implementation":{"steps":["Disable Azure AD account immediately","Remove from groups and roles","Review Activity Log for final activities","Transfer resource ownership","Remove MFA registration","Document in Azure DevOps"],"cost_estimate":"$0","effort_hours":2}},
+                azure: {"implementation":{"steps":["Disable Entra ID account immediately","Remove from groups and roles","Review Activity Log for final activities","Transfer resource ownership","Remove MFA registration","Document in Azure DevOps"],"cost_estimate":"$0","effort_hours":2}},
                 gcp: {"implementation":{"steps":["Disable Cloud Identity account immediately","Remove from groups and roles","Review Cloud Audit Logs","Transfer resource ownership","Remove 2FA devices","Document in ticketing system"],"cost_estimate":"$0","effort_hours":2}}
             },
             small_business: {

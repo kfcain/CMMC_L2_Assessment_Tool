@@ -49,13 +49,13 @@ const COMPREHENSIVE_GUIDANCE_R3 = {
                     }
                 },
                 gcp: {
-                    services: ["Security Command Center","Cloud IAM Recommender","Policy Intelligence","Chronicle SIEM"],
+                    services: ["Security Command Center","Cloud IAM Recommender","Policy Intelligence","Google SecOps SIEM"],
                     implementation: {
                         steps: [
                             "Enable Security Command Center and share findings dashboards with stakeholders",
                             "Use IAM Recommender reports to train admins on least-privilege principles",
                             "Configure Policy Intelligence to generate security posture reports for management",
-                            "Create Chronicle SIEM dashboards showing security trends for awareness briefings",
+                            "Create Google SecOps SIEM dashboards showing security trends for awareness briefings",
                             "Implement Google Cloud Skills Boost security training tracks for all users",
                             "Schedule quarterly security posture reviews using SCC vulnerability reports"
                         ],
@@ -331,17 +331,17 @@ const COMPREHENSIVE_GUIDANCE_R3 = {
                     }
                 },
                 gcp: {
-                    services: ["Chronicle SIEM","Cloud Audit Logs","IAM Recommender","DLP API"],
+                    services: ["Google SecOps SIEM","Cloud Audit Logs","IAM Recommender","DLP API"],
                     implementation: {
                         steps: [
-                            "Configure Chronicle SIEM rules for insider threat detection and use in training",
+                            "Configure Google SecOps SIEM rules for insider threat detection and use in training",
                             "Use Cloud Audit Logs to demonstrate unusual access patterns in training sessions",
                             "Train staff on recognizing excessive permission requests using IAM Recommender",
                             "Implement DLP API scanning and train users on data exfiltration indicators",
                             "Develop insider threat reporting procedures with GCP-specific indicators",
                             "Conduct tabletop exercises simulating data exfiltration scenarios"
                         ],
-                        verification: ["Verify Chronicle rules are configured for insider threats","Confirm training includes GCP-specific indicators","Review tabletop exercise documentation"],
+                        verification: ["Verify Google SecOps rules are configured for insider threats","Confirm training includes GCP-specific indicators","Review tabletop exercise documentation"],
                         cost_estimate: "$100-300/month",
                         effort_hours: 16
                     }

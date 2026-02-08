@@ -54,7 +54,7 @@ const MSP_PORTAL_DATA = {
                     notes: "E5 recommended for advanced security features (Defender XDR, Purview)"
                 },
                 {
-                    name: "Entra ID P2 (Azure AD Premium P2)",
+                    name: "Entra ID P2",
                     plans: ["Standalone or included in E5"],
                     required: true,
                     notes: "Required for: Conditional Access, PIM, Identity Protection, Access Reviews"
@@ -377,7 +377,7 @@ resource "azurerm_firewall" "main" {
                     name: "AWS IAM Identity Center (SSO)",
                     cmmc: ["3.5.1", "3.5.2", "3.5.3"],
                     config: {
-                        idp: "Integrate with Okta, Azure AD, or AWS Managed AD",
+                        idp: "Integrate with Okta, Entra ID, or AWS Managed AD",
                         mfa: "Required for all users (TOTP or FIDO2)",
                         sessionDuration: "Maximum 8 hours for standard, 1 hour for privileged",
                         permissionSets: [
@@ -500,7 +500,7 @@ resource "azurerm_firewall" "main" {
                     name: "Identity Foundation",
                     items: [
                         { task: "Enable IAM Identity Center", critical: true, effort: "4-8 hours" },
-                        { task: "Integrate with identity provider (Okta, Azure AD)", critical: true, effort: "1 day" },
+                        { task: "Integrate with identity provider (Okta, Entra ID)", critical: true, effort: "1 day" },
                         { task: "Configure MFA for all users", critical: true, effort: "2-4 hours" },
                         { task: "Create permission sets with least privilege", critical: true, effort: "1 day" },
                         { task: "Enable IAM Access Analyzer", critical: false, effort: "1 hour" }

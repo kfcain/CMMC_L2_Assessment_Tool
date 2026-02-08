@@ -59,7 +59,7 @@ const COMPREHENSIVE_GUIDANCE_PART2 = {
                 azure: {
                     services: ["Azure RBAC","Custom Roles","Deny Assignments"],
                     implementation: {
-                        steps: ["Create custom Azure RBAC roles with specific action permissions","Use built-in roles as templates and customize","Implement deny assignments for critical operations","Use Azure Policy to enforce allowed operations","Enable Activity Log for all management operations","Use Azure AD Privileged Identity Management for time-bound access","Implement resource locks to prevent deletion"],
+                        steps: ["Create custom Azure RBAC roles with specific action permissions","Use built-in roles as templates and customize","Implement deny assignments for critical operations","Use Azure Policy to enforce allowed operations","Enable Activity Log for all management operations","Use Entra ID Privileged Identity Management for time-bound access","Implement resource locks to prevent deletion"],
                         custom_role_example: `{
   "Name": "CUI Data Reader",
   "IsCustom": true,
@@ -485,7 +485,7 @@ resource "aws_s3_bucket" "audit_logs" {
                 azure: {
                     services: ["Activity Log","Diagnostic Settings","Log Analytics","Storage Account"],
                     implementation: {
-                        steps: ["Enable Activity Log for all subscriptions","Configure Diagnostic Settings for all resources","Send logs to Log Analytics workspace","Archive logs to Storage Account with immutability","Enable Azure Monitor for comprehensive logging","Configure log retention (7 years for CUI)","Enable NSG Flow Logs for network traffic","Enable Azure AD audit logs","Configure alerts for suspicious activity"],
+                        steps: ["Enable Activity Log for all subscriptions","Configure Diagnostic Settings for all resources","Send logs to Log Analytics workspace","Archive logs to Storage Account with immutability","Enable Azure Monitor for comprehensive logging","Configure log retention (7 years for CUI)","Enable NSG Flow Logs for network traffic","Enable Entra ID audit logs","Configure alerts for suspicious activity"],
                         azure_cli_example: `# Create Log Analytics workspace
 az monitor log-analytics workspace create \\
   --resource-group cui-rg \\
@@ -1511,9 +1511,9 @@ resource "aws_iam_user" "developer" {
                     }
                 },
                 azure: {
-                    services: ["Azure RBAC","Azure AD PIM","Management Groups","Azure Policy","Activity Log"],
+                    services: ["Azure RBAC","Entra ID PIM","Management Groups","Azure Policy","Activity Log"],
                     implementation: {
-                        steps: ["Define custom RBAC roles with separation of duties","Use Azure AD Privileged Identity Management (PIM) for just-in-time access","Implement Management Groups for organizational hierarchy","Create separate subscriptions for dev/staging/production","Use Azure Policy to enforce separation controls","Require approval workflows for privileged role activation","Enable Activity Log for all privileged actions","Implement Conditional Access for sensitive operations","Use Azure AD access reviews for periodic validation","Configure alerts for privilege escalation attempts"],
+                        steps: ["Define custom RBAC roles with separation of duties","Use Entra ID Privileged Identity Management (PIM) for just-in-time access","Implement Management Groups for organizational hierarchy","Create separate subscriptions for dev/staging/production","Use Azure Policy to enforce separation controls","Require approval workflows for privileged role activation","Enable Activity Log for all privileged actions","Implement Conditional Access for sensitive operations","Use Entra ID access reviews for periodic validation","Configure alerts for privilege escalation attempts"],
                         azure_cli_example: `# Create custom role for developers - no production access
 az role definition create --role-definition '{
   "Name": "Developer Role",
@@ -1609,8 +1609,8 @@ az policy assignment create \\
   --name 'EnforceSeparationOfDuties' \\
   --policy 'DenyDeveloperProductionAccess' \\
   --scope /subscriptions/SUBSCRIPTION_ID`,
-                        verification: ["Test developers cannot access production subscription","Test deployers cannot modify development resources","Verify PIM requires approval for privileged roles","Review Activity Log for privilege escalation attempts","Use Azure AD access reviews to validate role assignments"],
-                        cost_estimate: "$6-16/user/month (Azure AD P2 for PIM)",
+                        verification: ["Test developers cannot access production subscription","Test deployers cannot modify development resources","Verify PIM requires approval for privileged roles","Review Activity Log for privilege escalation attempts","Use Entra ID access reviews to validate role assignments"],
+                        cost_estimate: "$6-16/user/month (Entra ID P2 for PIM)",
                         effort_hours: 20
                     }
                 },
@@ -2062,7 +2062,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Just-in-time access, minimal permissions, zero standing privileges",
             cloud: {
                 aws: {"services":["IAM","SSO","STS","Secrets Manager"],"implementation":{"steps":["Use IAM roles instead of long-term credentials","Implement permission boundaries","Use AWS SSO with time-limited sessions","Enable MFA for privileged access","Use STS AssumeRole for temporary credentials","Implement just-in-time access with approval","Remove unused permissions with Access Analyzer","Use service-specific roles (not *:*)"],"cost_estimate":"$0-20/month","effort_hours":12}},
-                azure: {"services":["Azure AD PIM","RBAC","Managed Identities"],"implementation":{"steps":["Use Managed Identities for Azure resources","Implement PIM for just-in-time privileged access","Use custom RBAC roles with minimal permissions","Enable MFA for all privileged roles","Set maximum role assignment duration","Require approval for privileged role activation","Use access reviews to remove unused permissions"],"cost_estimate":"$6-16/user/month (Azure AD P2)","effort_hours":12}},
+                azure: {"services":["Entra ID PIM","RBAC","Managed Identities"],"implementation":{"steps":["Use Managed Identities for Azure resources","Implement PIM for just-in-time privileged access","Use custom RBAC roles with minimal permissions","Enable MFA for all privileged roles","Set maximum role assignment duration","Require approval for privileged role activation","Use access reviews to remove unused permissions"],"cost_estimate":"$6-16/user/month (Entra ID P2)","effort_hours":12}},
                 gcp: {"services":["IAM","Workload Identity","VPC Service Controls"],"implementation":{"steps":["Use Workload Identity for GKE workloads","Implement custom IAM roles with minimal permissions","Use IAM Conditions for context-aware access","Enable just-in-time access with time-based conditions","Use service accounts with minimal scopes","Implement IAM recommender to remove excess permissions"],"cost_estimate":"$0-15/month","effort_hours":10}}
             },
             database: {
@@ -2199,7 +2199,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Account lockout policies to prevent brute force attacks",
             cloud: {
                 aws: {"implementation":{"steps":["Configure AWS Cognito account lockout (5 attempts)","Use AWS WAF rate limiting for login endpoints","Implement CloudWatch alarms for failed login attempts","Use AWS SSO with lockout policies","Enable MFA to reduce brute force risk"],"effort_hours":6}},
-                azure: {"implementation":{"steps":["Configure Azure AD Smart Lockout (10 attempts, 60s lockout)","Use Conditional Access to block suspicious sign-ins","Enable Azure AD Identity Protection risk policies","Implement MFA to mitigate brute force","Monitor sign-in logs for failed attempts"],"effort_hours":6}},
+                azure: {"implementation":{"steps":["Configure Entra ID Smart Lockout (10 attempts, 60s lockout)","Use Conditional Access to block suspicious sign-ins","Enable Entra ID Identity Protection risk policies","Implement MFA to mitigate brute force","Monitor sign-in logs for failed attempts"],"effort_hours":6}},
                 gcp: {"implementation":{"steps":["Configure Cloud Identity account lockout","Use Cloud Armor rate limiting for web apps","Implement reCAPTCHA Enterprise for login forms","Monitor Cloud Audit Logs for failed authentication"],"effort_hours":6}}
             },
             application: {
@@ -2252,7 +2252,7 @@ module.exports = { checkPermission, requireApproval };`,
             },
             cloud: {
                 aws: {"implementation":{"steps":["Add login banner to AWS Console via IAM policy","Configure SSH banner in EC2 instances (/etc/issue.net)","Display banner in AWS WorkSpaces","Include notice in AWS SSO login page"],"effort_hours":3}},
-                azure: {"implementation":{"steps":["Configure Azure AD sign-in page branding with notice","Add banner to Azure Virtual Desktop","Configure SSH banner in Azure VMs","Include notice in Azure AD B2C user flows"],"effort_hours":3}},
+                azure: {"implementation":{"steps":["Configure Entra ID sign-in page branding with notice","Add banner to Azure Virtual Desktop","Configure SSH banner in Azure VMs","Include notice in Entra ID B2C user flows"],"effort_hours":3}},
                 windows: {"implementation":{"steps":["Configure Group Policy: Computer Configuration > Windows Settings > Security Settings > Local Policies > Security Options","Set 'Interactive logon: Message text for users attempting to log on'","Set 'Interactive logon: Message title for users attempting to log on'"],"effort_hours":2}},
                 linux: {"implementation":{"steps":["Edit /etc/issue (console login banner)","Edit /etc/issue.net (SSH login banner)","Edit /etc/motd (message of the day)","Configure SSH: Banner /etc/issue.net in /etc/ssh/sshd_config"],"effort_hours":2}}
             },
@@ -2295,7 +2295,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Auto-lock screens after 15 minutes of inactivity",
             cloud: {
                 aws: {"implementation":{"steps":["Configure AWS WorkSpaces session timeout (15 min)","Set CloudShell timeout","Configure EC2 instance screen lock via Group Policy/config management","Use AWS SSO session timeout (12 hours max)"],"effort_hours":4}},
-                azure: {"implementation":{"steps":["Configure Azure Virtual Desktop session timeout (15 min)","Set Azure AD session timeout (12 hours)","Configure Intune screen lock policy (15 min)","Use Conditional Access session controls"],"effort_hours":4}},
+                azure: {"implementation":{"steps":["Configure Azure Virtual Desktop session timeout (15 min)","Set Entra ID session timeout (12 hours)","Configure Intune screen lock policy (15 min)","Use Conditional Access session controls"],"effort_hours":4}},
                 gcp: {"implementation":{"steps":["Configure Cloud Identity session timeout","Set Chrome OS screen lock (15 min)","Configure Compute Engine instance screen lock","Use Cloud Identity session controls"],"effort_hours":4}}
             },
             operating_system: {
@@ -2346,7 +2346,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Auto-logout after inactivity or max session duration",
             cloud: {
                 aws: {"implementation":{"steps":["Configure AWS SSO session timeout (12 hours max)","Set CloudFront signed cookie expiration","Configure ALB session stickiness timeout","Use Lambda@Edge for custom session validation","Set EC2 instance idle timeout"],"cost_estimate":"$0-5/month","effort_hours":4}},
-                azure: {"implementation":{"steps":["Configure Azure AD session timeout (12 hours)","Set Conditional Access session controls","Configure App Service session timeout","Use Azure Front Door session affinity timeout","Set AVD idle session timeout (15 min)"],"cost_estimate":"$0","effort_hours":4}},
+                azure: {"implementation":{"steps":["Configure Entra ID session timeout (12 hours)","Set Conditional Access session controls","Configure App Service session timeout","Use Azure Front Door session affinity timeout","Set AVD idle session timeout (15 min)"],"cost_estimate":"$0","effort_hours":4}},
                 gcp: {"implementation":{"steps":["Configure Cloud Identity session timeout","Set Cloud IAP session duration","Configure App Engine session timeout","Use Cloud Load Balancer session affinity timeout"],"cost_estimate":"$0","effort_hours":4}}
             },
             application: {
@@ -2392,7 +2392,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "VPN logging, remote desktop monitoring, privileged access tracking",
             cloud: {
                 aws: {"services":["VPC","Client VPN","Systems Manager","CloudTrail"],"implementation":{"steps":["Deploy AWS Client VPN with MFA","Enable VPN connection logging to CloudWatch","Use Systems Manager Session Manager for audited SSH/RDP","Configure VPC Flow Logs for remote access traffic","Set up CloudTrail for API access monitoring","Implement AWS SSO for centralized remote access"],"cost_estimate":"$50-200/month (VPN endpoints)","effort_hours":10}},
-                azure: {"services":["VPN Gateway","Bastion","Azure AD","Monitor"],"implementation":{"steps":["Deploy Azure VPN Gateway with P2S VPN","Enable Azure Bastion for RDP/SSH without public IPs","Configure Azure AD Conditional Access for remote access","Enable NSG Flow Logs","Use Azure Monitor for VPN connection logs","Implement Just-in-Time VM access"],"cost_estimate":"$140-400/month (Bastion + VPN)","effort_hours":10}},
+                azure: {"services":["VPN Gateway","Bastion","Entra ID","Monitor"],"implementation":{"steps":["Deploy Azure VPN Gateway with P2S VPN","Enable Azure Bastion for RDP/SSH without public IPs","Configure Entra ID Conditional Access for remote access","Enable NSG Flow Logs","Use Azure Monitor for VPN connection logs","Implement Just-in-Time VM access"],"cost_estimate":"$140-400/month (Bastion + VPN)","effort_hours":10}},
                 gcp: {"services":["Cloud VPN","IAP","Cloud Logging"],"implementation":{"steps":["Deploy Cloud VPN with Cloud Identity","Use Identity-Aware Proxy for TCP forwarding","Enable VPN tunnel logging","Configure VPC Flow Logs","Use Cloud Logging for access monitoring"],"cost_estimate":"$50-150/month","effort_hours":8}}
             },
             network: {
@@ -2528,7 +2528,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Approval workflow for privileged remote access, audit all privileged sessions",
             cloud: {
                 aws: {"implementation":{"steps":["Use AWS SSO with approval workflow for privileged roles","Implement Step Functions for approval automation","Use Systems Manager Session Manager with session logging","Configure SNS notifications for privileged access requests","Store session logs in S3 with Glacier for long-term retention"],"cost_estimate":"$10-30/month","effort_hours":12}},
-                azure: {"implementation":{"steps":["Use Azure AD PIM with approval workflow","Configure multi-approver requirements for privileged roles","Enable PIM audit logs to Log Analytics","Use Azure Bastion with session recording","Set up alerts for privileged access activation"],"cost_estimate":"$6-16/user/month (Azure AD P2)","effort_hours":12}},
+                azure: {"implementation":{"steps":["Use Entra ID PIM with approval workflow","Configure multi-approver requirements for privileged roles","Enable PIM audit logs to Log Analytics","Use Azure Bastion with session recording","Set up alerts for privileged access activation"],"cost_estimate":"$6-16/user/month (Entra ID P2)","effort_hours":12}},
                 gcp: {"implementation":{"steps":["Implement custom approval workflow with Cloud Functions","Use IAM Conditions for time-based access","Enable Cloud Audit Logs for privileged access","Use Cloud Logging for session monitoring","Set up Pub/Sub notifications for privileged access"],"cost_estimate":"$10-25/month","effort_hours":14}}
             },
             application: {
@@ -2573,7 +2573,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "WPA3-Enterprise, 802.1X authentication, MAC address filtering",
             cloud: {
                 aws: {"implementation":{"steps":["Use AWS Managed Microsoft AD for RADIUS authentication","Deploy EC2-based RADIUS server with FreeRADIUS","Configure AWS Certificate Manager for 802.1X certificates","Use AWS IoT Device Management for IoT device authentication"],"cost_estimate":"$50-150/month","effort_hours":10}},
-                azure: {"implementation":{"steps":["Use Azure AD with NPS extension for RADIUS","Deploy Network Policy Server on Azure VM","Configure certificate-based 802.1X authentication","Use Azure AD Conditional Access for wireless access control"],"cost_estimate":"$50-120/month","effort_hours":10}},
+                azure: {"implementation":{"steps":["Use Entra ID with NPS extension for RADIUS","Deploy Network Policy Server on Azure VM","Configure certificate-based 802.1X authentication","Use Entra ID Conditional Access for wireless access control"],"cost_estimate":"$50-120/month","effort_hours":10}},
                 gcp: {"implementation":{"steps":["Deploy Cloud Identity for user authentication","Use Compute Engine for RADIUS server","Configure certificate-based 802.1X","Use Cloud Identity for wireless access control"],"cost_estimate":"$50-100/month","effort_hours":10}}
             },
             network: {
@@ -2621,7 +2621,7 @@ module.exports = { checkPermission, requireApproval };`,
             },
             cloud: {
                 aws: {"implementation":{"steps":["Use AWS Certificate Manager for 802.1X certificates","Deploy RADIUS server with strong encryption","Configure CloudWatch monitoring for wireless authentication failures"],"cost_estimate":"$10-30/month","effort_hours":6}},
-                azure: {"implementation":{"steps":["Use Azure AD for RADIUS authentication","Deploy NPS with strong encryption settings","Configure Azure Monitor for wireless access logs"],"cost_estimate":"$10-25/month","effort_hours":6}}
+                azure: {"implementation":{"steps":["Use Entra ID for RADIUS authentication","Deploy NPS with strong encryption settings","Configure Azure Monitor for wireless access logs"],"cost_estimate":"$10-25/month","effort_hours":6}}
             },
             small_business: {
                 approach: "Use WPA3-Personal with 20+ character passphrase, rotate quarterly, separate guest network",
@@ -2666,7 +2666,7 @@ module.exports = { checkPermission, requireApproval };`,
             },
             cloud: {
                 aws: {"implementation":{"steps":["Use AWS WorkSpaces for mobile access (BYOD alternative)","Implement device certificates for authentication","Use AWS Device Farm for testing"],"cost_estimate":"$25-75/user/month","effort_hours":8}},
-                azure: {"implementation":{"steps":["Use Intune for MDM","Configure Conditional Access device policies","Implement Azure AD device registration","Use Azure Virtual Desktop for BYOD"],"cost_estimate":"$6-14/user/month","effort_hours":8}}
+                azure: {"implementation":{"steps":["Use Intune for MDM","Configure Conditional Access device policies","Implement Entra ID device registration","Use Azure Virtual Desktop for BYOD"],"cost_estimate":"$6-14/user/month","effort_hours":8}}
             },
             small_business: {
                 approach: "Use Microsoft 365 Basic Mobility (free) or Google Workspace device management, require device enrollment",
@@ -2710,7 +2710,7 @@ module.exports = { checkPermission, requireApproval };`,
                 android: {"implementation":{"steps":["Enable full disk encryption (Settings > Security > Encrypt device)","Require screen lock PIN/password","Use MDM to enforce encryption","Configure encryption for SD cards","Enable remote wipe via MDM"],"effort_hours":2}}
             },
             operating_system: {
-                windows: {"implementation":{"steps":["Enable BitLocker on all drives","Use TPM 2.0 for key storage","Store recovery keys in Azure AD or on-premises AD","Configure Group Policy to enforce BitLocker","Enable BitLocker To Go for removable drives"],"effort_hours":4}},
+                windows: {"implementation":{"steps":["Enable BitLocker on all drives","Use TPM 2.0 for key storage","Store recovery keys in Entra ID or on-premises AD","Configure Group Policy to enforce BitLocker","Enable BitLocker To Go for removable drives"],"effort_hours":4}},
                 macos: {"implementation":{"steps":["Enable FileVault full disk encryption","Store recovery key in institutional key escrow or iCloud","Use MDM to enforce FileVault","Configure firmware password"],"effort_hours":3}},
                 linux: {"implementation":{"steps":["Use LUKS for full disk encryption during installation","Configure encrypted /home partition","Store encryption keys securely","Use TPM if available"],"effort_hours":4}}
             },
@@ -2888,7 +2888,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Individual user accounts, no shared accounts, audit logging with user attribution",
             cloud: {
                 aws: {"services":["IAM","CloudTrail","CloudWatch"],"implementation":{"steps":["Disable root account for daily use","Create individual IAM users (no shared accounts)","Enable CloudTrail for all API activity","Use IAM Access Analyzer to identify shared credentials","Configure CloudWatch Logs for application logging with user context","Tag resources with owner information"],"cost_estimate":"$10-50/month","effort_hours":6}},
-                azure: {"services":["Azure AD","Activity Log","Monitor"],"implementation":{"steps":["Require individual Azure AD accounts","Disable shared admin accounts","Enable Azure Activity Log for all operations","Use Azure AD sign-in logs for user tracking","Configure diagnostic settings to Log Analytics","Implement user attribution in application logs"],"cost_estimate":"$5-30/month","effort_hours":6}},
+                azure: {"services":["Entra ID","Activity Log","Monitor"],"implementation":{"steps":["Require individual Entra ID accounts","Disable shared admin accounts","Enable Azure Activity Log for all operations","Use Entra ID sign-in logs for user tracking","Configure diagnostic settings to Log Analytics","Implement user attribution in application logs"],"cost_estimate":"$5-30/month","effort_hours":6}},
                 gcp: {"services":["Cloud Identity","Cloud Audit Logs","Cloud Logging"],"implementation":{"steps":["Require individual Google accounts","Disable shared service accounts for user access","Enable Cloud Audit Logs (Admin, Data, System)","Use Cloud Identity for user tracking","Configure log sinks to Cloud Logging","Implement user context in application logs"],"cost_estimate":"$10-40/month","effort_hours":6}}
             },
             database: {
@@ -3013,7 +3013,7 @@ module.exports = { checkPermission, requireApproval };`,
             cloud: {
                 aws: {"services":["Security Hub","GuardDuty","Detective","Athena"],"implementation":{"steps":["Enable AWS Security Hub for centralized findings","Configure GuardDuty for threat detection","Use Amazon Detective for investigation","Create Athena queries for log analysis","Set up EventBridge rules for automated response","Integrate with incident response platform"],"cost_estimate":"$100-500/month","effort_hours":20}},
                 azure: {"services":["Sentinel","Defender for Cloud","Log Analytics"],"implementation":{"steps":["Deploy Microsoft Sentinel as SIEM","Enable Defender for Cloud for threat detection","Create KQL queries for correlation","Configure analytics rules for automated alerting","Set up playbooks for automated response","Integrate with incident management system"],"cost_estimate":"$200-800/month","effort_hours":20}},
-                gcp: {"services":["Chronicle","Security Command Center","BigQuery"],"implementation":{"steps":["Use Chronicle SIEM for log correlation","Enable Security Command Center Premium","Create BigQuery queries for analysis","Configure detection rules","Set up Cloud Functions for automated response","Integrate with ticketing system"],"cost_estimate":"$500-2000/month","effort_hours":20}}
+                gcp: {"services":["Google SecOps","Security Command Center","BigQuery"],"implementation":{"steps":["Use Google SecOps SIEM for log correlation","Enable Security Command Center Premium","Create BigQuery queries for analysis","Configure detection rules","Set up Cloud Functions for automated response","Integrate with ticketing system"],"cost_estimate":"$500-2000/month","effort_hours":20}}
             },
             siem: {
                 splunk: {"implementation":{"steps":["Configure log ingestion from all sources","Create correlation searches for suspicious activity","Set up notable events and alerts","Build investigation dashboards","Implement automated response actions","Integrate with SOAR platform"],"effort_hours":24}},
@@ -3223,7 +3223,7 @@ module.exports = { checkPermission, requireApproval };`,
             cloud: {
                 aws: {"services":["Config","Systems Manager","Service Catalog"],"implementation":{"steps":["Enable AWS Config for all regions","Create configuration baselines with Systems Manager","Use AWS Config rules for compliance checking","Maintain inventory with Systems Manager Inventory","Use Service Catalog for approved configurations","Tag all resources with owner and environment","Document baseline configurations"],"cost_estimate":"$50-200/month","effort_hours":16}},
                 azure: {"services":["Policy","Automation","Resource Graph"],"implementation":{"steps":["Deploy Azure Policy for configuration enforcement","Use Azure Automation State Configuration (DSC)","Enable Azure Resource Graph for inventory","Create configuration baselines with Azure Automanage","Use Azure Blueprints for approved configurations","Tag all resources with metadata","Document baselines"],"cost_estimate":"$50-150/month","effort_hours":16}},
-                gcp: {"services":["Asset Inventory","Config Connector","Deployment Manager"],"implementation":{"steps":["Use Cloud Asset Inventory for resource tracking","Deploy Config Connector for Kubernetes","Create configuration baselines with Deployment Manager","Use organization policies for enforcement","Label all resources with metadata","Document baselines"],"cost_estimate":"$30-100/month","effort_hours":14}}
+                gcp: {"services":["Asset Inventory","Config Connector","Terraform"],"implementation":{"steps":["Use Cloud Asset Inventory for resource tracking","Deploy Config Connector for Kubernetes","Create configuration baselines with Terraform","Use organization policies for enforcement","Label all resources with metadata","Document baselines"],"cost_estimate":"$30-100/month","effort_hours":14}}
             },
             tools: {
                 ansible: {"implementation":{"steps":["Create Ansible playbooks for baseline configs","Use Ansible Tower/AWX for inventory","Implement configuration drift detection","Store playbooks in Git","Document baseline"],"effort_hours":12}},
@@ -3345,7 +3345,7 @@ module.exports = { checkPermission, requireApproval };`,
             cloud: {
                 aws: {"implementation":{"steps":["Use AWS Config rules to test changes","Run Security Hub checks before deployment","Use CloudFormation ChangeSet for preview","Test in dev/staging","Review IAM changes with Access Analyzer","Document security impact"],"cost_estimate":"$10-30/month","effort_hours":8}},
                 azure: {"implementation":{"steps":["Use Azure Policy What-If for impact analysis","Run Defender for Cloud assessment","Test in dev/staging subscription","Review RBAC changes","Use Azure Blueprints","Document security impact"],"cost_estimate":"$10-25/month","effort_hours":8}},
-                gcp: {"implementation":{"steps":["Use Policy Analyzer","Run Security Command Center scan","Test in dev/staging project","Review IAM changes with Policy Troubleshooter","Use Deployment Manager preview","Document security impact"],"cost_estimate":"$10-30/month","effort_hours":8}}
+                gcp: {"implementation":{"steps":["Use Policy Analyzer","Run Security Command Center scan","Test in dev/staging project","Review IAM changes with Policy Troubleshooter","Use Terraform plan for preview","Document security impact"],"cost_estimate":"$10-30/month","effort_hours":8}}
             },
             small_business: {
                 approach: "Use security checklist for changes, test in non-production environment, document security impact in change request",
@@ -3504,7 +3504,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Application whitelisting, software restriction policies",
             cloud: {
                 aws: {"implementation":{"steps":["Use Systems Manager to inventory software","Implement approved software list","Use Config rules to detect unauthorized software","Deploy EC2 Image Builder with approved software only","Use AppStream for application delivery"],"cost_estimate":"$20-80/month","effort_hours":12}},
-                azure: {"implementation":{"steps":["Use Defender for Endpoint for software inventory","Implement Intune app deployment policies","Use Azure Policy to detect unauthorized software","Deploy Windows Virtual Desktop with approved apps","Use Azure AD application proxy"],"cost_estimate":"$50-150/month","effort_hours":12}},
+                azure: {"implementation":{"steps":["Use Defender for Endpoint for software inventory","Implement Intune app deployment policies","Use Azure Policy to detect unauthorized software","Deploy Windows Virtual Desktop with approved apps","Use Entra ID application proxy"],"cost_estimate":"$50-150/month","effort_hours":12}},
                 gcp: {"implementation":{"steps":["Use OS Config for software inventory","Implement approved software list","Use organization policies to restrict installation","Deploy Container-Optimized OS","Use Chrome Enterprise"],"cost_estimate":"$20-60/month","effort_hours":10}}
             },
             operating_system: {
@@ -3588,7 +3588,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Unique identifiers for users, service accounts, and devices",
             cloud: {
                 aws: {"services":["IAM","Cognito","Directory Service"],"implementation":{"steps":["Create individual IAM users (no shared accounts)","Use IAM roles for EC2 instances","Implement AWS SSO for centralized identity","Use Cognito for application users","Tag devices with unique identifiers","Use AWS Systems Manager for device inventory"],"cost_estimate":"$0-50/month","effort_hours":8}},
-                azure: {"services":["Azure AD","Managed Identity"],"implementation":{"steps":["Create individual Azure AD accounts","Use Managed Identities for Azure resources","Implement Azure AD for centralized identity","Register devices in Azure AD","Use Intune for device management","Tag service principals with descriptions"],"cost_estimate":"$0-30/month","effort_hours":8}},
+                azure: {"services":["Entra ID","Managed Identity"],"implementation":{"steps":["Create individual Entra ID accounts","Use Managed Identities for Azure resources","Implement Entra ID for centralized identity","Register devices in Entra ID","Use Intune for device management","Tag service principals with descriptions"],"cost_estimate":"$0-30/month","effort_hours":8}},
                 gcp: {"services":["Cloud Identity","IAM","Workload Identity"],"implementation":{"steps":["Create individual Google accounts","Use Workload Identity for GKE","Implement Cloud Identity","Register devices in Cloud Identity","Use service accounts with descriptive names","Label resources with owner information"],"cost_estimate":"$0-40/month","effort_hours":8}}
             },
             small_business: {
@@ -3620,7 +3620,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Authentication required before access, no anonymous access",
             cloud: {
                 aws: {"services":["IAM","Cognito","SSO"],"implementation":{"steps":["Require IAM authentication for all AWS access","Use Cognito for application authentication","Implement AWS SSO with MFA","Use IAM roles for EC2 instance authentication","Require certificate-based authentication for devices","Disable anonymous access to S3/APIs"],"cost_estimate":"$0-30/month","effort_hours":8}},
-                azure: {"services":["Azure AD","Conditional Access"],"implementation":{"steps":["Require Azure AD authentication for all access","Implement Conditional Access policies","Use Managed Identities for resource authentication","Require device authentication via Intune","Disable anonymous access to storage/APIs","Use certificate-based authentication"],"cost_estimate":"$0-20/month","effort_hours":8}},
+                azure: {"services":["Entra ID","Conditional Access"],"implementation":{"steps":["Require Entra ID authentication for all access","Implement Conditional Access policies","Use Managed Identities for resource authentication","Require device authentication via Intune","Disable anonymous access to storage/APIs","Use certificate-based authentication"],"cost_estimate":"$0-20/month","effort_hours":8}},
                 gcp: {"services":["Cloud Identity","IAM","IAP"],"implementation":{"steps":["Require Cloud Identity authentication","Use Workload Identity for service authentication","Implement IAP for application access","Require device certificates","Disable anonymous access to Cloud Storage/APIs","Use service account keys with rotation"],"cost_estimate":"$0-25/month","effort_hours":8}}
             },
             small_business: {
@@ -3652,11 +3652,11 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "MFA for all remote access and privileged accounts",
             cloud: {
                 aws: {"services":["IAM","SSO","MFA"],"implementation":{"steps":["Require MFA for all IAM users","Use AWS SSO with MFA enforcement","Require MFA for root account","Use hardware MFA tokens for privileged accounts","Implement Cognito MFA for applications","Monitor MFA compliance with IAM Access Analyzer"],"cost_estimate":"$0-100/month (hardware tokens)","effort_hours":6}},
-                azure: {"services":["Azure AD","MFA","Conditional Access"],"implementation":{"steps":["Enable Azure AD MFA for all users","Require MFA for privileged roles via PIM","Use Conditional Access to enforce MFA","Support FIDO2 security keys","Require MFA for VPN access","Monitor MFA usage with sign-in logs"],"cost_estimate":"$0-2/user/month","effort_hours":6}},
+                azure: {"services":["Entra ID","MFA","Conditional Access"],"implementation":{"steps":["Enable Entra ID MFA for all users","Require MFA for privileged roles via PIM","Use Conditional Access to enforce MFA","Support FIDO2 security keys","Require MFA for VPN access","Monitor MFA usage with sign-in logs"],"cost_estimate":"$0-2/user/month","effort_hours":6}},
                 gcp: {"services":["Cloud Identity","2-Step Verification"],"implementation":{"steps":["Enable 2-Step Verification for all users","Require security keys for privileged accounts","Use Cloud Identity MFA enforcement","Support FIDO2 security keys","Require MFA for VPN access","Monitor MFA compliance"],"cost_estimate":"$0-50/month","effort_hours":6}}
             },
             saas: {
-                microsoft365: {"implementation":{"steps":["Enable MFA for all users via Azure AD","Require MFA for admin accounts","Use Conditional Access to enforce MFA","Support Microsoft Authenticator app","Block legacy authentication"],"cost_estimate":"$0 (included)","effort_hours":4}},
+                microsoft365: {"implementation":{"steps":["Enable MFA for all users via Entra ID","Require MFA for admin accounts","Use Conditional Access to enforce MFA","Support Microsoft Authenticator app","Block legacy authentication"],"cost_estimate":"$0 (included)","effort_hours":4}},
                 google_workspace: {"implementation":{"steps":["Enable 2-Step Verification for all users","Require security keys for admins","Use Context-Aware Access to enforce MFA","Support Google Authenticator","Block less secure apps"],"cost_estimate":"$0 (included)","effort_hours":4}}
             },
             small_business: {
@@ -3688,7 +3688,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Use Kerberos, TLS, or time-based tokens to prevent replay attacks",
             cloud: {
                 aws: {"implementation":{"steps":["Use AWS SSO with SAML (replay-resistant)","Implement time-based OTP with MFA","Use TLS 1.2+ for all connections","Enable Kerberos authentication for managed AD","Use STS temporary credentials with expiration","Implement session tokens with short TTL"],"cost_estimate":"$0","effort_hours":6}},
-                azure: {"implementation":{"steps":["Use Azure AD with Kerberos/SAML","Implement time-based MFA","Enforce TLS 1.2+ for all connections","Use Azure AD token replay detection","Implement short-lived access tokens","Enable Conditional Access session controls"],"cost_estimate":"$0","effort_hours":6}},
+                azure: {"implementation":{"steps":["Use Entra ID with Kerberos/SAML","Implement time-based MFA","Enforce TLS 1.2+ for all connections","Use Entra ID token replay detection","Implement short-lived access tokens","Enable Conditional Access session controls"],"cost_estimate":"$0","effort_hours":6}},
                 gcp: {"implementation":{"steps":["Use Cloud Identity with SAML","Implement time-based 2FA","Enforce TLS 1.2+ for all connections","Use short-lived service account tokens","Implement OAuth 2.0 with PKCE","Enable session timeout controls"],"cost_estimate":"$0","effort_hours":6}}
             },
             network: {
@@ -3726,7 +3726,7 @@ module.exports = { checkPermission, requireApproval };`,
             },
             cloud: {
                 aws: {"implementation":{"steps":["Archive IAM users instead of deleting","Tag deleted users with retirement date","Use AWS Organizations to track identifiers across accounts","Document identifier reuse policy in IAM documentation"],"cost_estimate":"$0","effort_hours":3}},
-                azure: {"implementation":{"steps":["Soft-delete Azure AD users (retained 30 days)","Maintain deleted users list in Azure AD","Use Azure AD audit logs to track identifier history","Document identifier reuse policy"],"cost_estimate":"$0","effort_hours":3}},
+                azure: {"implementation":{"steps":["Soft-delete Entra ID users (retained 30 days)","Maintain deleted users list in Entra ID","Use Entra ID audit logs to track identifier history","Document identifier reuse policy"],"cost_estimate":"$0","effort_hours":3}},
                 gcp: {"implementation":{"steps":["Archive Cloud Identity users","Maintain deleted users list","Use Cloud Audit Logs to track identifier history","Document identifier reuse policy"],"cost_estimate":"$0","effort_hours":3}}
             },
             small_business: {
@@ -3758,7 +3758,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Disable accounts after 90 days of inactivity",
             cloud: {
                 aws: {"services":["IAM","Access Analyzer","Lambda"],"implementation":{"steps":["Use IAM Access Analyzer to identify inactive users","Create Lambda function to disable inactive IAM users (90 days)","Use AWS Config rule to detect inactive accounts","Implement CloudWatch Events for automated disabling","Generate reports of disabled accounts","Document account disabling policy"],"cost_estimate":"$5-20/month","effort_hours":8}},
-                azure: {"services":["Azure AD","Identity Governance"],"implementation":{"steps":["Use Azure AD sign-in logs to identify inactive users","Implement Azure AD access reviews for inactive accounts","Use Azure Automation to disable inactive users (90 days)","Configure alerts for inactive accounts","Generate compliance reports","Document account disabling policy"],"cost_estimate":"$0-30/month","effort_hours":8}},
+                azure: {"services":["Entra ID","Identity Governance"],"implementation":{"steps":["Use Entra ID sign-in logs to identify inactive users","Implement Entra ID access reviews for inactive accounts","Use Azure Automation to disable inactive users (90 days)","Configure alerts for inactive accounts","Generate compliance reports","Document account disabling policy"],"cost_estimate":"$0-30/month","effort_hours":8}},
                 gcp: {"services":["Cloud Identity","Cloud Functions"],"implementation":{"steps":["Use Cloud Identity activity reports","Create Cloud Function to disable inactive users (90 days)","Use Cloud Scheduler for automated checks","Configure alerts for inactive accounts","Generate compliance reports","Document account disabling policy"],"cost_estimate":"$5-15/month","effort_hours":8}}
             },
             small_business: {
@@ -3790,7 +3790,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Password policy: 14+ chars, complexity requirements, change 8+ characters",
             cloud: {
                 aws: {"services":["IAM","Directory Service"],"implementation":{"steps":["Configure IAM password policy (14+ chars, complexity)","Require uppercase, lowercase, numbers, symbols","Set password expiration (60-90 days)","Prevent password reuse (24 passwords)","Use AWS Managed Microsoft AD for advanced policies","Enforce password change on first login"],"cost_estimate":"$0","effort_hours":3}},
-                azure: {"services":["Azure AD"],"implementation":{"steps":["Configure Azure AD password policy (14+ chars)","Enable password complexity requirements","Set password expiration (90 days)","Prevent password reuse","Use Azure AD Password Protection (banned passwords)","Require password change on first login"],"cost_estimate":"$0","effort_hours":3}},
+                azure: {"services":["Entra ID"],"implementation":{"steps":["Configure Entra ID password policy (14+ chars)","Enable password complexity requirements","Set password expiration (90 days)","Prevent password reuse","Use Entra ID Password Protection (banned passwords)","Require password change on first login"],"cost_estimate":"$0","effort_hours":3}},
                 gcp: {"services":["Cloud Identity"],"implementation":{"steps":["Configure Cloud Identity password policy (14+ chars)","Enable password complexity requirements","Set password expiration (90 days)","Prevent password reuse","Require password change on first login","Use password strength enforcement"],"cost_estimate":"$0","effort_hours":3}}
             },
             operating_system: {
@@ -3826,7 +3826,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Remember last 24 passwords",
             cloud: {
                 aws: {"implementation":{"steps":["Configure IAM password policy to remember 24 passwords","Use AWS Managed Microsoft AD for advanced password history","Document password reuse policy","Monitor password policy compliance"],"cost_estimate":"$0","effort_hours":2}},
-                azure: {"implementation":{"steps":["Configure Azure AD to prevent password reuse","Set password history to 24 passwords","Document password reuse policy","Monitor compliance with Azure AD reports"],"cost_estimate":"$0","effort_hours":2}},
+                azure: {"implementation":{"steps":["Configure Entra ID to prevent password reuse","Set password history to 24 passwords","Document password reuse policy","Monitor compliance with Entra ID reports"],"cost_estimate":"$0","effort_hours":2}},
                 gcp: {"implementation":{"steps":["Configure Cloud Identity password history","Set password reuse prevention","Document password reuse policy","Monitor compliance"],"cost_estimate":"$0","effort_hours":2}}
             },
             operating_system: {
@@ -3862,7 +3862,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Force password change on first login with temporary password",
             cloud: {
                 aws: {"implementation":{"steps":["Enable 'User must create a new password at next sign-in' for IAM users","Use AWS SSO to force password change on first login","Configure Cognito to require password change","Document temporary password procedures","Set temporary password expiration (24 hours)"],"cost_estimate":"$0","effort_hours":3}},
-                azure: {"implementation":{"steps":["Enable 'User must change password at next sign-in' in Azure AD","Set temporary password expiration","Use Azure AD B2C for application password reset flows","Document temporary password procedures","Monitor password change compliance"],"cost_estimate":"$0","effort_hours":3}},
+                azure: {"implementation":{"steps":["Enable 'User must change password at next sign-in' in Entra ID","Set temporary password expiration","Use Entra ID B2C for application password reset flows","Document temporary password procedures","Monitor password change compliance"],"cost_estimate":"$0","effort_hours":3}},
                 gcp: {"implementation":{"steps":["Enable 'Change password at next sign-in' in Cloud Identity","Set temporary password expiration","Document temporary password procedures","Monitor password change compliance"],"cost_estimate":"$0","effort_hours":3}}
             },
             operating_system: {
@@ -3898,7 +3898,7 @@ module.exports = { checkPermission, requireApproval };`,
             summary: "Hash passwords with bcrypt/PBKDF2, use TLS for transmission",
             cloud: {
                 aws: {"services":["Cognito","Secrets Manager","KMS"],"implementation":{"steps":["Use AWS Cognito for password management (automatic hashing)","Store passwords in Secrets Manager (encrypted at rest)","Use KMS for encryption keys","Enforce TLS 1.2+ for all password transmission","Never log passwords in CloudWatch","Use IAM roles instead of passwords where possible"],"cost_estimate":"$1-10/month","effort_hours":6}},
-                azure: {"services":["Azure AD","Key Vault"],"implementation":{"steps":["Use Azure AD for password management (automatic hashing)","Store application passwords in Key Vault","Use customer-managed keys for encryption","Enforce TLS 1.2+ for all password transmission","Never log passwords in Application Insights","Use Managed Identities instead of passwords"],"cost_estimate":"$1-10/month","effort_hours":6}},
+                azure: {"services":["Entra ID","Key Vault"],"implementation":{"steps":["Use Entra ID for password management (automatic hashing)","Store application passwords in Key Vault","Use customer-managed keys for encryption","Enforce TLS 1.2+ for all password transmission","Never log passwords in Application Insights","Use Managed Identities instead of passwords"],"cost_estimate":"$1-10/month","effort_hours":6}},
                 gcp: {"services":["Cloud Identity","Secret Manager"],"implementation":{"steps":["Use Cloud Identity for password management","Store application passwords in Secret Manager","Use customer-managed encryption keys","Enforce TLS 1.2+ for all password transmission","Never log passwords in Cloud Logging","Use Workload Identity instead of passwords"],"cost_estimate":"$1-10/month","effort_hours":6}}
             },
             application: {

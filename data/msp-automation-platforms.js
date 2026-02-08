@@ -382,7 +382,7 @@ echo "Key rotation complete for $SA_EMAIL"`
     {
       "step": 1,
       "action": "Disable user account in Entra ID",
-      "connector": "Azure AD"
+      "connector": "Entra ID"
     },
     {
       "step": 2,
@@ -392,7 +392,7 @@ echo "Key rotation complete for $SA_EMAIL"`
     {
       "step": 3,
       "action": "Remove from all security groups",
-      "connector": "Azure AD"
+      "connector": "Entra ID"
     },
     {
       "step": 4,

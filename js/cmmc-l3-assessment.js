@@ -21,7 +21,7 @@ const CMMCL3Assessment = {
                         'Automatically adjust access permissions based on context'
                     ],
                     technologies: {
-                        azure: ['Conditional Access with Named Locations', 'Azure AD Identity Protection', 'Microsoft Defender for Cloud Apps'],
+                        azure: ['Conditional Access with Named Locations', 'Entra ID Identity Protection', 'Microsoft Defender for Cloud Apps'],
                         aws: ['IAM Access Analyzer', 'AWS Organizations SCPs', 'Lake Formation'],
                         gcp: ['BeyondCorp Enterprise', 'Context-Aware Access', 'VPC Service Controls']
                     },
@@ -169,7 +169,7 @@ const CMMCL3Assessment = {
                         'Use cryptographic mechanisms for mutual authentication'
                     ],
                     technologies: {
-                        azure: ['Mutual TLS (mTLS)', 'Azure AD Certificate-based Auth', 'Service Fabric mTLS'],
+                        azure: ['Mutual TLS (mTLS)', 'Entra ID Certificate-based Auth', 'Service Fabric mTLS'],
                         aws: ['ACM Private CA for mTLS', 'API Gateway mutual TLS', 'App Mesh mTLS'],
                         gcp: ['Cloud Service Mesh mTLS', 'Certificate Authority Service', 'Traffic Director']
                     },
@@ -185,7 +185,7 @@ const CMMCL3Assessment = {
                         'Protect against credential replay attacks'
                     ],
                     technologies: {
-                        azure: ['FIDO2 Security Keys', 'Windows Hello for Business', 'Azure AD Passwordless'],
+                        azure: ['FIDO2 Security Keys', 'Windows Hello for Business', 'Entra ID Passwordless'],
                         aws: ['AWS MFA with hardware tokens', 'Cognito Advanced Security', 'IAM Roles Anywhere'],
                         gcp: ['Titan Security Keys', 'Identity Platform', 'BeyondCorp Remote Access']
                     },

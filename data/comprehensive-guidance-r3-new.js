@@ -412,11 +412,11 @@ const COMPREHENSIVE_GUIDANCE_R3_NEW = {
                     }
                 },
                 gcp: {
-                    services: ["Security Command Center", "Chronicle SIEM", "Cloud Logging"],
+                    services: ["Security Command Center", "Google SecOps SIEM", "Cloud Logging"],
                     implementation: {
                         steps: [
                             "Create IR training scenarios using Security Command Center findings",
-                            "Conduct tabletop exercises with Chronicle SIEM investigation workflows",
+                            "Conduct tabletop exercises with Google SecOps SIEM investigation workflows",
                             "Train IR team on GCP-specific log analysis and incident containment",
                             "Document role-based training requirements and schedules",
                             "Schedule annual IR training with quarterly refreshers for IR team",
@@ -487,11 +487,11 @@ const COMPREHENSIVE_GUIDANCE_R3_NEW = {
                     }
                 },
                 gcp: {
-                    services: ["Security Command Center", "Chronicle SOAR", "Cloud Functions", "Pub/Sub"],
+                    services: ["Security Command Center", "Google SecOps SOAR", "Cloud Functions", "Pub/Sub"],
                     implementation: {
                         steps: [
                             "Develop IR plan documenting GCP-specific incident types and response procedures",
-                            "Create Chronicle SOAR playbooks for automated response actions",
+                            "Create Google SecOps SOAR playbooks for automated response actions",
                             "Configure Cloud Functions for automated containment (disable SA keys, update firewall rules)",
                             "Set up Pub/Sub topics for IR team notifications",
                             "Document GCP containment procedures (project isolation, IAM revocation)",

@@ -465,7 +465,7 @@ const CCA_QUESTIONS = {
     },
     "3.5.7[b]": {
         questions: ["How do you enforce password complexity?", "Show me technical enforcement."],
-        evidenceRequests: ["Password policy enforcement configuration", "AD/Azure AD password policy"]
+        evidenceRequests: ["Password policy enforcement configuration", "AD/Entra ID password policy"]
     },
     "3.5.8[a]": {
         questions: ["How do you prohibit password reuse?", "How many passwords are remembered?"],

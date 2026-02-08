@@ -617,14 +617,14 @@ const COMPREHENSIVE_GUIDANCE_L3 = {
                         "gcp": {
                                 "services": [
                                         "Security Command Center",
-                                        "Chronicle",
+                                        "Google SecOps",
                                         "Cloud Audit Logs",
                                         "Mandiant Threat Intelligence"
                                 ],
                                 "implementation": {
                                         "steps": [
                                                 "Use SCC findings as training examples for cloud-specific APT indicators",
-                                                "Leverage Chronicle and Mandiant threat intelligence for training content",
+                                                "Leverage Google SecOps and Mandiant threat intelligence for training content",
                                                 "Create training scenarios based on Cloud Audit Log anomalies",
                                                 "Develop GCP-specific APT awareness modules covering cloud attack vectors",
                                                 "Integrate MITRE ATT&CK cloud matrix into training curriculum"
@@ -768,14 +768,14 @@ const COMPREHENSIVE_GUIDANCE_L3 = {
                         },
                         "gcp": {
                                 "services": [
-                                        "Chronicle",
+                                        "Google SecOps",
                                         "Security Command Center",
                                         "Cloud Functions",
                                         "Mandiant"
                                 ],
                                 "implementation": {
                                         "steps": [
-                                                "Create tabletop exercises using Chronicle threat detection scenarios",
+                                                "Create tabletop exercises using Google SecOps threat detection scenarios",
                                                 "Develop SCC-based incident response drills with realistic findings",
                                                 "Implement automated exercise scenarios using Cloud Functions",
                                                 "Engage Mandiant for red team exercises targeting GCP infrastructure",
@@ -873,7 +873,7 @@ const COMPREHENSIVE_GUIDANCE_L3 = {
                         },
                         "gcp": {
                                 "services": [
-                                        "Chronicle SIEM",
+                                        "Google SecOps SIEM",
                                         "Cloud Logging",
                                         "Security Command Center",
                                         "BigQuery",
@@ -881,8 +881,8 @@ const COMPREHENSIVE_GUIDANCE_L3 = {
                                 ],
                                 "implementation": {
                                         "steps": [
-                                                "Deploy Chronicle SIEM for enterprise-wide log correlation and threat detection",
-                                                "Configure Cloud Logging export to Chronicle for all GCP services via Pub/Sub",
+                                                "Deploy Google SecOps SIEM for enterprise-wide log correlation and threat detection",
+                                                "Configure Cloud Logging export to Google SecOps for all GCP services via Pub/Sub",
                                                 "Implement SCC Premium for automated finding correlation across projects",
                                                 "Use BigQuery for advanced cross-source audit log analysis and correlation",
                                                 "Create YARA-L detection rules for APT-specific multi-stage correlation"
@@ -1060,16 +1060,16 @@ const COMPREHENSIVE_GUIDANCE_L3 = {
                         },
                         "gcp": {
                                 "services": [
-                                        "Chronicle SIEM",
-                                        "Chronicle SOAR",
+                                        "Google SecOps SIEM",
+                                        "Google SecOps SOAR",
                                         "Cloud Logging",
                                         "Security Command Center",
                                         "Cloud Monitoring"
                                 ],
                                 "implementation": {
                                         "steps": [
-                                                "Deploy Chronicle SIEM as centralized audit review and analysis platform",
-                                                "Configure Chronicle SOAR for automated response from centralized review",
+                                                "Deploy Google SecOps SIEM as centralized audit review and analysis platform",
+                                                "Configure Google SecOps SOAR for automated response from centralized review",
                                                 "Implement organization-level Cloud Logging for centralized log collection",
                                                 "Enable SCC organization-level findings for centralized security review",
                                                 "Create Cloud Monitoring dashboards for centralized operational visibility"
@@ -2074,14 +2074,14 @@ const COMPREHENSIVE_GUIDANCE_L3 = {
                         },
                         "gcp": {
                                 "services": [
-                                        "Chronicle SIEM",
-                                        "Chronicle SOAR",
+                                        "Google SecOps SIEM",
+                                        "Google SecOps SOAR",
                                         "Security Command Center"
                                 ],
                                 "implementation": {
                                         "steps": [
-                                                "Deploy Chronicle SIEM as SOC detection and investigation platform",
-                                                "Configure Chronicle SOAR for automated incident response playbooks",
+                                                "Deploy Google SecOps SIEM as SOC detection and investigation platform",
+                                                "Configure Google SecOps SOAR for automated incident response playbooks",
                                                 "Integrate SCC Premium findings into SOC monitoring workflows",
                                                 "Create GCP-specific incident response playbooks and runbooks",
                                                 "Establish SOC operational procedures, metrics, and SLA targets"
@@ -2255,14 +2255,14 @@ const COMPREHENSIVE_GUIDANCE_L3 = {
                         },
                         "gcp": {
                                 "services": [
-                                        "Chronicle",
+                                        "Google SecOps",
                                         "Security Command Center",
                                         "Cloud Logging",
                                         "Cloud Storage"
                                 ],
                                 "implementation": {
                                         "steps": [
-                                                "Configure Chronicle for incident evidence collection and export",
+                                                "Configure Google SecOps for incident evidence collection and export",
                                                 "Set up SCC finding export for incident reporting format compliance",
                                                 "Create automated incident report generation workflows",
                                                 "Implement Cloud Storage with retention policies for evidence preservation",
@@ -2359,14 +2359,14 @@ const COMPREHENSIVE_GUIDANCE_L3 = {
                         },
                         "gcp": {
                                 "services": [
-                                        "Chronicle SIEM",
+                                        "Google SecOps SIEM",
                                         "Security Command Center Premium",
                                         "BigQuery",
                                         "VirusTotal"
                                 ],
                                 "implementation": {
                                         "steps": [
-                                                "Deploy Chronicle with YARA-L rules for proactive threat hunting",
+                                                "Deploy Google SecOps with YARA-L rules for proactive threat hunting",
                                                 "Configure SCC Premium for advanced vulnerability and threat analysis",
                                                 "Use BigQuery for large-scale log analysis and hypothesis-driven hunting",
                                                 "Integrate VirusTotal for IOC enrichment during hunting campaigns",
@@ -2673,14 +2673,14 @@ const COMPREHENSIVE_GUIDANCE_L3 = {
                         "gcp": {
                                 "services": [
                                         "Security Command Center",
-                                        "Chronicle",
+                                        "Google SecOps",
                                         "Cloud Monitoring",
                                         "Event Threat Detection"
                                 ],
                                 "implementation": {
                                         "steps": [
                                                 "Enable SCC Premium for continuous threat monitoring across all projects",
-                                                "Deploy Chronicle for real-time threat detection and investigation",
+                                                "Deploy Google SecOps for real-time threat detection and investigation",
                                                 "Configure Cloud Monitoring for infrastructure threat indicators",
                                                 "Implement Event Threat Detection for automated threat identification",
                                                 "Create threat monitoring dashboards and automated alerting"
@@ -3383,14 +3383,14 @@ const COMPREHENSIVE_GUIDANCE_L3 = {
                         },
                         "gcp": {
                                 "services": [
-                                        "Chronicle",
+                                        "Google SecOps",
                                         "Security Command Center",
                                         "Event Threat Detection",
                                         "VirusTotal"
                                 ],
                                 "implementation": {
                                         "steps": [
-                                                "Deploy Chronicle with threat intelligence feeds for IOC detection",
+                                                "Deploy Google SecOps with threat intelligence feeds for IOC detection",
                                                 "Configure SCC for automated security finding detection",
                                                 "Implement Event Threat Detection for real-time indicator monitoring",
                                                 "Integrate VirusTotal for file and URL reputation checking",

@@ -10,7 +10,7 @@
  * - Custom Applications: Node.js, Python, Java, .NET, mobile apps, etc.
  * - Databases: PostgreSQL, MySQL, MongoDB, SQL Server, etc.
  * - Network/Infrastructure: VMware, Cisco, Palo Alto, pfSense, etc.
- * - IAM Platforms: Okta, Azure AD, Auth0, Keycloak, etc.
+ * - IAM Platforms: Okta, Entra ID, Auth0, Keycloak, etc.
  * - Industry-Specific: Manufacturing, Aerospace, Healthcare, Financial, etc.
  * - Small Business: Budget-conscious, open-source, simplified approaches
  */
@@ -144,10 +144,10 @@ resource "aws_iam_policy" "cui_access" {
                 },
                 
                 azure: {
-                    services: ["Azure AD (Entra ID)", "Conditional Access", "PIM", "RBAC"],
+                    services: ["Entra ID", "Conditional Access", "PIM", "RBAC"],
                     implementation: {
                         steps: [
-                            "Configure Azure AD as identity provider",
+                            "Configure Entra ID as identity provider",
                             "Implement Conditional Access policies for device compliance",
                             "Enable Privileged Identity Management (PIM) for just-in-time access",
                             "Use Azure RBAC for resource-level permissions",
@@ -168,12 +168,12 @@ $controls.BuiltInControls = "mfa"
 
 New-AzureADMSConditionalAccessPolicy -DisplayName "Require MFA for All Users" -State "Enabled" -Conditions $conditions -GrantControls $controls`,
                         verification: [
-                            "Review Azure AD sign-in logs for failed authentication attempts",
-                            "Check Conditional Access policy compliance in Azure AD",
+                            "Review Entra ID sign-in logs for failed authentication attempts",
+                            "Check Conditional Access policy compliance in Entra ID",
                             "Verify PIM activations and approvals",
-                            "Run Azure Security Center recommendations"
+                            "Run Microsoft Defender for Cloud recommendations"
                         ],
-                        cost_estimate: "$6-12/user/month (Azure AD P2 for PIM)",
+                        cost_estimate: "$6-12/user/month (Entra ID P2 for PIM)",
                         effort_hours: 6
                     }
                 },
@@ -275,10 +275,10 @@ oci iam policy create \\
             // SaaS Platform Implementations
             saas: {
                 microsoft365: {
-                    features: ["Azure AD", "Conditional Access", "Intune", "DLP"],
+                    features: ["Entra ID", "Conditional Access", "Intune", "DLP"],
                     implementation: {
                         steps: [
-                            "Configure Azure AD as identity provider for all M365 services",
+                            "Configure Entra ID as identity provider for all M365 services",
                             "Create Conditional Access policies requiring compliant devices",
                             "Implement named locations to restrict access by geography",
                             "Enable MFA for all users through Conditional Access",
@@ -294,7 +294,7 @@ oci iam policy create \\
                             session_controls: "None"
                         },
                         verification: [
-                            "Review sign-in logs in Azure AD",
+                            "Review sign-in logs in Entra ID",
                             "Check Conditional Access policy compliance",
                             "Verify DLP policy matches and incidents",
                             "Review Intune device compliance status"
@@ -737,11 +737,11 @@ module "irsa_cui_app" {
                 },
                 
                 aks: {
-                    features: ["Azure AD Integration", "Pod Identity", "Azure Key Vault", "Azure Monitor"],
+                    features: ["Entra ID Integration", "Pod Identity", "Azure Key Vault", "Azure Monitor"],
                     implementation: {
                         steps: [
-                            "Enable Azure AD integration for AKS cluster",
-                            "Use Azure AD Pod Identity or Workload Identity for pod-level access",
+                            "Enable Entra ID integration for AKS cluster",
+                            "Use Entra ID Pod Identity or Workload Identity for pod-level access",
                             "Integrate with Azure Key Vault for secrets management",
                             "Enable Azure Monitor Container Insights for logging",
                             "Use Azure Policy for Kubernetes to enforce compliance",
@@ -750,7 +750,7 @@ module "irsa_cui_app" {
                             "Use Azure Firewall or Network Security Groups for network control"
                         ],
                         azure_cli_example: `
-# Create AKS cluster with Azure AD and monitoring
+# Create AKS cluster with Entra ID and monitoring
 az aks create \\
   --resource-group cui-rg \\
   --name cui-aks-cluster \\
@@ -768,7 +768,7 @@ az aks enable-addons \\
   --name cui-aks-cluster \\
   --addons azure-keyvault-secrets-provider
 
-# Create Azure AD group for CUI access
+# Create Entra ID group for CUI access
 az ad group create \\
   --display-name "CUI-AKS-Users" \\
   --mail-nickname "cui-aks-users"
@@ -779,7 +779,7 @@ az role assignment create \\
   --assignee-object-id <group-object-id> \\
   --scope /subscriptions/<sub-id>/resourceGroups/cui-rg/providers/Microsoft.ContainerService/managedClusters/cui-aks-cluster/namespaces/cui-workloads`,
                         verification: [
-                            "Verify Azure AD authentication: az aks get-credentials --resource-group cui-rg --name cui-aks-cluster",
+                            "Verify Entra ID authentication: az aks get-credentials --resource-group cui-rg --name cui-aks-cluster",
                             "Check Azure Monitor logs for container insights",
                             "Verify Key Vault integration: check pod can access secrets",
                             "Review Azure Policy compliance status"
@@ -1189,7 +1189,7 @@ docker service create \\
                 recommended_approach: "Use cloud-based IAM with free/low-cost MFA",
                 implementation: {
                     steps: [
-                        "Use cloud provider's built-in IAM (AWS IAM, Azure AD Free)",
+                        "Use cloud provider's built-in IAM (AWS IAM, Entra ID Free)",
                         "Implement free MFA options (Microsoft Authenticator, Google Authenticator)",
                         "Use JumpCloud for unified directory ($10/user/month)",
                         "Implement password manager (Bitwarden $3/user/month)",

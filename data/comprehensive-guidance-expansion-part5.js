@@ -123,7 +123,7 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
             summary: "Resource isolation, prevent data leakage between tenants/users",
             cloud: {
                 aws: {"implementation":{"steps":["Use separate AWS accounts for different environments","Enable AWS Organizations for account isolation","Use IAM policies to prevent cross-account access","Enable S3 Block Public Access","Use VPC endpoints for private access","Enable CloudTrail for all accounts"],"cost_estimate":"$0-50/month","effort_hours":8}},
-                azure: {"implementation":{"steps":["Use separate subscriptions for different environments","Use Azure AD for identity isolation","Use RBAC to prevent cross-subscription access","Disable public access to storage","Use Private Endpoints","Enable Activity Log for all subscriptions"],"cost_estimate":"$0-50/month","effort_hours":8}},
+                azure: {"implementation":{"steps":["Use separate subscriptions for different environments","Use Entra ID for identity isolation","Use RBAC to prevent cross-subscription access","Disable public access to storage","Use Private Endpoints","Enable Activity Log for all subscriptions"],"cost_estimate":"$0-50/month","effort_hours":8}},
                 gcp: {"implementation":{"steps":["Use separate projects for different environments","Use Cloud Identity for identity isolation","Use IAM to prevent cross-project access","Disable public access to storage","Use Private Google Access"],"cost_estimate":"$0-50/month","effort_hours":8}}
             },
             operating_system: {
@@ -199,7 +199,7 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
             summary: "Terminate network connections at end of session or after period of inactivity",
             cloud: {
                 aws: {"implementation":{"steps":["Configure session timeout for AWS SSO (2 hours)","Use Systems Manager Session Manager with timeout","Configure RDS connection timeout","Set application session timeout (30 minutes)","Monitor idle sessions"],"cost_estimate":"$0","effort_hours":6}},
-                azure: {"implementation":{"steps":["Configure session timeout for Azure AD (2 hours)","Use Conditional Access for session controls","Configure SQL connection timeout","Set application session timeout (30 minutes)","Monitor idle sessions"],"cost_estimate":"$0","effort_hours":6}},
+                azure: {"implementation":{"steps":["Configure session timeout for Entra ID (2 hours)","Use Conditional Access for session controls","Configure SQL connection timeout","Set application session timeout (30 minutes)","Monitor idle sessions"],"cost_estimate":"$0","effort_hours":6}},
                 gcp: {"implementation":{"steps":["Configure session timeout for Cloud Identity","Configure Cloud SQL connection timeout","Set application session timeout (30 minutes)","Monitor idle sessions"],"cost_estimate":"$0","effort_hours":6}}
             },
             network: {
@@ -237,7 +237,7 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
             summary: "VPN with encryption, SSH, TLS for remote access",
             cloud: {
                 aws: {"implementation":{"steps":["Use AWS Client VPN with AES-256 encryption","Use Systems Manager Session Manager (encrypted)","Require TLS 1.2+ for all remote access","Use AWS SSO with SAML","Monitor remote access with CloudTrail"],"cost_estimate":"$50-300/month","effort_hours":8}},
-                azure: {"implementation":{"steps":["Use Azure VPN Gateway with IKEv2/IPsec","Use Azure Bastion (encrypted)","Require TLS 1.2+ for all remote access","Use Azure AD with SAML","Monitor remote access with Activity Log"],"cost_estimate":"$140-400/month","effort_hours":8}},
+                azure: {"implementation":{"steps":["Use Azure VPN Gateway with IKEv2/IPsec","Use Azure Bastion (encrypted)","Require TLS 1.2+ for all remote access","Use Entra ID with SAML","Monitor remote access with Activity Log"],"cost_estimate":"$140-400/month","effort_hours":8}},
                 gcp: {"implementation":{"steps":["Use Cloud VPN with IKEv2/IPsec","Use Identity-Aware Proxy (encrypted)","Require TLS 1.2+ for all remote access","Monitor remote access with Cloud Audit Logs"],"cost_estimate":"$50-200/month","effort_hours":8}}
             },
             network: {
@@ -279,7 +279,7 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
                 gcp: {"services":["KMS","Cloud Storage","Compute Engine"],"implementation":{"steps":["Enable Cloud Storage encryption at rest (default)","Enable disk encryption for Compute Engine","Enable Cloud SQL encryption","Use Cloud Backup with encryption","Use Cloud KMS for key management","Rotate encryption keys annually"],"cost_estimate":"$10-100/month","effort_hours":8}}
             },
             operating_system: {
-                windows: {"implementation":{"steps":["Enable BitLocker on all drives","Use TPM for key storage","Store recovery keys in Azure AD","Enable BitLocker for removable drives","Monitor BitLocker status"],"effort_hours":6}},
+                windows: {"implementation":{"steps":["Enable BitLocker on all drives","Use TPM for key storage","Store recovery keys in Entra ID","Enable BitLocker for removable drives","Monitor BitLocker status"],"effort_hours":6}},
                 linux: {"implementation":{"steps":["Use LUKS for full disk encryption","Encrypt data partitions","Store keys securely","Enable encryption for removable drives"],"effort_hours":6}}
             },
             small_business: {
@@ -317,7 +317,7 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
             },
             cloud: {
                 aws: {"implementation":{"steps":["Configure AWS SSO session duration (2 hours)","Set application session timeout","Configure RDS connection timeout","Use Lambda to terminate idle sessions","Monitor session duration"],"cost_estimate":"$5-20/month","effort_hours":6}},
-                azure: {"implementation":{"steps":["Configure Azure AD session lifetime (2 hours)","Use Conditional Access for session controls","Set application session timeout","Configure SQL connection timeout","Monitor session duration"],"cost_estimate":"$0-10/month","effort_hours":6}},
+                azure: {"implementation":{"steps":["Configure Entra ID session lifetime (2 hours)","Use Conditional Access for session controls","Set application session timeout","Configure SQL connection timeout","Monitor session duration"],"cost_estimate":"$0-10/month","effort_hours":6}},
                 gcp: {"implementation":{"steps":["Configure Cloud Identity session duration","Set application session timeout","Configure Cloud SQL connection timeout","Monitor session duration"],"cost_estimate":"$0-10/month","effort_hours":6}}
             },
             small_business: {
@@ -655,7 +655,7 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
             cloud: {
                 aws: {"services":["GuardDuty","Macie"],"implementation":{"steps":["Enable Amazon GuardDuty for threat detection","Use Amazon Macie for data protection","Deploy third-party antivirus (CrowdStrike, Trend Micro)","Scan S3 uploads for malware","Enable email filtering with WorkMail","Monitor with Security Hub"],"cost_estimate":"$100-500/month","effort_hours":12}},
                 azure: {"services":["Defender for Endpoint","Defender for Cloud"],"implementation":{"steps":["Deploy Microsoft Defender for Endpoint","Enable Defender for Cloud","Use Defender for Office 365 for email filtering","Scan storage uploads for malware","Enable real-time protection","Monitor with Sentinel"],"cost_estimate":"$100-400/month","effort_hours":12}},
-                gcp: {"services":["Security Command Center","Chronicle"],"implementation":{"steps":["Enable Security Command Center","Deploy third-party antivirus","Scan Cloud Storage uploads for malware","Use Gmail advanced protection","Monitor with Chronicle"],"cost_estimate":"$100-400/month","effort_hours":12}}
+                gcp: {"services":["Security Command Center","Google SecOps"],"implementation":{"steps":["Enable Security Command Center","Deploy third-party antivirus","Scan Cloud Storage uploads for malware","Use Gmail advanced protection","Monitor with Google SecOps"],"cost_estimate":"$100-400/month","effort_hours":12}}
             },
             operating_system: {
                 windows: {"implementation":{"steps":["Enable Windows Defender","Configure real-time protection","Enable cloud-delivered protection","Schedule daily scans","Update virus definitions automatically","Enable tamper protection"],"effort_hours":4}},
@@ -699,7 +699,7 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
             },
             cloud: {
                 aws: {"implementation":{"steps":["Subscribe to AWS Security Bulletins","Enable Security Hub for centralized alerts","Configure SNS notifications for critical findings","Review GuardDuty findings daily","Subscribe to CVE feeds","Document response actions"],"cost_estimate":"$10-50/month","effort_hours":6}},
-                azure: {"implementation":{"steps":["Subscribe to Azure Security Center alerts","Enable Defender for Cloud recommendations","Configure Action Groups for notifications","Review security alerts daily","Subscribe to Microsoft Security Response Center","Document response actions"],"cost_estimate":"$10-40/month","effort_hours":6}},
+                azure: {"implementation":{"steps":["Subscribe to Microsoft Defender for Cloud alerts","Enable Defender for Cloud recommendations","Configure Action Groups for notifications","Review security alerts daily","Subscribe to Microsoft Security Response Center","Document response actions"],"cost_estimate":"$10-40/month","effort_hours":6}},
                 gcp: {"implementation":{"steps":["Subscribe to Google Cloud security bulletins","Enable Security Command Center notifications","Configure Pub/Sub for alerts","Review security findings daily","Subscribe to CVE feeds","Document response actions"],"cost_estimate":"$10-40/month","effort_hours":6}}
             },
             small_business: {
@@ -822,7 +822,7 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
             cloud: {
                 aws: {"services":["GuardDuty","Security Hub","VPC Flow Logs"],"implementation":{"steps":["Enable GuardDuty for threat detection","Enable VPC Flow Logs for all VPCs","Use Security Hub for centralized monitoring","Deploy AWS Network Firewall with IDS","Create CloudWatch dashboards","Set up automated alerts","Review findings daily"],"cost_estimate":"$200-1000/month","effort_hours":20}},
                 azure: {"services":["Sentinel","Defender","NSG Flow Logs"],"implementation":{"steps":["Deploy Microsoft Sentinel as SIEM","Enable Defender for Cloud","Enable NSG Flow Logs","Create analytics rules for threat detection","Create Azure Monitor dashboards","Set up automated alerts","Review findings daily"],"cost_estimate":"$300-1500/month","effort_hours":20}},
-                gcp: {"services":["Chronicle","Security Command Center","VPC Flow Logs"],"implementation":{"steps":["Deploy Chronicle SIEM","Enable Security Command Center Premium","Enable VPC Flow Logs","Create detection rules","Create Cloud Monitoring dashboards","Set up automated alerts","Review findings daily"],"cost_estimate":"$500-2000/month","effort_hours":20}}
+                gcp: {"services":["Google SecOps","Security Command Center","VPC Flow Logs"],"implementation":{"steps":["Deploy Google SecOps SIEM","Enable Security Command Center Premium","Enable VPC Flow Logs","Create detection rules","Create Cloud Monitoring dashboards","Set up automated alerts","Review findings daily"],"cost_estimate":"$500-2000/month","effort_hours":20}}
             },
             small_business: {
                 approach: "Use cloud provider security monitoring, enable logging, review security dashboards weekly, set up email alerts for critical findings",
@@ -859,8 +859,8 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
             summary: "User behavior analytics, anomaly detection, audit log review",
             cloud: {
                 aws: {"services":["GuardDuty","CloudTrail","Detective"],"implementation":{"steps":["Enable GuardDuty for anomaly detection","Use CloudTrail for all API activity","Use Amazon Detective for investigation","Create CloudWatch alarms for suspicious activity","Monitor for unauthorized access attempts","Review CloudTrail logs weekly","Investigate anomalies"],"cost_estimate":"$100-500/month","effort_hours":12}},
-                azure: {"services":["Sentinel","Azure AD Identity Protection"],"implementation":{"steps":["Deploy Sentinel with UEBA","Enable Azure AD Identity Protection","Monitor Activity Logs for suspicious activity","Create analytics rules for unauthorized use","Review sign-in logs daily","Investigate anomalies"],"cost_estimate":"$200-800/month","effort_hours":12}},
-                gcp: {"services":["Chronicle","Cloud Audit Logs"],"implementation":{"steps":["Deploy Chronicle with threat detection","Enable Cloud Audit Logs for all services","Monitor for suspicious activity","Create detection rules for unauthorized use","Review audit logs weekly","Investigate anomalies"],"cost_estimate":"$200-800/month","effort_hours":12}}
+                azure: {"services":["Sentinel","Entra ID Identity Protection"],"implementation":{"steps":["Deploy Sentinel with UEBA","Enable Entra ID Identity Protection","Monitor Activity Logs for suspicious activity","Create analytics rules for unauthorized use","Review sign-in logs daily","Investigate anomalies"],"cost_estimate":"$200-800/month","effort_hours":12}},
+                gcp: {"services":["Google SecOps","Cloud Audit Logs"],"implementation":{"steps":["Deploy Google SecOps with threat detection","Enable Cloud Audit Logs for all services","Monitor for suspicious activity","Create detection rules for unauthorized use","Review audit logs weekly","Investigate anomalies"],"cost_estimate":"$200-800/month","effort_hours":12}}
             },
             small_business: {
                 approach: "Review cloud provider audit logs weekly, monitor for failed login attempts, investigate suspicious activity",
@@ -995,9 +995,9 @@ const COMPREHENSIVE_GUIDANCE_PART5 = {
                 general: {"steps":["Implement configuration management process","Use version control (Git)","Track all configuration changes","Require change approval","Document configuration baselines","Maintain configuration documentation","Review configuration changes"],"effort_hours":12}
             },
             cloud: {
-                aws: {"implementation":{"steps":["Use CodeCommit or GitHub for version control","Use CodePipeline for CI/CD","Use Config for configuration tracking","Implement infrastructure as code (CloudFormation, Terraform)","Track changes in Git","Require pull request approval","Document configuration management procedures"],"cost_estimate":"$10-100/month","effort_hours":10}},
+                aws: {"implementation":{"steps":["Use GitHub or CodeCatalyst for version control","Use CodePipeline for CI/CD","Use Config for configuration tracking","Implement infrastructure as code (CloudFormation, Terraform)","Track changes in Git","Require pull request approval","Document configuration management procedures"],"cost_estimate":"$10-100/month","effort_hours":10}},
                 azure: {"implementation":{"steps":["Use Azure Repos for version control","Use Azure Pipelines for CI/CD","Use Azure Policy for configuration tracking","Implement infrastructure as code (ARM templates, Terraform)","Track changes in Git","Require pull request approval","Document configuration management procedures"],"cost_estimate":"$10-80/month","effort_hours":10}},
-                gcp: {"implementation":{"steps":["Use Cloud Source Repositories for version control","Use Cloud Build for CI/CD","Use Config Connector for configuration tracking","Implement infrastructure as code (Deployment Manager, Terraform)","Track changes in Git","Require pull request approval","Document configuration management procedures"],"cost_estimate":"$10-80/month","effort_hours":10}}
+                gcp: {"implementation":{"steps":["Use GitHub or GitLab for version control","Use Cloud Build for CI/CD","Use Config Connector for configuration tracking","Implement infrastructure as code with Terraform","Track changes in Git","Require pull request approval","Document configuration management procedures"],"cost_estimate":"$10-80/month","effort_hours":10}}
             },
             small_business: {
                 approach: "Use Git for version control, track configuration changes, require approval for production changes",

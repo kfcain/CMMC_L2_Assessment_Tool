@@ -483,11 +483,11 @@ const COMPREHENSIVE_GUIDANCE_R3_NEW2 = {
                     }
                 },
                 gcp: {
-                    services: ["Architecture Framework", "Deployment Manager", "Assured Workloads", "Security Command Center"],
+                    services: ["Architecture Framework", "Terraform", "Assured Workloads", "Security Command Center"],
                     implementation: {
                         steps: [
                             "Apply GCP Architecture Framework security principles to all CUI workloads",
-                            "Implement Deployment Manager or Terraform templates with security controls",
+                            "Implement Terraform templates with embedded security controls",
                             "Use Assured Workloads for compliance-aligned project configurations",
                             "Define security architecture patterns for common CUI workload types",
                             "Implement defense-in-depth with VPC, firewall rules, and service perimeters",

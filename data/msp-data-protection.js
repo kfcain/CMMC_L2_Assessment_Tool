@@ -527,7 +527,7 @@ New-DlpComplianceRule -Name "Block CUI External Share" \`
             prerequisites: [
                 "Windows Server 2016/2019/2022",
                 "SQL Server 2016+ (Express or Standard)",
-                "Azure AD app registration",
+                "Entra ID app registration",
                 "Service account with file share access"
             ],
             

@@ -443,7 +443,7 @@ const ENCLAVE_GUIDANCE = {
                 ],
                 conditionalAccess: [
                     { policy: "Require MFA", target: "Windows Virtual Desktop cloud app", setting: "Grant: Require MFA" },
-                    { policy: "Require Compliant Device", target: "Windows Virtual Desktop + Azure Virtual Desktop", setting: "Grant: Require device compliance or Hybrid Azure AD joined" },
+                    { policy: "Require Compliant Device", target: "Windows Virtual Desktop + Azure Virtual Desktop", setting: "Grant: Require device compliance or Hybrid Entra ID joined" },
                     { policy: "Block Legacy Auth", target: "All cloud apps", setting: "Conditions: Client apps = Other clients; Block" },
                     { policy: "Session Controls", target: "Windows Virtual Desktop", setting: "Sign-in frequency: 8 hours; Persistent browser: No" },
                     { policy: "Named Locations", target: "Windows Virtual Desktop", setting: "Block access from non-approved countries" }
@@ -807,7 +807,7 @@ const ENCLAVE_GUIDANCE = {
                 ],
                 setup: [
                     "Create Storage Account in same region as session hosts",
-                    "Enable Azure AD DS or AD DS authentication",
+                    "Enable Entra ID DS or AD DS authentication",
                     "Create file share with appropriate quota",
                     "Configure NTFS permissions via storage account key or AD",
                     "Set share-level permissions in Azure portal",
@@ -2747,7 +2747,7 @@ const ENCLAVE_GUIDANCE = {
                 "3. Add API permissions: User.ReadWrite.All, Group.ReadWrite.All",
                 "4. Grant admin consent",
                 "5. Create client secret and store securely",
-                "6. In Power Automate, use HTTP connector with Azure AD OAuth"
+                "6. In Power Automate, use HTTP connector with Entra ID OAuth"
             ],
             sampleHttpAction: `{
   "method": "POST",

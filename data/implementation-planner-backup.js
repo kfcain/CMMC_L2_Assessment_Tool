@@ -1127,7 +1127,7 @@ const IMPLEMENTATION_PLANNER = {
                                         name: "Microsoft Entra ID MFA",
                                         type: "Integrated with M365",
                                         pros: ["Native M365 integration", "No additional cost", "Conditional Access integration", "FIDO2 support"],
-                                        cons: ["Limited to Microsoft ecosystem", "Requires Azure AD Premium P1 for advanced features"],
+                                        cons: ["Limited to Microsoft ecosystem", "Requires Entra ID Premium P1 for advanced features"],
                                         bestFor: "Organizations using M365/Azure"
                                     },
                                     {

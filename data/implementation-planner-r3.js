@@ -558,7 +558,7 @@ const IMPLEMENTATION_PLANNER_R3 = {
                                 steps: [
                                     "Define MFA requirements per ODP (network, privileged, remote, CUI access)",
                                     "Deploy MFA solution (Microsoft Authenticator, hardware tokens, FIDO2)",
-                                    "Configure Conditional Access policies in Azure AD/Entra ID",
+                                    "Configure Conditional Access policies in Entra ID",
                                     "Enforce MFA for all privileged accounts",
                                     "Enforce MFA for remote access (VPN, VDI, web apps)",
                                     "Implement phishing-resistant MFA where possible (FIDO2, certificate-based)",

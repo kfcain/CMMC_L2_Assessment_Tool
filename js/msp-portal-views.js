@@ -353,7 +353,7 @@ const MSPPortalViews = {
             ]},
             { name: 'Identity Foundation', items: [
                 { task: 'Enable IAM Identity Center', critical: true, effort: '4-8 hours' },
-                { task: 'Integrate with external IdP (Okta, Azure AD)', critical: true, effort: '1 day' },
+                { task: 'Integrate with external IdP (Okta, Entra ID)', critical: true, effort: '1 day' },
                 { task: 'Configure MFA for all users', critical: true, effort: '2-4 hours' },
                 { task: 'Create permission sets with least privilege', critical: true, effort: '1 day' },
                 { task: 'Enable IAM Access Analyzer', critical: false, effort: '1 hour' }
@@ -551,7 +551,7 @@ gcloud assured workloads create \\
         <div class="msp-vdi-view">
             <div class="msp-intro-banner"><div class="banner-content"><h2>Virtual Desktop Infrastructure</h2><p>Deploy secure VDI solutions for CUI processing with proper isolation and compliance controls.</p></div></div>
             <div class="vdi-options-grid">
-                <div class="vdi-option-card"><h4>Azure Virtual Desktop</h4><span class="vdi-rec">Recommended for M365</span><ul><li>Native GCC High support</li><li>M365 integration (Office, Teams)</li><li>FSLogix profile containers</li><li>Azure AD Join support</li></ul></div>
+                <div class="vdi-option-card"><h4>Azure Virtual Desktop</h4><span class="vdi-rec">Recommended for M365</span><ul><li>Native GCC High support</li><li>M365 integration (Office, Teams)</li><li>FSLogix profile containers</li><li>Entra ID Join support</li></ul></div>
                 <div class="vdi-option-card"><h4>Amazon WorkSpaces</h4><span class="vdi-rec">Best for AWS-centric</span><ul><li>GovCloud availability</li><li>PCoIP/WSP protocols</li><li>Directory Service integration</li><li>Bring-your-own-license</li></ul></div>
                 <div class="vdi-option-card"><h4>Citrix DaaS</h4><span class="vdi-rec">Enterprise feature-rich</span><ul><li>Multi-cloud support</li><li>Advanced HDX protocol</li><li>FedRAMP authorized</li><li>Enhanced security controls</li></ul></div>
             </div>
@@ -671,7 +671,7 @@ gcloud assured workloads create \\
     renderAutomationScripts: function() {
         return `
         <div class="scripts-grid">
-            <div class="script-card"><h5>Enable MFA for All Users</h5><pre><code># Azure AD / Entra ID
+            <div class="script-card"><h5>Enable MFA for All Users</h5><pre><code># Entra ID
 Connect-MgGraph -Scopes "Policy.ReadWrite.ConditionalAccess"
 New-MgIdentityConditionalAccessPolicy -DisplayName "Require MFA" \\
   -State "enabled" -Conditions @{...} -GrantControls @{...}</code></pre></div>
