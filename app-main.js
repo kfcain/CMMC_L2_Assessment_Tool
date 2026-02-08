@@ -2573,22 +2573,7 @@ class AssessmentApp {
             }
         });
 
-        // Add legacy implementation guidance if available (for L3 controls)
-        if (control.implementationGuidance) {
-            const guidanceDiv = document.createElement('div');
-            guidanceDiv.className = 'l3-guidance';
-            guidanceDiv.innerHTML = `
-                <h4>Implementation Guidance</h4>
-                <div class="guidance-tabs">
-                    ${control.implementationGuidance.azure ? `<div class="guidance-section"><h5>🔷 Azure</h5><ul>${control.implementationGuidance.azure.map(g => `<li>${g}</li>`).join('')}</ul></div>` : ''}
-                    ${control.implementationGuidance.aws ? `<div class="guidance-section"><h5>🟠 AWS</h5><ul>${control.implementationGuidance.aws.map(g => `<li>${g}</li>`).join('')}</ul></div>` : ''}
-                    ${control.implementationGuidance.general ? `<div class="guidance-section"><h5>📋 General</h5><ul>${control.implementationGuidance.general.map(g => `<li>${g}</li>`).join('')}</ul></div>` : ''}
-                </div>
-            `;
-            container.appendChild(guidanceDiv);
-        }
-
-        // Add evidence examples if available
+        // Evidence examples (kept — not duplicated by ComprehensiveGuidanceUI)
         if (control.evidenceExamples && control.evidenceExamples.length > 0) {
             const evidenceDiv = document.createElement('div');
             evidenceDiv.className = 'l3-evidence';
@@ -2703,44 +2688,7 @@ class AssessmentApp {
             </details>
         `;
 
-        // Build cloud guidance section - content loads on selection
-        const guidanceHtml = `
-            <div class="cloud-guidance-section l3-cloud-section">
-                <div class="cloud-provider-toggle arch-cloud-selector">
-                    <span class="cloud-select-label">Select Cloud Environment:</span>
-                    <button class="arch-cloud-btn" data-cloud="azure" title="Microsoft Azure / M365 GCC High">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M5.483 21.3H24L14.025 4.013l-3.038 8.347 5.836 6.938L5.483 21.3zM13.049 2.7L0 17.623h4.494L13.049 2.7z"></path></svg>
-                        Azure
-                    </button>
-                    <button class="arch-cloud-btn" data-cloud="aws" title="AWS GovCloud">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.75 11.35a4.32 4.32 0 0 1-.79-.08 3.9 3.9 0 0 1-.73-.23l-.17-.04h-.12q-.15 0-.15.21v.33a.43.43 0 0 0 0 .19.5.5 0 0 0 .21.19 3 3 0 0 0 .76.26 4.38 4.38 0 0 0 1 .12 3 3 0 0 0 1-.15 2 2 0 0 0 .72-.4 1.62 1.62 0 0 0 .42-.59 1.83 1.83 0 0 0 .14-.72 1.46 1.46 0 0 0-.36-1 2.55 2.55 0 0 0-1.11-.63l-.74-.24a2.13 2.13 0 0 1-.58-.27.47.47 0 0 1-.17-.37.53.53 0 0 1 .24-.47 1.21 1.21 0 0 1 .66-.15 2.75 2.75 0 0 1 .92.17.75.75 0 0 0 .24.05q.15 0 .15-.21v-.36a.38.38 0 0 0-.06-.21.64.64 0 0 0-.24-.14 2.15 2.15 0 0 0-.55-.14 4.07 4.07 0 0 0-.76-.07 2.85 2.85 0 0 0-.94.14 2 2 0 0 0-.68.38 1.54 1.54 0 0 0-.41.57 1.7 1.7 0 0 0-.14.69 1.54 1.54 0 0 0 .39 1.08 2.67 2.67 0 0 0 1.18.68l.74.24a1.8 1.8 0 0 1 .53.27.45.45 0 0 1 .14.36.59.59 0 0 1-.27.52 1.44 1.44 0 0 1-.76.17zm-7.86-2.14a3.6 3.6 0 0 0-.53 1 3.4 3.4 0 0 0-.17 1.06 3.2 3.2 0 0 0 .19 1.1 2.64 2.64 0 0 0 .55.9 2.54 2.54 0 0 0 .88.6 3.06 3.06 0 0 0 1.17.22 3.8 3.8 0 0 0 .82-.09 2.42 2.42 0 0 0 .63-.22v-1.32h-1.14a.22.22 0 0 0-.16.05.19.19 0 0 0-.05.14v.43a.21.21 0 0 0 .05.14.22.22 0 0 0 .16.06h.53v.6a2.29 2.29 0 0 1-.36.08 2.62 2.62 0 0 1-.44 0 1.74 1.74 0 0 1-.72-.14 1.45 1.45 0 0 1-.53-.41 1.87 1.87 0 0 1-.33-.63 2.68 2.68 0 0 1-.11-.8 2.66 2.66 0 0 1 .11-.79 1.79 1.79 0 0 1 .33-.63 1.5 1.5 0 0 1 .54-.41 1.78 1.78 0 0 1 .74-.15 2.53 2.53 0 0 1 .54.05 2.49 2.49 0 0 1 .43.15l.16.08a.27.27 0 0 0 .12 0 .18.18 0 0 0 .16-.08.31.31 0 0 0 0-.13v-.4a.38.38 0 0 0 0-.15.34.34 0 0 0-.14-.12 2.35 2.35 0 0 0-.58-.19 3.43 3.43 0 0 0-.71-.08 3 3 0 0 0-1.14.21 2.54 2.54 0 0 0-.86.58zM6.94 8.63l-2 5.02a.17.17 0 0 0 0 .1.13.13 0 0 0 .14.1h.67a.28.28 0 0 0 .2-.06.45.45 0 0 0 .09-.16l.4-1.05h2l.42 1.07a.28.28 0 0 0 .09.14.29.29 0 0 0 .2.06h.71a.13.13 0 0 0 .14-.1.17.17 0 0 0 0-.1l-2-5.02a.36.36 0 0 0-.1-.16.32.32 0 0 0-.21-.06h-.56a.3.3 0 0 0-.2.06.36.36 0 0 0-.09.16zm.68 1.24.72 1.87h-1.4z"></path><path d="M21.1 16.64a13.13 13.13 0 0 1-4.28 2.23 ...67 18.67 0 0 1-5.9.89 18.54 18.54 0 0 1-5-1 13.88 13.88 0 0 1-3.93-2.18c-.16-.12-.29 0-.18.16a14 14 0 0 0 4.65 3.54 16.34 16.34 0 0 0 9 1.53 15.47 15.47 0 0 0 5.68-2.94c.28-.22.05-.55-.04-.23z"></path><path d="M22.33 15.17c-.2-.26-.55-.39-1.2-.33a6.72 6.72 0 0 0-1.81.33c-.17.06-.14.15 0 .14s.74-.08 1.11-.08a2.59 2.59 0 0 1 1.23.18c.25.15 0 .72-.23 1.16a4.06 4.06 0 0 1-1.42 1.44c-.17.11-.13.27.05.2a3.24 3.24 0 0 0 1.54-1.32 2.25 2.25 0 0 0 .73-1.72z"></path></svg>
-                        AWS
-                    </button>
-                    <button class="arch-cloud-btn" data-cloud="gcp" title="Google Cloud Platform">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12.19 2.38a9.34 9.34 0 0 0-9.23 6.89c.05-.02-.06.01 0 0-3.88 2.55-3.92 8.11-.25 10.94l.01-.01-.01.03a6.72 6.72 0 0 0 4.08 1.36h5.17l.03.03h5.19c6.69.05 9.38-8.61 3.84-12.35a9.37 9.37 0 0 0-8.83-6.89z"></path></svg>
-                        GCP
-                    </button>
-                </div>
-                <div class="cloud-guidance-content" data-objective-id="${objective.id}">
-                    <div class="cloud-select-prompt">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                        Select a cloud environment above to view implementation guidance
-                    </div>
-                    <div class="cloud-guidance-panel" data-cloud="azure">
-                        ${this.renderL3CloudGuidance('azure', control, objective)}
-                    </div>
-                    <div class="cloud-guidance-panel" data-cloud="aws">
-                        ${this.renderL3CloudGuidance('aws', control, objective)}
-                    </div>
-                    <div class="cloud-guidance-panel" data-cloud="gcp">
-                        ${this.renderL3CloudGuidance('gcp', control, objective)}
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Build implementation guide section
-        const implGuideHtml = this.renderL3ImplementationGuide(control, objective);
+        // Cloud/vendor guidance is rendered by ComprehensiveGuidanceUI.renderGuidance() after element creation
 
         objDiv.innerHTML = `
             <div class="objective-main">
@@ -2766,8 +2714,6 @@ class AssessmentApp {
                 ${itarHtml}
                 ${relatedHtml}
                 ${cheatSheetHtml}
-                ${guidanceHtml}
-                ${implGuideHtml}
             </div>
         `;
 
@@ -2785,229 +2731,7 @@ class AssessmentApp {
             objDiv.classList.toggle('expanded');
         });
 
-        // Bind cloud provider toggle buttons (using arch-cloud-btn class)
-        objDiv.querySelectorAll('.arch-cloud-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const cloud = btn.dataset.cloud;
-                const section = objDiv.querySelector('.cloud-guidance-section');
-                // Hide the prompt
-                const prompt = section.querySelector('.cloud-select-prompt');
-                if (prompt) prompt.style.display = 'none';
-                // Toggle active states
-                section.querySelectorAll('.arch-cloud-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                section.querySelectorAll('.cloud-guidance-panel').forEach(p => p.classList.remove('active'));
-                section.querySelector(`.cloud-guidance-panel[data-cloud="${cloud}"]`).classList.add('active');
-            });
-        });
-
         return objDiv;
-    }
-
-    renderL3CloudGuidance(provider, control, objective) {
-        const providerNames = { azure: 'Azure GCC High', aws: 'AWS GovCloud', gcp: 'GCP Assured Workloads' };
-        const providerLinks = {
-            azure: [
-                { name: 'Azure Gov Portal', url: 'https://portal.azure.us' },
-                { name: 'Entra ID', url: 'https://entra.microsoft.us' },
-                { name: 'Intune', url: 'https://intune.microsoft.us' },
-                { name: 'Defender', url: 'https://security.microsoft.us' },
-                { name: 'Purview', url: 'https://compliance.microsoft.us' }
-            ],
-            aws: [
-                { name: 'GovCloud Console', url: 'https://console.amazonaws-us-gov.com' },
-                { name: 'Security Hub', url: 'https://console.amazonaws-us-gov.com/securityhub' },
-                { name: 'IAM', url: 'https://console.amazonaws-us-gov.com/iam' },
-                { name: 'GuardDuty', url: 'https://console.amazonaws-us-gov.com/guardduty' },
-                { name: 'CloudTrail', url: 'https://console.amazonaws-us-gov.com/cloudtrail' }
-            ],
-            gcp: [
-                { name: 'GCP Console', url: 'https://console.cloud.google.com' },
-                { name: 'Security Command Center', url: 'https://console.cloud.google.com/security' },
-                { name: 'IAM & Admin', url: 'https://console.cloud.google.com/iam-admin' },
-                { name: 'Cloud Audit Logs', url: 'https://console.cloud.google.com/logs' }
-            ]
-        };
-
-        const connectionScripts = {
-            azure: `# Connect to Azure GCC High
-Connect-AzAccount -Environment AzureUSGovernment
-Connect-MgGraph -Environment USGov -Scopes "Directory.Read.All","AuditLog.Read.All"
-
-# Verify connection
-Get-AzContext
-Get-MgOrganization | Select-Object DisplayName`,
-            aws: `# Configure AWS CLI for GovCloud
-aws configure set region us-gov-west-1
-
-# Verify GovCloud connection
-aws sts get-caller-identity
-aws iam list-users --output table`,
-            gcp: `# Authenticate with GCP
-gcloud auth login
-gcloud config set project PROJECT_ID
-
-# For Assured Workloads
-gcloud assured workloads list --location=us-central1`
-        };
-
-        const implSteps = {
-            azure: [
-                'Enable Microsoft Defender for Cloud on all subscriptions',
-                'Configure Azure Sentinel for APT detection and response',
-                'Implement Conditional Access policies in Entra ID',
-                'Enable audit logging and export to Log Analytics',
-                'Configure Azure Policy for compliance enforcement'
-            ],
-            aws: [
-                'Enable Security Hub with CIS and NIST standards',
-                'Configure GuardDuty for threat detection',
-                'Implement IAM policies following least privilege',
-                'Enable CloudTrail in all regions with log file validation',
-                'Configure AWS Config rules for compliance monitoring'
-            ],
-            gcp: [
-                'Enable Security Command Center Premium',
-                'Configure VPC Service Controls for data perimeters',
-                'Implement IAM policies with organization constraints',
-                'Enable Cloud Audit Logs for all services',
-                'Configure Chronicle for security analytics'
-            ]
-        };
-
-        const humanInLoop = [
-            'Security architect reviews enhanced control configurations',
-            'ISSO validates APT protection aligns with threat model',
-            'Management approves security investment and resource allocation'
-        ];
-
-        const policyEvidence = [
-            'Enhanced Security Control Policy',
-            'APT Detection and Response Procedures',
-            'Continuous Monitoring SOPs'
-        ];
-
-        const manualEvidence = [
-            'Security configuration screenshots from cloud console',
-            'Policy documentation with approval signatures',
-            'Threat detection rule configurations',
-            'Incident response playbook documentation'
-        ];
-
-        return `
-            <div class="impl-notes-section">
-                <div class="impl-notes-header">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
-                    <span>${providerNames[provider]} Implementation Guide</span>
-                </div>
-                
-                <div class="cloud-console-links">
-                    <span class="console-links-label">Quick Access:</span>
-                    <div class="console-links-row">
-                        ${providerLinks[provider].map(link => `<a href="${link.url}" target="_blank" rel="noopener" class="console-link-btn"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> ${link.name}</a>`).join('')}
-                    </div>
-                </div>
-
-                <details class="impl-details" open>
-                    <summary class="impl-summary">Technical Implementation</summary>
-                    <ol class="impl-notes-steps">${implSteps[provider].map(s => `<li>${s}</li>`).join('')}</ol>
-                    <div class="impl-quick-win"><strong>Quick Win:</strong> Start with enabling the cloud-native security center and reviewing default recommendations</div>
-                </details>
-
-                <details class="impl-details">
-                    <summary class="impl-summary impl-human">Human-in-the-Loop</summary>
-                    <ul class="impl-notes-list">${humanInLoop.map(h => `<li>${h}</li>`).join('')}</ul>
-                </details>
-
-                <details class="impl-details">
-                    <summary class="impl-summary impl-policy">Policy/Procedural Evidence</summary>
-                    <ul class="impl-notes-list">${policyEvidence.map(p => `<li>${p}</li>`).join('')}</ul>
-                </details>
-
-                <details class="impl-details">
-                    <summary class="impl-summary impl-manual">Manual Evidence Collection</summary>
-                    <ul class="impl-notes-list">${manualEvidence.map(m => `<li>${m}</li>`).join('')}</ul>
-                </details>
-
-                <details class="ps-connect-section">
-                    <summary class="ps-connect-summary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-                        <span>${provider === 'azure' ? 'PowerShell Connection Scripts' : 'CLI Connection Commands'}</span>
-                        <button class="ps-copy-all-btn" onclick="event.stopPropagation();navigator.clipboard.writeText(this.closest('.ps-connect-section').querySelector('pre').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy All',2000)">Copy All</button>
-                    </summary>
-                    <pre class="ps-connect-code">${connectionScripts[provider]}</pre>
-                </details>
-
-                <div class="impl-evidence-artifact"><strong>Machine-Readable Artifact:</strong> <code>${objective.id || control.id}-${provider}-config.json</code></div>
-            </div>
-        `;
-    }
-
-    renderL3ImplementationGuide(control, objective) {
-        const evidenceExamples = control.evidenceExamples || [
-            'Configuration screenshots from security console',
-            'Policy documentation with approval signatures',
-            'Automated scan results and remediation reports'
-        ];
-
-        const technicalSteps = control.implementationGuidance?.general || [
-            'Document enhanced security requirements for APT protection',
-            'Configure advanced threat detection and response capabilities',
-            'Implement continuous monitoring with automated alerting',
-            'Enable security automation and orchestration',
-            'Document enhanced control configurations in SSP'
-        ];
-
-        return `
-            <div class="impl-guide-collapsible">
-                <button class="impl-guide-toggle" onclick="this.parentElement.classList.toggle('expanded')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                    Implementation Guide
-                </button>
-                <div class="impl-guide-content">
-                    <div class="impl-section">
-                        <h5>Technical Implementation</h5>
-                        <ol>
-                            ${technicalSteps.map(step => `<li>${step}</li>`).join('')}
-                        </ol>
-                        <div class="quick-win">💡 Quick Win: Start with enabling advanced threat protection in your cloud security center</div>
-                    </div>
-                    <div class="impl-section">
-                        <h5>Human-in-the-Loop</h5>
-                        <ul>
-                            <li>Security architect must review and approve enhanced control configurations</li>
-                            <li>ISSO/ISSM must validate APT protection measures align with threat model</li>
-                            <li>Management must approve enhanced security investment and resources</li>
-                        </ul>
-                    </div>
-                    <div class="impl-section">
-                        <h5>Policy/Procedural Evidence</h5>
-                        <ul>
-                            <li>Enhanced Security Control Policy</li>
-                            <li>APT Detection and Response Procedures</li>
-                            <li>Continuous Monitoring Standard Operating Procedures</li>
-                        </ul>
-                    </div>
-                    <div class="impl-section">
-                        <h5>Manual Evidence Collection</h5>
-                        <ul>
-                            ${evidenceExamples.map(e => `<li>${e}</li>`).join('')}
-                            <li>Security architect sign-off on enhanced configurations</li>
-                            <li>Quarterly enhanced security review meeting minutes</li>
-                        </ul>
-                    </div>
-                    <div class="impl-section">
-                        <h5>Evidence Collection Methodology</h5>
-                        <p>Export enhanced security configurations from cloud security center. Document APT detection rules and automated response playbooks. Collect continuous monitoring dashboards and alert configurations. Get management sign-off on enhanced security measures.</p>
-                    </div>
-                    <div class="impl-section artifact-section">
-                        <span class="artifact-label">Machine-Readable Artifact:</span>
-                        <code>${control.id || objective?.id || 'enhanced-security'}-config.json</code>
-                    </div>
-                </div>
-            </div>
-        `;
     }
 
     setL3ObjectiveStatus(objectiveId, status, element) {
