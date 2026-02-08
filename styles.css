@@ -12768,6 +12768,362 @@ body.rev3-active .hb-close:hover {
 }
 
 /* ═══════════════════════════════════════════════
+   FEDRAMP IMPLEMENTATION GUIDE
+   ═══════════════════════════════════════════════ */
+
+.impl-guide-family-heading {
+    margin: 20px 0 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.impl-guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.impl-guide-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+
+.impl-guide-card:hover {
+    border-color: rgba(79, 70, 229, 0.4);
+    box-shadow: 0 2px 12px rgba(79, 70, 229, 0.1);
+    transform: translateY(-1px);
+}
+
+.impl-guide-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.impl-guide-card-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+.impl-guide-card-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.impl-guide-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.impl-guide-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(167, 139, 250, 0.12);
+    color: #a78bfa;
+}
+
+.impl-guide-badge.blue {
+    background: rgba(96, 165, 250, 0.12);
+    color: #60a5fa;
+}
+
+.impl-guide-drill {
+    font-size: 0.75rem;
+    color: var(--accent-blue);
+    margin-left: auto;
+    font-weight: 500;
+}
+
+/* Detail Panel */
+.impl-detail-panel {
+    animation: implFadeIn 0.2s ease;
+}
+
+@keyframes implFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.impl-detail-back {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.impl-detail-back:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.impl-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.impl-detail-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.impl-detail-family {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.impl-detail-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 20px;
+    padding: 12px 16px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border-left: 3px solid rgba(79, 70, 229, 0.4);
+}
+
+.impl-detail-section {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.impl-detail-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 12px;
+}
+
+.impl-detail-section-title svg {
+    color: var(--accent-blue);
+    flex-shrink: 0;
+}
+
+.impl-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* 800-171 Control Cards with Status */
+.impl-detail-171-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+}
+
+.impl-171-card {
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    transition: border-color 0.15s;
+}
+
+.impl-171-card.met {
+    border-left: 3px solid #10b981;
+}
+
+.impl-171-card.partial {
+    border-left: 3px solid #f59e0b;
+}
+
+.impl-171-card.not-met {
+    border-left: 3px solid #ef4444;
+}
+
+.impl-171-card.not-assessed {
+    border-left: 3px solid rgba(148, 163, 184, 0.4);
+}
+
+.impl-171-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    gap: 8px;
+}
+
+.impl-171-id {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.impl-status-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.impl-status-badge.met {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+}
+
+.impl-status-badge.partial {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+}
+
+.impl-status-badge.not-met {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+}
+
+.impl-status-badge.not-assessed {
+    background: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
+}
+
+.impl-171-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.impl-171-practice {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* Evidence List */
+.impl-evidence-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.impl-evidence-list li {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding: 6px 0 6px 20px;
+    position: relative;
+    line-height: 1.5;
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+}
+
+.impl-evidence-list li:last-child {
+    border-bottom: none;
+}
+
+.impl-evidence-list li::before {
+    content: '\2713';
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+
+.impl-evidence-note {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin: 10px 0 0;
+    font-style: italic;
+}
+
+/* MCP Server Section */
+.impl-mcp-section {
+    border-color: rgba(79, 70, 229, 0.2);
+    background: linear-gradient(135deg, var(--bg-secondary), color-mix(in srgb, var(--bg-secondary) 95%, #4f46e5));
+}
+
+.impl-mcp-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0 0 12px;
+    line-height: 1.5;
+}
+
+.impl-mcp-queries {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.impl-mcp-query {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.impl-mcp-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 130px;
+}
+
+.impl-mcp-code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    background: rgba(0, 0, 0, 0.3);
+    color: #a78bfa;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(167, 139, 250, 0.15);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    word-break: break-all;
+}
+
+.impl-mcp-code:hover {
+    background: rgba(0, 0, 0, 0.45);
+    border-color: rgba(167, 139, 250, 0.3);
+}
+
+.impl-mcp-install {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+}
+
+/* ═══════════════════════════════════════════════
    SITE-WIDE PURPLE ACCENT POLISH
    ═══════════════════════════════════════════════ */
 

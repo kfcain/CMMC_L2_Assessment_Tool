@@ -29,6 +29,7 @@ const FedRAMPReference = {
                 <div id="fedramp-gui-content">
                 <div class="fedramp-ref-tabs">
                     <button class="fedramp-ref-tab active" data-tab="ksi">KSI Families</button>
+                    <button class="fedramp-ref-tab" data-tab="impl-guide">Implementation Guide</button>
                     <button class="fedramp-ref-tab" data-tab="mapping">800-171 Mapping</button>
                     <button class="fedramp-ref-tab" data-tab="aws-rsc">AWS RSC Guidance</button>
                     <button class="fedramp-ref-tab" data-tab="resources">Resources & Tools</button>
@@ -58,11 +59,13 @@ const FedRAMPReference = {
         if (!content) return;
         switch (tab) {
             case 'ksi': content.innerHTML = this.renderKSITab(); break;
+            case 'impl-guide': content.innerHTML = this.renderImplGuideTab(); break;
             case 'mapping': content.innerHTML = this.renderMappingTab(); break;
             case 'aws-rsc': content.innerHTML = this.renderAWSRSCTab(); break;
             case 'resources': content.innerHTML = this.renderResourcesTab(); break;
         }
         if (tab === 'ksi') this.bindKSIFilters();
+        if (tab === 'impl-guide') this.bindImplGuide();
     },
 
     renderKSITab() {
@@ -438,6 +441,374 @@ const FedRAMPReference = {
                 termContainer.style.display = 'none';
                 guiContent.style.display = 'block';
             }
+        });
+    },
+
+    // ===== IMPLEMENTATION GUIDE TAB =====
+
+    renderImplGuideTab() {
+        if (typeof FEDRAMP_20X_KSI === 'undefined') {
+            return '<div class="cmvp-empty">FedRAMP 20x KSI data not loaded.</div>';
+        }
+
+        const indicators = FEDRAMP_20X_KSI.indicators;
+        const families = FEDRAMP_20X_KSI.families;
+        const totalKSIs = Object.keys(indicators).length;
+        const lowCount = Object.values(indicators).filter(k => k.low).length;
+
+        let html = `
+            <div class="cmvp-context-note">
+                <strong>Interactive FedRAMP 20x Implementation Guide:</strong>
+                Click any KSI to drill down into related 800-53 controls, mapped 800-171 controls with your <strong>live assessment status</strong>, implementation guidance, evidence examples, and MCP server queries. Powered by data from the <a href="https://github.com/ethanolivertroy/fedramp-docs-mcp" target="_blank" rel="noopener" style="color:#8ba2ff;">FedRAMP Docs MCP Server</a>.
+            </div>
+            <div class="cmvp-stats-bar">
+                <div class="cmvp-stat"><span class="cmvp-stat-value">${Object.keys(families).length}</span><span class="cmvp-stat-label">KSI Families</span></div>
+                <div class="cmvp-stat"><span class="cmvp-stat-value">${totalKSIs}</span><span class="cmvp-stat-label">Total KSIs</span></div>
+                <div class="cmvp-stat"><span class="cmvp-stat-value">${lowCount}</span><span class="cmvp-stat-label">Low Baseline</span></div>
+                <div class="cmvp-stat"><span class="cmvp-stat-value">${totalKSIs - lowCount}</span><span class="cmvp-stat-label">Moderate-Only</span></div>
+            </div>
+            <div class="cmvp-search-bar">
+                <input type="text" class="cmvp-search-input" id="impl-guide-search" placeholder="Search KSIs, controls, or topics..." autocomplete="off">
+                <select class="cmvp-filter-select" id="impl-guide-family-filter">
+                    <option value="all">All Families</option>
+                    ${Object.entries(families).map(([id, f]) => `<option value="${id}">${id} — ${f.name}</option>`).join('')}
+                </select>
+            </div>
+            <div id="impl-guide-detail" style="display:none;"></div>
+            <div id="impl-guide-list">
+        `;
+
+        html += this.renderImplGuideList(indicators, families);
+        html += '</div>';
+        return html;
+    },
+
+    renderImplGuideList(indicators, families, query, familyFilter) {
+        query = (query || '').toLowerCase().trim();
+        familyFilter = familyFilter || 'all';
+
+        // Group by family
+        const grouped = {};
+        for (const [id, ksi] of Object.entries(indicators)) {
+            if (familyFilter !== 'all' && ksi.family !== familyFilter) continue;
+            if (query) {
+                const haystack = `${id} ${ksi.title} ${ksi.description} ${ksi.family}`.toLowerCase();
+                if (!haystack.includes(query)) continue;
+            }
+            if (!grouped[ksi.family]) grouped[ksi.family] = [];
+            grouped[ksi.family].push({ id, ...ksi });
+        }
+
+        if (Object.keys(grouped).length === 0) {
+            return '<div class="cmvp-empty">No KSIs match your search.</div>';
+        }
+
+        let html = '';
+        for (const [famId, ksis] of Object.entries(grouped)) {
+            const fam = families[famId] || { name: famId };
+            html += `<h3 class="impl-guide-family-heading">${this.esc(famId)} — ${this.esc(fam.name)}</h3>`;
+            html += '<div class="impl-guide-grid">';
+
+            for (const ksi of ksis) {
+                const baselineTags = [];
+                if (ksi.low) baselineTags.push('<span class="cmvp-tag fips3">low</span>');
+                if (ksi.moderate) baselineTags.push('<span class="cmvp-tag fips2">moderate</span>');
+
+                // Count related 800-53 controls
+                const related053 = this.get80053ForKSI(ksi.id);
+                const related171 = this.get171ForKSI(ksi.id);
+
+                html += `
+                    <div class="impl-guide-card" data-ksi-id="${ksi.id}">
+                        <div class="impl-guide-card-header">
+                            <span class="fedramp-ksi-id">${this.esc(ksi.id)}</span>
+                            <div class="cmvp-module-tags">${baselineTags.join('')}</div>
+                        </div>
+                        <div class="impl-guide-card-title">${this.esc(ksi.title)}</div>
+                        <div class="impl-guide-card-desc">${this.esc(ksi.description.length > 120 ? ksi.description.substring(0, 120) + '...' : ksi.description)}</div>
+                        <div class="impl-guide-card-footer">
+                            <span class="impl-guide-badge" title="Related 800-53 controls">${related053.length} 800-53</span>
+                            <span class="impl-guide-badge blue" title="Related 800-171 controls">${related171.length} 800-171</span>
+                            <span class="impl-guide-drill">View Details →</span>
+                        </div>
+                    </div>
+                `;
+            }
+            html += '</div>';
+        }
+        return html;
+    },
+
+    // Reverse lookup: find 800-53 controls that map to a given KSI
+    get80053ForKSI(ksiId) {
+        if (typeof FEDRAMP_20X_KSI === 'undefined') return [];
+        const mapping = FEDRAMP_20X_KSI.nist80053ToKSI;
+        const results = [];
+        for (const [ctrl, ksis] of Object.entries(mapping)) {
+            if (ksis.includes(ksiId)) results.push(ctrl);
+        }
+        return results;
+    },
+
+    // Get 800-171 controls related to a KSI via 800-53 bridge
+    get171ForKSI(ksiId) {
+        if (typeof FRAMEWORK_MAPPINGS === 'undefined') return [];
+        const controls053 = this.get80053ForKSI(ksiId);
+        const results = new Set();
+        for (const [ctrl171, mapping] of Object.entries(FRAMEWORK_MAPPINGS)) {
+            if (!mapping.nist80053) continue;
+            for (const c53 of mapping.nist80053) {
+                // Match base control or with enhancement
+                const base53 = c53.replace(/\(.*\)/, '');
+                if (controls053.some(r => r === c53 || r === base53 || r.startsWith(base53 + '.'))) {
+                    results.add(ctrl171);
+                }
+            }
+        }
+        return [...results];
+    },
+
+    // Get live assessment status for an 800-171 control
+    getAssessmentStatus(controlId) {
+        const prefix = (typeof app !== 'undefined' && app.getStoragePrefix) ? app.getStoragePrefix() : 'nist-';
+        const assessmentData = JSON.parse(localStorage.getItem(prefix + 'assessment-data') || '{}');
+        const families = typeof CONTROL_FAMILIES !== 'undefined' ? CONTROL_FAMILIES : [];
+
+        let totalObj = 0, met = 0, partial = 0, notMet = 0, notAssessed = 0;
+        for (const fam of families) {
+            for (const ctrl of fam.controls) {
+                if (ctrl.id !== controlId) continue;
+                for (const obj of ctrl.objectives) {
+                    totalObj++;
+                    const s = assessmentData[obj.id]?.status || 'not-assessed';
+                    if (s === 'met') met++;
+                    else if (s === 'partial') partial++;
+                    else if (s === 'not-met') notMet++;
+                    else notAssessed++;
+                }
+            }
+        }
+        if (totalObj === 0) return null;
+        return { totalObj, met, partial, notMet, notAssessed };
+    },
+
+    renderImplGuideDetail(ksiId) {
+        const ksi = FEDRAMP_20X_KSI.indicators[ksiId];
+        if (!ksi) return '<div class="cmvp-empty">KSI not found.</div>';
+
+        const fam = FEDRAMP_20X_KSI.families[ksi.family] || { name: ksi.family };
+        const controls053 = this.get80053ForKSI(ksiId);
+        const controls171 = this.get171ForKSI(ksiId);
+
+        // Get evidence theme for this KSI family
+        const evidenceThemeMap = {
+            IAM: 'access-control', MLA: 'audit-logging', CMT: 'configuration-management',
+            INR: 'incident-response', SVC: 'encryption', CNA: 'vulnerability-management',
+            AFR: 'continuous-monitoring', RPL: 'continuous-monitoring'
+        };
+        const evidenceTheme = evidenceThemeMap[ksi.family];
+        const evidenceExamples = (typeof FEDRAMP_DOCS_DATA !== 'undefined' && evidenceTheme)
+            ? (FEDRAMP_DOCS_DATA.evidenceExamples[evidenceTheme] || []) : [];
+
+        let html = `
+            <div class="impl-detail-panel">
+                <button class="impl-detail-back" id="impl-guide-back">← Back to KSI List</button>
+                <div class="impl-detail-header">
+                    <span class="fedramp-ksi-id" style="font-size:1rem;padding:6px 12px;">${this.esc(ksiId)}</span>
+                    <div>
+                        <h3 class="impl-detail-title">${this.esc(ksi.title)}</h3>
+                        <div class="impl-detail-family">${this.esc(ksi.family)} — ${this.esc(fam.name)}</div>
+                    </div>
+                    <div class="cmvp-module-tags">
+                        ${ksi.low ? '<span class="cmvp-tag fips3">low</span>' : ''}
+                        ${ksi.moderate ? '<span class="cmvp-tag fips2">moderate</span>' : ''}
+                    </div>
+                </div>
+                <p class="impl-detail-desc">${this.esc(ksi.description)}</p>
+        `;
+
+        // === 800-53 Controls Section ===
+        html += `
+            <div class="impl-detail-section">
+                <h4 class="impl-detail-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Related NIST 800-53 Controls (${controls053.length})
+                </h4>
+                <div class="impl-detail-tags">
+                    ${controls053.length > 0 ? controls053.map(c => `<span class="cmvp-tag fips2">${this.esc(c)}</span>`).join('') : '<span style="color:var(--text-muted);font-size:0.8rem;">No direct 800-53 mappings found</span>'}
+                </div>
+            </div>
+        `;
+
+        // === 800-171 Controls with Live Assessment Status ===
+        html += `
+            <div class="impl-detail-section">
+                <h4 class="impl-detail-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Related NIST 800-171 Controls — Live Assessment Status (${controls171.length})
+                </h4>
+        `;
+
+        if (controls171.length > 0) {
+            html += '<div class="impl-detail-171-grid">';
+            for (const ctrlId of controls171) {
+                const mapping = typeof FRAMEWORK_MAPPINGS !== 'undefined' ? FRAMEWORK_MAPPINGS[ctrlId] : null;
+                const status = this.getAssessmentStatus(ctrlId);
+                const desc = mapping?.description || '';
+                const practice = mapping?.cmmc?.practice || '';
+
+                let statusHtml = '<span class="impl-status-badge not-assessed">Not Assessed</span>';
+                let statusClass = 'not-assessed';
+                if (status) {
+                    if (status.met === status.totalObj) {
+                        statusHtml = `<span class="impl-status-badge met">Met (${status.met}/${status.totalObj})</span>`;
+                        statusClass = 'met';
+                    } else if (status.notMet > 0 && status.met === 0 && status.partial === 0) {
+                        statusHtml = `<span class="impl-status-badge not-met">Not Met (${status.notMet}/${status.totalObj})</span>`;
+                        statusClass = 'not-met';
+                    } else if (status.notAssessed === status.totalObj) {
+                        statusHtml = `<span class="impl-status-badge not-assessed">Not Assessed (${status.totalObj} obj)</span>`;
+                    } else {
+                        statusHtml = `<span class="impl-status-badge partial">Partial (${status.met}M/${status.partial}P/${status.notMet}NM)</span>`;
+                        statusClass = 'partial';
+                    }
+                }
+
+                html += `
+                    <div class="impl-171-card ${statusClass}">
+                        <div class="impl-171-header">
+                            <span class="impl-171-id">${this.esc(ctrlId)}</span>
+                            ${statusHtml}
+                        </div>
+                        <div class="impl-171-desc">${this.esc(desc)}</div>
+                        ${practice ? `<div class="impl-171-practice">CMMC: ${this.esc(practice)}</div>` : ''}
+                    </div>
+                `;
+            }
+            html += '</div>';
+        } else {
+            html += '<p style="color:var(--text-muted);font-size:0.8rem;">No 800-171 controls mapped via 800-53 bridge for this KSI.</p>';
+        }
+        html += '</div>';
+
+        // === Evidence Examples ===
+        if (evidenceExamples.length > 0) {
+            html += `
+                <div class="impl-detail-section">
+                    <h4 class="impl-detail-section-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Evidence Collection Suggestions (${evidenceTheme})
+                    </h4>
+                    <ul class="impl-evidence-list">
+                        ${evidenceExamples.map(e => `<li>${this.esc(e)}</li>`).join('')}
+                    </ul>
+                    <p class="impl-evidence-note">These are community-suggested examples from the <a href="https://github.com/ethanolivertroy/fedramp-docs-mcp" target="_blank" rel="noopener" style="color:#8ba2ff;">FedRAMP Docs MCP Server</a>. Always verify with official FedRAMP guidance.</p>
+                </div>
+            `;
+        }
+
+        // === MCP Server Integration ===
+        html += `
+            <div class="impl-detail-section impl-mcp-section">
+                <h4 class="impl-detail-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                    FedRAMP Docs MCP Server — Advanced Queries
+                </h4>
+                <p class="impl-mcp-desc">Use these queries with the <a href="https://github.com/ethanolivertroy/fedramp-docs-mcp" target="_blank" rel="noopener" style="color:#8ba2ff;">fedramp-docs-mcp</a> server in Claude Desktop, Claude Code, or any MCP client:</p>
+                <div class="impl-mcp-queries">
+                    <div class="impl-mcp-query">
+                        <span class="impl-mcp-label">Get KSI Details</span>
+                        <code class="impl-mcp-code">get_requirement_by_id id="${ksiId}"</code>
+                    </div>
+                    <div class="impl-mcp-query">
+                        <span class="impl-mcp-label">Theme Summary</span>
+                        <code class="impl-mcp-code">get_theme_summary theme="${ksi.family}"</code>
+                    </div>
+                    <div class="impl-mcp-query">
+                        <span class="impl-mcp-label">Evidence Checklist</span>
+                        <code class="impl-mcp-code">get_evidence_examples theme="${ksi.family}"</code>
+                    </div>
+                    ${controls053.length > 0 ? `<div class="impl-mcp-query">
+                        <span class="impl-mcp-label">Control Requirements</span>
+                        <code class="impl-mcp-code">get_control_requirements control="${controls053[0]}"</code>
+                    </div>` : ''}
+                    <div class="impl-mcp-query">
+                        <span class="impl-mcp-label">Search Docs</span>
+                        <code class="impl-mcp-code">search_markdown query="${ksi.title.toLowerCase()}"</code>
+                    </div>
+                </div>
+                <div class="impl-mcp-install">
+                    <span class="impl-mcp-label">Quick Install:</span>
+                    <code class="impl-mcp-code">npx fedramp-docs-mcp</code>
+                </div>
+            </div>
+        `;
+
+        html += '</div>';
+        return html;
+    },
+
+    bindImplGuide() {
+        const search = document.getElementById('impl-guide-search');
+        const familyFilter = document.getElementById('impl-guide-family-filter');
+        const list = document.getElementById('impl-guide-list');
+        const detail = document.getElementById('impl-guide-detail');
+
+        if (!list || !detail) return;
+
+        const doFilter = () => {
+            if (typeof FEDRAMP_20X_KSI === 'undefined') return;
+            list.innerHTML = this.renderImplGuideList(
+                FEDRAMP_20X_KSI.indicators,
+                FEDRAMP_20X_KSI.families,
+                search?.value,
+                familyFilter?.value
+            );
+            this.bindImplGuideCards();
+        };
+
+        search?.addEventListener('input', doFilter);
+        familyFilter?.addEventListener('change', doFilter);
+
+        this.bindImplGuideCards();
+    },
+
+    bindImplGuideCards() {
+        const list = document.getElementById('impl-guide-list');
+        const detail = document.getElementById('impl-guide-detail');
+        if (!list || !detail) return;
+
+        list.querySelectorAll('.impl-guide-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const ksiId = card.dataset.ksiId;
+                detail.innerHTML = this.renderImplGuideDetail(ksiId);
+                detail.style.display = 'block';
+                list.style.display = 'none';
+                const tabContent = document.getElementById('fedramp-tab-content');
+                tabContent?.querySelector('.cmvp-search-bar')?.style.setProperty('display', 'none');
+
+                // Bind back button
+                document.getElementById('impl-guide-back')?.addEventListener('click', () => {
+                    detail.style.display = 'none';
+                    detail.innerHTML = '';
+                    list.style.display = 'block';
+                    tabContent?.querySelector('.cmvp-search-bar')?.style.setProperty('display', '');
+                });
+
+                // Bind copy on MCP code blocks
+                detail.querySelectorAll('.impl-mcp-code').forEach(code => {
+                    code.style.cursor = 'pointer';
+                    code.title = 'Click to copy';
+                    code.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText(code.textContent).then(() => {
+                            const orig = code.textContent;
+                            code.textContent = 'Copied!';
+                            setTimeout(() => code.textContent = orig, 1200);
+                        });
+                    });
+                });
+            });
         });
     },
 
