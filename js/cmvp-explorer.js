@@ -1,6 +1,19 @@
 // NIST CMVP Explorer — fetches live data from the static CMVP API
 // and renders a searchable, filterable panel of FIPS 140 validated modules.
 
+// Controls/objectives where FIPS-validated cryptography is relevant
+const FIPS_RELEVANT_CONTROLS = {
+    '3.1.13':  { name: 'Remote Access Cryptography', objectives: ['3.1.13[a]','3.1.13[b]'] },
+    '3.1.17':  { name: 'Wireless Access Protection', objectives: ['3.1.17[b]'] },
+    '3.1.19':  { name: 'Mobile Device CUI Encryption', objectives: ['3.1.19[b]'] },
+    '3.5.10':  { name: 'Cryptographic Password Protection', objectives: ['3.5.10[a]','3.5.10[b]'] },
+    '3.8.6':   { name: 'Portable Storage Encryption', objectives: ['3.8.6[a]'] },
+    '3.13.8':  { name: 'Data in Transit Encryption', objectives: ['3.13.8[a]','3.13.8[c]'] },
+    '3.13.10': { name: 'Cryptographic Key Management', objectives: ['3.13.10[a]','3.13.10[b]'] },
+    '3.13.11': { name: 'FIPS-Validated Cryptography', objectives: ['3.13.11[a]'] },
+    '3.13.16': { name: 'Data at Rest Encryption', objectives: ['3.13.16[a]'] }
+};
+
 const CMVPExplorer = {
     API_BASE: 'https://ethanolivertroy.github.io/NIST-CMVP-API/api',
     cache: { modules: null, metadata: null },
@@ -92,6 +105,12 @@ const CMVPExplorer = {
 
         ['cmvp-standard-filter', 'cmvp-level-filter', 'cmvp-type-filter', 'cmvp-status-filter'].forEach(id => {
             document.getElementById(id)?.addEventListener('change', doSearch);
+        });
+
+        // Delegate save-to-inventory clicks
+        this.container.addEventListener('click', (e) => {
+            const btn = e.target.closest('.cmvp-save-btn');
+            if (btn) this.saveCertToInventory(btn);
         });
     },
 
@@ -228,7 +247,13 @@ const CMVPExplorer = {
                     <span class="cmvp-tag type">${this.esc(type)}</span>
                 </div>
                 ${metaLines.length ? `<div class="cmvp-module-meta">${metaLines.map(l => this.esc(l)).join('<br>')}</div>` : ''}
-                <div class="cmvp-module-links">${links}</div>
+                <div class="cmvp-module-links">
+                    ${links}
+                    <button class="cmvp-save-btn" data-cert="${this.esc(certNum)}" data-name="${this.esc(name)}" data-vendor="${this.esc(vendor)}" data-standard="${this.esc(standard)}" data-level="${this.esc(String(level))}" data-status="${this.esc(status)}" data-type="${this.esc(type)}" title="Save to OSC Inventory">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Save to Inventory
+                    </button>
+                </div>
             </div>
         `;
     },
@@ -260,6 +285,61 @@ const CMVPExplorer = {
                 guiContent.style.display = 'block';
             }
         });
+    },
+
+    saveCertToInventory(btn) {
+        const certNumber = btn.dataset.cert;
+        const moduleName = btn.dataset.name;
+        const vendor = btn.dataset.vendor;
+        const standard = btn.dataset.standard;
+        const level = btn.dataset.level;
+        const status = btn.dataset.status;
+        const moduleType = btn.dataset.type;
+
+        // Load OSC inventory
+        const oscData = JSON.parse(localStorage.getItem('osc-inventory') || '{}');
+        if (!oscData.fipsCerts) oscData.fipsCerts = [];
+
+        // Check for duplicate
+        if (oscData.fipsCerts.some(c => String(c.certNumber) === String(certNumber))) {
+            this.showToast(`Certificate #${certNumber} is already in your inventory.`, 'info');
+            return;
+        }
+
+        // Add cert with linkedControls field
+        oscData.fipsCerts.push({
+            certNumber,
+            moduleName,
+            vendor,
+            standard,
+            level,
+            status: status.toLowerCase(),
+            moduleType,
+            linkedControls: [],
+            addedFrom: 'cmvp-explorer',
+            addedDate: new Date().toISOString().split('T')[0]
+        });
+
+        localStorage.setItem('osc-inventory', JSON.stringify(oscData));
+        this.showToast(`Certificate #${certNumber} (${moduleName}) saved to inventory.`, 'success');
+
+        // Update button state
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Saved';
+        btn.classList.add('saved');
+        btn.disabled = true;
+    },
+
+    showToast(message, type) {
+        let toast = document.getElementById('cmvp-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'cmvp-toast';
+            toast.className = 'cmvp-toast';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        toast.className = `cmvp-toast ${type} show`;
+        setTimeout(() => toast.classList.remove('show'), 3000);
     },
 
     esc(str) {

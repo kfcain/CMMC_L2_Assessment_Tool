@@ -4514,6 +4514,372 @@ body::after {
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
+/* =========================================================================
+   AI Assess Button (contextual, per-objective)
+   ========================================================================= */
+.ai-assess-btn {
+    padding: 4px 8px;
+    border: 1px solid #8b5cf6;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.ai-assess-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+}
+
+.ai-assess-btn svg {
+    flex-shrink: 0;
+}
+
+/* =========================================================================
+   Inheritance Badges (inline in objective rows)
+   ========================================================================= */
+.inheritance-badge-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+    cursor: help;
+    transition: transform 0.15s;
+}
+
+.inheritance-badge-sm:hover {
+    transform: scale(1.2);
+}
+
+/* Inheritance detail row in objective details */
+.inheritance-detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.inheritance-detail .detail-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.inheritance-type-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.inheritance-csp-name {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.inheritance-notes {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.inheritance-srm-source {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    background: #3b82f620;
+    color: #3b82f6;
+    border: 1px solid #3b82f640;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.inheritance-not-set {
+    color: var(--text-tertiary);
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.set-inheritance-btn-inline {
+    padding: 2px 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.set-inheritance-btn-inline:hover {
+    background: var(--bg-tertiary);
+    border-color: #8b5cf6;
+    color: #8b5cf6;
+}
+
+/* =========================================================================
+   SRM Upload Modal
+   ========================================================================= */
+.srm-modal {
+    max-width: 640px;
+    width: 90vw;
+}
+
+.srm-upload-section {
+    margin-bottom: 24px;
+}
+
+.srm-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+.srm-upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg-secondary);
+}
+
+.srm-upload-area:hover,
+.srm-upload-area.drag-over {
+    border-color: #8b5cf6;
+    background: #8b5cf620;
+}
+
+.srm-upload-area svg {
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+}
+
+.srm-upload-area p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.srm-esp-name-group {
+    margin-top: 16px;
+}
+
+.srm-esp-name-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.srm-esp-name-group .form-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.srm-parse-status {
+    margin-top: 16px;
+}
+
+.srm-parsing {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #3b82f610;
+    border: 1px solid #3b82f630;
+    border-radius: 8px;
+    color: #3b82f6;
+    font-size: 0.85rem;
+}
+
+.srm-parsing .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #3b82f640;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.srm-success {
+    padding: 12px 16px;
+    background: #10b98110;
+    border: 1px solid #10b98130;
+    border-radius: 8px;
+    color: #10b981;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.srm-error {
+    padding: 12px 16px;
+    background: #ef444410;
+    border: 1px solid #ef444430;
+    border-radius: 8px;
+    color: #ef4444;
+    font-size: 0.85rem;
+}
+
+.srm-stats {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.srm-apply-btn {
+    margin-top: 12px;
+}
+
+/* ESP Profile Cards */
+.srm-profiles-section h4 {
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+.esp-profiles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.esp-empty {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+    padding: 16px;
+    text-align: center;
+}
+
+.esp-profile-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    gap: 12px;
+}
+
+.esp-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+}
+
+.esp-profile-info strong {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.esp-meta {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.esp-stats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.esp-stat {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+.esp-stat.inherited {
+    background: #10b98115;
+    color: #10b981;
+}
+
+.esp-stat.shared {
+    background: #3b82f615;
+    color: #3b82f6;
+}
+
+.esp-stat.customer {
+    background: #f59e0b15;
+    color: #f59e0b;
+}
+
+.esp-profile-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+.btn-sm.btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-sm.btn-primary:hover {
+    background: #2563eb;
+}
+
+.btn-sm.btn-danger {
+    background: #ef444420;
+    color: #ef4444;
+    border: 1px solid #ef444440;
+}
+
+.btn-sm.btn-danger:hover {
+    background: #ef444430;
+}
+
 .view-analysis-btn {
     padding: 6px 12px;
     border: 1px solid var(--border-color);
@@ -9903,9 +10269,29 @@ table td {
     color: #f59e0b;
 }
 
+.footer-oss-notice {
+    max-width: 1400px;
+    margin: 4px auto 0;
+    text-align: center;
+    font-size: 0.6rem;
+    color: #64748b;
+    letter-spacing: 0.01em;
+}
+
+.footer-oss-notice a {
+    color: #94a3b8;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.15s;
+}
+
+.footer-oss-notice a:hover {
+    color: #e2e8f0;
+}
+
 /* Add bottom padding to main content to account for fixed footer */
 .main-content {
-    padding-bottom: 50px;
+    padding-bottom: 60px;
 }
 
 /* Small Organization Guidance Styling */
@@ -9953,14 +10339,22 @@ table td {
         height: 12px;
     }
     
+    .footer-oss-notice {
+        font-size: 0.5rem;
+    }
+    
     .main-content {
-        padding-bottom: 60px;
+        padding-bottom: 70px;
     }
 }
 
 @media (max-width: 480px) {
     .footer-disclaimer-content {
         font-size: 0.55rem;
+    }
+    
+    .footer-oss-notice {
+        font-size: 0.45rem;
     }
     
     .main-content {
@@ -11692,6 +12086,8 @@ body.rev3-active .hb-close:hover {
 .cmvp-module-links {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .cmvp-link {
@@ -11707,6 +12103,183 @@ body.rev3-active .hb-close:hover {
 .cmvp-link:hover {
     opacity: 0.8;
     text-decoration: underline;
+}
+
+.cmvp-save-btn {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: rgba(108, 138, 255, 0.08);
+    border: 1px solid rgba(108, 138, 255, 0.2);
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+    margin-left: auto;
+}
+.cmvp-save-btn:hover {
+    background: rgba(108, 138, 255, 0.15);
+    color: var(--text-primary);
+    border-color: rgba(108, 138, 255, 0.4);
+}
+.cmvp-save-btn.saved {
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.3);
+    background: rgba(52, 211, 153, 0.08);
+    cursor: default;
+}
+
+.cmvp-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+}
+.cmvp-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.cmvp-toast.success { border-left: 3px solid #34d399; }
+.cmvp-toast.info { border-left: 3px solid #6c8aff; }
+
+/* FIPS cert control-linking in OSC Inventory */
+.fips-linked-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+.fips-control-tag {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(108, 138, 255, 0.1);
+    color: #8ba2ff;
+    border: 1px solid rgba(108, 138, 255, 0.2);
+}
+.fips-link-btn {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: rgba(108, 138, 255, 0.06);
+    color: var(--text-secondary);
+    border: 1px dashed rgba(108, 138, 255, 0.25);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.fips-link-btn:hover {
+    background: rgba(108, 138, 255, 0.12);
+    color: var(--text-primary);
+    border-color: rgba(108, 138, 255, 0.4);
+}
+
+/* FIPS control-linking modal */
+.fips-link-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fips-link-modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    width: 480px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+.fips-link-modal h3 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+.fips-link-modal .fips-link-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+.fips-link-control-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+.fips-link-control-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.fips-link-control-item:hover {
+    background: rgba(108, 138, 255, 0.06);
+    border-color: rgba(108, 138, 255, 0.2);
+}
+.fips-link-control-item.selected {
+    background: rgba(108, 138, 255, 0.1);
+    border-color: rgba(108, 138, 255, 0.3);
+}
+.fips-link-control-item input[type="checkbox"] {
+    accent-color: #6c8aff;
+}
+.fips-link-control-item .ctrl-id {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: #8ba2ff;
+    min-width: 60px;
+}
+.fips-link-control-item .ctrl-name {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+}
+.fips-link-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.fips-link-actions button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.fips-link-cancel {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+.fips-link-cancel:hover { background: var(--bg-primary); }
+.fips-link-save {
+    background: rgba(108, 138, 255, 0.15);
+    border: 1px solid rgba(108, 138, 255, 0.3);
+    color: #8ba2ff;
+}
+.fips-link-save:hover {
+    background: rgba(108, 138, 255, 0.25);
 }
 
 .cmvp-loading, .cmvp-empty {

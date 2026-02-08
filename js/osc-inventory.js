@@ -390,9 +390,14 @@ const OSCInventory = {
                     ${this.data.fipsCerts.length > 0 ? `
                         <div style="overflow-x:auto">
                             <table class="osc-fips-table">
-                                <thead><tr><th>Cert #</th><th>Module Name</th><th>Vendor</th><th>Standard</th><th>Level</th><th>Status</th><th>Actions</th></tr></thead>
+                                <thead><tr><th>Cert #</th><th>Module Name</th><th>Vendor</th><th>Standard</th><th>Level</th><th>Status</th><th>Linked Controls</th><th>Actions</th></tr></thead>
                                 <tbody>
-                                    ${this.data.fipsCerts.map((cert, idx) => `
+                                    ${this.data.fipsCerts.map((cert, idx) => {
+                                        const linked = cert.linkedControls || [];
+                                        const linkedHtml = linked.length > 0
+                                            ? linked.map(c => `<span class="fips-control-tag">${c}</span>`).join('')
+                                            : '<span style="font-size:0.75rem;color:var(--text-muted)">None</span>';
+                                        return `
                                         <tr>
                                             <td><span class="osc-fips-cert-number">${cert.certNumber}</span></td>
                                             <td>${cert.moduleName}</td>
@@ -401,13 +406,19 @@ const OSCInventory = {
                                             <td><span class="osc-fips-level level-${cert.level || '1'}">Level ${cert.level || '1'}</span></td>
                                             <td><span class="osc-fips-status ${cert.status || 'active'}">${cert.status || 'Active'}</span></td>
                                             <td>
+                                                <div class="fips-linked-controls">
+                                                    ${linkedHtml}
+                                                    <button class="fips-link-btn" data-link-fips="${idx}" title="Link to FIPS-relevant controls">+ Link</button>
+                                                </div>
+                                            </td>
+                                            <td>
                                                 <div class="osc-item-actions">
                                                     <button class="osc-item-action" data-edit="fips" data-index="${idx}"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
                                                     <button class="osc-item-action delete" data-delete="fips" data-index="${idx}"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                                                 </div>
                                             </td>
-                                        </tr>
-                                    `).join('')}
+                                        </tr>`;
+                                    }).join('')}
                                 </tbody>
                             </table>
                         </div>
@@ -555,6 +566,10 @@ const OSCInventory = {
         container.querySelectorAll('[data-upload-ssp]').forEach(input => {
             input.addEventListener('change', (e) => this.handleSSPUpload(e.target.files[0], app));
         });
+        // FIPS control-linking handlers
+        container.querySelectorAll('[data-link-fips]').forEach(btn => {
+            btn.addEventListener('click', (e) => { e.stopPropagation(); this.openFipsLinkModal(parseInt(btn.dataset.linkFips), app); });
+        });
         // Storage notice acknowledgement
         document.getElementById('osc-storage-ack-btn')?.addEventListener('click', () => {
             localStorage.setItem('osc_storage_notice_ack', 'true');
@@ -577,6 +592,68 @@ const OSCInventory = {
     
     closeModal() {
         document.getElementById('osc-modal-overlay')?.classList.remove('active');
+    },
+    
+    openFipsLinkModal(certIndex, app) {
+        const cert = this.data.fipsCerts[certIndex];
+        if (!cert) return;
+        const linked = cert.linkedControls || [];
+        
+        // Use FIPS_RELEVANT_CONTROLS if available, otherwise fallback
+        const controls = typeof FIPS_RELEVANT_CONTROLS !== 'undefined' ? FIPS_RELEVANT_CONTROLS : {
+            '3.1.13': { name: 'Remote Access Cryptography' },
+            '3.1.17': { name: 'Wireless Access Protection' },
+            '3.1.19': { name: 'Mobile Device CUI Encryption' },
+            '3.5.10': { name: 'Cryptographic Password Protection' },
+            '3.8.6':  { name: 'Portable Storage Encryption' },
+            '3.13.8': { name: 'Data in Transit Encryption' },
+            '3.13.10':{ name: 'Cryptographic Key Management' },
+            '3.13.11':{ name: 'FIPS-Validated Cryptography' },
+            '3.13.16':{ name: 'Data at Rest Encryption' }
+        };
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'fips-link-modal-overlay';
+        overlay.innerHTML = `
+            <div class="fips-link-modal">
+                <h3>Link Certificate #${cert.certNumber} to Controls</h3>
+                <div class="fips-link-subtitle">${cert.moduleName} — ${cert.vendor || 'Unknown Vendor'}</div>
+                <div class="fips-link-control-list">
+                    ${Object.entries(controls).map(([id, ctrl]) => {
+                        const checked = linked.includes(id) ? 'checked' : '';
+                        return `
+                        <label class="fips-link-control-item ${checked ? 'selected' : ''}">
+                            <input type="checkbox" value="${id}" ${checked}>
+                            <span class="ctrl-id">${id}</span>
+                            <span class="ctrl-name">${ctrl.name}</span>
+                        </label>`;
+                    }).join('')}
+                </div>
+                <div class="fips-link-actions">
+                    <button class="fips-link-cancel">Cancel</button>
+                    <button class="fips-link-save">Save Links</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        // Toggle selected class on checkbox change
+        overlay.querySelectorAll('.fips-link-control-item input').forEach(cb => {
+            cb.addEventListener('change', () => cb.closest('.fips-link-control-item').classList.toggle('selected', cb.checked));
+        });
+        
+        // Cancel
+        overlay.querySelector('.fips-link-cancel').addEventListener('click', () => overlay.remove());
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+        
+        // Save
+        overlay.querySelector('.fips-link-save').addEventListener('click', () => {
+            const selected = [...overlay.querySelectorAll('.fips-link-control-item input:checked')].map(cb => cb.value);
+            this.data.fipsCerts[certIndex].linkedControls = selected;
+            this.save();
+            overlay.remove();
+            this.render(app);
+        });
     },
     
     getItem(type, index) {
