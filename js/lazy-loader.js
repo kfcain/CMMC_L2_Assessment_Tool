@@ -34,6 +34,10 @@ const LazyLoader = {
             'data/fedramp-20x-ksi.js',
             'data/nist-800-53a.js',
             'js/crosswalk-visualizer.js'
+        ],
+        'fedramp-reference': [
+            'data/fedramp-20x-ksi.js',
+            'data/framework-mappings.js'
         ]
     },
     

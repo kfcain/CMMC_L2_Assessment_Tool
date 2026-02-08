@@ -1133,7 +1133,11 @@ class AssessmentApp {
             }
         } else if (view === 'fedramp-reference') {
             if (typeof FedRAMPReference !== 'undefined') {
-                FedRAMPReference.init();
+                if (typeof LazyLoader !== 'undefined') {
+                    LazyLoader.loadViewScripts('fedramp-reference').then(() => FedRAMPReference.init());
+                } else {
+                    FedRAMPReference.init();
+                }
             }
         } else if (view === 'diagram-hub') {
             if (typeof DiagramHub !== 'undefined') {
