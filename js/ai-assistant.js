@@ -12,24 +12,27 @@ const AIAssistant = {
                 name: "Claude (Anthropic)",
                 endpoint: "https://api.anthropic.com/v1/messages",
                 models: [
-                    { id: "claude-sonnet-4-20250514", name: "Claude Sonnet 4 (Recommended)", inputCost: 0.003, outputCost: 0.015 },
+                    { id: "claude-opus-4-6-20260205", name: "Claude Opus 4.6", inputCost: 0.015, outputCost: 0.075 },
+                    { id: "claude-opus-4-5-20251101", name: "Claude Opus 4.5", inputCost: 0.015, outputCost: 0.075 },
+                    { id: "claude-sonnet-4-5-20260210", name: "Claude Sonnet 4.5 (Recommended)", inputCost: 0.003, outputCost: 0.015 },
+                    { id: "claude-sonnet-4-20250514", name: "Claude Sonnet 4", inputCost: 0.003, outputCost: 0.015 },
                     { id: "claude-opus-4-20250514", name: "Claude Opus 4", inputCost: 0.015, outputCost: 0.075 },
-                    { id: "claude-3-7-sonnet-20250219", name: "Claude 3.7 Sonnet", inputCost: 0.003, outputCost: 0.015 },
                     { id: "claude-3-5-haiku-20241022", name: "Claude 3.5 Haiku (Fast)", inputCost: 0.001, outputCost: 0.005 }
                 ],
-                defaultModel: "claude-sonnet-4-20250514"
+                defaultModel: "claude-sonnet-4-5-20260210"
             },
             openai: {
                 name: "OpenAI",
                 endpoint: "https://api.openai.com/v1/chat/completions",
                 models: [
+                    { id: "gpt-5.2-codex", name: "GPT-5.2 Codex", inputCost: 0.002, outputCost: 0.008 },
+                    { id: "gpt-5.1", name: "GPT-5.1", inputCost: 0.005, outputCost: 0.02 },
+                    { id: "gpt-5.1-mini", name: "GPT-5.1 Mini", inputCost: 0.0006, outputCost: 0.0024 },
                     { id: "gpt-4.1", name: "GPT-4.1 (Recommended)", inputCost: 0.002, outputCost: 0.008 },
                     { id: "gpt-4.1-mini", name: "GPT-4.1 Mini", inputCost: 0.0004, outputCost: 0.0016 },
                     { id: "gpt-4.1-nano", name: "GPT-4.1 Nano (Fast)", inputCost: 0.0001, outputCost: 0.0004 },
                     { id: "o3", name: "o3 (Reasoning)", inputCost: 0.01, outputCost: 0.04 },
-                    { id: "o4-mini", name: "o4-mini (Reasoning)", inputCost: 0.001, outputCost: 0.004 },
-                    { id: "gpt-4o", name: "GPT-4o", inputCost: 0.005, outputCost: 0.015 },
-                    { id: "gpt-4o-mini", name: "GPT-4o Mini", inputCost: 0.00015, outputCost: 0.0006 }
+                    { id: "o4-mini", name: "o4-mini (Reasoning)", inputCost: 0.001, outputCost: 0.004 }
                 ],
                 defaultModel: "gpt-4.1"
             },
@@ -37,10 +40,12 @@ const AIAssistant = {
                 name: "Google Gemini",
                 endpoint: "https://generativelanguage.googleapis.com/v1beta/models",
                 models: [
+                    { id: "gemini-3-pro-preview", name: "Gemini 3 Pro (Preview)", inputCost: 0.00125, outputCost: 0.01 },
+                    { id: "gemini-3-flash-preview", name: "Gemini 3 Flash (Preview)", inputCost: 0.00015, outputCost: 0.0006 },
                     { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro (Recommended)", inputCost: 0.00125, outputCost: 0.01 },
                     { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", inputCost: 0.00015, outputCost: 0.0006 },
-                    { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", inputCost: 0.0001, outputCost: 0.0004 },
-                    { id: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash Lite (Fast)", inputCost: 0.00005, outputCost: 0.0002 }
+                    { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite (Fast)", inputCost: 0.000075, outputCost: 0.0003 },
+                    { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", inputCost: 0.0001, outputCost: 0.0004 }
                 ],
                 defaultModel: "gemini-2.5-pro"
             }

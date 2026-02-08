@@ -16,9 +16,11 @@ const AIProvider = {
             keyPlaceholder: 'sk-ant-...',
             keySessionKey: 'ai-key-anthropic',
             models: [
-                { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', context: '200K', tier: 'recommended' },
-                { id: 'claude-opus-4-20250514', name: 'Claude Opus 4', context: '200K', tier: 'premium' },
-                { id: 'claude-3-7-sonnet-20250219', name: 'Claude 3.7 Sonnet', context: '200K', tier: 'standard' },
+                { id: 'claude-opus-4-6-20260205', name: 'Claude Opus 4.6', context: '200K', tier: 'premium' },
+                { id: 'claude-opus-4-5-20251101', name: 'Claude Opus 4.5', context: '200K', tier: 'premium' },
+                { id: 'claude-sonnet-4-5-20260210', name: 'Claude Sonnet 4.5', context: '200K', tier: 'recommended' },
+                { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', context: '200K', tier: 'standard' },
+                { id: 'claude-opus-4-20250514', name: 'Claude Opus 4', context: '200K', tier: 'standard' },
                 { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku', context: '200K', tier: 'fast' }
             ]
         },
@@ -29,13 +31,14 @@ const AIProvider = {
             keyPlaceholder: 'sk-...',
             keySessionKey: 'ai-key-openai',
             models: [
+                { id: 'gpt-5.2-codex', name: 'GPT-5.2 Codex', context: '200K', tier: 'premium' },
+                { id: 'gpt-5.1', name: 'GPT-5.1', context: '1M', tier: 'premium' },
+                { id: 'gpt-5.1-mini', name: 'GPT-5.1 Mini', context: '1M', tier: 'standard' },
                 { id: 'gpt-4.1', name: 'GPT-4.1', context: '1M', tier: 'recommended' },
                 { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', context: '1M', tier: 'fast' },
                 { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano', context: '1M', tier: 'fast' },
                 { id: 'o3', name: 'o3', context: '200K', tier: 'premium' },
-                { id: 'o4-mini', name: 'o4-mini', context: '200K', tier: 'standard' },
-                { id: 'gpt-4o', name: 'GPT-4o', context: '128K', tier: 'standard' },
-                { id: 'gpt-4o-mini', name: 'GPT-4o Mini', context: '128K', tier: 'fast' }
+                { id: 'o4-mini', name: 'o4-mini', context: '200K', tier: 'standard' }
             ]
         },
         google: {
@@ -45,10 +48,12 @@ const AIProvider = {
             keyPlaceholder: 'AIza...',
             keySessionKey: 'ai-key-google',
             models: [
+                { id: 'gemini-3-pro-preview', name: 'Gemini 3 Pro (Preview)', context: '1M', tier: 'premium' },
+                { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash (Preview)', context: '1M', tier: 'standard' },
                 { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', context: '1M', tier: 'recommended' },
                 { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', context: '1M', tier: 'fast' },
-                { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', context: '1M', tier: 'standard' },
-                { id: 'gemini-2.0-flash-lite', name: 'Gemini 2.0 Flash Lite', context: '1M', tier: 'fast' }
+                { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash-Lite', context: '1M', tier: 'fast' },
+                { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', context: '1M', tier: 'standard' }
             ]
         }
     },
@@ -148,7 +153,7 @@ const AIProvider = {
     // ── Anthropic ─────────────────────────────────────────────────────
     async _sendAnthropic(apiKey, modelId, systemPrompt, messages, options) {
         const body = {
-            model: modelId || 'claude-sonnet-4-20250514',
+            model: modelId || 'claude-sonnet-4-5-20260210',
             max_tokens: options.max_tokens || 4096,
             system: systemPrompt,
             messages: messages
@@ -317,12 +322,12 @@ const AIProvider = {
 
 // Backward-compatible shim: ClaudeAPI delegates to AIProvider
 const ClaudeAPI = {
-    get MODEL() { return AIProvider.getActiveModel() || 'claude-sonnet-4-20250514'; },
+    get MODEL() { return AIProvider.getActiveModel() || 'claude-sonnet-4-5-20260210'; },
     getApiKey() { return AIProvider.getApiKey(AIProvider.getActiveProvider() || 'anthropic'); },
     setApiKey(key) {
         AIProvider.setApiKey('anthropic', key);
         AIProvider.setActiveProvider('anthropic');
-        AIProvider.setActiveModel('claude-sonnet-4-20250514');
+        AIProvider.setActiveModel('claude-sonnet-4-5-20260210');
     },
     clearApiKey() { AIProvider.clearApiKey(AIProvider.getActiveProvider() || 'anthropic'); },
     isConfigured() { return AIProvider.isConfigured(); },
