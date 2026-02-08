@@ -459,6 +459,40 @@ body::after {
     border: 1px solid rgba(124, 58, 237, 0.2);
 }
 
+/* Rev2→Rev3 Transition Badges (Objective-Level) */
+.rev3-transition-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    border-radius: 4px;
+    margin-left: 6px;
+    white-space: nowrap;
+    vertical-align: middle;
+    letter-spacing: 0.2px;
+}
+.rev3-transition-badge.withdrawn {
+    background: rgba(248, 113, 113, 0.12);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.25);
+}
+.rev3-transition-badge.enhanced {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.rev3-transition-badge.new-in-r3 {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+.rev3-transition-badge.consolidated {
+    background: rgba(108, 138, 255, 0.1);
+    color: #8ba2ff;
+    border: 1px solid rgba(108, 138, 255, 0.2);
+}
+
 /* ODP Display */
 .odp-section {
     background: rgba(124, 58, 237, 0.05);

@@ -1675,3 +1675,44 @@ a.mapping-tag:hover {
         font-size: 0.6rem;
     }
 }
+
+/* ── Rev2→Rev3 Crosswalk Card Layout ── */
+.mapping-cards-container { display: flex; flex-direction: column; gap: 6px; }
+.xwalk-card {
+    background: var(--glass-bg, rgba(15,17,23,0.72));
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.05));
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.xwalk-card:hover {
+    border-color: rgba(108,138,255,0.15);
+    box-shadow: 0 0 12px rgba(108,138,255,0.05);
+}
+.xwalk-card-main { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.xwalk-card-ids { display: flex; align-items: center; gap: 8px; }
+.xwalk-card-ids svg { color: var(--text-muted, #4e5263); flex-shrink: 0; }
+.xwalk-rev2 { font-size: 0.8rem; color: var(--text-secondary, #8b8fa3); background: rgba(255,255,255,0.04); padding: 2px 7px; border-radius: 4px; }
+.xwalk-rev3 { font-size: 0.8rem; color: var(--accent-blue, #6c8aff); background: rgba(108,138,255,0.08); padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+.xwalk-obj-count { font-size: 0.65rem; color: var(--text-muted, #4e5263); background: rgba(255,255,255,0.03); padding: 2px 6px; border-radius: 3px; }
+.xwalk-card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.xwalk-card-change { font-size: 0.75rem; color: var(--text-secondary, #8b8fa3); margin-top: 4px; }
+
+/* Consolidated controls */
+.xwalk-consolidated { margin-top: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.xwalk-consol-label { font-size: 0.65rem; color: var(--status-partial, #fbbf24); font-weight: 500; }
+.xwalk-consol-id { font-size: 0.7rem; color: var(--status-not-met, #f87171); background: rgba(248,113,113,0.08); padding: 1px 6px; border-radius: 3px; cursor: help; }
+
+/* Inline ODP details */
+.xwalk-odp-detail { margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.xwalk-odp-row { display: flex; align-items: baseline; gap: 8px; font-size: 0.72rem; flex-wrap: wrap; }
+.xwalk-odp-id { font-size: 0.65rem; color: var(--text-muted, #4e5263); background: rgba(255,255,255,0.03); padding: 1px 5px; border-radius: 3px; flex-shrink: 0; }
+.xwalk-odp-param { color: var(--text-secondary, #8b8fa3); }
+.xwalk-odp-val { color: var(--status-met, #34d399); font-weight: 500; }
+
+/* Toggle checkbox */
+.xwalk-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-secondary, #8b8fa3); cursor: pointer; user-select: none; }
+.xwalk-toggle input { accent-color: var(--accent-blue, #6c8aff); }
+
+/* Filter bar update */
+.mapping-filters { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }

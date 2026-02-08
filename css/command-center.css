@@ -1036,3 +1036,30 @@
         flex-direction: column;
     }
 }
+
+/* ── L3 Enhanced Assessment Panel ── */
+.cc-l3-overview { display: flex; flex-direction: column; gap: 16px; }
+.cc-l3-summary { display: flex; align-items: center; gap: 24px; }
+.cc-l3-ring { position: relative; flex-shrink: 0; }
+.cc-l3-ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.cc-l3-ring-pct { font-size: 1.3rem; font-weight: 700; color: #a78bfa; }
+.cc-l3-ring-sub { font-size: 0.6rem; color: var(--text-muted, #4e5263); text-transform: uppercase; letter-spacing: 0.5px; }
+.cc-l3-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+.cc-l3-stat { display: flex; flex-direction: column; align-items: center; min-width: 52px; }
+.cc-l3-stat-val { font-size: 1.15rem; font-weight: 600; }
+.cc-l3-stat-lbl { font-size: 0.65rem; color: var(--text-muted, #4e5263); text-transform: uppercase; letter-spacing: 0.3px; }
+.cc-l3-bar { display: flex; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.04); overflow: hidden; }
+.cc-l3-bar-seg { height: 100%; transition: width 0.4s; }
+.cc-l3-bar-seg.met { background: var(--status-met, #34d399); }
+.cc-l3-bar-seg.partial { background: var(--status-partial, #fbbf24); }
+.cc-l3-bar-seg.not-met { background: var(--status-not-met, #f87171); }
+.cc-l3-families { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.cc-l3-fam { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 10px 12px; }
+.cc-l3-fam-hdr { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.cc-l3-fam-id { font-size: 0.7rem; font-weight: 700; color: #a78bfa; background: rgba(167,139,250,0.1); padding: 2px 6px; border-radius: 4px; }
+.cc-l3-fam-name { font-size: 0.75rem; color: var(--text-secondary, #8b8fa3); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-l3-fam-pct { font-size: 0.8rem; font-weight: 600; }
+.cc-l3-fam-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.04); overflow: hidden; margin-bottom: 4px; }
+.cc-l3-fam-detail { font-size: 0.65rem; color: var(--text-muted, #4e5263); }
+.cc-l3-note { display: flex; align-items: flex-start; gap: 8px; font-size: 0.72rem; color: var(--text-muted, #4e5263); background: rgba(167,139,250,0.04); border: 1px solid rgba(167,139,250,0.1); border-radius: 6px; padding: 8px 12px; }
+.cc-l3-note svg { flex-shrink: 0; margin-top: 1px; color: #a78bfa; }

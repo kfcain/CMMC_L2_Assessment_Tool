@@ -399,6 +399,16 @@ const Rev3Crosswalk = {
 
     renderMappingTable: function() {
         const families = this.groupByFamily();
+        // Build withdrawn lookup from REV2_TO_REV3_MIGRATION
+        const withdrawnMap = {};
+        if (typeof REV2_TO_REV3_MIGRATION !== 'undefined') {
+            for (const [rev2Id, m] of Object.entries(REV2_TO_REV3_MIGRATION)) {
+                if (m.changeType === 'withdrawn') {
+                    if (!withdrawnMap[m.rev3Id]) withdrawnMap[m.rev3Id] = [];
+                    withdrawnMap[m.rev3Id].push({ rev2Id, notes: m.notes });
+                }
+            }
+        }
         
         return `
         <div class="mapping-filters">
@@ -411,37 +421,86 @@ const Rev3Crosswalk = {
                 <option value="modified">Modified Only</option>
                 <option value="unchanged">Unchanged Only</option>
             </select>
+            <label class="xwalk-toggle"><input type="checkbox" id="xwalk-show-odps" checked onchange="Rev3Crosswalk.toggleInlineOdps(this.checked)"> Show ODPs inline</label>
         </div>
-        <div class="mapping-table-container">
-            <table class="crosswalk-table" id="mapping-table">
-                <thead>
-                    <tr>
-                        <th>Rev2 Control</th>
-                        <th>Rev3 Control</th>
-                        <th>Status</th>
-                        <th>Changes</th>
-                        <th>New ODPs</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${this.CONTROL_MAPPING.map(c => this.renderMappingRow(c)).join('')}
-                </tbody>
-            </table>
+        <div class="mapping-cards-container" id="mapping-cards">
+            ${this.CONTROL_MAPPING.map(c => this.renderMappingCard(c, withdrawnMap)).join('')}
         </div>`;
     },
 
-    renderMappingRow: function(control) {
+    renderMappingCard: function(control, withdrawnMap) {
         const statusClass = control.status === 'modified' ? 'status-modified' : 'status-unchanged';
-        const odpList = control.newOdps ? control.newOdps.map(o => `<span class="odp-tag">${o}</span>`).join('') : '-';
+        const odpList = control.newOdps ? control.newOdps.map(o => `<span class="odp-tag">${o}</span>`).join('') : '';
+        const famNum = control.rev2.split('.')[1];
         
+        // Get full ODP details for this Rev3 control
+        const dodOdps = this.DOD_ODPS[control.rev3];
+        const r3Odps = (typeof REV3_ODPS !== 'undefined') ? REV3_ODPS[control.rev3] : null;
+        let odpDetailHtml = '';
+        if (dodOdps && dodOdps.odps && dodOdps.odps.length > 0) {
+            odpDetailHtml = `<div class="xwalk-odp-detail">
+                ${dodOdps.odps.map(odp => `<div class="xwalk-odp-row">
+                    <code class="xwalk-odp-id">${odp.id}</code>
+                    <span class="xwalk-odp-param">${odp.param}</span>
+                    <span class="xwalk-odp-val">${odp.value}</span>
+                </div>`).join('')}
+            </div>`;
+        } else if (r3Odps && r3Odps.parameters && r3Odps.parameters.length > 0) {
+            odpDetailHtml = `<div class="xwalk-odp-detail">
+                ${r3Odps.parameters.map((p, i) => `<div class="xwalk-odp-row">
+                    <code class="xwalk-odp-id">${control.rev3}[${i+1}]</code>
+                    <span class="xwalk-odp-param">${p.description}</span>
+                    <span class="xwalk-odp-val">${p.suggestedValue}</span>
+                </div>`).join('')}
+            </div>`;
+        }
+
+        // Withdrawn Rev2 controls that were consolidated into this Rev3 control
+        const consolidated = withdrawnMap ? (withdrawnMap[control.rev3] || []) : [];
+        let consolidatedHtml = '';
+        if (consolidated.length > 0) {
+            consolidatedHtml = `<div class="xwalk-consolidated">
+                <span class="xwalk-consol-label">Consolidated from Rev 2:</span>
+                ${consolidated.map(w => `<code class="xwalk-consol-id" title="${w.notes}">${w.rev2Id}</code>`).join('')}
+            </div>`;
+        }
+
+        // Get objective count from Rev3 families data
+        let objCount = '';
+        if (typeof REV3_FAMILIES !== 'undefined') {
+            for (const fam of REV3_FAMILIES) {
+                const ctrl = fam.controls.find(c => c.id === control.rev3);
+                if (ctrl && ctrl.objectives) {
+                    objCount = `<span class="xwalk-obj-count" title="${ctrl.objectives.length} assessment objectives">${ctrl.objectives.length} obj</span>`;
+                    break;
+                }
+            }
+        }
+
         return `
-        <tr class="mapping-row" data-family="${control.rev2.split('.')[1]}" data-status="${control.status}">
-            <td><code>${control.rev2}</code></td>
-            <td><code>${control.rev3}</code></td>
-            <td><span class="status-badge ${statusClass}">${control.status}</span></td>
-            <td class="change-desc">${control.change}</td>
-            <td class="odp-cell">${odpList}</td>
-        </tr>`;
+        <div class="xwalk-card" data-family="${famNum}" data-status="${control.status}">
+            <div class="xwalk-card-main">
+                <div class="xwalk-card-ids">
+                    <code class="xwalk-rev2">${control.rev2}</code>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    <code class="xwalk-rev3">${control.rev3}</code>
+                    ${objCount}
+                </div>
+                <div class="xwalk-card-meta">
+                    <span class="status-badge ${statusClass}">${control.status}</span>
+                    ${odpList}
+                </div>
+            </div>
+            <div class="xwalk-card-change">${control.change}</div>
+            ${consolidatedHtml}
+            ${odpDetailHtml}
+        </div>`;
+    },
+
+    toggleInlineOdps: function(show) {
+        document.querySelectorAll('.xwalk-odp-detail').forEach(el => {
+            el.style.display = show ? '' : 'none';
+        });
     },
 
     groupByFamily: function() {
@@ -457,19 +516,24 @@ const Rev3Crosswalk = {
     },
 
     filterByFamily: function(family) {
-        const rows = document.querySelectorAll('.mapping-row');
+        const cards = document.querySelectorAll('.xwalk-card');
         const famNum = { 'AC': '1', 'AT': '2', 'AU': '3', 'CM': '4', 'IA': '5', 'IR': '6', 'MA': '7', 'MP': '8', 'PS': '9', 'PE': '10', 'RA': '11', 'CA': '12', 'SC': '13', 'SI': '14' };
-        rows.forEach(row => {
-            if (family === 'all') row.style.display = '';
-            else row.style.display = row.dataset.family === famNum[family] ? '' : 'none';
+        const statusFilter = document.getElementById('status-filter')?.value || 'all';
+        cards.forEach(card => {
+            const famMatch = family === 'all' || card.dataset.family === famNum[family];
+            const statusMatch = statusFilter === 'all' || card.dataset.status === statusFilter;
+            card.style.display = (famMatch && statusMatch) ? '' : 'none';
         });
     },
 
     filterByStatus: function(status) {
-        const rows = document.querySelectorAll('.mapping-row');
-        rows.forEach(row => {
-            if (status === 'all') row.style.display = '';
-            else row.style.display = row.dataset.status === status ? '' : 'none';
+        const cards = document.querySelectorAll('.xwalk-card');
+        const familyFilter = document.getElementById('family-filter')?.value || 'all';
+        const famNum = { 'AC': '1', 'AT': '2', 'AU': '3', 'CM': '4', 'IA': '5', 'IR': '6', 'MA': '7', 'MP': '8', 'PS': '9', 'PE': '10', 'RA': '11', 'CA': '12', 'SC': '13', 'SI': '14' };
+        cards.forEach(card => {
+            const statusMatch = status === 'all' || card.dataset.status === status;
+            const famMatch = familyFilter === 'all' || card.dataset.family === famNum[familyFilter];
+            card.style.display = (famMatch && statusMatch) ? '' : 'none';
         });
     },
 

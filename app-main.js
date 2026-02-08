@@ -3002,6 +3002,33 @@ class AssessmentApp {
         const showPoamLink = !isL1 && (status === 'not-met' || status === 'partial'); // No POA&M for L1
         const xrefId = typeof CTRL_XREF !== 'undefined' ? (CTRL_XREF[objective.id] || '') : '';
 
+        // Rev2→Rev3 transition annotation
+        let transitionHtml = '';
+        if (typeof REV2_TO_REV3_MIGRATION !== 'undefined') {
+            if (this.assessmentRevision !== 'r3') {
+                // Rev2 view: annotate objectives whose control is withdrawn/consolidated in Rev3
+                const migration = REV2_TO_REV3_MIGRATION[controlId];
+                if (migration && migration.changeType === 'withdrawn') {
+                    transitionHtml = `<span class="rev3-transition-badge withdrawn" title="This Rev 2 objective is withdrawn in Rev 3. ${migration.notes}">Withdrawn in Rev 3 → ${migration.rev3Id}</span>`;
+                } else if (migration && migration.changeType === 'enhanced') {
+                    transitionHtml = `<span class="rev3-transition-badge enhanced" title="Enhanced in Rev 3 with new ODPs. ${migration.notes}">Enhanced in Rev 3</span>`;
+                }
+            } else {
+                // Rev3 view: annotate new controls and consolidated objectives
+                const isNew = typeof REV3_NEW_CONTROLS !== 'undefined' && REV3_NEW_CONTROLS.some(c => c.id === controlId);
+                if (isNew) {
+                    transitionHtml = `<span class="rev3-transition-badge new-in-r3" title="This objective is new in Rev 3 — no Rev 2 equivalent">New in Rev 3</span>`;
+                } else {
+                    // Check if this Rev3 control consolidated multiple Rev2 controls
+                    const consolidated = Object.entries(REV2_TO_REV3_MIGRATION).filter(([_, m]) => m.rev3Id === controlId && m.changeType === 'withdrawn');
+                    if (consolidated.length > 0) {
+                        const fromIds = consolidated.map(([id]) => id).join(', ');
+                        transitionHtml = `<span class="rev3-transition-badge consolidated" title="Consolidated from Rev 2: ${fromIds}">Consolidated from ${consolidated.length} Rev 2 control${consolidated.length > 1 ? 's' : ''}</span>`;
+                    }
+                }
+            }
+        }
+
         // Build assessor cheat sheet section
         const cheatSheetHtml = this.renderAssessorCheatSheet(objective.id, controlId);
 
@@ -3075,6 +3102,7 @@ class AssessmentApp {
                         <span class="impl-status-badge" data-objective-id="${objective.id}" style="display: none;"></span>
                         <span class="evidence-count-badge" data-objective-id="${objective.id}" style="display: none;"></span>
                         ${typeof InheritedControls !== 'undefined' ? InheritedControls.renderObjectiveBadge(controlId) : ''}
+                        ${transitionHtml}
                     </div>
                     <div class="objective-text">${objective.text}</div>
                 </div>

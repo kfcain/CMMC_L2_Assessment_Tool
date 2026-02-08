@@ -233,7 +233,39 @@ const CommandCenter = {
                 customer: inhCustomer.length,
                 hybrid: inhHybrid.length,
                 espProfiles: espProfiles.length
-            }
+            },
+            l3: this.gatherL3Data()
+        };
+    },
+
+    gatherL3Data() {
+        const l3Families = typeof NIST_800_172A_FAMILIES !== 'undefined' ? NIST_800_172A_FAMILIES : null;
+        if (!l3Families || !Array.isArray(l3Families) || l3Families.length === 0) {
+            return { available: false, totalControls: 0, totalObjectives: 0, met: 0, partial: 0, notMet: 0, notAssessed: 0, pctMet: 0, familyStats: [] };
+        }
+        const l3Data = JSON.parse(localStorage.getItem('nist-l3-assessment') || '{}');
+        let totalControls = 0, totalObjectives = 0, met = 0, partial = 0, notMet = 0, notAssessed = 0;
+        const familyStats = [];
+        l3Families.forEach(family => {
+            let fMet = 0, fPartial = 0, fNotMet = 0, fNA = 0, fTotal = 0, fControls = 0;
+            family.controls.forEach(control => {
+                totalControls++; fControls++;
+                control.objectives.forEach(obj => {
+                    totalObjectives++; fTotal++;
+                    const status = l3Data[obj.id]?.status;
+                    if (status === 'met') { met++; fMet++; }
+                    else if (status === 'partial') { partial++; fPartial++; }
+                    else if (status === 'not-met') { notMet++; fNotMet++; }
+                    else { notAssessed++; fNA++; }
+                });
+            });
+            familyStats.push({ id: family.id, name: family.name, controls: fControls, total: fTotal, met: fMet, partial: fPartial, notMet: fNotMet, notAssessed: fNA, pct: fTotal > 0 ? Math.round((fMet / fTotal) * 100) : 0 });
+        });
+        return {
+            available: true, totalControls, totalObjectives, met, partial, notMet, notAssessed,
+            pctMet: totalObjectives > 0 ? Math.round((met / totalObjectives) * 100) : 0,
+            pctAddressed: totalObjectives > 0 ? Math.round(((met + partial) / totalObjectives) * 100) : 0,
+            familyStats
         };
     },
 
@@ -247,7 +279,8 @@ const CommandCenter = {
             documents: { policies: 0, procedures: 0, ssp: 0, policyList: [], procedureList: [], sspList: [] },
             assets: { total: 0, byCategory: { cui: 0, spa: 0, crma: 0, specialized: 0, oos: 0 }, fipsCerts: 0, fipsList: [], assetList: [] },
             diagrams: { oscDataFlow: 0, oscNetwork: 0, hubApps: 0, hubDiagrams: 0, hubConnections: 0 },
-            inheritance: { total: 0, fullyInherited: 0, shared: 0, customer: 0, hybrid: 0, espProfiles: 0 }
+            inheritance: { total: 0, fullyInherited: 0, shared: 0, customer: 0, hybrid: 0, espProfiles: 0 },
+            l3: { available: false, totalControls: 0, totalObjectives: 0, met: 0, partial: 0, notMet: 0, notAssessed: 0, pctMet: 0, familyStats: [] }
         };
     },
 
@@ -745,6 +778,16 @@ const CommandCenter = {
                     </div>
                 </div>
 
+                <!-- Row 2b: L3 Enhanced Assessment (conditional) -->
+                ${data.l3.available ? `<div class="cc-panel cc-panel-full" id="cc-panel-l3">
+                    <div class="cc-panel-header">
+                        <h3><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> CMMC Level 3 — Enhanced Security (NIST 800-172A)</h3>
+                    </div>
+                    <div class="cc-panel-body">
+                        ${this.renderL3Panel(data)}
+                    </div>
+                </div>` : ''}
+
                 <!-- Row 3: POA&M + Documents + Assets -->
                 <div class="cc-panel" id="cc-panel-poam">
                     <div class="cc-panel-header">
@@ -875,6 +918,10 @@ const CommandCenter = {
                     <div class="cc-kpi-value">${data.documents.policies + data.documents.procedures + data.documents.ssp}</div>
                     <div class="cc-kpi-label">Documents</div>
                 </div>
+                ${data.l3.available ? `<div class="cc-kpi ${data.l3.pctMet >= 80 ? 'cc-kpi-green' : data.l3.pctMet >= 40 ? 'cc-kpi-amber' : 'cc-kpi-red'}">
+                    <div class="cc-kpi-value">${data.l3.pctMet}%</div>
+                    <div class="cc-kpi-label">L3 Enhanced</div>
+                </div>` : ''}
             </div>
         `;
     },
@@ -1163,6 +1210,65 @@ const CommandCenter = {
                             `).join('')}
                         </div>
                     </div>
+                </div>
+            </div>
+        `;
+    },
+
+    renderL3Panel(data) {
+        const l3 = data.l3;
+        const ringR = 36, ringC = 2 * Math.PI * ringR, ringOff = ringC - (l3.pctMet / 100) * ringC;
+        const addrOff = ringC - (l3.pctAddressed / 100) * ringC;
+        const assessed = l3.totalObjectives - l3.notAssessed;
+
+        return `
+            <div class="cc-l3-overview">
+                <div class="cc-l3-summary">
+                    <div class="cc-l3-ring">
+                        <svg viewBox="0 0 80 80" width="80" height="80">
+                            <circle cx="40" cy="40" r="${ringR}" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="5"/>
+                            <circle cx="40" cy="40" r="${ringR}" fill="none" stroke="rgba(251,191,36,0.15)" stroke-width="5" stroke-dasharray="${ringC}" stroke-dashoffset="${addrOff}" transform="rotate(-90 40 40)" style="transition:stroke-dashoffset 0.6s"/>
+                            <circle cx="40" cy="40" r="${ringR}" fill="none" stroke="#a78bfa" stroke-width="5" stroke-linecap="round" stroke-dasharray="${ringC}" stroke-dashoffset="${ringOff}" transform="rotate(-90 40 40)" style="transition:stroke-dashoffset 0.6s"/>
+                        </svg>
+                        <div class="cc-l3-ring-label">
+                            <span class="cc-l3-ring-pct">${l3.pctMet}%</span>
+                            <span class="cc-l3-ring-sub">L3 Met</span>
+                        </div>
+                    </div>
+                    <div class="cc-l3-stats">
+                        <div class="cc-l3-stat"><span class="cc-l3-stat-val">${l3.totalControls}</span><span class="cc-l3-stat-lbl">Controls</span></div>
+                        <div class="cc-l3-stat"><span class="cc-l3-stat-val">${l3.totalObjectives}</span><span class="cc-l3-stat-lbl">Objectives</span></div>
+                        <div class="cc-l3-stat"><span class="cc-l3-stat-val" style="color:var(--status-met,#34d399)">${l3.met}</span><span class="cc-l3-stat-lbl">Met</span></div>
+                        <div class="cc-l3-stat"><span class="cc-l3-stat-val" style="color:var(--status-partial,#fbbf24)">${l3.partial}</span><span class="cc-l3-stat-lbl">Partial</span></div>
+                        <div class="cc-l3-stat"><span class="cc-l3-stat-val" style="color:var(--status-not-met,#f87171)">${l3.notMet}</span><span class="cc-l3-stat-lbl">Not Met</span></div>
+                        <div class="cc-l3-stat"><span class="cc-l3-stat-val" style="color:var(--text-muted,#4e5263)">${l3.notAssessed}</span><span class="cc-l3-stat-lbl">Pending</span></div>
+                    </div>
+                </div>
+                <div class="cc-l3-bar">
+                    <div class="cc-l3-bar-seg met" style="width:${l3.totalObjectives ? (l3.met/l3.totalObjectives)*100 : 0}%"></div>
+                    <div class="cc-l3-bar-seg partial" style="width:${l3.totalObjectives ? (l3.partial/l3.totalObjectives)*100 : 0}%"></div>
+                    <div class="cc-l3-bar-seg not-met" style="width:${l3.totalObjectives ? (l3.notMet/l3.totalObjectives)*100 : 0}%"></div>
+                </div>
+                <div class="cc-l3-families">
+                    ${l3.familyStats.map(f => {
+                        const fPct = f.pct;
+                        const barColor = fPct === 100 ? 'var(--status-met,#34d399)' : fPct >= 50 ? '#a78bfa' : fPct > 0 ? 'var(--status-partial,#fbbf24)' : 'rgba(255,255,255,0.06)';
+                        return `<div class="cc-l3-fam">
+                            <div class="cc-l3-fam-hdr">
+                                <span class="cc-l3-fam-id">${f.id}</span>
+                                <span class="cc-l3-fam-name">${f.name}</span>
+                                <span class="cc-l3-fam-pct" style="color:${barColor}">${fPct}%</span>
+                            </div>
+                            <div class="cc-l3-fam-bar">
+                                <div style="width:${fPct}%; background:${barColor}; height:100%; border-radius:3px; transition:width 0.4s;"></div>
+                            </div>
+                            <div class="cc-l3-fam-detail">${f.met} met · ${f.partial} partial · ${f.notMet} not met · ${f.notAssessed} pending</div>
+                        </div>`;
+                    }).join('')}
+                </div>
+                <div class="cc-l3-note">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    L3 assessment is performed by DIBCAC (not C3PAOs). All L2 controls must be met before L3 certification. ${assessed} of ${l3.totalObjectives} objectives assessed.
                 </div>
             </div>
         `;
