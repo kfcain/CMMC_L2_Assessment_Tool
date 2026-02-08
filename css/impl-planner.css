@@ -1298,3 +1298,298 @@
     background: var(--bg-tertiary);
     color: var(--text-secondary);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Rev 2 / Rev 3 Toggle & Rev 3 Specific Styles
+   ═══════════════════════════════════════════════════════════ */
+
+.impl-planner-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.impl-planner-rev-toggle {
+    display: flex;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 3px;
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.impl-rev-btn {
+    padding: 6px 16px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.impl-rev-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+}
+
+.impl-rev-btn.active {
+    background: var(--accent-blue);
+    color: white;
+    font-weight: 600;
+}
+
+.impl-rev-btn.active[data-rev="r3"] {
+    background: #10b981;
+}
+
+.impl-planner-r3-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #10b981;
+    letter-spacing: 0.02em;
+}
+
+.impl-planner-r3-badge svg {
+    stroke: #10b981;
+}
+
+/* ODP Section Styles */
+.impl-odp-section h4 {
+    color: #10b981;
+}
+
+.impl-odp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px;
+}
+
+.impl-odp-card {
+    background: var(--bg-primary);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    border-left: 3px solid #10b981;
+}
+
+.impl-odp-control {
+    font-size: 0.65rem;
+    font-family: monospace;
+    color: #10b981;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.impl-odp-param {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.impl-odp-suggested {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.impl-odp-suggested strong {
+    color: var(--text-primary);
+}
+
+/* ODP Table */
+.impl-odp-table-wrapper {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.impl-odp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.impl-odp-table th {
+    background: var(--bg-tertiary);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.impl-odp-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: top;
+}
+
+.impl-odp-table tr:last-child td {
+    border-bottom: none;
+}
+
+.impl-odp-table tr:hover {
+    background: var(--bg-tertiary);
+}
+
+.impl-odp-table code {
+    font-size: 0.75rem;
+    padding: 1px 6px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 3px;
+    color: #10b981;
+    font-weight: 600;
+}
+
+/* New Rev 3 Controls Badges */
+.impl-new-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.impl-new-control-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 8px;
+    border-left: 3px solid #10b981;
+}
+
+.impl-new-control-id {
+    font-family: monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.impl-new-control-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.impl-new-control-note {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Maturity Levels */
+.impl-maturity-levels {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.impl-maturity-level {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.impl-maturity-level strong {
+    font-size: 0.8rem;
+    min-width: 80px;
+}
+
+.impl-maturity-level span {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Kanban description */
+.impl-kanban-task-desc {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Phase project plan section within phase content */
+.impl-phase-project-plan {
+    margin-top: 24px;
+    padding: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.impl-phase-project-plan .phase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.impl-phase-project-plan .phase-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ODP task indicator on task card */
+.impl-task[data-odp="true"] .impl-task-name::after {
+    content: "ODP";
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.55rem;
+    padding: 1px 5px;
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border-radius: 3px;
+    font-weight: 700;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive adjustments for Rev toggle */
+@media (max-width: 768px) {
+    .impl-planner-header-top {
+        flex-direction: column;
+    }
+    
+    .impl-planner-rev-toggle {
+        align-self: flex-start;
+    }
+    
+    .impl-odp-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .impl-new-controls {
+        flex-direction: column;
+    }
+    
+    .impl-new-control-badge {
+        flex-wrap: wrap;
+    }
+}

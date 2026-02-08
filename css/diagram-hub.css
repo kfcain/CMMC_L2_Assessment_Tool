@@ -1,0 +1,1050 @@
+/* =========================================================================
+   Diagram Integration Hub Styles
+   ========================================================================= */
+
+/* Header */
+.dh-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.dh-header h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary, #abb2bf);
+    margin: 0;
+}
+
+.dh-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted, #5c6370);
+    margin: 4px 0 0 0;
+}
+
+.dh-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Buttons */
+.dh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.dh-btn-primary {
+    background: var(--accent-blue, #6c8aff);
+    color: #fff;
+}
+.dh-btn-primary:hover {
+    background: var(--accent-blue-hover, #5a7aff);
+    transform: translateY(-1px);
+}
+
+.dh-btn-secondary {
+    background: var(--bg-tertiary, #2c313a);
+    color: var(--text-primary, #abb2bf);
+    border: 1px solid var(--border-color, #3e4452);
+}
+.dh-btn-secondary:hover {
+    background: var(--bg-hover, #353b45);
+}
+
+.dh-btn-ghost {
+    background: transparent;
+    color: var(--text-secondary, #828997);
+    border: 1px solid var(--border-color, #3e4452);
+}
+.dh-btn-ghost:hover {
+    background: var(--bg-tertiary, #2c313a);
+    color: var(--text-primary, #abb2bf);
+}
+
+.dh-btn-danger {
+    background: transparent;
+    color: var(--red, #e06c75);
+    border: 1px solid transparent;
+}
+.dh-btn-danger:hover {
+    background: rgba(224, 108, 117, 0.1);
+}
+
+.dh-btn-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+/* Stats Row */
+.dh-stats-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.dh-stat-card {
+    background: var(--bg-secondary, #21252b);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 8px;
+    padding: 14px 18px;
+    min-width: 100px;
+    text-align: center;
+}
+
+.dh-stat-card.dh-stat-cat {
+    min-width: 80px;
+}
+
+.dh-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary, #abb2bf);
+    line-height: 1;
+}
+
+.dh-stat-label {
+    font-size: 0.72rem;
+    color: var(--text-muted, #5c6370);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Tabs */
+.dh-tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 2px solid var(--border-color, #3e4452);
+    margin-bottom: 20px;
+}
+
+.dh-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    color: var(--text-muted, #5c6370);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.dh-tab:hover {
+    color: var(--text-primary, #abb2bf);
+    background: var(--bg-tertiary, #2c313a);
+}
+
+.dh-tab.active {
+    color: var(--accent-blue, #6c8aff);
+    border-bottom-color: var(--accent-blue, #6c8aff);
+}
+
+/* Empty State */
+.dh-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted, #5c6370);
+}
+
+.dh-empty-state svg {
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.dh-empty-state h3 {
+    color: var(--text-primary, #abb2bf);
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+}
+
+.dh-empty-state p {
+    max-width: 400px;
+    margin: 0 auto 20px auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* Application Grid */
+.dh-app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+}
+
+.dh-app-card {
+    background: var(--bg-secondary, #21252b);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dh-app-card:hover {
+    border-color: var(--accent-blue, #6c8aff);
+    box-shadow: 0 2px 12px rgba(108, 138, 255, 0.08);
+}
+
+.dh-app-card-header {
+    padding: 16px 16px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.dh-app-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary, #abb2bf);
+}
+
+.dh-app-cat-badge {
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.dh-app-card-body {
+    padding: 0 16px 12px;
+}
+
+.dh-app-desc {
+    font-size: 0.82rem;
+    color: var(--text-secondary, #828997);
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.dh-app-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.dh-meta-item {
+    font-size: 0.75rem;
+    color: var(--text-muted, #5c6370);
+}
+
+.dh-meta-item strong {
+    color: var(--text-secondary, #828997);
+}
+
+.dh-app-stats {
+    display: flex;
+    gap: 12px;
+}
+
+.dh-app-stat {
+    font-size: 0.75rem;
+    color: var(--text-muted, #5c6370);
+    background: var(--bg-tertiary, #2c313a);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.dh-app-card-actions {
+    display: flex;
+    gap: 4px;
+    padding: 8px 16px 12px;
+    border-top: 1px solid var(--border-color, #3e4452);
+}
+
+.dh-app-card-actions .dh-btn-sm {
+    flex: 1;
+    justify-content: center;
+}
+
+.dh-app-card-actions .dh-btn-primary {
+    background: var(--accent-blue, #6c8aff);
+    color: #fff;
+}
+.dh-app-card-actions .dh-btn-primary:hover {
+    background: var(--accent-blue-hover, #5a7aff);
+}
+
+.dh-app-card-actions .dh-btn-ghost {
+    background: transparent;
+    color: var(--text-secondary, #828997);
+    border: 1px solid var(--border-color, #3e4452);
+}
+.dh-app-card-actions .dh-btn-ghost:hover {
+    background: var(--bg-tertiary, #2c313a);
+}
+
+.dh-app-card-actions .dh-btn-danger {
+    background: transparent;
+    color: var(--red, #e06c75);
+}
+.dh-app-card-actions .dh-btn-danger:hover {
+    background: rgba(224, 108, 117, 0.1);
+}
+
+/* Diagram Grid */
+.dh-diagram-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.dh-diagram-card {
+    background: var(--bg-secondary, #21252b);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s ease;
+}
+
+.dh-diagram-card:hover {
+    border-color: var(--accent-blue, #6c8aff);
+}
+
+.dh-diagram-preview {
+    height: 160px;
+    background: var(--bg-primary, #282c34);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border-color, #3e4452);
+}
+
+.dh-diagram-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.dh-embed-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted, #5c6370);
+    font-size: 0.8rem;
+}
+
+.dh-embed-badge.dh-no-file {
+    opacity: 0.5;
+}
+
+.dh-diagram-info {
+    padding: 12px 14px;
+}
+
+.dh-diagram-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary, #abb2bf);
+    margin-bottom: 6px;
+}
+
+.dh-diagram-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.dh-diagram-type-badge {
+    font-size: 0.68rem;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--accent-blue, #6c8aff)20;
+    color: var(--accent-blue, #6c8aff);
+    border: 1px solid var(--accent-blue, #6c8aff)30;
+}
+
+.dh-diagram-source-badge {
+    font-size: 0.68rem;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--bg-tertiary, #2c313a);
+    color: var(--text-muted, #5c6370);
+}
+
+.dh-diagram-version {
+    font-size: 0.68rem;
+    color: var(--text-muted, #5c6370);
+}
+
+.dh-diagram-app-link {
+    font-size: 0.75rem;
+    color: var(--text-muted, #5c6370);
+    margin-top: 4px;
+}
+
+.dh-diagram-cats {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.dh-cat-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dh-diagram-card-actions {
+    display: flex;
+    gap: 4px;
+    padding: 8px 14px 10px;
+    border-top: 1px solid var(--border-color, #3e4452);
+    justify-content: flex-end;
+}
+
+.dh-diagram-card-actions .dh-btn-sm {
+    background: transparent;
+    color: var(--text-muted, #5c6370);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 4px;
+}
+
+.dh-diagram-card-actions .dh-btn-sm:hover {
+    background: var(--bg-tertiary, #2c313a);
+    color: var(--text-primary, #abb2bf);
+}
+
+.dh-diagram-card-actions .dh-btn-danger:hover {
+    background: rgba(224, 108, 117, 0.1);
+    color: var(--red, #e06c75);
+    border-color: var(--red, #e06c75);
+}
+
+/* Filter Bar */
+.dh-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--bg-secondary, #21252b);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: var(--text-secondary, #828997);
+}
+
+/* Scoping Table */
+.dh-scoping-overview h3 {
+    font-size: 1.1rem;
+    color: var(--text-primary, #abb2bf);
+    margin: 0 0 4px 0;
+}
+
+.dh-scoping-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted, #5c6370);
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+.dh-scope-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 24px;
+}
+
+.dh-scope-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.dh-scope-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg-tertiary, #2c313a);
+    color: var(--text-secondary, #828997);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--border-color, #3e4452);
+}
+
+.dh-scope-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color, #3e4452);
+    color: var(--text-primary, #abb2bf);
+}
+
+.dh-scope-table tr:hover td {
+    background: var(--bg-secondary, #21252b);
+}
+
+.dh-cat-badge-sm {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.dh-status-complete {
+    color: var(--green, #98c379);
+    font-weight: 600;
+    font-size: 0.78rem;
+}
+
+.dh-status-partial {
+    color: var(--yellow, #e5c07b);
+    font-weight: 600;
+    font-size: 0.78rem;
+}
+
+.dh-status-missing {
+    color: var(--red, #e06c75);
+    font-weight: 600;
+    font-size: 0.78rem;
+}
+
+.dh-status-note {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted, #5c6370);
+    font-weight: 400;
+}
+
+/* Scope Legend */
+.dh-scope-legend {
+    background: var(--bg-secondary, #21252b);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.dh-scope-legend h4 {
+    font-size: 0.85rem;
+    color: var(--text-primary, #abb2bf);
+    margin: 0 0 12px 0;
+}
+
+.dh-legend-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 8px;
+}
+
+.dh-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: var(--text-secondary, #828997);
+}
+
+.dh-legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.dh-legend-item strong {
+    color: var(--text-primary, #abb2bf);
+}
+
+/* Connections View */
+.dh-connections-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.dh-connections-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-primary, #abb2bf);
+    margin: 0;
+}
+
+.dh-connections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dh-connection-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: var(--bg-secondary, #21252b);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 8px;
+    flex-wrap: wrap;
+}
+
+.dh-conn-apps {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--text-primary, #abb2bf);
+    font-size: 0.9rem;
+}
+
+.dh-conn-arrow {
+    color: var(--accent-blue, #6c8aff);
+    font-size: 1.2rem;
+}
+
+.dh-conn-details {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.dh-conn-data-type {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--accent-blue, #6c8aff)15;
+    color: var(--accent-blue, #6c8aff);
+    font-weight: 500;
+}
+
+.dh-conn-protocol {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--bg-tertiary, #2c313a);
+    color: var(--text-muted, #5c6370);
+}
+
+.dh-conn-encrypted {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.dh-conn-encrypted.yes {
+    background: rgba(152, 195, 121, 0.1);
+    color: var(--green, #98c379);
+}
+
+.dh-conn-encrypted.no {
+    background: rgba(224, 108, 117, 0.1);
+    color: var(--red, #e06c75);
+}
+
+.dh-conn-desc {
+    width: 100%;
+    font-size: 0.78rem;
+    color: var(--text-muted, #5c6370);
+    margin-top: 4px;
+}
+
+/* =========================================================================
+   Modal Styles
+   ========================================================================= */
+
+.dh-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.dh-modal {
+    background: var(--bg-primary, #282c34);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.dh-modal-wide {
+    max-width: 720px;
+}
+
+.dh-modal-viewer {
+    max-width: 900px;
+}
+
+.dh-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color, #3e4452);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.dh-modal-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-primary, #abb2bf);
+    margin: 0;
+}
+
+.dh-modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted, #5c6370);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+.dh-modal-close:hover {
+    color: var(--text-primary, #abb2bf);
+}
+
+.dh-modal-body {
+    padding: 20px;
+}
+
+.dh-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--border-color, #3e4452);
+}
+
+/* Form Elements */
+.dh-form-group {
+    margin-bottom: 14px;
+}
+
+.dh-form-group label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary, #828997);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.dh-form-group input[type="text"],
+.dh-form-group textarea,
+.dh-form-group select {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--bg-secondary, #21252b);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 6px;
+    color: var(--text-primary, #abb2bf);
+    font-size: 0.85rem;
+    font-family: inherit;
+    transition: border-color 0.15s ease;
+    box-sizing: border-box;
+}
+
+.dh-form-group input:focus,
+.dh-form-group textarea:focus,
+.dh-form-group select:focus {
+    outline: none;
+    border-color: var(--accent-blue, #6c8aff);
+}
+
+.dh-form-group textarea {
+    min-height: 60px;
+    resize: vertical;
+}
+
+.dh-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* Source Grid */
+.dh-source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+}
+
+.dh-source-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 8px;
+    background: var(--bg-secondary, #21252b);
+    border: 2px solid var(--border-color, #3e4452);
+    border-radius: 8px;
+    color: var(--text-muted, #5c6370);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.dh-source-btn:hover {
+    border-color: var(--accent-blue, #6c8aff);
+    color: var(--text-primary, #abb2bf);
+}
+
+.dh-source-btn.active {
+    border-color: var(--accent-blue, #6c8aff);
+    background: var(--accent-blue, #6c8aff)10;
+    color: var(--accent-blue, #6c8aff);
+}
+
+/* Import Area */
+.dh-import-section {
+    margin-top: 8px;
+}
+
+.dh-import-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted, #5c6370);
+    margin: 0 0 8px 0;
+}
+
+.dh-import-url {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg-secondary, #21252b);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 6px;
+    color: var(--text-primary, #abb2bf);
+    font-size: 0.85rem;
+    box-sizing: border-box;
+}
+
+.dh-import-url:focus {
+    outline: none;
+    border-color: var(--accent-blue, #6c8aff);
+}
+
+.dh-mermaid-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg-secondary, #21252b);
+    border: 1px solid var(--border-color, #3e4452);
+    border-radius: 6px;
+    color: var(--text-primary, #abb2bf);
+    font-size: 0.82rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.dh-mermaid-input:focus {
+    outline: none;
+    border-color: var(--accent-blue, #6c8aff);
+}
+
+/* Upload Area */
+.dh-upload-area {
+    border: 2px dashed var(--border-color, #3e4452);
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: var(--text-muted, #5c6370);
+}
+
+.dh-upload-area:hover,
+.dh-upload-area.drag-over {
+    border-color: var(--accent-blue, #6c8aff);
+    background: var(--accent-blue, #6c8aff)08;
+}
+
+.dh-upload-area p {
+    margin: 8px 0 0 0;
+    font-size: 0.82rem;
+}
+
+/* Checkbox Group */
+.dh-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.dh-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--text-secondary, #828997);
+    cursor: pointer;
+}
+
+.dh-checkbox-label input[type="checkbox"] {
+    accent-color: var(--accent-blue, #6c8aff);
+}
+
+/* Upload Status */
+.dh-uploading {
+    padding: 10px;
+    text-align: center;
+    color: var(--accent-blue, #6c8aff);
+    font-size: 0.82rem;
+}
+
+.dh-upload-error {
+    padding: 10px;
+    text-align: center;
+    color: var(--red, #e06c75);
+    font-size: 0.82rem;
+}
+
+/* Viewer */
+.dh-viewer-body {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary, #21252b);
+}
+
+.dh-viewer-img {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+}
+
+.dh-viewer-iframe {
+    width: 100%;
+    height: 60vh;
+    border: none;
+}
+
+.dh-viewer-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.dh-viewer-desc {
+    padding: 12px 20px;
+    font-size: 0.82rem;
+    color: var(--text-secondary, #828997);
+    border-top: 1px solid var(--border-color, #3e4452);
+}
+
+.dh-viewer-file,
+.dh-viewer-empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted, #5c6370);
+}
+
+.dh-mermaid-preview {
+    padding: 20px;
+    width: 100%;
+}
+
+.dh-mermaid-preview pre {
+    background: var(--bg-primary, #282c34);
+    padding: 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    color: var(--text-primary, #abb2bf);
+}
+
+.dh-mermaid-note {
+    font-size: 0.78rem;
+    color: var(--text-muted, #5c6370);
+    margin-top: 12px;
+}
+
+.dh-mermaid-note a {
+    color: var(--accent-blue, #6c8aff);
+}
+
+/* =========================================================================
+   Responsive
+   ========================================================================= */
+
+@media (max-width: 768px) {
+    .dh-header {
+        flex-direction: column;
+    }
+
+    .dh-stats-row {
+        flex-wrap: wrap;
+    }
+
+    .dh-stat-card {
+        flex: 1;
+        min-width: 70px;
+    }
+
+    .dh-tabs {
+        overflow-x: auto;
+    }
+
+    .dh-app-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dh-diagram-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dh-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .dh-source-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .dh-connection-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

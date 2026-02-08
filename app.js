@@ -903,18 +903,24 @@ class AssessmentApp {
         const siteTitleBar = document.getElementById('site-title-bar');
         if (siteTitleBar) siteTitleBar.style.display = 'none';
         
-        const planner = typeof IMPLEMENTATION_PLANNER !== 'undefined' ? IMPLEMENTATION_PLANNER : null;
-        console.log('IMPLEMENTATION_PLANNER available:', typeof IMPLEMENTATION_PLANNER !== 'undefined');
-        console.log('ProjectPlanIntegration available:', typeof ProjectPlanIntegration !== 'undefined');
+        // Determine planner revision
+        this.implPlannerRevision = localStorage.getItem('impl-planner-revision') || 'r2';
+        const isR3 = this.implPlannerRevision === 'r3';
+        const planner = isR3
+            ? (typeof IMPLEMENTATION_PLANNER_R3 !== 'undefined' ? IMPLEMENTATION_PLANNER_R3 : null)
+            : (typeof IMPLEMENTATION_PLANNER !== 'undefined' ? IMPLEMENTATION_PLANNER : null);
+        console.log('Planner revision:', this.implPlannerRevision, 'Data available:', !!planner);
         
         if (!planner) {
             container.innerHTML = '<p style="padding:40px;text-align:center;color:var(--text-muted)">Implementation Planner data not loaded.</p>';
             return;
         }
         
-        // Load saved progress
-        this.implPlannerProgress = JSON.parse(localStorage.getItem('impl-planner-progress') || '{}');
-        this.implPlannerCurrentPhase = localStorage.getItem('impl-planner-phase') || planner.phases[0].id;
+        // Load saved progress (revision-specific keys)
+        const progressKey = isR3 ? 'impl-planner-r3-progress' : 'impl-planner-progress';
+        const phaseKey = isR3 ? 'impl-planner-r3-phase' : 'impl-planner-phase';
+        this.implPlannerProgress = JSON.parse(localStorage.getItem(progressKey) || '{}');
+        this.implPlannerCurrentPhase = localStorage.getItem(phaseKey) || planner.phases[0].id;
         const storedView = localStorage.getItem('impl-planner-view');
         const allowedViews = ['phases', 'kanban', 'list'];
         this.implPlannerView = allowedViews.includes(storedView) ? storedView : 'phases';
@@ -943,11 +949,18 @@ class AssessmentApp {
         container.innerHTML = `
             <!-- Header -->
             <div class="impl-planner-header">
-                <h1>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 14l2 2 4-4"/></svg>
-                    CMMC Implementation Planner
-                </h1>
+                <div class="impl-planner-header-top">
+                    <h1>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 14l2 2 4-4"/></svg>
+                        CMMC Implementation Planner
+                    </h1>
+                    <div class="impl-planner-rev-toggle">
+                        <button class="impl-rev-btn ${!isR3 ? 'active' : ''}" data-rev="r2">Rev 2</button>
+                        <button class="impl-rev-btn ${isR3 ? 'active' : ''}" data-rev="r3">Rev 3</button>
+                    </div>
+                </div>
                 <p>${planner.description}</p>
+                ${isR3 ? '<div class="impl-planner-r3-badge"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Rev 3 Edition &mdash; 17 families &bull; 97 controls &bull; 422 objectives &bull; ODPs &bull; New: SR, PL</div>' : ''}
             </div>
             
             <!-- Progress Overview -->
@@ -1208,7 +1221,7 @@ class AssessmentApp {
         const isComplete = this.implPlannerProgress[task.id];
         
         return `
-            <div class="impl-task" data-task="${task.id}">
+            <div class="impl-task" data-task="${task.id}"${task.isODPTask ? ' data-odp="true"' : ''}>
                 <div class="impl-task-checkbox ${isComplete ? 'completed' : ''}" data-task-id="${task.id}">
                     ${isComplete ? '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
                 </div>
@@ -1354,6 +1367,172 @@ class AssessmentApp {
             `;
         }
         
+        // Rev 3: ODP Values
+        if (guidance.odpValues && guidance.odpValues.length > 0) {
+            html += `
+                <div class="impl-task-section impl-odp-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        Organization-Defined Parameters (ODPs)
+                    </h4>
+                    <div class="impl-odp-grid">
+                        ${guidance.odpValues.map(odp => `
+                            <div class="impl-odp-card">
+                                <div class="impl-odp-control">${odp.control}</div>
+                                <div class="impl-odp-param">${odp.param}</div>
+                                <div class="impl-odp-suggested">Suggested: <strong>${odp.suggested}</strong></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Rev 3: ODP Definitions (full list for ODP definition task)
+        if (guidance.odpDefinitions && guidance.odpDefinitions.length > 0) {
+            html += `
+                <div class="impl-task-section impl-odp-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        All ODPs to Define
+                    </h4>
+                    <div class="impl-odp-table-wrapper">
+                        <table class="impl-odp-table">
+                            <thead><tr><th>Control</th><th>Parameter</th><th>Suggested Value</th></tr></thead>
+                            <tbody>
+                                ${guidance.odpDefinitions.map(odp => `
+                                    <tr>
+                                        <td><code>${odp.control}</code></td>
+                                        <td>${odp.param}</td>
+                                        <td><strong>${odp.suggested}</strong></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Rev 3: New Controls badges
+        if (guidance.rev3NewControls && guidance.rev3NewControls.length > 0) {
+            html += `
+                <div class="impl-task-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        New Rev 3 Controls
+                    </h4>
+                    <div class="impl-new-controls">
+                        ${guidance.rev3NewControls.map(c => `
+                            <div class="impl-new-control-badge">
+                                <span class="impl-new-control-id">${c.id}</span>
+                                <span class="impl-new-control-name">${c.name}</span>
+                                <span class="impl-new-control-note">${c.note}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Rev 3: Scope Options
+        if (guidance.scopeOptions && guidance.scopeOptions.length > 0) {
+            html += `
+                <div class="impl-task-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        Scope Options
+                    </h4>
+                    <div class="impl-deployment-options">
+                        ${guidance.scopeOptions.map((opt, idx) => `
+                            <div class="impl-deployment-option" style="border-left:3px solid ${idx === 0 ? 'var(--status-met)' : idx === 1 ? 'var(--accent-blue)' : 'var(--accent-purple)'}">
+                                <div class="impl-deployment-option-header">
+                                    <strong>${opt.name}</strong>
+                                    <span class="impl-deployment-best-for">${opt.bestFor}</span>
+                                </div>
+                                <div class="impl-deployment-pros-cons">
+                                    <div class="impl-pros">
+                                        <span style="color:var(--status-met);font-weight:600;font-size:0.65rem">PROS</span>
+                                        ${opt.pros.map(p => `<span class="impl-pro-item">${p}</span>`).join('')}
+                                    </div>
+                                    <div class="impl-cons">
+                                        <span style="color:var(--status-not-met);font-weight:600;font-size:0.65rem">CONS</span>
+                                        ${opt.cons.map(c => `<span class="impl-con-item">${c}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Rev 3: Budget Categories
+        if (guidance.budgetCategories && guidance.budgetCategories.length > 0) {
+            html += `
+                <div class="impl-task-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Budget Estimates
+                    </h4>
+                    <div class="impl-odp-table-wrapper">
+                        <table class="impl-odp-table">
+                            <thead><tr><th>Category</th><th>Range</th><th>Notes</th></tr></thead>
+                            <tbody>
+                                ${guidance.budgetCategories.map(b => `
+                                    <tr>
+                                        <td><strong>${b.category}</strong></td>
+                                        <td style="color:var(--accent-blue);font-weight:600">${b.range}</td>
+                                        <td style="font-size:0.75rem;color:var(--text-secondary)">${b.notes}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Rev 3: Maturity Levels
+        if (guidance.maturityLevels && guidance.maturityLevels.length > 0) {
+            html += `
+                <div class="impl-task-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                        Maturity Levels
+                    </h4>
+                    <div class="impl-maturity-levels">
+                        ${guidance.maturityLevels.map(m => `
+                            <div class="impl-maturity-level" style="border-left:3px solid ${m.color}">
+                                <strong style="color:${m.color}">${m.level}</strong>
+                                <span>${m.description}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Rev 3: Diagram Types
+        if (guidance.diagramTypes && guidance.diagramTypes.length > 0) {
+            html += `
+                <div class="impl-task-section">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                        Diagram Requirements
+                    </h4>
+                    <div class="impl-maturity-levels">
+                        ${guidance.diagramTypes.map(d => `
+                            <div class="impl-maturity-level" style="border-left:3px solid var(--accent-blue)">
+                                <strong>${d.name}</strong>
+                                <span>${d.description}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
         return html || '<p style="font-size:0.75rem;color:var(--text-muted)">No additional details available.</p>';
     }
     
@@ -1453,7 +1632,14 @@ class AssessmentApp {
             data: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',
             monitor: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>',
             vdi: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2m2 0h2m2 0h2"/><path d="M7 11h10"/></svg>',
-            policies: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'
+            policies: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+            access: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+            audit: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>',
+            operations: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+            risk: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+            'supply-chain': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16h6"/><path d="M2 16h6"/><rect x="8" y="12" width="8" height="8" rx="1"/><path d="M12 12V8"/><path d="M8 8h8"/><path d="M12 8V4"/><path d="M8 4h8"/></svg>',
+            monitoring: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+            assessment: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>'
         };
         return icons[iconName] || icons.foundation;
     }
@@ -1646,17 +1832,32 @@ class AssessmentApp {
     
     toggleProjectPlanTask(taskId) {
         this.implPlannerProgress[taskId] = !this.implPlannerProgress[taskId];
-        localStorage.setItem('impl-planner-progress', JSON.stringify(this.implPlannerProgress));
+        const isR3 = this.implPlannerRevision === 'r3';
+        const progressKey = isR3 ? 'impl-planner-r3-progress' : 'impl-planner-progress';
+        localStorage.setItem(progressKey, JSON.stringify(this.implPlannerProgress));
         this.renderImplPlanner();
     }
     
     bindImplPlannerEvents(container, planner, phaseProgress) {
+        // Revision toggle
+        container.querySelectorAll('.impl-rev-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const rev = e.currentTarget.dataset.rev;
+                if (rev !== this.implPlannerRevision) {
+                    this.implPlannerRevision = rev;
+                    localStorage.setItem('impl-planner-revision', rev);
+                    this.renderImplPlanner();
+                }
+            });
+        });
+        
         // Phase tab clicks
         container.querySelectorAll('.impl-phase-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 const phaseId = e.currentTarget.dataset.phase;
                 this.implPlannerCurrentPhase = phaseId;
-                localStorage.setItem('impl-planner-phase', phaseId);
+                const isR3 = this.implPlannerRevision === 'r3';
+                localStorage.setItem(isR3 ? 'impl-planner-r3-phase' : 'impl-planner-phase', phaseId);
                 this.renderImplPlanner();
                 
                 // Ensure phase timeline stays visible after re-render
@@ -1675,22 +1876,23 @@ class AssessmentApp {
                 localStorage.setItem('impl-planner-view', this.implPlannerView);
                 
                 // Hide all views
-                document.getElementById('impl-phases-content').style.display = 'none';
-                document.getElementById('impl-project-plan-content').style.display = 'none';
-                document.getElementById('impl-kanban-content').style.display = 'none';
-                document.getElementById('impl-list-content').style.display = 'none';
-                document.querySelector('.impl-phase-timeline').style.display = 'none';
+                const phasesEl = document.getElementById('impl-phases-content');
+                const kanbanEl = document.getElementById('impl-kanban-content');
+                const listEl = document.getElementById('impl-list-content');
+                const timelineEl = document.querySelector('.impl-phase-timeline');
+                if (phasesEl) phasesEl.style.display = 'none';
+                if (kanbanEl) kanbanEl.style.display = 'none';
+                if (listEl) listEl.style.display = 'none';
+                if (timelineEl) timelineEl.style.display = 'none';
                 
                 // Show selected view
                 if (view === 'phases') {
-                    document.getElementById('impl-phases-content').style.display = 'block';
-                    document.querySelector('.impl-phase-timeline').style.display = 'flex';
-                } else if (view === 'project-plan') {
-                    document.getElementById('impl-project-plan-content').style.display = 'block';
+                    if (phasesEl) phasesEl.style.display = 'block';
+                    if (timelineEl) timelineEl.style.display = 'flex';
                 } else if (view === 'kanban') {
-                    document.getElementById('impl-kanban-content').style.display = 'block';
+                    if (kanbanEl) kanbanEl.style.display = 'block';
                 } else if (view === 'list') {
-                    document.getElementById('impl-list-content').style.display = 'block';
+                    if (listEl) listEl.style.display = 'block';
                 }
                 
                 // Update button states
@@ -1714,7 +1916,9 @@ class AssessmentApp {
                 const taskId = e.currentTarget.dataset.taskId;
                 if (taskId) {
                     this.implPlannerProgress[taskId] = !this.implPlannerProgress[taskId];
-                    localStorage.setItem('impl-planner-progress', JSON.stringify(this.implPlannerProgress));
+                    const isR3 = this.implPlannerRevision === 'r3';
+                    const progressKey = isR3 ? 'impl-planner-r3-progress' : 'impl-planner-progress';
+                    localStorage.setItem(progressKey, JSON.stringify(this.implPlannerProgress));
                     this.renderImplPlanner();
                 }
             });

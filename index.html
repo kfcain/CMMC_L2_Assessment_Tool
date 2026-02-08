@@ -6,21 +6,24 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net https://api.anthropic.com; frame-src 'self' https://www.figma.com https://lucid.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
     <title>CMMC 2.0 Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260207g">
+    <link rel="stylesheet" href="styles.css?v=20260208a">
     <link rel="stylesheet" href="css/themes.css?v=1">
     <link rel="stylesheet" href="css/theme-picker.css?v=1">
     <link rel="stylesheet" href="css/modal.css?v=1">
     <link rel="stylesheet" href="css/comprehensive-guidance.css?v=20260207f">
     <link rel="stylesheet" href="css/crosswalk.css?v=20260126b">
-    <link rel="stylesheet" href="css/impl-planner.css?v=2">
+    <link rel="stylesheet" href="css/impl-planner.css?v=3">
     <link rel="stylesheet" href="css/osc-inventory.css?v=5">
     <link rel="stylesheet" href="css/arch-guide.css?v=10">
     <link rel="stylesheet" href="css/enhanced-features.css?v=20260207f">
     <link rel="stylesheet" href="css/msp-portal.css?v=20260207c">
     <link rel="stylesheet" href="styles/api-tester.css?v=1">
+    <link rel="stylesheet" href="css/ai-assessor.css?v=1">
+    <link rel="stylesheet" href="css/diagram-hub.css?v=1">
+    <link rel="stylesheet" href="css/command-center.css?v=1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -68,6 +71,10 @@
                         <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span>
                         <span class="hb-label">Dashboard</span>
                     </button>
+                    <button class="hamburger-nav-btn" data-view="command-center">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M6 8h.01M10 8h.01"/></svg></span>
+                        <span class="hb-label">Command Center</span>
+                    </button>
                     <button class="hamburger-nav-btn" data-view="assessment">
                         <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
                         <span class="hb-label">Assessment</span>
@@ -106,6 +113,10 @@
                     <button class="hamburger-nav-btn" data-view="osc-inventory">
                         <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
                         <span class="hb-label">Asset Inventory</span>
+                    </button>
+                    <button class="hamburger-nav-btn" data-view="diagram-hub">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20"/><path d="M17 2v20"/><path d="M2 12h20"/><path d="M2 7h5"/><path d="M2 17h5"/><path d="M17 7h5"/><path d="M17 17h5"/></svg></span>
+                        <span class="hb-label">Diagram Hub</span>
                     </button>
                 </div>
 
@@ -256,6 +267,10 @@
                         <select id="filter-family" class="filter-select">
                             <option value="all">All Families</option>
                         </select>
+                        <button class="action-btn open-srm-upload-btn" title="Upload ESP/CSP Shared Responsibility Matrix">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Upload SRM
+                        </button>
                         <button id="mark-all-not-met-btn" class="action-btn warning">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                             Mark All Not Met
@@ -347,6 +362,20 @@
             <div id="osc-inventory-view" class="view">
                 <div id="osc-inventory-content" class="osc-inventory-container">
                     <!-- Content rendered by app.js -->
+                </div>
+            </div>
+
+            <!-- Command Center View -->
+            <div id="command-center-view" class="view">
+                <div id="command-center-content">
+                    <!-- Content rendered by CommandCenter.render() -->
+                </div>
+            </div>
+
+            <!-- Diagram Hub View -->
+            <div id="diagram-hub-view" class="view">
+                <div id="diagram-hub-content" class="diagram-hub-container">
+                    <!-- Content rendered by DiagramHub.render() -->
                 </div>
             </div>
 
@@ -712,11 +741,14 @@
     
     <!-- Temporarily loading implementation planner directly to bypass lazy loader -->
     <script src="data/implementation-planner-clean.js?v=4"></script>
+    <script src="data/implementation-planner-r3.js?v=1"></script>
     
     <!-- Core app scripts -->
     <script src="js/lazy-loader.js?v=3"></script>
     <script src="js/skeleton-loader.js?v=1"></script>
     <script src="js/osc-inventory.js?v=7"></script>
+    <script src="js/diagram-hub.js?v=1" defer></script>
+    <script src="js/command-center.js?v=1" defer></script>
     
     <!-- Security Modules (Load Before App) -->
     <script src="js/security.js?v=2"></script>
@@ -736,7 +768,7 @@
     <script src="data/comprehensive-guidance-spa.js?v=20260207b"></script>
     <script src="js/comprehensive-guidance-ui.js?v=20260207b"></script>
     
-    <script src="app-main.js?v=20260207d"></script>
+    <script src="app-main.js?v=20260208a"></script>
     <script src="js/supabase-client.js?v=1" defer></script>
     <script src="js/evidence-ui.js?v=1" defer></script>
     <script src="js/theme-picker.js?v=5"></script>
@@ -782,6 +814,11 @@
     <!-- Assessment Enhancements -->
     <script src="js/assessment-enhancements.js?v=1" defer></script>
     
+    <!-- AI Assessor (Claude API) -->
+    <script src="data/ai-skills.js?v=1" defer></script>
+    <script src="js/claude-api.js?v=1" defer></script>
+    <script src="js/ai-assessor.js?v=1" defer></script>
+    
     <!-- Reporting & Analytics -->
     <script src="js/executive-dashboard.js?v=1" defer></script>
     
@@ -824,6 +861,12 @@
         </div>
     </div>
 
+    <!-- AI Assessor FAB -->
+    <button class="ai-fab" onclick="AIAssessor.toggle()" title="AI Assessor (Ctrl+Shift+I)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="ai-fab-tooltip">AI Assessor</span>
+    </button>
+
     <!-- API Tester Quick Access Button -->
     <button class="api-tester-fab" onclick="APITester.open()" title="Open API Tester (Ctrl+Shift+A)">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -836,6 +879,9 @@
         <div class="footer-disclaimer-content">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <span><strong>Personal Use Only:</strong> This tool is provided solely for personal, non-commercial use. It is not intended for, and should not be used in, any commercial setting or for commercial purposes.</span>
+        </div>
+        <div class="footer-oss-notice">
+            <span>Content derived from public domain U.S. Government publications (NIST, DoD, FedRAMP). Built with <a href="LICENSE" target="_blank" rel="noopener noreferrer">open source components</a> licensed under Apache 2.0, MIT, and SIL OFL.</span>
         </div>
     </footer>
 </body>
