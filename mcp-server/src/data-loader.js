@@ -146,20 +146,25 @@ function loadGuidance() {
     'comprehensive-guidance-expansion-part2.js',
     'comprehensive-guidance-expansion-part3.js',
     'comprehensive-guidance-expansion-part4.js',
-    'comprehensive-guidance-expansion-part5.js'
+    'comprehensive-guidance-expansion-part5.js',
+    'comprehensive-guidance-soc.js',
+    'comprehensive-guidance-l3.js',
+    'comprehensive-guidance-r3-new.js',
+    'comprehensive-guidance-r3-new2.js'
   ];
   
   let guidance = {};
   for (const f of files) {
     const data = evalDataFile(join(DATA_DIR, f));
-    // Merge guidance objects
+    // Merge guidance objects — files use different top-level keys
     for (const val of Object.values(data)) {
       if (val && typeof val === 'object' && !Array.isArray(val)) {
-        if (val.controls) {
-          guidance = { ...guidance, ...val.controls };
-        } else if (val.objectives || val.guidance) {
-          // Some files have different structures
-          Object.assign(guidance, val);
+        if (val.objectives && typeof val.objectives === 'object') {
+          // Most files: { objectives: { 'AC.L2-3.1.1': {...}, ... } }
+          Object.assign(guidance, val.objectives);
+        } else if (val.controls && typeof val.controls === 'object') {
+          // Some files: { controls: { ... } }
+          Object.assign(guidance, val.controls);
         }
       }
     }

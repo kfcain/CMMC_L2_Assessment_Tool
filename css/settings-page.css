@@ -703,12 +703,128 @@
     color: #34d399;
 }
 .stg-toast.error {
-    border-color: rgba(248,113,113,0.3);
-    color: #f87171;
+    border-color: rgba(239,68,68,0.3);
+    color: #ef4444;
 }
 
-/* ==================== Responsive ==================== */
-@media (max-width: 768px) {
+/* MCP Server Section */
+.stg-mcp-status {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.stg-mcp-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: var(--glass-bg, rgba(15,17,23,0.72));
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.05));
+    min-width: 70px;
+}
+.stg-mcp-stat-val {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent-blue, #6c8aff);
+    letter-spacing: -0.02em;
+}
+.stg-mcp-stat-label {
+    font-size: 0.68rem;
+    color: var(--text-muted, #4e5263);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+}
+
+.stg-mcp-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+.stg-mcp-tab {
+    padding: 5px 12px;
+    border: 1px solid var(--border-color, #1e2030);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-secondary, #8b8fa3);
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.stg-mcp-tab:hover {
+    border-color: rgba(108,138,255,0.3);
+    color: var(--text-primary, #e4e5ea);
+}
+.stg-mcp-tab.active {
+    background: rgba(108,138,255,0.1);
+    border-color: var(--accent-blue, #6c8aff);
+    color: var(--accent-blue, #6c8aff);
+    font-weight: 600;
+}
+
+.stg-mcp-config {
+    background: var(--bg-secondary, #0f1117);
+    border: 1px solid var(--border-color, #1e2030);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 0;
+}
+.stg-mcp-config code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary, #8b8fa3);
+    white-space: pre;
+    line-height: 1.6;
+}
+
+.stg-mcp-tool-group {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--glass-border, rgba(255,255,255,0.04));
+}
+.stg-mcp-tool-group:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+.stg-mcp-group-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-primary, #e4e5ea);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+}
+.stg-mcp-group-label svg {
+    opacity: 0.6;
+}
+.stg-mcp-tool {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 4px 0 4px 20px;
+}
+.stg-mcp-tool-name {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.72rem;
+    color: var(--accent-blue, #6c8aff);
+    background: rgba(108,138,255,0.08);
+    padding: 1px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.stg-mcp-tool-desc {
+    font-size: 0.72rem;
+    color: var(--text-muted, #4e5263);
+}
+
+@media (max-width: 640px) {
     .stg-layout {
         flex-direction: column;
     }

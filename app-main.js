@@ -3835,6 +3835,43 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         document.getElementById('impl-verified-date').value = existingData.verifiedDate || '';
         document.getElementById('impl-notes').value = existingData.notes || '';
 
+        // Populate integration evidence panel
+        const intPanel = document.getElementById('impl-integration-panel');
+        const intEvidence = document.getElementById('impl-integration-evidence');
+        const pullBtn = document.getElementById('impl-pull-evidence-btn');
+        if (intPanel && intEvidence) {
+            const ih = typeof IntegrationsHub !== 'undefined' ? IntegrationsHub : null;
+            const evidence = ih?.getControlEvidence ? ih.getControlEvidence(controlId) : [];
+            if (evidence.length > 0) {
+                intPanel.style.display = '';
+                intEvidence.innerHTML = evidence.map(ev => `
+                    <div class="impl-int-item">
+                        <div class="impl-int-item-head">
+                            <span class="impl-int-source">${ev.source || 'Integration'}</span>
+                            <span class="impl-int-type">${ev.type || 'Data'}</span>
+                            ${ev.syncDate ? `<span class="impl-int-date">${new Date(ev.syncDate).toLocaleDateString()}</span>` : ''}
+                        </div>
+                        <div class="impl-int-summary">${ev.summary || JSON.stringify(ev.data || {}).substring(0, 200)}</div>
+                    </div>`).join('');
+                if (pullBtn) {
+                    pullBtn.onclick = () => {
+                        const freshEvidence = ih?.getControlEvidence ? ih.getControlEvidence(controlId) : [];
+                        if (freshEvidence.length > 0) {
+                            const summaries = freshEvidence.map(e => `[${e.source}] ${e.summary || ''}`).join('\n');
+                            const notesEl = document.getElementById('impl-notes');
+                            if (notesEl) {
+                                const existing = notesEl.value.trim();
+                                notesEl.value = existing ? existing + '\n\n--- Integration Evidence (pulled ' + new Date().toLocaleString() + ') ---\n' + summaries : '--- Integration Evidence (pulled ' + new Date().toLocaleString() + ') ---\n' + summaries;
+                            }
+                        }
+                    };
+                }
+            } else {
+                intPanel.style.display = 'none';
+                intEvidence.innerHTML = '';
+            }
+        }
+
         modal.classList.add('active');
     }
 

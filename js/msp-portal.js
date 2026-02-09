@@ -338,6 +338,28 @@ const MSPPortal = {
                 });
             }
 
+            // SIEM/SOC Playbook tabs
+            document.querySelectorAll('[data-siem-tab]').forEach(tab => {
+                const newTab = tab.cloneNode(true);
+                tab.parentNode.replaceChild(newTab, tab);
+                newTab.addEventListener('click', (e) => {
+                    const tabId = e.target.dataset.siemTab;
+                    if (!tabId) return;
+                    document.querySelectorAll('[data-siem-tab]').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    const contentEl = document.getElementById('siem-tab-content');
+                    if (!contentEl) return;
+                    switch (tabId) {
+                        case 'overview': contentEl.innerHTML = MSPPortalViews.renderSIEMOverview(MSPPortal); break;
+                        case 'siem-platforms': contentEl.innerHTML = MSPPortalViews.renderSIEMPlatforms(); break;
+                        case 'soar': contentEl.innerHTML = MSPPortalViews.renderSOARSection(); break;
+                        case 'ticketing': contentEl.innerHTML = MSPPortalViews.renderTicketingSection(); break;
+                        case 'detection': contentEl.innerHTML = MSPPortalViews.renderDetectionEngineering(); break;
+                        case 'operations': contentEl.innerHTML = MSPPortalViews.renderOperationsSection(); break;
+                    }
+                });
+            });
+
             // SCuBA expand/copy interactions
             this.bindScubaInteractions();
         }, 0);
@@ -397,38 +419,182 @@ const MSPPortal = {
 
     renderDashboard: function() {
         const stats = this.getStats();
+        const ih = typeof IntegrationsHub !== 'undefined' ? IntegrationsHub : null;
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
+        const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+        // Gather integration statuses
+        const integrations = ih ? Object.keys(ih.providers).map(pid => {
+            const p = ih.providers[pid];
+            const connected = ih.hasCredentials(pid);
+            const data = ih.data[pid];
+            const lastSync = data?.lastSync ? new Date(data.lastSync) : null;
+            const minsAgo = lastSync ? Math.round((now - lastSync) / 60000) : null;
+            return { id: pid, name: p.name, category: p.category, connected, lastSync, minsAgo, data };
+        }) : [];
+        const connectedCount = integrations.filter(i => i.connected).length;
+        const syncedCount = integrations.filter(i => i.data).length;
+
+        // Security metrics from integrations
+        const defStats = ih?.data?.defender?.stats;
+        const s1Stats = ih?.data?.sentinelone?.stats;
+        const csStats = ih?.data?.crowdstrike?.stats;
+        const tenStats = ih?.data?.tenable?.stats;
+        const qualStats = ih?.data?.qualys?.stats;
+        const entraStats = ih?.data?.entra?.stats;
+        const kb4Stats = ih?.data?.knowbe4?.stats;
+
+        const totalEndpoints = (defStats?.totalDevices || 0) + (s1Stats?.totalAgents || 0) + (csStats?.totalHosts || 0);
+        const totalAlerts = (defStats?.totalAlerts || 0) + (s1Stats?.totalThreats || 0) + (csStats?.detectionCount || 0);
+        const critAlerts = (defStats?.criticalAlerts || 0) + (s1Stats?.activeThreats || 0);
+        const complianceRate = defStats?.complianceRate ?? (s1Stats?.healthRate ?? null);
+
+        // Bar chart helper (CSS-only)
+        const bar = (val, max, color) => {
+            const pct = max > 0 ? Math.min(100, Math.round((val / max) * 100)) : 0;
+            return `<div class="soc-bar-track"><div class="soc-bar-fill" style="width:${pct}%;background:${color}"></div></div>`;
+        };
+
         return `
-        <div class="msp-dashboard">
-            <div class="msp-dashboard-stats">
-                <div class="msp-stat-card primary"><div class="stat-icon">${this.getIcon('users')}</div><div class="stat-content"><div class="stat-value">${stats.totalClients}</div><div class="stat-label">Total Clients</div></div></div>
-                <div class="msp-stat-card success"><div class="stat-icon">${this.getIcon('check-circle')}</div><div class="stat-content"><div class="stat-value">${stats.compliant}</div><div class="stat-label">Assessment Ready</div></div></div>
-                <div class="msp-stat-card warning"><div class="stat-icon">${this.getIcon('clock')}</div><div class="stat-content"><div class="stat-value">${stats.inProgress}</div><div class="stat-label">In Progress</div></div></div>
-                <div class="msp-stat-card danger"><div class="stat-icon">${this.getIcon('alert-triangle')}</div><div class="stat-content"><div class="stat-value">${stats.atRisk}</div><div class="stat-label">At Risk</div></div></div>
+        <div class="soc-dashboard">
+            <!-- SOC Status Bar -->
+            <div class="soc-status-bar">
+                <div class="soc-status-left">
+                    <span class="soc-pulse"></span>
+                    <span class="soc-status-text">SOC OPERATIONAL</span>
+                    <span class="soc-time">${timeStr}</span>
+                    <span class="soc-date">${dateStr}</span>
+                </div>
+                <div class="soc-status-right">
+                    <span class="soc-integrations-badge">${connectedCount} Integrations Active</span>
+                    <span class="soc-sync-badge">${syncedCount} Synced</span>
+                    <button class="soc-refresh-btn" onclick="MSPPortal.refresh()" title="Refresh">${this.getIcon('refresh-cw')}</button>
+                </div>
             </div>
-            <div class="msp-dashboard-grid">
-                <div class="msp-card"><div class="msp-card-header"><h3>Quick Actions</h3></div><div class="msp-card-body">
-                    <div class="msp-quick-actions">
-                        <button class="msp-action-btn" onclick="MSPPortal.switchView('clients')">${this.getIcon('user-plus')}<span>Add Client</span></button>
-                        <button class="msp-action-btn" onclick="MSPPortal.switchView('env-setup')">${this.getIcon('server')}<span>Environment Setup</span></button>
-                        <button class="msp-action-btn" onclick="MSPPortal.switchView('reports')">${this.getIcon('file-text')}<span>Generate Report</span></button>
-                        <button class="msp-action-btn" onclick="MSPPortal.switchView('siem')">${this.getIcon('activity')}<span>SIEM Dashboard</span></button>
+
+            <!-- KPI Ticker Strip -->
+            <div class="soc-ticker">
+                <div class="soc-ticker-item"><div class="soc-ticker-val">${stats.totalClients}</div><div class="soc-ticker-lbl">Clients</div></div>
+                <div class="soc-ticker-sep"></div>
+                <div class="soc-ticker-item"><div class="soc-ticker-val soc-green">${stats.compliant}</div><div class="soc-ticker-lbl">Ready</div></div>
+                <div class="soc-ticker-sep"></div>
+                <div class="soc-ticker-item"><div class="soc-ticker-val soc-amber">${stats.inProgress}</div><div class="soc-ticker-lbl">In Progress</div></div>
+                <div class="soc-ticker-sep"></div>
+                <div class="soc-ticker-item"><div class="soc-ticker-val soc-red">${stats.atRisk}</div><div class="soc-ticker-lbl">At Risk</div></div>
+                <div class="soc-ticker-sep"></div>
+                <div class="soc-ticker-item"><div class="soc-ticker-val">${totalEndpoints}</div><div class="soc-ticker-lbl">Endpoints</div></div>
+                <div class="soc-ticker-sep"></div>
+                <div class="soc-ticker-item"><div class="soc-ticker-val ${totalAlerts > 0 ? 'soc-red' : 'soc-green'}">${totalAlerts}</div><div class="soc-ticker-lbl">Alerts</div></div>
+                <div class="soc-ticker-sep"></div>
+                <div class="soc-ticker-item"><div class="soc-ticker-val ${critAlerts > 0 ? 'soc-red' : 'soc-green'}">${critAlerts}</div><div class="soc-ticker-lbl">Critical</div></div>
+                ${complianceRate !== null ? `<div class="soc-ticker-sep"></div><div class="soc-ticker-item"><div class="soc-ticker-val ${complianceRate >= 90 ? 'soc-green' : complianceRate >= 70 ? 'soc-amber' : 'soc-red'}">${complianceRate}%</div><div class="soc-ticker-lbl">Compliance</div></div>` : ''}
+                ${entraStats ? `<div class="soc-ticker-sep"></div><div class="soc-ticker-item"><div class="soc-ticker-val ${entraStats.mfaRate >= 90 ? 'soc-green' : 'soc-amber'}">${entraStats.mfaRate}%</div><div class="soc-ticker-lbl">MFA Rate</div></div>` : ''}
+            </div>
+
+            <!-- Main SOC Grid -->
+            <div class="soc-grid">
+                <!-- Endpoint Security Panel -->
+                <div class="soc-panel">
+                    <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('shield')} Endpoint Security</span></div>
+                    <div class="soc-panel-body">
+                        ${totalEndpoints === 0 ? '<div class="soc-empty">Connect Defender, SentinelOne, or CrowdStrike to see endpoint data</div>' : `
+                        <div class="soc-metric-rows">
+                            ${defStats ? `<div class="soc-metric-row"><span class="soc-metric-name">Defender Devices</span>${bar(defStats.compliantDevices, defStats.totalDevices, 'var(--status-met)')}<span class="soc-metric-val">${defStats.compliantDevices}/${defStats.totalDevices}</span></div>` : ''}
+                            ${s1Stats ? `<div class="soc-metric-row"><span class="soc-metric-name">S1 Agents</span>${bar(s1Stats.activeAgents, s1Stats.totalAgents, 'var(--status-met)')}<span class="soc-metric-val">${s1Stats.activeAgents}/${s1Stats.totalAgents}</span></div>` : ''}
+                            ${csStats ? `<div class="soc-metric-row"><span class="soc-metric-name">CS Hosts</span>${bar(csStats.onlineHosts, csStats.totalHosts, 'var(--status-met)')}<span class="soc-metric-val">${csStats.onlineHosts}/${csStats.totalHosts}</span></div>` : ''}
+                        </div>
+                        ${critAlerts > 0 ? `<div class="soc-alert-banner soc-alert-red">${critAlerts} critical alert(s) require immediate attention</div>` : '<div class="soc-alert-banner soc-alert-green">No critical alerts</div>'}
+                        `}
                     </div>
-                </div></div>
-                <div class="msp-card"><div class="msp-card-header"><h3>Recent Activity</h3></div><div class="msp-card-body">${this.renderRecentActivity()}</div></div>
-                <div class="msp-card full-width"><div class="msp-card-header"><h3>Client Overview</h3><button class="msp-btn-text" onclick="MSPPortal.switchView('clients')">View All</button></div><div class="msp-card-body">${this.renderClientTable()}</div></div>
+                </div>
+
+                <!-- Vulnerability Posture Panel -->
+                <div class="soc-panel">
+                    <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('activity')} Vulnerability Posture</span></div>
+                    <div class="soc-panel-body">
+                        ${!tenStats && !qualStats ? '<div class="soc-empty">Connect Tenable or Qualys to see vulnerability data</div>' : `
+                        <div class="soc-metric-rows">
+                            ${tenStats ? `
+                            <div class="soc-metric-row"><span class="soc-metric-name">Critical</span>${bar(tenStats.vulnerabilities?.critical || 0, 50, '#ef4444')}<span class="soc-metric-val soc-red">${tenStats.vulnerabilities?.critical || 0}</span></div>
+                            <div class="soc-metric-row"><span class="soc-metric-name">High</span>${bar(tenStats.vulnerabilities?.high || 0, 100, '#f59e0b')}<span class="soc-metric-val soc-amber">${tenStats.vulnerabilities?.high || 0}</span></div>
+                            <div class="soc-metric-row"><span class="soc-metric-name">Medium</span>${bar(tenStats.vulnerabilities?.medium || 0, 200, '#6c8aff')}<span class="soc-metric-val">${tenStats.vulnerabilities?.medium || 0}</span></div>
+                            <div class="soc-metric-row"><span class="soc-metric-name">Assets</span><span class="soc-metric-val">${tenStats.totalAssets || 0} scanned</span></div>
+                            ` : ''}
+                            ${qualStats ? `
+                            <div class="soc-metric-row"><span class="soc-metric-name">Qualys Hosts</span><span class="soc-metric-val">${qualStats.hostCount || 0}</span></div>
+                            <div class="soc-metric-row"><span class="soc-metric-name">Recent Scans</span><span class="soc-metric-val">${qualStats.scanCount || 0}</span></div>
+                            ` : ''}
+                        </div>
+                        `}
+                    </div>
+                </div>
+
+                <!-- Integration Status Panel -->
+                <div class="soc-panel soc-wide">
+                    <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('layers')} Integration Status</span><button class="soc-panel-btn" onclick="if(typeof IntegrationsHub!=='undefined')IntegrationsHub.showHub()">Open Hub</button></div>
+                    <div class="soc-panel-body">
+                        <div class="soc-integration-grid">
+                            ${integrations.map(i => `
+                            <div class="soc-int-card ${i.connected ? 'connected' : 'disconnected'}">
+                                <div class="soc-int-status ${i.connected ? 'on' : 'off'}"></div>
+                                <div class="soc-int-info">
+                                    <span class="soc-int-name">${i.name}</span>
+                                    <span class="soc-int-meta">${i.connected ? (i.minsAgo !== null ? (i.minsAgo < 60 ? i.minsAgo + 'm ago' : Math.round(i.minsAgo / 60) + 'h ago') : 'Connected') : 'Not configured'}</span>
+                                </div>
+                            </div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Identity & Training Panel -->
+                <div class="soc-panel">
+                    <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('users')} Identity & Training</span></div>
+                    <div class="soc-panel-body">
+                        ${!entraStats && !kb4Stats ? '<div class="soc-empty">Connect Entra ID or KnowBe4</div>' : `
+                        <div class="soc-metric-rows">
+                            ${entraStats ? `
+                            <div class="soc-metric-row"><span class="soc-metric-name">MFA Enrollment</span>${bar(entraStats.mfaRate, 100, entraStats.mfaRate >= 90 ? 'var(--status-met)' : 'var(--status-partial)')}<span class="soc-metric-val">${entraStats.mfaRate}%</span></div>
+                            <div class="soc-metric-row"><span class="soc-metric-name">CA Policies</span><span class="soc-metric-val">${entraStats.activePolicies || 0} active</span></div>
+                            <div class="soc-metric-row"><span class="soc-metric-name">Users</span><span class="soc-metric-val">${entraStats.enabledUsers || 0} enabled</span></div>
+                            ` : ''}
+                            ${kb4Stats ? `
+                            <div class="soc-metric-row"><span class="soc-metric-name">Training</span>${bar(kb4Stats.completionRate, 100, kb4Stats.completionRate >= 80 ? 'var(--status-met)' : 'var(--status-partial)')}<span class="soc-metric-val">${kb4Stats.completionRate}%</span></div>
+                            <div class="soc-metric-row"><span class="soc-metric-name">Phish-Prone</span><span class="soc-metric-val ${(kb4Stats.avgPhishPronePercent || 0) > 15 ? 'soc-red' : 'soc-green'}">${kb4Stats.avgPhishPronePercent ?? 'N/A'}%</span></div>
+                            ` : ''}
+                        </div>
+                        `}
+                    </div>
+                </div>
+
+                <!-- Quick Actions Panel -->
+                <div class="soc-panel">
+                    <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('cpu')} Quick Actions</span></div>
+                    <div class="soc-panel-body">
+                        <div class="soc-actions-grid">
+                            <button class="soc-action-btn" onclick="MSPPortal.switchView('clients')">${this.getIcon('user-plus')}<span>Clients</span></button>
+                            <button class="soc-action-btn" onclick="MSPPortal.switchView('siem')">${this.getIcon('activity')}<span>SIEM Ops</span></button>
+                            <button class="soc-action-btn" onclick="MSPPortal.switchView('projects')">${this.getIcon('calendar')}<span>Projects</span></button>
+                            <button class="soc-action-btn" onclick="MSPPortal.switchView('reports')">${this.getIcon('file-text')}<span>Reports</span></button>
+                            <button class="soc-action-btn" onclick="MSPPortal.switchView('env-setup')">${this.getIcon('server')}<span>Env Setup</span></button>
+                            <button class="soc-action-btn" onclick="if(typeof IntegrationsHub!=='undefined')IntegrationsHub.showHub()">${this.getIcon('settings')}<span>Integrations</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Client Overview -->
+                <div class="soc-panel soc-wide">
+                    <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('users')} Client Portfolio</span><button class="soc-panel-btn" onclick="MSPPortal.switchView('clients')">View All</button></div>
+                    <div class="soc-panel-body">${this.renderClientTable()}</div>
+                </div>
             </div>
         </div>`;
     },
 
-    renderRecentActivity: function() {
-        if (this.state.clients.length === 0) return '<div class="msp-empty-state">No recent activity</div>';
-        return '<div class="msp-activity-list"><div class="activity-item"><span class="activity-icon">📊</span><span>Portfolio initialized</span></div></div>';
-    },
-
     renderClientTable: function() {
-        if (this.state.clients.length === 0) return `<div class="msp-empty-state"><p>No clients yet</p><button class="msp-btn-primary" onclick="MSPPortal.showAddClientModal()">${this.getIcon('user-plus')} Add First Client</button></div>`;
+        if (this.state.clients.length === 0) return `<div class="soc-empty"><p>No clients yet</p><button class="msp-btn-primary" onclick="MSPPortal.showAddClientModal()">${this.getIcon('user-plus')} Add First Client</button></div>`;
         return `<table class="msp-table"><thead><tr><th>Organization</th><th>Level</th><th>SPRS</th><th>Progress</th><th>Status</th></tr></thead><tbody>
-            ${this.state.clients.slice(0, 5).map(c => `<tr><td><strong>${c.name}</strong></td><td><span class="level-badge">L${c.assessmentLevel}</span></td><td class="${c.sprsScore >= 70 ? 'sprs-good' : c.sprsScore >= 0 ? 'sprs-warning' : ''}">${c.sprsScore ?? '--'}</td><td><div class="progress-bar-mini"><div class="progress-fill" style="width:${c.completionPercent||0}%"></div></div></td><td>${c.completionPercent >= 100 ? '<span class="status-badge success">Ready</span>' : '<span class="status-badge warning">In Progress</span>'}</td></tr>`).join('')}
+            ${this.state.clients.slice(0, 8).map(c => `<tr><td><strong>${c.name}</strong></td><td><span class="level-badge">L${c.assessmentLevel}</span></td><td class="${c.sprsScore >= 70 ? 'sprs-good' : c.sprsScore >= 0 ? 'sprs-warning' : ''}">${c.sprsScore ?? '--'}</td><td><div class="progress-bar-mini"><div class="progress-fill" style="width:${c.completionPercent||0}%"></div></div></td><td>${c.completionPercent >= 100 ? '<span class="status-badge success">Ready</span>' : '<span class="status-badge warning">In Progress</span>'}</td></tr>`).join('')}
         </tbody></table>`;
     },
 

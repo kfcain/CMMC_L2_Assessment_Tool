@@ -644,55 +644,158 @@
     text-decoration: underline;
 }
 
-/* ── Platform-specific collapsed section ── */
-.cg-platforms-section {
-    margin-top: 8px;
+/* ── Tab bar ── */
+.cg-tab-bar {
+    display: flex;
+    gap: 2px;
+    padding: 4px;
+    margin: 8px 0 0;
+    background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.05));
     border-radius: 10px;
-    overflow: hidden;
 }
 
-.cg-platforms-summary {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    cursor: pointer;
-    user-select: none;
-    list-style: none;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
+.cg-tab {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
     color: var(--text-secondary, #8b8fa3);
-    background: rgba(255, 255, 255, 0.02);
-    transition: background 0.15s ease;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
-.cg-platforms-summary::-webkit-details-marker {
+.cg-tab:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary, #e4e5ea);
+}
+
+.cg-tab.active {
+    background: rgba(79, 70, 229, 0.15);
+    color: var(--accent-blue, #6c8aff);
+    border: 1px solid rgba(79, 70, 229, 0.25);
+}
+
+.cg-tab .cg-count {
+    font-size: 0.68rem;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 1px 6px;
+    border-radius: 8px;
+}
+
+.cg-tab.active .cg-count {
+    background: rgba(79, 70, 229, 0.2);
+    color: var(--accent-blue, #6c8aff);
+}
+
+/* ── Tab panels ── */
+.cg-tab-panels {
+    margin-top: 4px;
+}
+
+.cg-tab-panel {
     display: none;
 }
 
-.cg-platforms-summary::marker {
-    content: '';
+.cg-tab-panel.active {
+    display: block;
 }
 
-.cg-platforms-summary:hover {
-    background: rgba(255, 255, 255, 0.04);
+/* ── Platform toolbar (search) ── */
+.cg-platform-toolbar {
+    margin-bottom: 8px;
 }
 
-.cg-platforms-summary svg {
-    flex-shrink: 0;
+.cg-platform-search {
+    width: 100%;
+    padding: 7px 12px;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-primary, #e4e5ea);
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+    box-sizing: border-box;
+}
+
+.cg-platform-search::placeholder {
+    color: var(--text-muted, #4e5263);
+}
+
+.cg-platform-search:focus {
+    border-color: rgba(79, 70, 229, 0.4);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Category filter pills ── */
+.cg-cat-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.cg-cat-pill {
+    padding: 4px 10px;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+    border-radius: 16px;
+    background: transparent;
     color: var(--text-secondary, #8b8fa3);
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
-.cg-platforms-section[open] > .cg-platforms-summary {
-    border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.05));
+.cg-cat-pill:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary, #e4e5ea);
 }
 
-.cg-platforms-section .cg-techs {
-    border: none;
-    border-radius: 0;
+.cg-cat-pill.active {
+    background: rgba(79, 70, 229, 0.12);
+    color: var(--accent-blue, #6c8aff);
+    border-color: rgba(79, 70, 229, 0.3);
+}
+
+.cg-cat-pill .cg-count {
+    font-size: 0.65rem;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0 5px;
+    border-radius: 8px;
+}
+
+.cg-cat-pill.active .cg-count {
+    background: rgba(79, 70, 229, 0.2);
+}
+
+/* ── Empty state ── */
+.cg-empty {
+    color: var(--text-muted, #4e5263);
+    font-size: 0.82rem;
+    font-style: italic;
+    padding: 12px 0;
+}
+
+/* ── Platforms tab: techs container adjustments ── */
+.cg-tab-panel .cg-techs {
+    border: 1px solid var(--border-color, #2e3148);
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 /* ── Print ── */
@@ -712,6 +815,16 @@
     .cg-unified-section {
         page-break-inside: avoid;
     }
+
+    .cg-tab-panel {
+        display: block !important;
+    }
+
+    .cg-tab-bar,
+    .cg-platform-search,
+    .cg-cat-pills {
+        display: none;
+    }
 }
 
 /* ── Responsive ── */
@@ -723,4 +836,68 @@
     .cg-unified-cli-item code {
         font-size: 0.72rem;
     }
+
+    .cg-tab-bar {
+        flex-wrap: wrap;
+    }
+
+    .cg-tab {
+        font-size: 0.72rem;
+        padding: 6px 8px;
+    }
+
+    .cg-cat-pills {
+        gap: 3px;
+    }
+
+    .cg-cat-pill {
+        font-size: 0.68rem;
+        padding: 3px 7px;
+    }
+}
+
+/* ── Light theme overrides ── */
+.light-theme .cg-tab-bar {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.light-theme .cg-tab {
+    color: var(--text-secondary);
+}
+
+.light-theme .cg-tab:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.light-theme .cg-tab.active {
+    background: rgba(87, 70, 184, 0.1);
+    color: var(--accent-blue);
+    border-color: rgba(87, 70, 184, 0.2);
+}
+
+.light-theme .cg-platform-search {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-primary);
+}
+
+.light-theme .cg-platform-search:focus {
+    border-color: rgba(87, 70, 184, 0.4);
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.light-theme .cg-cat-pill {
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-secondary);
+}
+
+.light-theme .cg-cat-pill:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.light-theme .cg-cat-pill.active {
+    background: rgba(87, 70, 184, 0.08);
+    color: var(--accent-blue);
+    border-color: rgba(87, 70, 184, 0.25);
 }

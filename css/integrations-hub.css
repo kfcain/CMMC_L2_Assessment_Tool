@@ -754,6 +754,129 @@
 }
 
 /* ============================================
+   Environment Selector
+   ============================================ */
+.ih-env-selector {
+    margin-bottom: 8px;
+}
+
+.ih-env-selector > label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.ih-env-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ih-env-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.ih-env-pill:hover {
+    border-color: rgba(108, 138, 255, 0.4);
+    color: var(--text-primary);
+    background: rgba(108, 138, 255, 0.06);
+}
+
+.ih-env-pill.active {
+    border-color: #6c8aff;
+    background: rgba(108, 138, 255, 0.12);
+    color: #8ba2ff;
+    font-weight: 600;
+    box-shadow: 0 0 8px rgba(108, 138, 255, 0.15);
+}
+
+.ih-env-gov-badge {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+}
+
+.ih-env-pill.active .ih-env-gov-badge {
+    background: rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+}
+
+/* Active environment badge in header */
+.ih-env-active-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(108, 138, 255, 0.12);
+    color: #8ba2ff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.ih-env-active-badge.ih-env-gov {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+}
+
+/* Environment guidance area */
+.ih-env-guidance {
+    margin-top: 4px;
+}
+
+.ih-env-guidance .ih-help-text {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(108, 138, 255, 0.06);
+    border-left: 3px solid rgba(108, 138, 255, 0.3);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 6px 0 0;
+}
+
+.ih-env-guidance .ih-help-text strong {
+    color: #fbbf24;
+}
+
+.ih-env-guidance .ih-help-text code {
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    font-size: 0.75rem;
+    color: #8ba2ff;
+}
+
+.ih-env-guidance .ih-help-text a {
+    color: #6c8aff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* ============================================
    Responsive
    ============================================ */
 @media (max-width: 640px) {

@@ -8,10 +8,10 @@
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://public-api.granola.ai https://graph.microsoft.com https://login.microsoftonline.com https://*.api.knowbe4.com https://cloud.tenable.com https://*.atlassian.net https://api.notion.com https://www.googleapis.com https://*.crowdstrike.com https://*.qualys.com https://*.sentinelone.net; frame-src 'self' https://www.figma.com https://lucid.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://public-api.granola.ai https://graph.microsoft.com https://graph.microsoft.us https://dod-graph.microsoft.us https://login.microsoftonline.com https://login.microsoftonline.us https://*.securitycenter.microsoft.us https://*.api.knowbe4.com https://cloud.tenable.com https://fedcloud.tenable.com https://*.atlassian.net https://api.notion.com https://www.googleapis.com https://*.crowdstrike.com https://*.gcw.crowdstrike.com https://*.qualys.com https://*.sentinelone.net; frame-src 'self' https://www.figma.com https://lucid.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
     <title>CMMC 2.0 Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260209c">
+    <link rel="stylesheet" href="styles.css?v=20260210a">
     <link rel="stylesheet" href="css/theme-picker.css?v=1">
     <link rel="stylesheet" href="css/comprehensive-guidance.css?v=20260209a">
     <link rel="stylesheet" href="css/crosswalk.css?v=20260209b">
@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="css/osc-inventory.css?v=5">
     <link rel="stylesheet" href="css/arch-guide.css?v=10">
     <link rel="stylesheet" href="css/enhanced-features.css?v=20260207f">
-    <link rel="stylesheet" href="css/msp-portal.css?v=20260209b">
+    <link rel="stylesheet" href="css/msp-portal.css?v=20260210a">
     <link rel="stylesheet" href="styles/api-tester.css?v=1">
     <link rel="stylesheet" href="css/ai-assessor.css?v=1">
     <link rel="stylesheet" href="css/diagram-hub.css?v=1">
@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="css/markitdown.css?v=1">
     <link rel="stylesheet" href="css/diagram-visualizer.css?v=1">
     <link rel="stylesheet" href="css/meeting-notes.css?v=1">
-    <link rel="stylesheet" href="css/integrations-hub.css?v=1">
+    <link rel="stylesheet" href="css/integrations-hub.css?v=20260210a">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -565,6 +565,14 @@
                         <label>Evidence / Documentation</label>
                         <textarea id="impl-evidence" rows="3" placeholder="Reference policies, procedures, screenshots, or other evidence..."></textarea>
                     </div>
+                    <!-- Integration Evidence Panel -->
+                    <div class="form-group" id="impl-integration-panel" style="display:none">
+                        <label>Integration Evidence <span class="impl-int-badge">Auto-Collected</span></label>
+                        <div id="impl-integration-evidence" class="impl-integration-evidence">
+                            <!-- Populated dynamically by openImplementationModal -->
+                        </div>
+                        <button type="button" class="impl-pull-evidence-btn" id="impl-pull-evidence-btn" title="Pull latest data from connected integrations">Pull Latest Evidence</button>
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Responsible Party</label>
@@ -798,7 +806,8 @@
     <script src="data/comprehensive-guidance-r3-expanded.js?v=20260208b" defer></script>
     <script src="data/comprehensive-guidance-spa.js?v=20260207b" defer></script>
     <script src="data/comprehensive-guidance-soc.js?v=20260208a" defer></script>
-    <script src="js/comprehensive-guidance-ui.js?v=20260209a" defer></script>
+    <script src="js/vendor-logos.js?v=20260209a" defer></script>
+    <script src="js/comprehensive-guidance-ui.js?v=20260209b" defer></script>
     
     <script src="js/purple-background.js?v=1"></script>
     <script src="app-main.js?v=20260209d"></script>
@@ -815,8 +824,8 @@
     <script src="js/api-tester.js?v=1" defer></script>
     
     <!-- MSP Portal & Advanced Features -->
-    <script src="js/msp-portal.js?v=1" defer></script>
-    <script src="js/msp-portal-views.js?v=20260209b" defer></script>
+    <script src="js/msp-portal.js?v=20260210a" defer></script>
+    <script src="js/msp-portal-views.js?v=20260210a" defer></script>
     <script src="js/rev3-crosswalk.js?v=20260209b" defer></script>
     <script src="js/cmmc-l3-assessment.js?v=1" defer></script>
     
@@ -852,7 +861,7 @@
     <script src="js/meeting-notes-integration.js?v=1" defer></script>
     
     <!-- Integrations Hub (13 providers: identity, training, vuln, endpoint, ticketing, docs, storage) -->
-    <script src="js/integrations-hub.js?v=20260209b" defer></script>
+    <script src="js/integrations-hub.js?v=20260210a" defer></script>
     
     <!-- Assessment Enhancements -->
     <script src="js/assessment-enhancements.js?v=1" defer></script>

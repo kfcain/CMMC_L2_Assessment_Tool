@@ -234,38 +234,114 @@ const ComprehensiveGuidanceUI = {
             const guidanceDiv = document.createElement('div');
             guidanceDiv.className = 'cg-root';
 
-            // Build unified top-level guidance (steps, evidence, verification, procedures)
-            var topHtml = '<div class="cg-header"><span class="cg-title">Implementation Guidance</span></div>';
-            topHtml += this.renderUnifiedTopLevel(objectiveId, guidance, techs);
+            var uid = 'cg-' + objectiveId.replace(/[^a-zA-Z0-9]/g, '-');
 
-            // Vendor-specific details collapsed below
-            if (techs.length > 0) {
-                topHtml += '<details class="cg-platforms-section">';
-                topHtml += '<summary class="cg-platforms-summary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg> Platform-Specific Implementation <span class="cg-count">' + techs.length + ' platform' + (techs.length !== 1 ? 's' : '') + '</span></summary>';
-                topHtml += this.renderTechDropdowns(techs, objectiveId);
-                topHtml += '</details>';
+            // Header
+            var topHtml = '<div class="cg-header"><span class="cg-title">Implementation Guidance</span></div>';
+
+            // Objective summary (always visible)
+            if (guidance.objective) {
+                topHtml += '<p class="cg-objective-summary">' + guidance.objective + '</p>';
             }
+            if (guidance.summary) {
+                topHtml += '<p class="cg-approach">' + guidance.summary + '</p>';
+            }
+
+            // Tab bar
+            topHtml += '<div class="cg-tab-bar" data-uid="' + uid + '">';
+            topHtml += '<button class="cg-tab active" data-tab="quickstart">Quick Start</button>';
+            topHtml += '<button class="cg-tab" data-tab="evidence">Evidence & Policy</button>';
+            topHtml += '<button class="cg-tab" data-tab="platforms">Platforms <span class="cg-count">' + techs.length + '</span></button>';
+            topHtml += '</div>';
+
+            // Tab panels
+            topHtml += '<div class="cg-tab-panels" data-uid="' + uid + '">';
+
+            // === Tab 1: Quick Start ===
+            topHtml += '<div class="cg-tab-panel active" data-panel="quickstart">';
+            topHtml += this.renderQuickStartTab(objectiveId, guidance);
+            topHtml += '</div>';
+
+            // === Tab 2: Evidence & Policy ===
+            topHtml += '<div class="cg-tab-panel" data-panel="evidence">';
+            topHtml += this.renderEvidenceTab(objectiveId, guidance);
+            topHtml += '</div>';
+
+            // === Tab 3: Platforms ===
+            topHtml += '<div class="cg-tab-panel" data-panel="platforms">';
+            topHtml += this.renderPlatformsTab(techs, objectiveId);
+            topHtml += '</div>';
+
+            topHtml += '</div>'; // end tab-panels
 
             guidanceDiv.innerHTML = topHtml;
             container.appendChild(guidanceDiv);
+
+            // Bind tab switching
+            this.bindTabEvents(guidanceDiv, uid);
+            // Bind platform filter/search
+            this.bindPlatformFilters(guidanceDiv);
         } catch (error) {
             console.error('[ComprehensiveGuidanceUI] Error rendering guidance for', objectiveId, error);
         }
     },
 
-    // Render the unified top-level guidance: consolidated steps, evidence, verification, GCC High data
-    renderUnifiedTopLevel: function(objectiveId, guidance, techs) {
+    // Bind tab click events
+    bindTabEvents: function(root, uid) {
+        var tabs = root.querySelectorAll('.cg-tab-bar[data-uid="' + uid + '"] .cg-tab');
+        var panels = root.querySelectorAll('.cg-tab-panels[data-uid="' + uid + '"] > .cg-tab-panel');
+        tabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                var target = tab.dataset.tab;
+                tabs.forEach(function(t) { t.classList.toggle('active', t.dataset.tab === target); });
+                panels.forEach(function(p) { p.classList.toggle('active', p.dataset.panel === target); });
+            });
+        });
+    },
+
+    // Bind platform category filter pills and search
+    bindPlatformFilters: function(root) {
+        var searchInput = root.querySelector('.cg-platform-search');
+        var filterPills = root.querySelectorAll('.cg-cat-pill');
+        var techDropdowns = root.querySelectorAll('.cg-tech-dropdown');
+        if (!techDropdowns.length) return;
+
+        var activeCategory = 'all';
+
+        function applyFilters() {
+            var query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            var visibleCount = 0;
+            techDropdowns.forEach(function(dd) {
+                var techKey = dd.dataset.tech || '';
+                var techName = (dd.querySelector('.cg-tech-name') || {}).textContent || '';
+                var techCat = dd.dataset.category || '';
+                var matchesCat = activeCategory === 'all' || techCat === activeCategory;
+                var matchesSearch = !query || techName.toLowerCase().indexOf(query) !== -1 || techKey.toLowerCase().indexOf(query) !== -1;
+                var show = matchesCat && matchesSearch;
+                dd.style.display = show ? '' : 'none';
+                if (show) visibleCount++;
+            });
+            var noResults = root.querySelector('.cg-no-results');
+            if (noResults) noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', applyFilters);
+        }
+        filterPills.forEach(function(pill) {
+            pill.addEventListener('click', function() {
+                activeCategory = pill.dataset.category;
+                filterPills.forEach(function(p) { p.classList.toggle('active', p.dataset.category === activeCategory); });
+                applyFilters();
+            });
+        });
+    },
+
+    // === TAB 1: Quick Start ===
+    renderQuickStartTab: function(objectiveId, guidance) {
         var html = '';
 
-        // 1. Objective summary if available
-        if (guidance.objective) {
-            html += '<p class="cg-objective-summary">' + guidance.objective + '</p>';
-        }
-        if (guidance.summary) {
-            html += '<p class="cg-approach">' + guidance.summary + '</p>';
-        }
-
-        // 2. GCC High / cloud-agnostic guidance (automation, human intervention)
+        // GCC High / cloud-agnostic guidance
         var gccGuidance = null;
         if (typeof getGCCHighGuidance === 'function') {
             gccGuidance = getGCCHighGuidance(objectiveId);
@@ -287,7 +363,7 @@ const ComprehensiveGuidanceUI = {
             }
         }
 
-        // 3. Implementation notes (steps, human-in-the-loop, policy evidence, manual evidence)
+        // Implementation steps
         var implNotes = null;
         if (typeof getImplNotes === 'function') {
             implNotes = getImplNotes(objectiveId, 'azure') || getImplNotes(objectiveId, 'aws') || getImplNotes(objectiveId, 'gcp');
@@ -316,7 +392,51 @@ const ComprehensiveGuidanceUI = {
                 }
                 html += '</ul></div>';
             }
+        }
 
+        // CLI commands
+        if (gccGuidance && gccGuidance.cliCommands && gccGuidance.cliCommands.length > 0) {
+            html += '<details class="cg-unified-cli-section">';
+            html += '<summary class="cg-unified-section-title cg-clickable"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg> Verification Commands</summary>';
+            html += '<div class="cg-unified-cli-list">';
+            for (var cl = 0; cl < gccGuidance.cliCommands.length; cl++) {
+                html += '<div class="cg-unified-cli-item"><code>' + this.escapeHtml(gccGuidance.cliCommands[cl]) + '</code></div>';
+            }
+            html += '</div></details>';
+        }
+
+        // Documentation link
+        if (gccGuidance && gccGuidance.docLink) {
+            html += '<div class="cg-unified-doclink"><a href="' + gccGuidance.docLink + '" target="_blank" rel="noopener noreferrer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Microsoft Learn Documentation</a></div>';
+        }
+
+        // Small business guidance
+        if (guidance.small_business && typeof guidance.small_business === 'object' && guidance.small_business.approach) {
+            html += '<div class="cg-unified-section cg-unified-smallbiz">';
+            html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg> Small Business Guidance</div>';
+            html += '<p>' + guidance.small_business.approach + '</p>';
+            if (guidance.small_business.cost_estimate) {
+                html += '<span class="cg-badge cg-badge-cost">' + guidance.small_business.cost_estimate + '</span> ';
+            }
+            if (guidance.small_business.effort_hours) {
+                html += '<span class="cg-badge cg-badge-effort">' + guidance.small_business.effort_hours + 'h</span>';
+            }
+            html += '</div>';
+        }
+
+        if (!html) html = '<p class="cg-empty">No quick start guidance available for this objective.</p>';
+        return html;
+    },
+
+    // === TAB 2: Evidence & Policy ===
+    renderEvidenceTab: function(objectiveId, guidance) {
+        var html = '';
+        var implNotes = null;
+        if (typeof getImplNotes === 'function') {
+            implNotes = getImplNotes(objectiveId, 'azure') || getImplNotes(objectiveId, 'aws') || getImplNotes(objectiveId, 'gcp');
+        }
+
+        if (implNotes) {
             if (implNotes.policyEvidence && implNotes.policyEvidence.length > 0) {
                 html += '<div class="cg-unified-section cg-unified-policy">';
                 html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Policy &amp; Procedural Evidence</div>';
@@ -349,89 +469,64 @@ const ComprehensiveGuidanceUI = {
             }
         }
 
-        // 4. Consolidated evidence artifacts from all techs (Access Review Guide data)
-        var allEvidence = [], allPitfalls = [], allVerification = [];
-        for (var t = 0; t < techs.length; t++) {
-            var td = techs[t].data;
-            var ti = td.implementation || td;
-            if (td.evidenceArtifacts) {
-                for (var ea = 0; ea < td.evidenceArtifacts.length; ea++) {
-                    if (allEvidence.indexOf(td.evidenceArtifacts[ea]) === -1) allEvidence.push(td.evidenceArtifacts[ea]);
-                }
-            }
-            if (td.pitfalls) {
-                for (var pf = 0; pf < td.pitfalls.length; pf++) {
-                    if (allPitfalls.indexOf(td.pitfalls[pf]) === -1) allPitfalls.push(td.pitfalls[pf]);
-                }
-            }
-            if (ti.verification) {
-                for (var vf = 0; vf < ti.verification.length; vf++) {
-                    if (allVerification.indexOf(ti.verification[vf]) === -1) allVerification.push(ti.verification[vf]);
-                }
-            }
-        }
+        if (!html) html = '<p class="cg-empty">No specific evidence guidance available. Check the Platforms tab for platform-specific evidence artifacts.</p>';
+        return html;
+    },
 
-        if (allVerification.length > 0) {
-            html += '<div class="cg-unified-section cg-unified-verify">';
-            html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Verification Steps</div>';
-            html += '<ul>';
-            for (var v = 0; v < allVerification.length; v++) {
-                html += '<li>' + allVerification[v] + '</li>';
-            }
-            html += '</ul></div>';
-        }
+    // === TAB 3: Platforms (with category filters + search) ===
+    renderPlatformsTab: function(techs, objectiveId) {
+        var html = '';
 
-        if (allEvidence.length > 0) {
-            html += '<div class="cg-unified-section cg-unified-evidence">';
-            html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Evidence Artifacts for C3PAO</div>';
-            html += '<ul>';
-            for (var e = 0; e < allEvidence.length; e++) {
-                html += '<li>' + allEvidence[e] + '</li>';
-            }
-            html += '</ul></div>';
-        }
+        // Determine which categories are present
+        var self = this;
+        var presentCategories = {};
+        var techsWithCategory = techs.map(function(tech) {
+            var cat = self.getCategoryForTech(tech.key);
+            if (cat) presentCategories[cat] = true;
+            return { tech: tech, category: cat };
+        });
 
-        if (allPitfalls.length > 0) {
-            html += '<div class="cg-unified-section cg-unified-pitfalls">';
-            html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Common Pitfalls</div>';
-            html += '<ul>';
-            for (var pf2 = 0; pf2 < allPitfalls.length; pf2++) {
-                html += '<li>' + allPitfalls[pf2] + '</li>';
-            }
-            html += '</ul></div>';
-        }
+        // Search bar
+        html += '<div class="cg-platform-toolbar">';
+        html += '<input type="text" class="cg-platform-search" placeholder="Search platforms..." spellcheck="false" autocomplete="off">';
+        html += '</div>';
 
-        // 5. CLI commands from GCC High guidance
-        if (gccGuidance && gccGuidance.cliCommands && gccGuidance.cliCommands.length > 0) {
-            html += '<details class="cg-unified-cli-section">';
-            html += '<summary class="cg-unified-section-title cg-clickable"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg> Verification Commands</summary>';
-            html += '<div class="cg-unified-cli-list">';
-            for (var cl = 0; cl < gccGuidance.cliCommands.length; cl++) {
-                html += '<div class="cg-unified-cli-item"><code>' + this.escapeHtml(gccGuidance.cliCommands[cl]) + '</code></div>';
-            }
-            html += '</div></details>';
-        }
-
-        // 6. Documentation link
-        if (gccGuidance && gccGuidance.docLink) {
-            html += '<div class="cg-unified-doclink"><a href="' + gccGuidance.docLink + '" target="_blank" rel="noopener noreferrer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Microsoft Learn Documentation</a></div>';
-        }
-
-        // 7. Small business guidance (if present)
-        if (guidance.small_business && typeof guidance.small_business === 'object' && guidance.small_business.approach) {
-            html += '<div class="cg-unified-section cg-unified-smallbiz">';
-            html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg> Small Business Guidance</div>';
-            html += '<p>' + guidance.small_business.approach + '</p>';
-            if (guidance.small_business.cost_estimate) {
-                html += '<span class="cg-badge cg-badge-cost">' + guidance.small_business.cost_estimate + '</span> ';
-            }
-            if (guidance.small_business.effort_hours) {
-                html += '<span class="cg-badge cg-badge-effort">' + guidance.small_business.effort_hours + 'h</span>';
+        // Category filter pills
+        var catKeys = Object.keys(presentCategories);
+        if (catKeys.length > 1) {
+            html += '<div class="cg-cat-pills">';
+            html += '<button class="cg-cat-pill active" data-category="all">All <span class="cg-count">' + techs.length + '</span></button>';
+            for (var ci = 0; ci < catKeys.length; ci++) {
+                var catCount = techsWithCategory.filter(function(t) { return t.category === catKeys[ci]; }).length;
+                html += '<button class="cg-cat-pill" data-category="' + catKeys[ci] + '">' + catKeys[ci] + ' <span class="cg-count">' + catCount + '</span></button>';
             }
             html += '</div>';
         }
 
+        // Platform dropdowns
+        html += '<div class="cg-techs">';
+        for (var ti = 0; ti < techsWithCategory.length; ti++) {
+            var tech = techsWithCategory[ti].tech;
+            var cat = techsWithCategory[ti].category || '';
+            var icon = (typeof VendorLogos !== 'undefined' && VendorLogos.has(tech.key)) ? VendorLogos.get(tech.key) : (this.icons[tech.key] || this.icons.general);
+            var name = this.techNames[tech.key] || tech.key.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+            html += '<details class="cg-tech-dropdown" data-tech="' + tech.key + '" data-category="' + cat + '">';
+            html += '<summary class="cg-tech-summary"><span class="cg-tech-icon">' + icon + '</span><span class="cg-tech-name">' + name + '</span>' + this.renderBadges(tech.data) + '<svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></summary>';
+            html += '<div class="cg-tech-body">' + this.renderTechContent(tech) + '</div>';
+            html += '</details>';
+        }
+        html += '<p class="cg-no-results" style="display:none;color:var(--text-muted);font-size:0.78rem;padding:12px 0">No platforms match your search.</p>';
+        html += '</div>';
+
         return html;
+    },
+
+    // Get the display category name for a tech key
+    getCategoryForTech: function(techKey) {
+        for (var cat in this.categories) {
+            if (this.categories[cat].indexOf(techKey) !== -1) return cat;
+        }
+        return 'Other';
     },
 
     // Get guidance data for an objective
@@ -586,7 +681,7 @@ const ComprehensiveGuidanceUI = {
     renderTechDropdowns: function(techs, objectiveId) {
         let html = '<div class="cg-techs">';
         for (const tech of techs) {
-            const icon = this.icons[tech.key] || this.icons.general;
+            const icon = (typeof VendorLogos !== 'undefined' && VendorLogos.has(tech.key)) ? VendorLogos.get(tech.key) : (this.icons[tech.key] || this.icons.general);
             const name = this.techNames[tech.key] || tech.key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             const uid = objectiveId + '-' + tech.key;
             html += '<details class="cg-tech-dropdown" data-tech="' + tech.key + '">';

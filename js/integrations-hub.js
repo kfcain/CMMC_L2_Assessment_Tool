@@ -31,7 +31,13 @@ const IntegrationsHub = {
             requiredCredentials: ['tenantId', 'clientId', 'clientSecret'],
             baseUrl: 'https://graph.microsoft.com/v1.0',
             authUrl: 'https://login.microsoftonline.com',
-            docUrl: 'https://learn.microsoft.com/en-us/graph/overview'
+            docUrl: 'https://learn.microsoft.com/en-us/graph/overview',
+            environments: {
+                commercial: { label: 'Commercial', baseUrl: 'https://graph.microsoft.com/v1.0', authUrl: 'https://login.microsoftonline.com', scope: 'https://graph.microsoft.com/.default' },
+                gcc: { label: 'GCC', baseUrl: 'https://graph.microsoft.com/v1.0', authUrl: 'https://login.microsoftonline.com', scope: 'https://graph.microsoft.com/.default' },
+                gcchigh: { label: 'GCC High', baseUrl: 'https://graph.microsoft.us/v1.0', authUrl: 'https://login.microsoftonline.us', scope: 'https://graph.microsoft.us/.default' },
+                dod: { label: 'DoD', baseUrl: 'https://dod-graph.microsoft.us/v1.0', authUrl: 'https://login.microsoftonline.us', scope: 'https://dod-graph.microsoft.us/.default' }
+            }
         },
         knowbe4: {
             id: 'knowbe4',
@@ -53,7 +59,11 @@ const IntegrationsHub = {
             controls: ['3.11.1', '3.11.2', '3.11.3', '3.14.1', '3.14.2', '3.14.6', '3.14.7'],
             requiredCredentials: ['accessKey', 'secretKey'],
             baseUrl: 'https://cloud.tenable.com',
-            docUrl: 'https://developer.tenable.com/'
+            docUrl: 'https://developer.tenable.com/',
+            environments: {
+                commercial: { label: 'Commercial', baseUrl: 'https://cloud.tenable.com' },
+                fedramp: { label: 'FedRAMP (Gov)', baseUrl: 'https://fedcloud.tenable.com' }
+            }
         },
         jira: {
             id: 'jira',
@@ -97,7 +107,13 @@ const IntegrationsHub = {
             requiredCredentials: ['tenantId', 'clientId', 'clientSecret'],
             baseUrl: 'https://graph.microsoft.com/v1.0',
             authUrl: 'https://login.microsoftonline.com',
-            docUrl: 'https://learn.microsoft.com/en-us/graph/api/resources/sharepoint'
+            docUrl: 'https://learn.microsoft.com/en-us/graph/api/resources/sharepoint',
+            environments: {
+                commercial: { label: 'Commercial', baseUrl: 'https://graph.microsoft.com/v1.0', authUrl: 'https://login.microsoftonline.com', scope: 'https://graph.microsoft.com/.default' },
+                gcc: { label: 'GCC', baseUrl: 'https://graph.microsoft.com/v1.0', authUrl: 'https://login.microsoftonline.com', scope: 'https://graph.microsoft.com/.default' },
+                gcchigh: { label: 'GCC High', baseUrl: 'https://graph.microsoft.us/v1.0', authUrl: 'https://login.microsoftonline.us', scope: 'https://graph.microsoft.us/.default' },
+                dod: { label: 'DoD', baseUrl: 'https://dod-graph.microsoft.us/v1.0', authUrl: 'https://login.microsoftonline.us', scope: 'https://dod-graph.microsoft.us/.default' }
+            }
         },
         gdrive: {
             id: 'gdrive',
@@ -118,7 +134,11 @@ const IntegrationsHub = {
             category: 'storage',
             controls: ['3.8.1', '3.8.6', '3.13.8', '3.13.16'],
             requiredCredentials: ['accessKeyId', 'secretAccessKey', 'region', 'bucket'],
-            docUrl: 'https://docs.aws.amazon.com/AmazonS3/latest/API/'
+            docUrl: 'https://docs.aws.amazon.com/AmazonS3/latest/API/',
+            environments: {
+                commercial: { label: 'AWS Commercial', stsEndpoint: 'https://sts.amazonaws.com', partition: 'aws' },
+                govcloud: { label: 'AWS GovCloud (US)', stsEndpoint: 'https://sts.us-gov-west-1.amazonaws.com', partition: 'aws-us-gov', defaultRegion: 'us-gov-west-1' }
+            }
         },
         defender: {
             id: 'defender',
@@ -130,7 +150,13 @@ const IntegrationsHub = {
             requiredCredentials: ['tenantId', 'clientId', 'clientSecret'],
             baseUrl: 'https://graph.microsoft.com/v1.0',
             authUrl: 'https://login.microsoftonline.com',
-            docUrl: 'https://learn.microsoft.com/en-us/graph/api/resources/security-api-overview'
+            docUrl: 'https://learn.microsoft.com/en-us/graph/api/resources/security-api-overview',
+            environments: {
+                commercial: { label: 'Commercial', baseUrl: 'https://graph.microsoft.com/v1.0', authUrl: 'https://login.microsoftonline.com', scope: 'https://graph.microsoft.com/.default', mdeUrl: 'https://api.securitycenter.microsoft.com' },
+                gcc: { label: 'GCC', baseUrl: 'https://graph.microsoft.com/v1.0', authUrl: 'https://login.microsoftonline.com', scope: 'https://graph.microsoft.com/.default', mdeUrl: 'https://api-gcc.securitycenter.microsoft.us' },
+                gcchigh: { label: 'GCC High', baseUrl: 'https://graph.microsoft.us/v1.0', authUrl: 'https://login.microsoftonline.us', scope: 'https://graph.microsoft.us/.default', mdeUrl: 'https://api-gov.securitycenter.microsoft.us' },
+                dod: { label: 'DoD', baseUrl: 'https://dod-graph.microsoft.us/v1.0', authUrl: 'https://login.microsoftonline.us', scope: 'https://dod-graph.microsoft.us/.default', mdeUrl: 'https://api-gov.securitycenter.microsoft.us' }
+            }
         },
         sentinelone: {
             id: 'sentinelone',
@@ -140,7 +166,11 @@ const IntegrationsHub = {
             category: 'endpoint',
             controls: ['3.4.1', '3.4.2', '3.11.1', '3.11.2', '3.14.1', '3.14.2', '3.14.3', '3.14.4', '3.14.5', '3.14.6', '3.14.7'],
             requiredCredentials: ['apiToken', 'consoleUrl'],
-            docUrl: 'https://usea1-partners.sentinelone.net/api-doc/overview'
+            docUrl: 'https://usea1-partners.sentinelone.net/api-doc/overview',
+            environments: {
+                commercial: { label: 'Commercial', consolePlaceholder: 'https://usea1-xxx.sentinelone.net' },
+                govcloud: { label: 'FedRAMP / GovCloud', consolePlaceholder: 'https://usea1-gov-xxx.sentinelone.net' }
+            }
         },
         crowdstrike: {
             id: 'crowdstrike',
@@ -150,7 +180,13 @@ const IntegrationsHub = {
             category: 'endpoint',
             controls: ['3.4.1', '3.4.2', '3.4.6', '3.11.1', '3.11.2', '3.11.3', '3.14.1', '3.14.2', '3.14.3', '3.14.4', '3.14.5', '3.14.6', '3.14.7'],
             requiredCredentials: ['clientId', 'clientSecret', 'baseUrl'],
-            docUrl: 'https://falcon.crowdstrike.com/documentation/'
+            docUrl: 'https://falcon.crowdstrike.com/documentation/',
+            environments: {
+                commercial: { label: 'Commercial (US-1)', defaultBaseUrl: 'https://api.crowdstrike.com' },
+                us2: { label: 'Commercial (US-2)', defaultBaseUrl: 'https://api.us-2.crowdstrike.com' },
+                eu1: { label: 'EU Cloud', defaultBaseUrl: 'https://api.eu-1.crowdstrike.com' },
+                govcloud: { label: 'GovCloud (US)', defaultBaseUrl: 'https://api.laggar.gcw.crowdstrike.com' }
+            }
         },
         qualys: {
             id: 'qualys',
@@ -160,7 +196,12 @@ const IntegrationsHub = {
             category: 'vulnerability',
             controls: ['3.4.1', '3.4.2', '3.4.8', '3.4.9', '3.11.1', '3.11.2', '3.11.3', '3.14.1', '3.14.2', '3.14.6', '3.14.7'],
             requiredCredentials: ['username', 'password', 'apiUrl'],
-            docUrl: 'https://qualysguard.qg2.apps.qualys.com/qwebhelp/fo_portal/api_doc/'
+            docUrl: 'https://qualysguard.qg2.apps.qualys.com/qwebhelp/fo_portal/api_doc/',
+            environments: {
+                commercial: { label: 'Commercial (US)', defaultApiUrl: 'https://qualysapi.qualys.com' },
+                eu: { label: 'EU Platform', defaultApiUrl: 'https://qualysapi.qg2.apps.qualys.eu' },
+                govcloud: { label: 'FedRAMP / GovCloud', defaultApiUrl: 'https://qualysapi.qg1.apps.qualys.com' }
+            }
         }
     },
 
@@ -227,6 +268,40 @@ const IntegrationsHub = {
     },
 
     // =========================================
+    // ENVIRONMENT RESOLUTION
+    // =========================================
+    getProviderEnv(providerId) {
+        const provider = this.providers[providerId];
+        if (!provider?.environments) return null;
+        const creds = this.getCredentials(providerId);
+        const envKey = creds?.environment || 'commercial';
+        return provider.environments[envKey] || provider.environments.commercial || Object.values(provider.environments)[0];
+    },
+
+    getProviderEnvKey(providerId) {
+        const creds = this.getCredentials(providerId);
+        return creds?.environment || 'commercial';
+    },
+
+    resolveBaseUrl(providerId) {
+        const env = this.getProviderEnv(providerId);
+        if (env?.baseUrl) return env.baseUrl;
+        return this.providers[providerId]?.baseUrl || '';
+    },
+
+    resolveAuthUrl(providerId) {
+        const env = this.getProviderEnv(providerId);
+        if (env?.authUrl) return env.authUrl;
+        return this.providers[providerId]?.authUrl || '';
+    },
+
+    resolveScope(providerId) {
+        const env = this.getProviderEnv(providerId);
+        if (env?.scope) return env.scope;
+        return 'https://graph.microsoft.com/.default';
+    },
+
+    // =========================================
     // HELPER UTILITIES
     // =========================================
     esc(str) {
@@ -256,20 +331,14 @@ const IntegrationsHub = {
     },
 
     getProviderIcon(providerId) {
+        // Use VendorLogos registry (actual brand logos) when available
+        if (typeof VendorLogos !== 'undefined' && VendorLogos.has(providerId)) {
+            return VendorLogos.get(providerId, 20);
+        }
+        // Fallback for providers not yet in VendorLogos
         const icons = {
-            entra: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
-            knowbe4: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
-            tenable: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>',
-            jira: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 12l10 10 10-10L12 2z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>',
             oscal: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>',
-            notion: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v6H4z"/><path d="M14 4h6v16H8V10"/><path d="M14 4v6h6"/></svg>',
-            m365: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>',
-            gdrive: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 19h7l3-5"/><path d="M12 2l10 17h-7l-3-5"/><path d="M5 14h14"/></svg>',
-            s3: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',
-            defender: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>',
-            sentinelone: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
-            crowdstrike: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
-            qualys: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>'
+            gdrive: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 19h7l3-5"/><path d="M12 2l10 17h-7l-3-5"/><path d="M5 14h14"/></svg>'
         };
         return icons[providerId] || '';
     },
@@ -450,10 +519,59 @@ const IntegrationsHub = {
     // =========================================
     // CONFIGURE MODAL (per provider)
     // =========================================
+    // GovCloud / FedRAMP guidance text per provider
+    getGovCloudGuidance(providerId, envKey) {
+        const guidance = {
+            entra: {
+                commercial: 'Requires an Azure AD App Registration with <code>User.Read.All</code>, <code>Policy.Read.All</code>, <code>AuditLog.Read.All</code>, and <code>Reports.Read.All</code> permissions (Application type).',
+                gcc: 'GCC uses the same endpoints as Commercial. Register your app in the standard Azure AD portal. Ensure your tenant is provisioned for GCC.',
+                gcchigh: '<strong>GCC High</strong> uses isolated Azure Government endpoints. Register your app at <a href="https://portal.azure.us" target="_blank" rel="noopener noreferrer">portal.azure.us</a>. Graph API calls route to <code>graph.microsoft.us</code>. Auth uses <code>login.microsoftonline.us</code>. Requires Azure Government subscription.',
+                dod: '<strong>DoD</strong> uses dedicated DoD endpoints. Register your app at <a href="https://portal.azure.us" target="_blank" rel="noopener noreferrer">portal.azure.us</a>. Graph API calls route to <code>dod-graph.microsoft.us</code>. Requires DoD Azure Government subscription with IL5+ authorization.'
+            },
+            m365: {
+                commercial: 'Register an app in Azure AD with <code>Sites.Read.All</code>, <code>Files.Read.All</code> permissions for SharePoint/OneDrive access.',
+                gcc: 'GCC uses standard commercial endpoints. Ensure your M365 GCC tenant is properly configured.',
+                gcchigh: '<strong>GCC High</strong>: Register your app at <a href="https://portal.azure.us" target="_blank" rel="noopener noreferrer">portal.azure.us</a>. SharePoint Online for GCC High uses <code>*.sharepoint.us</code> domains. Graph calls route to <code>graph.microsoft.us</code>.',
+                dod: '<strong>DoD</strong>: Register at <a href="https://portal.azure.us" target="_blank" rel="noopener noreferrer">portal.azure.us</a>. Uses <code>dod-graph.microsoft.us</code>. Requires IL5 authorization for CUI handling.'
+            },
+            defender: {
+                commercial: 'Register an app in Azure AD with <code>SecurityEvents.Read.All</code>, <code>DeviceManagementManagedDevices.Read.All</code>, <code>SecurityActions.Read.All</code> permissions.',
+                gcc: '<strong>GCC</strong>: Defender for Endpoint GCC uses <code>api-gcc.securitycenter.microsoft.us</code>. Register your app in the standard Azure AD portal. Ensure MDE is licensed for GCC.',
+                gcchigh: '<strong>GCC High</strong>: Register at <a href="https://portal.azure.us" target="_blank" rel="noopener noreferrer">portal.azure.us</a>. MDE API uses <code>api-gov.securitycenter.microsoft.us</code>. Graph calls route to <code>graph.microsoft.us</code>. Requires GCC High MDE license.',
+                dod: '<strong>DoD</strong>: Register at <a href="https://portal.azure.us" target="_blank" rel="noopener noreferrer">portal.azure.us</a>. MDE API uses <code>api-gov.securitycenter.microsoft.us</code>. Graph calls route to <code>dod-graph.microsoft.us</code>. Requires DoD MDE license.'
+            },
+            tenable: {
+                commercial: 'Generate API keys from Tenable.io → Settings → My Account → API Keys.',
+                fedramp: '<strong>Tenable FedRAMP</strong>: Uses <code>fedcloud.tenable.com</code> instead of <code>cloud.tenable.com</code>. API keys are generated the same way but within your FedRAMP-authorized Tenable.io instance. Contact Tenable for FedRAMP provisioning.'
+            },
+            sentinelone: {
+                commercial: 'Generate an API token from SentinelOne Console → Settings → Users → API Token. Use your commercial console URL (e.g., <code>usea1-xxx.sentinelone.net</code>).',
+                govcloud: '<strong>SentinelOne GovCloud</strong>: Uses a dedicated FedRAMP-authorized console (e.g., <code>usea1-gov-xxx.sentinelone.net</code>). Generate API tokens the same way. Contact SentinelOne for GovCloud provisioning and ensure your console URL ends with the gov-specific domain.'
+            },
+            crowdstrike: {
+                commercial: 'Create an OAuth2 API client in Falcon Console → Support → API Clients. Select required scopes: <code>Hosts (Read)</code>, <code>Detections (Read)</code>, <code>Zero Trust Assessment (Read)</code>.',
+                us2: 'US-2 cloud uses <code>api.us-2.crowdstrike.com</code>. Create API client the same way in your US-2 Falcon console.',
+                eu1: 'EU cloud uses <code>api.eu-1.crowdstrike.com</code>. Create API client in your EU Falcon console.',
+                govcloud: '<strong>CrowdStrike GovCloud</strong>: Uses <code>api.laggar.gcw.crowdstrike.com</code>. Your Falcon GovCloud instance is FedRAMP-authorized. Create API clients the same way. Ensure your GovCloud subscription is active.'
+            },
+            s3: {
+                commercial: 'Create an IAM user or role with <code>s3:ListBucket</code>, <code>s3:GetObject</code>, <code>s3:PutObject</code> permissions. Use standard AWS regions (e.g., <code>us-east-1</code>).',
+                govcloud: '<strong>AWS GovCloud (US)</strong>: Uses isolated <code>us-gov-west-1</code> or <code>us-gov-east-1</code> regions. IAM credentials are separate from commercial AWS. You must have a GovCloud account linked to your commercial account. S3 endpoints use <code>s3.us-gov-west-1.amazonaws.com</code>.'
+            },
+            qualys: {
+                commercial: 'Use your Qualys platform credentials. API URL depends on your assigned platform (US1, US2, US3, etc.).',
+                eu: 'EU platform uses <code>qualysapi.qg2.apps.qualys.eu</code>. Ensure your Qualys subscription is on the EU platform.',
+                govcloud: '<strong>Qualys FedRAMP</strong>: Uses <code>qualysapi.qg1.apps.qualys.com</code> (US Gov platform). Your Qualys instance must be FedRAMP-authorized. Contact Qualys for Gov provisioning.'
+            }
+        };
+        return guidance[providerId]?.[envKey] || '';
+    },
+
     showConfigureModal(providerId, parentModal) {
         const provider = this.providers[providerId];
         if (!provider) return;
         const existing = this.getCredentials(providerId) || {};
+        const currentEnv = existing.environment || 'commercial';
 
         const fields = {
             entra: [
@@ -503,16 +621,39 @@ const IntegrationsHub = {
             crowdstrike: [
                 { key: 'clientId', label: 'Client ID', placeholder: 'CrowdStrike OAuth2 client ID', type: 'text' },
                 { key: 'clientSecret', label: 'Client Secret', placeholder: 'CrowdStrike OAuth2 client secret', type: 'password' },
-                { key: 'baseUrl', label: 'API Base URL', placeholder: 'https://api.crowdstrike.com (or https://api.us-2.crowdstrike.com)', type: 'text' }
+                { key: 'baseUrl', label: 'API Base URL', placeholder: 'https://api.crowdstrike.com', type: 'text' }
             ],
             qualys: [
                 { key: 'username', label: 'Username', placeholder: 'Qualys API username', type: 'text' },
                 { key: 'password', label: 'Password', placeholder: 'Qualys API password', type: 'password' },
-                { key: 'apiUrl', label: 'API URL', placeholder: 'https://qualysapi.qualys.com (or https://qualysapi.qg2.apps.qualys.com)', type: 'text' }
+                { key: 'apiUrl', label: 'API URL', placeholder: 'https://qualysapi.qualys.com', type: 'text' }
             ]
         };
 
         const providerFields = fields[providerId] || [];
+        const hasEnvs = !!provider.environments;
+        const envEntries = hasEnvs ? Object.entries(provider.environments) : [];
+
+        // Build environment selector HTML
+        const envSelectorHtml = hasEnvs ? `
+            <div class="ih-field ih-env-selector">
+                <label>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    Cloud Environment
+                </label>
+                <div class="ih-env-pills" id="ih-env-pills-${providerId}">
+                    ${envEntries.map(([key, env]) => `
+                        <button type="button" class="ih-env-pill ${key === currentEnv ? 'active' : ''}" data-env="${key}">
+                            ${key !== 'commercial' && key !== 'gcc' ? '<span class="ih-env-gov-badge">GOV</span>' : ''}
+                            ${this.esc(env.label)}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        ` : '';
+
+        // Build guidance HTML
+        const guidanceHtml = `<div class="ih-env-guidance" id="ih-env-guidance-${providerId}">${this.getGovCloudGuidance(providerId, currentEnv) ? '<p class="ih-help-text">' + this.getGovCloudGuidance(providerId, currentEnv) + '</p>' : ''}</div>`;
 
         const overlay = document.createElement('div');
         overlay.className = 'ih-config-overlay';
@@ -522,6 +663,7 @@ const IntegrationsHub = {
                     <div style="display:flex;align-items:center;gap:10px;">
                         <span style="color:${this.getCategoryColor(provider.category)}">${this.getProviderIcon(providerId)}</span>
                         <h3>Configure ${this.esc(provider.name)}</h3>
+                        ${hasEnvs ? '<span class="ih-env-active-badge" id="ih-env-active-badge-' + providerId + '">' + (provider.environments[currentEnv]?.label || 'Commercial') + '</span>' : ''}
                     </div>
                     <button class="ih-config-close">&times;</button>
                 </div>
@@ -531,6 +673,7 @@ const IntegrationsHub = {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                         Credentials are stored in session memory only. They will be cleared when you close the browser tab.
                     </div>
+                    ${envSelectorHtml}
                     <div class="ih-config-fields">
                         ${providerFields.map(f => `
                             <div class="ih-field">
@@ -553,9 +696,8 @@ const IntegrationsHub = {
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                             API Documentation
                         </a>
-                        ${providerId === 'entra' ? '<p class="ih-help-text">Requires an Azure AD App Registration with <code>User.Read.All</code>, <code>Policy.Read.All</code>, <code>AuditLog.Read.All</code>, and <code>Reports.Read.All</code> permissions (Application type).</p>' : ''}
+                        ${guidanceHtml}
                         ${providerId === 'knowbe4' ? '<p class="ih-help-text">Generate an API key from KnowBe4 → Account Settings → API → Reporting API.</p>' : ''}
-                        ${providerId === 'tenable' ? '<p class="ih-help-text">Generate API keys from Tenable.io → Settings → My Account → API Keys.</p>' : ''}
                         ${providerId === 'jira' ? '<p class="ih-help-text">Generate an API token from <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener noreferrer">id.atlassian.com</a>.</p>' : ''}
                     </div>
                     <div class="ih-test-result" id="ih-test-result-${providerId}"></div>
@@ -575,6 +717,52 @@ const IntegrationsHub = {
         overlay.querySelector('.ih-config-close').addEventListener('click', () => overlay.remove());
         overlay.querySelector('.ih-config-cancel').addEventListener('click', () => overlay.remove());
         overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+        // Environment pill switching
+        overlay.querySelectorAll('.ih-env-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                const envKey = pill.dataset.env;
+                overlay.querySelectorAll('.ih-env-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                // Update guidance text
+                const guidanceEl = overlay.querySelector(`#ih-env-guidance-${providerId}`);
+                if (guidanceEl) {
+                    const text = this.getGovCloudGuidance(providerId, envKey);
+                    guidanceEl.innerHTML = text ? '<p class="ih-help-text">' + text + '</p>' : '';
+                }
+                // Update header badge
+                const badgeEl = overlay.querySelector(`#ih-env-active-badge-${providerId}`);
+                if (badgeEl) {
+                    const envConfig = provider.environments?.[envKey];
+                    badgeEl.textContent = envConfig?.label || 'Commercial';
+                    badgeEl.className = 'ih-env-active-badge' + (envKey !== 'commercial' && envKey !== 'gcc' ? ' ih-env-gov' : '');
+                }
+                // Auto-fill default URLs based on environment selection
+                const envConfig = provider.environments?.[envKey];
+                if (envConfig) {
+                    // CrowdStrike: auto-fill baseUrl
+                    if (providerId === 'crowdstrike' && envConfig.defaultBaseUrl) {
+                        const urlInput = overlay.querySelector('.ih-input[data-key="baseUrl"]');
+                        if (urlInput && !urlInput.value.trim()) urlInput.value = envConfig.defaultBaseUrl;
+                    }
+                    // Qualys: auto-fill apiUrl
+                    if (providerId === 'qualys' && envConfig.defaultApiUrl) {
+                        const urlInput = overlay.querySelector('.ih-input[data-key="apiUrl"]');
+                        if (urlInput && !urlInput.value.trim()) urlInput.value = envConfig.defaultApiUrl;
+                    }
+                    // SentinelOne: update placeholder
+                    if (providerId === 'sentinelone' && envConfig.consolePlaceholder) {
+                        const urlInput = overlay.querySelector('.ih-input[data-key="consoleUrl"]');
+                        if (urlInput) urlInput.placeholder = envConfig.consolePlaceholder;
+                    }
+                    // S3: auto-fill region for GovCloud
+                    if (providerId === 's3' && envConfig.defaultRegion) {
+                        const regionInput = overlay.querySelector('.ih-input[data-key="region"]');
+                        if (regionInput && !regionInput.value.trim()) regionInput.value = envConfig.defaultRegion;
+                    }
+                }
+            });
+        });
 
         overlay.querySelector('.ih-test-connection-btn').addEventListener('click', async () => {
             const creds = this.collectCredentials(overlay, providerId);
@@ -623,6 +811,11 @@ const IntegrationsHub = {
             }
             creds[key] = val;
         });
+        // Capture selected environment
+        const activePill = overlay.querySelector('.ih-env-pill.active');
+        if (activePill) {
+            creds.environment = activePill.dataset.env;
+        }
         if (!valid) this.showToast('Please fill in all required fields', 'error');
         return valid ? creds : null;
     },
@@ -686,12 +879,14 @@ const IntegrationsHub = {
         const creds = this.getCredentials('entra');
         if (!creds) throw new Error('Entra credentials not configured');
 
-        const tokenUrl = `${this.providers.entra.authUrl}/${creds.tenantId}/oauth2/v2.0/token`;
+        const authUrl = this.resolveAuthUrl('entra');
+        const scope = this.resolveScope('entra');
+        const tokenUrl = `${authUrl}/${creds.tenantId}/oauth2/v2.0/token`;
         const body = new URLSearchParams({
             grant_type: 'client_credentials',
             client_id: creds.clientId,
             client_secret: creds.clientSecret,
-            scope: 'https://graph.microsoft.com/.default'
+            scope: scope
         });
 
         const resp = await fetch(tokenUrl, {
@@ -709,7 +904,8 @@ const IntegrationsHub = {
     },
 
     async entraGraphGet(path, token) {
-        const resp = await fetch(`${this.providers.entra.baseUrl}${path}`, {
+        const baseUrl = this.resolveBaseUrl('entra');
+        const resp = await fetch(`${baseUrl}${path}`, {
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         });
         if (!resp.ok) {
@@ -953,7 +1149,8 @@ const IntegrationsHub = {
     async tenableGet(path) {
         const creds = this.getCredentials('tenable');
         if (!creds) throw new Error('Tenable credentials not configured');
-        const resp = await fetch(`${this.providers.tenable.baseUrl}${path}`, {
+        const baseUrl = this.resolveBaseUrl('tenable');
+        const resp = await fetch(`${baseUrl}${path}`, {
             headers: {
                 'X-ApiKeys': `accessKey=${creds.accessKey};secretKey=${creds.secretKey}`,
                 'Accept': 'application/json'
@@ -1220,12 +1417,14 @@ const IntegrationsHub = {
     async getM365Token() {
         const creds = this.getCredentials('m365');
         if (!creds) throw new Error('M365 credentials not configured');
-        const tokenUrl = `${this.providers.m365.authUrl}/${creds.tenantId}/oauth2/v2.0/token`;
+        const authUrl = this.resolveAuthUrl('m365');
+        const scope = this.resolveScope('m365');
+        const tokenUrl = `${authUrl}/${creds.tenantId}/oauth2/v2.0/token`;
         const body = new URLSearchParams({
             grant_type: 'client_credentials',
             client_id: creds.clientId,
             client_secret: creds.clientSecret,
-            scope: 'https://graph.microsoft.com/.default'
+            scope: scope
         });
         const resp = await fetch(tokenUrl, {
             method: 'POST',
@@ -1240,7 +1439,8 @@ const IntegrationsHub = {
     },
 
     async m365Get(path, token) {
-        const resp = await fetch(`${this.providers.m365.baseUrl}${path}`, {
+        const baseUrl = this.resolveBaseUrl('m365');
+        const resp = await fetch(`${baseUrl}${path}`, {
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         });
         if (!resp.ok) {
@@ -1407,12 +1607,14 @@ const IntegrationsHub = {
     async getDefenderToken() {
         const creds = this.getCredentials('defender');
         if (!creds) throw new Error('Defender credentials not configured');
-        const tokenUrl = `${this.providers.defender.authUrl}/${creds.tenantId}/oauth2/v2.0/token`;
+        const authUrl = this.resolveAuthUrl('defender');
+        const scope = this.resolveScope('defender');
+        const tokenUrl = `${authUrl}/${creds.tenantId}/oauth2/v2.0/token`;
         const body = new URLSearchParams({
             grant_type: 'client_credentials',
             client_id: creds.clientId,
             client_secret: creds.clientSecret,
-            scope: 'https://graph.microsoft.com/.default'
+            scope: scope
         });
         const resp = await fetch(tokenUrl, {
             method: 'POST',
@@ -1427,7 +1629,8 @@ const IntegrationsHub = {
     },
 
     async defenderGet(path, token) {
-        const resp = await fetch(`${this.providers.defender.baseUrl}${path}`, {
+        const baseUrl = this.resolveBaseUrl('defender');
+        const resp = await fetch(`${baseUrl}${path}`, {
             headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         });
         if (!resp.ok) {

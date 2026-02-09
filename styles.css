@@ -1548,6 +1548,85 @@ body::after {
     gap: 16px;
 }
 
+/* Integration Evidence Panel (Implementation Modal) */
+.impl-int-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(52, 211, 153, 0.12);
+    color: #34d399;
+    letter-spacing: 0.03em;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+.impl-integration-evidence {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.06));
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+.impl-int-item {
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.05));
+    border-radius: 6px;
+}
+.impl-int-item-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.impl-int-source {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #8ba2ff;
+    padding: 1px 6px;
+    background: rgba(108, 138, 255, 0.1);
+    border-radius: 3px;
+}
+.impl-int-type {
+    font-size: 0.65rem;
+    color: var(--text-muted, #4e5263);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.impl-int-date {
+    font-size: 0.65rem;
+    color: var(--text-muted, #4e5263);
+    margin-left: auto;
+}
+.impl-int-summary {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #8b8fa3);
+    line-height: 1.4;
+}
+.impl-pull-evidence-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(108, 138, 255, 0.08);
+    color: #8ba2ff;
+    border: 1px solid rgba(108, 138, 255, 0.2);
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.impl-pull-evidence-btn:hover {
+    background: rgba(108, 138, 255, 0.15);
+    border-color: rgba(108, 138, 255, 0.3);
+}
+
 .form-actions {
     display: flex;
     justify-content: flex-end;

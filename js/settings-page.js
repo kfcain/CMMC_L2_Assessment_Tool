@@ -46,6 +46,10 @@ const SettingsPage = {
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
                         Storage & Data
                     </button>
+                    <button class="stg-nav-btn ${activeSection === 'mcp' ? 'active' : ''}" data-section="mcp">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                        MCP Server
+                    </button>
                     <button class="stg-nav-btn ${activeSection === 'about' ? 'active' : ''}" data-section="about">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                         About
@@ -65,6 +69,7 @@ const SettingsPage = {
         switch (section) {
             case 'ai': return this.renderAISection();
             case 'integrations': return this.renderIntegrationsSection();
+            case 'mcp': return this.renderMCPSection();
             case 'theme': return this.renderThemeSection();
             case 'data': return this.renderDataSection();
             case 'about': return this.renderAboutSection();
@@ -209,7 +214,131 @@ const SettingsPage = {
         </div>`;
     },
 
-    // ==================== THEME / APPEARANCE ====================
+    // ==================== MCP SERVER ====================
+    renderMCPSection: function() {
+        const toolGroups = [
+            { name: 'Controls', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>', tools: [
+                { name: 'get_control_info', desc: 'Look up a control with objectives, ODPs, cross-refs' },
+                { name: 'search_controls', desc: 'Full-text search across all controls' },
+                { name: 'list_families', desc: 'List all control families with counts' }
+            ]},
+            { name: 'Crosswalk & ODPs', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>', tools: [
+                { name: 'get_crosswalk', desc: 'Rev 2 to Rev 3 control mapping' },
+                { name: 'get_odp_values', desc: 'DoD-defined ODP values for Rev 3' },
+                { name: 'get_new_rev3_controls', desc: 'New controls added in Rev 3' },
+                { name: 'get_800_53_mapping', desc: '800-53 to 800-171 tailoring mapping' }
+            ]},
+            { name: 'Implementation', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>', tools: [
+                { name: 'get_implementation_guidance', desc: 'Platform-specific guidance (AWS, Azure, Palo Alto, etc.)' },
+                { name: 'get_evidence_requirements', desc: 'Evidence artifacts needed for assessment' }
+            ]},
+            { name: 'FedRAMP', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', tools: [
+                { name: 'get_fedramp_ksi', desc: 'FedRAMP 20x Key Security Indicators' },
+                { name: 'search_fedramp_ksi', desc: 'Search KSIs by keyword' }
+            ]},
+            { name: 'SPRS Scoring', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>', tools: [
+                { name: 'get_sprs_score_info', desc: 'Point values, methodology, POA&M rules' },
+                { name: 'calculate_sprs_impact', desc: 'Calculate SPRS impact for NOT MET controls' }
+            ]},
+            { name: 'Assessment Bridge', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>', tools: [
+                { name: 'get_assessment_snapshot', desc: 'Read latest assessment context from UI export' },
+                { name: 'get_assessment_gaps', desc: 'Analyze gaps with SPRS impact and priorities' },
+                { name: 'get_poam_summary', desc: 'POA&M items summary with overdue tracking' }
+            ]}
+        ];
+
+        return `
+        <div class="stg-section">
+            <div class="stg-section-header">
+                <h2>MCP Server</h2>
+                <p>The CMMC Reference MCP Server exposes compliance data to AI tools (Claude Desktop, Windsurf, Cursor) via the Model Context Protocol. 17 tools across 6 categories.</p>
+            </div>
+
+            <div class="stg-card" style="margin-bottom:16px">
+                <div class="stg-card-header">
+                    <h3>Server Status</h3>
+                    <span class="stg-badge">v2.0.0</span>
+                </div>
+                <div class="stg-card-body">
+                    <div class="stg-mcp-status">
+                        <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">17</span><span class="stg-mcp-stat-label">Tools</span></div>
+                        <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">2</span><span class="stg-mcp-stat-label">Layers</span></div>
+                        <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">207+</span><span class="stg-mcp-stat-label">Controls</span></div>
+                        <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">742+</span><span class="stg-mcp-stat-label">Objectives</span></div>
+                    </div>
+                    <p style="color:var(--text-muted);font-size:0.75rem;margin:10px 0 0">
+                        <strong>Layer 1:</strong> Static reference data (controls, crosswalk, guidance, FedRAMP, SPRS) &mdash; always safe, no auth<br>
+                        <strong>Layer 2:</strong> Assessment context bridge (snapshot export &rarr; local file &rarr; MCP read) &mdash; ephemeral, redacted
+                    </p>
+                </div>
+            </div>
+
+            <div class="stg-card" style="margin-bottom:16px">
+                <div class="stg-card-header">
+                    <h3>Configuration</h3>
+                    <button class="stg-btn-sm" data-action="copy-mcp-config" title="Copy to clipboard">Copy Config</button>
+                </div>
+                <div class="stg-card-body">
+                    <p style="color:var(--text-secondary);font-size:0.78rem;margin:0 0 10px">Add this to your AI client's MCP configuration file:</p>
+                    <div class="stg-mcp-tabs">
+                        <button class="stg-mcp-tab active" data-mcp-tab="claude">Claude Desktop</button>
+                        <button class="stg-mcp-tab" data-mcp-tab="windsurf">Windsurf / Cursor</button>
+                    </div>
+                    <pre class="stg-mcp-config" id="stg-mcp-config-block"><code>// ~/Library/Application Support/Claude/claude_desktop_config.json
+{
+  "mcpServers": {
+    "cmmc-reference": {
+      "command": "node",
+      "args": ["${location.pathname.replace(/\/[^\/]*$/, '')}/mcp-server/src/index.js"]
+    }
+  }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="stg-card" style="margin-bottom:16px">
+                <div class="stg-card-header">
+                    <h3>Assessment Bridge</h3>
+                    <span class="stg-badge">Layer 2</span>
+                </div>
+                <div class="stg-card-body">
+                    <p style="color:var(--text-secondary);font-size:0.78rem;margin:0 0 10px">Export a snapshot of your current assessment state so AI tools can read it via MCP. The snapshot is saved to <code>~/.cmmc-mcp/assessment-context.json</code> and auto-expires after 1 hour.</p>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <button class="stg-btn-primary" data-action="export-mcp-snapshot">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Export Assessment Snapshot
+                        </button>
+                        <button class="stg-btn-secondary" data-action="copy-snapshot-json">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                            Copy to Clipboard
+                        </button>
+                    </div>
+                    <div id="stg-mcp-bridge-status" style="margin-top:8px"></div>
+                </div>
+            </div>
+
+            <div class="stg-card">
+                <div class="stg-card-header">
+                    <h3>Available Tools (17)</h3>
+                </div>
+                <div class="stg-card-body">
+                    ${toolGroups.map(g => `
+                        <div class="stg-mcp-tool-group">
+                            <div class="stg-mcp-group-label">${g.icon} ${g.name}</div>
+                            ${g.tools.map(t => `
+                                <div class="stg-mcp-tool">
+                                    <code class="stg-mcp-tool-name">${t.name}</code>
+                                    <span class="stg-mcp-tool-desc">${t.desc}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>`;
+    },
+
+    // ==================== THEME / APPEARANCE ==
     renderThemeSection: function() {
         const tp = typeof ThemePicker !== 'undefined' ? ThemePicker : null;
         const currentTheme = tp ? tp.currentTheme : 'deepObsidian';
@@ -379,6 +508,9 @@ const SettingsPage = {
                 case 'import-data': document.getElementById('stg-import-file')?.click(); break;
                 case 'clear-all-data': this.clearAllData(); break;
                 case 'configure-integration': this.configureIntegration(e.target.closest('[data-integration]').dataset.integration); break;
+                case 'copy-mcp-config': this.copyMCPConfig(); break;
+                case 'export-mcp-snapshot': this.exportMCPSnapshot(); break;
+                case 'copy-snapshot-json': this.copySnapshotJSON(); break;
                 case 'open-integrations-hub':
                     e.preventDefault();
                     if (typeof IntegrationsHub !== 'undefined') IntegrationsHub.openHub();
@@ -389,6 +521,23 @@ const SettingsPage = {
         // Import file handler
         container.addEventListener('change', (e) => {
             if (e.target.id === 'stg-import-file') this.importData(e.target);
+        });
+
+        // MCP tab switching
+        container.addEventListener('click', (e) => {
+            const tab = e.target.closest('.stg-mcp-tab');
+            if (tab) {
+                container.querySelectorAll('.stg-mcp-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const configBlock = document.getElementById('stg-mcp-config-block');
+                if (configBlock) {
+                    if (tab.dataset.mcpTab === 'windsurf') {
+                        configBlock.innerHTML = `<code>// .windsurf/mcp.json or Cursor MCP settings\n{\n  "cmmc-reference": {\n    "command": "node",\n    "args": ["/absolute/path/to/nist-assessment-tool/mcp-server/src/index.js"]\n  }\n}</code>`;
+                    } else {
+                        configBlock.innerHTML = `<code>// ~/Library/Application Support/Claude/claude_desktop_config.json\n{\n  "mcpServers": {\n    "cmmc-reference": {\n      "command": "node",\n      "args": ["/absolute/path/to/nist-assessment-tool/mcp-server/src/index.js"]\n    }\n  }\n}</code>`;
+                    }
+                }
+            }
         });
     },
 
@@ -483,6 +632,100 @@ const SettingsPage = {
         this.showToast('All data cleared', 'success');
         this._activeSection = 'data';
         this.render();
+    },
+
+    // ==================== MCP ACTIONS ====================
+    copyMCPConfig: function() {
+        const config = JSON.stringify({
+            mcpServers: {
+                'cmmc-reference': {
+                    command: 'node',
+                    args: ['/absolute/path/to/nist-assessment-tool/mcp-server/src/index.js']
+                }
+            }
+        }, null, 2);
+        navigator.clipboard.writeText(config).then(() => {
+            this.showToast('MCP config copied to clipboard', 'success');
+        }).catch(() => {
+            this.showToast('Copy failed — check clipboard permissions', 'error');
+        });
+    },
+
+    buildAssessmentSnapshot: function() {
+        const prefix = typeof window.AssessmentApp !== 'undefined' && window.AssessmentApp.storagePrefix ? window.AssessmentApp.storagePrefix : 'cmmc_';
+        const snapshot = { _exportedAt: new Date().toISOString(), _source: 'cmmc-assessment-tool' };
+
+        // Objective statuses
+        try {
+            const raw = localStorage.getItem(prefix + 'assessment-data');
+            if (raw) snapshot.objectiveStatuses = JSON.parse(raw);
+        } catch(e) {}
+
+        // POA&M
+        try {
+            const raw = localStorage.getItem(prefix + 'poam-data');
+            if (raw) snapshot.poamItems = JSON.parse(raw);
+        } catch(e) {}
+
+        // Implementation details
+        try {
+            const raw = localStorage.getItem(prefix + 'implementation-data');
+            if (raw) snapshot.implementationDetails = JSON.parse(raw);
+        } catch(e) {}
+
+        // Org info
+        try {
+            const raw = localStorage.getItem('nist-org-data');
+            if (raw) {
+                const org = JSON.parse(raw);
+                snapshot.organization = { name: org.orgName || '', assessor: org.assessorName || '' };
+            }
+        } catch(e) {}
+
+        // OSC inventory summary
+        try {
+            const raw = localStorage.getItem('osc-inventory');
+            if (raw) {
+                const inv = JSON.parse(raw);
+                snapshot.inventory = {
+                    policies: (inv.policies || []).length,
+                    procedures: (inv.procedures || []).length,
+                    assets: (inv.assets || []).length,
+                    fipsCerts: (inv.fipsCerts || []).length
+                };
+            }
+        } catch(e) {}
+
+        return snapshot;
+    },
+
+    exportMCPSnapshot: function() {
+        const snapshot = this.buildAssessmentSnapshot();
+        const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'assessment-context.json';
+        a.click();
+        URL.revokeObjectURL(url);
+
+        const statusEl = document.getElementById('stg-mcp-bridge-status');
+        if (statusEl) {
+            const objCount = snapshot.objectiveStatuses ? Object.keys(snapshot.objectiveStatuses).length : 0;
+            const poamCount = Array.isArray(snapshot.poamItems) ? snapshot.poamItems.length : 0;
+            statusEl.innerHTML = `<span style="color:#34d399;font-size:0.78rem">&#10003; Snapshot exported (${objCount} objectives, ${poamCount} POA&M items). Save to <code>~/.cmmc-mcp/assessment-context.json</code> for MCP access.</span>`;
+        }
+        this.showToast('Assessment snapshot exported', 'success');
+    },
+
+    copySnapshotJSON: function() {
+        const snapshot = this.buildAssessmentSnapshot();
+        const json = JSON.stringify(snapshot, null, 2);
+        navigator.clipboard.writeText(json).then(() => {
+            this.showToast('Snapshot JSON copied to clipboard', 'success');
+        }).catch(() => {
+            this.showToast('Copy failed', 'error');
+        });
     },
 
     // ==================== INTEGRATION ACTIONS ====================

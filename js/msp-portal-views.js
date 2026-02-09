@@ -77,7 +77,7 @@ const MSPPortalViews = {
         const clients = portal.state.clients;
         const selectedClient = portal._kanbanClient || (clients.length > 0 ? clients[0].id : null);
         const client = clients.find(c => c.id === selectedClient);
-        const tasks = this._getKanbanTasks(selectedClient);
+        let tasks = this._getKanbanTasks(selectedClient);
         const columns = [
             { id: 'backlog', name: 'Backlog', color: '#4e5263' },
             { id: 'todo', name: 'To Do', color: '#6c8aff' },
@@ -91,6 +91,7 @@ const MSPPortalViews = {
         }
 
         const stats = this._getKanbanStats(tasks);
+        const showSeedPrompt = tasks.length === 0 && selectedClient;
 
         return `
         <div class="kb-planner">
@@ -107,11 +108,21 @@ const MSPPortalViews = {
                         <span class="kb-stat done">${stats.done} done</span>
                         ${stats.overdue > 0 ? `<span class="kb-stat overdue">${stats.overdue} overdue</span>` : ''}
                     </div>
+                    <button class="msp-btn-secondary" onclick="MSPPortalViews._seedDefaultTasks('${selectedClient}')" title="Load default CMMC tasks">
+                        ${portal.getIcon('refresh-cw')} Seed Tasks
+                    </button>
                     <button class="msp-btn-primary" onclick="MSPPortalViews._showAddTaskModal('${selectedClient}')">
                         ${portal.getIcon('plus')} Add Task
                     </button>
                 </div>
             </div>
+            ${showSeedPrompt ? `
+            <div class="kb-seed-prompt">
+                <p>No tasks yet for this client. Start with default CMMC assessment tasks?</p>
+                <button class="msp-btn-primary" onclick="MSPPortalViews._seedDefaultTasks('${selectedClient}')">
+                    ${portal.getIcon('plus')} Load Default CMMC Tasks
+                </button>
+            </div>` : ''}
             <div class="kb-board" id="kb-board">
                 ${columns.map(col => {
                     const colTasks = tasks.filter(t => t.status === col.id);
@@ -322,6 +333,34 @@ const MSPPortalViews = {
         if (!clientId) return;
         let tasks = this._getKanbanTasks(clientId);
         tasks = tasks.filter(t => t.id !== taskId);
+        this._saveKanbanTasks(clientId, tasks);
+        if (typeof MSPPortal !== 'undefined') MSPPortal.switchView('projects');
+    },
+
+    _seedDefaultTasks: function(clientId) {
+        if (!clientId) return;
+        const existing = this._getKanbanTasks(clientId);
+        if (existing.length > 0 && !confirm('This will add default CMMC tasks. Existing tasks will be kept. Continue?')) return;
+        const now = new Date().toISOString();
+        const mkId = () => 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+        const defaults = [
+            { title: 'Define CUI Scope & Data Flows', description: 'Identify all CUI data types, where they are stored/processed/transmitted, and document data flow diagrams.', priority: 'high', status: 'todo', tags: ['Scoping', 'CUI'] },
+            { title: 'Complete System Security Plan (SSP)', description: 'Draft or update the SSP covering all 110 CMMC L2 controls with implementation descriptions.', priority: 'high', status: 'backlog', tags: ['SSP', 'Documentation'] },
+            { title: 'Conduct Gap Assessment', description: 'Assess current state against all CMMC L2 objectives. Document MET, NOT MET, and PARTIAL findings.', priority: 'high', status: 'todo', tags: ['Assessment', 'Gap Analysis'] },
+            { title: 'Deploy Endpoint Protection (EDR/XDR)', description: 'Ensure all endpoints in CUI scope have EDR/XDR deployed and reporting to SIEM.', priority: 'high', status: 'backlog', tags: ['SI', 'Endpoint'] },
+            { title: 'Configure MFA for All Users', description: 'Enable phishing-resistant MFA for all user accounts accessing CUI systems.', priority: 'high', status: 'backlog', tags: ['IA', 'MFA'] },
+            { title: 'Implement Audit Logging', description: 'Configure centralized logging for authentication, authorization, and system events per AU family.', priority: 'high', status: 'backlog', tags: ['AU', 'SIEM'] },
+            { title: 'Vulnerability Scanning Program', description: 'Set up recurring vulnerability scans (Tenable/Qualys) and establish remediation SLAs.', priority: 'medium', status: 'backlog', tags: ['RA', 'Vulnerability'] },
+            { title: 'Security Awareness Training', description: 'Enroll all users in security awareness training (KnowBe4) and schedule phishing simulations.', priority: 'medium', status: 'backlog', tags: ['AT', 'Training'] },
+            { title: 'Develop Incident Response Plan', description: 'Create IR plan with roles, procedures, communication templates, and DFARS 72-hour reporting process.', priority: 'medium', status: 'backlog', tags: ['IR', 'DFARS'] },
+            { title: 'Create POA&M for Gaps', description: 'Document all NOT MET findings in POA&M with milestones, responsible parties, and target dates.', priority: 'medium', status: 'backlog', tags: ['POA&M', 'Remediation'] },
+            { title: 'Network Segmentation Review', description: 'Verify CUI enclave is properly segmented from non-CUI networks. Document boundary protections.', priority: 'medium', status: 'backlog', tags: ['SC', 'Network'] },
+            { title: 'FIPS 140-2 Crypto Validation', description: 'Verify all encryption for CUI at rest and in transit uses FIPS 140-2 validated modules.', priority: 'medium', status: 'backlog', tags: ['SC', 'FIPS'] },
+            { title: 'Physical Security Assessment', description: 'Assess physical access controls, visitor logs, and media protection for CUI areas.', priority: 'low', status: 'backlog', tags: ['PE', 'MP'] },
+            { title: 'Configuration Management Baselines', description: 'Establish and document secure configuration baselines (CIS/DISA STIGs) for all system components.', priority: 'medium', status: 'backlog', tags: ['CM', 'Baselines'] },
+            { title: 'Pre-Assessment Readiness Review', description: 'Conduct internal mock assessment. Verify all evidence artifacts are collected and organized.', priority: 'low', status: 'backlog', tags: ['C3PAO', 'Readiness'] },
+        ];
+        const tasks = [...existing, ...defaults.map(d => ({ ...d, id: mkId(), dueDate: '', assignee: '', createdAt: now, updatedAt: now }))];
         this._saveKanbanTasks(clientId, tasks);
         if (typeof MSPPortal !== 'undefined') MSPPortal.switchView('projects');
     },
@@ -1103,51 +1142,352 @@ gcloud assured workloads create \\
         </div>`;
     },
 
-    // ==================== SIEM VIEW ====================
+    // ==================== SIEM VIEW (SOC PLAYBOOK) ====================
     siem: function(portal) {
         return `
         <div class="msp-siem-view">
-            <div class="msp-intro-banner security"><div class="banner-content"><h2>SIEM & MSSP Operations Center</h2><p>Centralized security operations for monitoring and protecting all client environments.</p></div></div>
-            <div class="siem-dashboard-grid">
-                <div class="msp-card"><div class="msp-card-header"><h3>MSSP Architecture</h3></div><div class="msp-card-body">${this.renderMSSPArchitecture()}</div></div>
-                <div class="msp-card"><div class="msp-card-header"><h3>SIEM Platform Comparison</h3></div><div class="msp-card-body">${this.renderSIEMComparison()}</div></div>
-                <div class="msp-card full-width"><div class="msp-card-header"><h3>CMMC Logging Requirements</h3></div><div class="msp-card-body">${this.renderLoggingReqs()}</div></div>
-                <div class="msp-card full-width"><div class="msp-card-header"><h3>MSP Backend Operations</h3></div><div class="msp-card-body">${this.renderMSPBackendOps()}</div></div>
+            <div class="msp-intro-banner security"><div class="banner-content"><h2>SOC / MSSP Operations Playbook</h2><p>Comprehensive 24/7 Security Operations Center playbook covering SIEM, SOAR, ticketing, detection engineering, and incident response for CMMC-compliant MSSPs.</p></div></div>
+            <div class="msp-tabs siem-tabs">
+                <button class="msp-tab active" data-siem-tab="overview">SOC Overview</button>
+                <button class="msp-tab" data-siem-tab="siem-platforms">SIEM Platforms</button>
+                <button class="msp-tab" data-siem-tab="soar">SOAR & Automation</button>
+                <button class="msp-tab" data-siem-tab="ticketing">Ticketing & Incidents</button>
+                <button class="msp-tab" data-siem-tab="detection">Detection Engineering</button>
+                <button class="msp-tab" data-siem-tab="operations">24/7 Operations</button>
+            </div>
+            <div class="siem-tab-content" id="siem-tab-content">${this.renderSIEMOverview(portal)}</div>
+        </div>`;
+    },
+
+    renderSIEMOverview: function(portal) {
+        const ih = typeof IntegrationsHub !== 'undefined' ? IntegrationsHub : null;
+        const defStats = ih?.data?.defender?.stats;
+        const s1Stats = ih?.data?.sentinelone?.stats;
+        const csStats = ih?.data?.crowdstrike?.stats;
+        const tenStats = ih?.data?.tenable?.stats;
+        const totalAlerts = (defStats?.totalAlerts || 0) + (s1Stats?.totalThreats || 0) + (csStats?.detectionCount || 0);
+        const critAlerts = (defStats?.criticalAlerts || 0) + (s1Stats?.activeThreats || 0);
+        const bar = (val, max, color) => { const pct = max > 0 ? Math.min(100, Math.round((val / max) * 100)) : 0; return '<div class="soc-bar-track"><div class="soc-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>'; };
+
+        return `
+        <div class="soc-overview-grid">
+            <!-- MSSP Architecture -->
+            <div class="msp-card full-width">
+                <div class="msp-card-header"><h3>MSSP SOC Architecture</h3></div>
+                <div class="msp-card-body">
+                    <div class="mssp-arch-diagram">
+                        <div class="mssp-tier central"><h4>MSSP SOC (24/7)</h4><ul><li>Tier 1: Alert Triage & Monitoring</li><li>Tier 2: Incident Investigation</li><li>Tier 3: Threat Hunting & Forensics</li><li>SOC Manager: Escalation & Reporting</li></ul></div>
+                        <div class="mssp-connectors"><div class="connector-line"></div></div>
+                        <div class="mssp-tier siem"><h4>Core Platform Stack</h4><div class="siem-options"><span class="siem-badge sentinel">Sentinel</span><span class="siem-badge splunk">Splunk ES</span><span class="siem-badge elastic">Elastic SIEM</span><span class="siem-badge chronicle">Chronicle</span></div><div class="siem-options" style="margin-top:6px"><span class="siem-badge xsoar">Cortex XSOAR</span><span class="siem-badge soar">Splunk SOAR</span><span class="siem-badge swimlane">Swimlane</span></div></div>
+                        <div class="mssp-connectors multi"><div class="connector-line"></div></div>
+                        <div class="mssp-tier clients"><h4>Client Telemetry Sources</h4><div class="client-sources"><span>EDR/XDR</span><span>Firewall/IDS</span><span>Cloud Audit</span><span>Identity/SSO</span><span>Email Security</span><span>DNS/Proxy</span><span>Vulnerability Scans</span><span>DLP Events</span></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Security Metrics -->
+            <div class="msp-card">
+                <div class="msp-card-header"><h3>Live Security Metrics</h3></div>
+                <div class="msp-card-body">
+                    ${totalAlerts === 0 && !defStats && !s1Stats && !csStats ? '<div class="soc-empty">Connect endpoint/SIEM integrations to see live metrics</div>' : `
+                    <div class="soc-metric-rows">
+                        <div class="soc-metric-row"><span class="soc-metric-name">Total Alerts</span><span class="soc-metric-val ${totalAlerts > 0 ? 'soc-red' : 'soc-green'}">${totalAlerts}</span></div>
+                        <div class="soc-metric-row"><span class="soc-metric-name">Critical</span><span class="soc-metric-val ${critAlerts > 0 ? 'soc-red' : 'soc-green'}">${critAlerts}</span></div>
+                        ${defStats ? `<div class="soc-metric-row"><span class="soc-metric-name">Defender Compliance</span>${bar(defStats.complianceRate, 100, defStats.complianceRate >= 90 ? '#34d399' : '#f59e0b')}<span class="soc-metric-val">${defStats.complianceRate}%</span></div>` : ''}
+                        ${s1Stats ? `<div class="soc-metric-row"><span class="soc-metric-name">S1 Health</span>${bar(s1Stats.healthRate, 100, s1Stats.healthRate >= 90 ? '#34d399' : '#f59e0b')}<span class="soc-metric-val">${s1Stats.healthRate}%</span></div>` : ''}
+                        ${tenStats ? `<div class="soc-metric-row"><span class="soc-metric-name">Critical Vulns</span><span class="soc-metric-val soc-red">${tenStats.vulnerabilities?.critical || 0}</span></div>` : ''}
+                    </div>`}
+                </div>
+            </div>
+
+            <!-- SOC Shift Model -->
+            <div class="msp-card">
+                <div class="msp-card-header"><h3>SOC Shift Model</h3></div>
+                <div class="msp-card-body">
+                    <div class="shift-model">
+                        <div class="shift-row"><span class="shift-badge day">Day (06-14)</span><span class="shift-desc">Primary analysts, threat hunting, client meetings, report generation</span></div>
+                        <div class="shift-row"><span class="shift-badge swing">Swing (14-22)</span><span class="shift-desc">Alert triage, incident response, escalation handling</span></div>
+                        <div class="shift-row"><span class="shift-badge night">Night (22-06)</span><span class="shift-desc">Monitoring, automated response, critical escalation only</span></div>
+                    </div>
+                    <div class="shift-kpis" style="margin-top:10px">
+                        <div class="shift-kpi"><strong>MTTA:</strong> &lt; 15 min</div>
+                        <div class="shift-kpi"><strong>MTTR:</strong> &lt; 4 hrs (P1)</div>
+                        <div class="shift-kpi"><strong>SLA:</strong> 99.9% uptime</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CMMC Logging Requirements -->
+            <div class="msp-card full-width">
+                <div class="msp-card-header"><h3>CMMC Audit & Logging Requirements</h3></div>
+                <div class="msp-card-body">${this.renderLoggingReqs()}</div>
+            </div>
+
+            <!-- MSP Backend Operations -->
+            <div class="msp-card full-width">
+                <div class="msp-card-header"><h3>MSP Backend Operations</h3></div>
+                <div class="msp-card-body">${this.renderMSPBackendOps()}</div>
             </div>
         </div>`;
     },
 
-    renderMSSPArchitecture: function() {
+    renderSIEMPlatforms: function() {
         return `
-        <div class="mssp-arch-diagram">
-            <div class="mssp-tier central"><h4>MSSP SOC</h4><ul><li>24/7 Monitoring</li><li>Threat Intelligence</li><li>Incident Response</li><li>Compliance Reporting</li></ul></div>
-            <div class="mssp-connectors"><div class="connector-line"></div></div>
-            <div class="mssp-tier siem"><h4>Central SIEM</h4><div class="siem-options"><span class="siem-badge sentinel">Sentinel</span><span class="siem-badge splunk">Splunk</span><span class="siem-badge chronicle">Chronicle</span></div></div>
-            <div class="mssp-connectors multi"><div class="connector-line"></div></div>
-            <div class="mssp-tier clients"><h4>Client Data Sources</h4><div class="client-sources"><span>Endpoint Logs</span><span>Network Flows</span><span>Cloud Audit</span><span>Identity Events</span></div></div>
+        <div class="siem-platforms-section">
+            <h3>SIEM Platform Comparison</h3>
+            <p class="section-desc">FedRAMP-authorized SIEM platforms for CMMC-compliant MSSP operations. Each platform has unique strengths for multi-tenant SOC environments.</p>
+            <table class="msp-comparison-table">
+                <thead><tr><th>Feature</th><th>Microsoft Sentinel</th><th>Splunk Enterprise Security</th><th>Elastic SIEM</th><th>Google Chronicle</th><th>IBM QRadar</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>FedRAMP</strong></td><td class="good">High (GCC High)</td><td class="good">High (GovCloud)</td><td class="moderate">Moderate (Cloud)</td><td class="moderate">Moderate</td><td class="good">High</td></tr>
+                    <tr><td><strong>Multi-Tenant</strong></td><td class="good">Native (Lighthouse)</td><td class="moderate">Via Apps/Indexes</td><td class="moderate">Spaces</td><td class="good">Native</td><td class="moderate">Multi-domain</td></tr>
+                    <tr><td><strong>SOAR Built-in</strong></td><td class="good">Logic Apps + Playbooks</td><td class="good">Splunk SOAR (Phantom)</td><td class="moderate">Limited</td><td class="moderate">Chronicle SOAR</td><td class="good">QRadar SOAR</td></tr>
+                    <tr><td><strong>CMMC Content</strong></td><td class="good">Content Hub packs</td><td class="moderate">ES Content Update</td><td class="moderate">Custom rules</td><td class="moderate">Custom rules</td><td class="moderate">Custom rules</td></tr>
+                    <tr><td><strong>Query Language</strong></td><td>KQL (Kusto)</td><td>SPL</td><td>EQL / Lucene</td><td>YARA-L</td><td>AQL</td></tr>
+                    <tr><td><strong>Cost Model</strong></td><td>Per GB ingested</td><td>Per GB indexed</td><td>Per node/GB</td><td>Per GB ingested</td><td>Per EPS</td></tr>
+                    <tr><td><strong>Best For</strong></td><td>M365/Azure shops</td><td>On-prem + hybrid</td><td>Open-source stack</td><td>GCP environments</td><td>Enterprise SOC</td></tr>
+                    <tr><td><strong>XDR Integration</strong></td><td class="good">Defender XDR native</td><td class="good">CrowdStrike, S1</td><td class="good">Elastic Defend</td><td class="moderate">Via connectors</td><td class="good">QRadar XDR</td></tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top:20px">Key Configuration per Platform</h3>
+            <div class="siem-config-grid">
+                <details class="siem-config-card">
+                    <summary><span class="siem-badge sentinel">Sentinel</span> Multi-Tenant Setup</summary>
+                    <div class="siem-config-body">
+                        <p><strong>Architecture:</strong> Azure Lighthouse + workspace per client</p>
+                        <pre><code># Deploy Lighthouse delegation
+az deployment create --location eastus --template-file lighthouse.json \\
+  --parameters managedByTenantId="{MSP_TENANT}" principalId="{SOC_GROUP}"
+
+# Enable CMMC analytics rules
+az sentinel alert-rule list --workspace-name "{CLIENT_WS}" \\
+  --resource-group "{RG}" | jq '.[] | select(.kind=="Scheduled")'</code></pre>
+                        <p><strong>Data Connectors:</strong> Defender XDR, Entra ID, Office 365, Azure Activity, Syslog (CEF), AWS CloudTrail (via S3)</p>
+                    </div>
+                </details>
+                <details class="siem-config-card">
+                    <summary><span class="siem-badge splunk">Splunk ES</span> MSSP Deployment</summary>
+                    <div class="siem-config-body">
+                        <p><strong>Architecture:</strong> Indexer cluster + search head cluster, per-client indexes</p>
+                        <pre><code># inputs.conf for CrowdStrike Falcon Data Replicator
+[monitor:///opt/crowdstrike/fdr/data]
+sourcetype = crowdstrike:fdr:event
+index = client_a_edr
+
+# CMMC correlation search
+| tstats count from datamodel=Authentication where Authentication.action=failure 
+  by Authentication.user Authentication.src | where count > 10</code></pre>
+                        <p><strong>Apps:</strong> Splunk ES, CrowdStrike App, Palo Alto App, AWS App, Splunk SOAR</p>
+                    </div>
+                </details>
+                <details class="siem-config-card">
+                    <summary><span class="siem-badge elastic">Elastic SIEM</span> Stack Setup</summary>
+                    <div class="siem-config-body">
+                        <p><strong>Architecture:</strong> Elasticsearch cluster + Kibana + Fleet Server, Elastic Agent on endpoints</p>
+                        <pre><code># Deploy Elastic Agent with Fleet
+elastic-agent enroll --url=https://fleet.mssp.local:8220 \\
+  --enrollment-token="{TOKEN}" --fleet-server-es=https://es.mssp.local:9200
+
+# Detection rule (EQL)
+process where process.name == "powershell.exe" and 
+  process.args : ("-enc*", "-e *", "bypass*") and 
+  user.name != "SYSTEM"</code></pre>
+                        <p><strong>Integrations:</strong> Elastic Defend (EDR), Filebeat, Winlogbeat, Auditbeat, Cloud modules</p>
+                    </div>
+                </details>
+            </div>
         </div>`;
     },
 
-    renderSIEMComparison: function() {
+    renderSOARSection: function() {
         return `
-        <table class="msp-comparison-table">
-            <thead><tr><th>Feature</th><th>Sentinel</th><th>Splunk</th><th>Chronicle</th></tr></thead>
-            <tbody>
-                <tr><td>FedRAMP</td><td class="good">High (GCC High)</td><td class="good">High (GovCloud)</td><td class="moderate">Moderate</td></tr>
-                <tr><td>Multi-Tenant</td><td class="good">Native (Lighthouse)</td><td class="moderate">Via Apps</td><td class="good">Native</td></tr>
-                <tr><td>CMMC Mapping</td><td class="good">Built-in</td><td class="moderate">Add-on</td><td class="moderate">Custom</td></tr>
-                <tr><td>Cost Model</td><td>Per GB ingested</td><td>Per GB indexed</td><td>Per GB ingested</td></tr>
-                <tr><td>Best For</td><td>M365/Azure</td><td>On-prem heavy</td><td>GCP environments</td></tr>
-            </tbody>
-        </table>`;
+        <div class="soar-section">
+            <h3>SOAR & Automation Platforms</h3>
+            <p class="section-desc">Security Orchestration, Automation, and Response platforms for automating repetitive SOC tasks, enriching alerts, and executing playbooks.</p>
+
+            <table class="msp-comparison-table">
+                <thead><tr><th>Platform</th><th>FedRAMP</th><th>Best Integration</th><th>Playbook Language</th><th>MSSP Fit</th><th>Key Capability</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Cortex XSOAR</strong></td><td class="good">High</td><td>Palo Alto, CrowdStrike</td><td>Python + YAML</td><td class="good">Excellent</td><td>700+ integrations, war rooms, ML-based triage</td></tr>
+                    <tr><td><strong>Splunk SOAR</strong></td><td class="good">High</td><td>Splunk ES</td><td>Python playbooks</td><td class="good">Excellent</td><td>Visual playbook editor, case management</td></tr>
+                    <tr><td><strong>Sentinel Playbooks</strong></td><td class="good">High (GCC)</td><td>Microsoft stack</td><td>Logic Apps (JSON)</td><td class="good">Good</td><td>Native Azure, low-code automation</td></tr>
+                    <tr><td><strong>Swimlane</strong></td><td class="good">High</td><td>Vendor-agnostic</td><td>Low-code + Python</td><td class="moderate">Good</td><td>Flexible workflows, OT/IoT support</td></tr>
+                    <tr><td><strong>Tines</strong></td><td class="moderate">Moderate</td><td>Vendor-agnostic</td><td>No-code (Stories)</td><td class="moderate">Good</td><td>Simple automation, free community tier</td></tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top:20px">Common SOAR Playbooks for CMMC</h3>
+            <div class="soar-playbooks-grid">
+                <div class="soar-pb-card"><div class="soar-pb-head"><span class="pb-severity high">P1</span><h4>Compromised Account Response</h4></div><div class="soar-pb-body"><ol><li>Disable user account (Entra ID / AD)</li><li>Revoke all active sessions</li><li>Reset credentials + MFA re-enrollment</li><li>Query SIEM for lateral movement</li><li>Block source IPs at firewall</li><li>Create incident ticket (Jira/ServiceNow)</li><li>Notify client SOC contact</li></ol><div class="soar-pb-controls"><strong>CMMC Controls:</strong> 3.1.1, 3.1.2, 3.5.3, 3.6.1, 3.6.2</div></div></div>
+                <div class="soar-pb-card"><div class="soar-pb-head"><span class="pb-severity high">P1</span><h4>Malware Detection & Containment</h4></div><div class="soar-pb-body"><ol><li>Isolate endpoint (EDR network quarantine)</li><li>Collect forensic artifacts (memory dump, disk image)</li><li>Submit sample to sandbox (VirusTotal, Any.Run)</li><li>Block IOCs across all clients (hash, IP, domain)</li><li>Scan environment for additional infections</li><li>Remediate and restore from clean backup</li><li>Update detection rules with new IOCs</li></ol><div class="soar-pb-controls"><strong>CMMC Controls:</strong> 3.14.1, 3.14.2, 3.14.3, 3.14.5, 3.14.6</div></div></div>
+                <div class="soar-pb-card"><div class="soar-pb-head"><span class="pb-severity medium">P2</span><h4>Phishing Email Triage</h4></div><div class="soar-pb-body"><ol><li>Extract URLs, attachments, headers</li><li>Detonate in sandbox</li><li>Check sender reputation (SPF/DKIM/DMARC)</li><li>Search mailboxes for similar messages</li><li>Purge from all inboxes if malicious</li><li>Block sender/domain at email gateway</li><li>Update KnowBe4 phishing simulation data</li></ol><div class="soar-pb-controls"><strong>CMMC Controls:</strong> 3.2.1, 3.2.2, 3.14.2, 3.14.6</div></div></div>
+                <div class="soar-pb-card"><div class="soar-pb-head"><span class="pb-severity medium">P2</span><h4>Vulnerability Remediation Workflow</h4></div><div class="soar-pb-body"><ol><li>Receive critical vuln alert (Tenable/Qualys)</li><li>Enrich with asset context (owner, CUI scope)</li><li>Auto-create Jira ticket with SLA</li><li>Assign to responsible team</li><li>Track patch deployment via RMM</li><li>Re-scan to verify remediation</li><li>Close ticket and update evidence</li></ol><div class="soar-pb-controls"><strong>CMMC Controls:</strong> 3.11.1, 3.11.2, 3.11.3, 3.14.1</div></div></div>
+            </div>
+        </div>`;
+    },
+
+    renderTicketingSection: function() {
+        return `
+        <div class="ticketing-section">
+            <h3>Ticketing & Incident Management</h3>
+            <p class="section-desc">Incident ticketing systems integrated with SOC workflows. Tickets serve as evidence artifacts for CMMC audit trails (3.6.1, 3.6.2).</p>
+
+            <table class="msp-comparison-table">
+                <thead><tr><th>Platform</th><th>FedRAMP</th><th>ITSM/SOAR</th><th>MSSP Multi-Tenant</th><th>API Integration</th><th>Best For</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>ServiceNow</strong></td><td class="good">High</td><td class="good">Full ITSM + SecOps</td><td class="good">Domain separation</td><td class="good">REST + MID Server</td><td>Enterprise MSSP</td></tr>
+                    <tr><td><strong>Jira Service Mgmt</strong></td><td class="good">High (Atlassian Gov)</td><td class="moderate">ITSM + Opsgenie</td><td class="moderate">Projects per client</td><td class="good">REST API</td><td>Agile SOC teams</td></tr>
+                    <tr><td><strong>ConnectWise Manage</strong></td><td class="moderate">N/A (SOC 2)</td><td class="moderate">PSA + RMM</td><td class="good">Native MSP</td><td class="good">REST API</td><td>MSP-focused</td></tr>
+                    <tr><td><strong>Halo ITSM</strong></td><td class="moderate">N/A (SOC 2)</td><td class="moderate">ITSM</td><td class="good">Multi-tenant</td><td class="good">REST API</td><td>Mid-market MSP</td></tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top:20px">Communication & Escalation Channels</h3>
+            <div class="backend-ops-grid">
+                <div class="ops-category"><h4>Slack / Teams Integration</h4><ul><li>Dedicated #soc-alerts channel per client</li><li>Bot auto-posts P1/P2 incidents</li><li>Threaded investigation discussions</li><li>Slash commands: /incident, /escalate, /status</li><li>Webhook from SIEM for real-time alerts</li><li><strong>Evidence:</strong> Export threads as IR documentation</li></ul></div>
+                <div class="ops-category"><h4>PagerDuty / Opsgenie</h4><ul><li>On-call rotation management</li><li>Escalation policies (5 min → 15 min → manager)</li><li>Integration with SIEM alert rules</li><li>Mobile push for critical alerts</li><li>Post-incident review scheduling</li><li><strong>SLA tracking:</strong> MTTA, MTTR per severity</li></ul></div>
+                <div class="ops-category"><h4>Incident Ticket Workflow</h4><ul><li><strong>New:</strong> Auto-created from SIEM alert</li><li><strong>Triage:</strong> Analyst assigns severity + client</li><li><strong>Investigation:</strong> Evidence collection, IOC enrichment</li><li><strong>Containment:</strong> Automated or manual response</li><li><strong>Resolution:</strong> Root cause + remediation</li><li><strong>Closed:</strong> Lessons learned, evidence archived</li></ul></div>
+                <div class="ops-category"><h4>Evidence for CMMC Audit</h4><ul><li>Ticket history = IR documentation (3.6.1)</li><li>Escalation logs = incident tracking (3.6.2)</li><li>SLA reports = monitoring evidence (3.3.5)</li><li>Change tickets = config mgmt (3.4.3)</li><li>Vulnerability tickets = remediation (3.11.1)</li><li><strong>Tip:</strong> Tag tickets with CMMC control IDs</li></ul></div>
+            </div>
+
+            ${typeof IntegrationsHub !== 'undefined' && IntegrationsHub.hasCredentials('jira') ? `
+            <div class="msp-card" style="margin-top:16px">
+                <div class="msp-card-header"><h3>Jira Integration Active</h3></div>
+                <div class="msp-card-body">
+                    <p style="color:var(--text-secondary);font-size:0.78rem;">Your Jira instance is connected via the Integrations Hub. POA&M items can be pushed directly to Jira as tickets.</p>
+                    <button class="msp-btn-primary" onclick="if(typeof IntegrationsHub!=='undefined')IntegrationsHub.showHub()" style="margin-top:8px">View Jira Data</button>
+                </div>
+            </div>` : ''}
+        </div>`;
+    },
+
+    renderDetectionEngineering: function() {
+        return `
+        <div class="detection-section">
+            <h3>Detection Engineering</h3>
+            <p class="section-desc">Detection rules, correlation searches, and analytics mapped to CMMC controls. Copy queries directly into your SIEM.</p>
+
+            <div class="detection-rules-grid">
+                <details class="detection-rule-card">
+                    <summary><span class="pb-severity high">HIGH</span> Brute Force Authentication (3.1.8, 3.5.7)</summary>
+                    <div class="detection-body">
+                        <div class="detection-queries">
+                            <div class="query-block"><span class="query-label">Splunk SPL</span><pre><code>index=auth sourcetype=WinEventLog:Security EventCode=4625
+| stats count by src_ip, user, dest
+| where count > 10
+| sort -count</code></pre></div>
+                            <div class="query-block"><span class="query-label">Sentinel KQL</span><pre><code>SigninLogs
+| where ResultType != "0"
+| summarize FailureCount=count() by IPAddress, UserPrincipalName, bin(TimeGenerated, 5m)
+| where FailureCount > 10</code></pre></div>
+                            <div class="query-block"><span class="query-label">Elastic EQL</span><pre><code>sequence by source.ip with maxspan=5m
+  [authentication where event.outcome == "failure"] with runs=10</code></pre></div>
+                        </div>
+                        <div class="detection-response"><strong>Response:</strong> Block IP, disable account if compromised, create incident ticket, notify client</div>
+                    </div>
+                </details>
+                <details class="detection-rule-card">
+                    <summary><span class="pb-severity high">HIGH</span> Suspicious PowerShell Execution (3.14.2, 3.14.6)</summary>
+                    <div class="detection-body">
+                        <div class="detection-queries">
+                            <div class="query-block"><span class="query-label">Splunk SPL</span><pre><code>index=endpoint sourcetype=sysmon EventCode=1 
+  Image="*powershell.exe" 
+  (CommandLine="*-enc*" OR CommandLine="*bypass*" OR CommandLine="*hidden*")
+| table _time, Computer, User, CommandLine</code></pre></div>
+                            <div class="query-block"><span class="query-label">Sentinel KQL</span><pre><code>DeviceProcessEvents
+| where FileName == "powershell.exe"
+| where ProcessCommandLine has_any ("-enc", "bypass", "-hidden", "IEX", "downloadstring")
+| project Timestamp, DeviceName, AccountName, ProcessCommandLine</code></pre></div>
+                        </div>
+                        <div class="detection-response"><strong>Response:</strong> Isolate endpoint, collect process tree, check for persistence mechanisms, submit to sandbox</div>
+                    </div>
+                </details>
+                <details class="detection-rule-card">
+                    <summary><span class="pb-severity medium">MED</span> Impossible Travel Detection (3.1.1, 3.1.2)</summary>
+                    <div class="detection-body">
+                        <div class="detection-queries">
+                            <div class="query-block"><span class="query-label">Sentinel KQL</span><pre><code>let timeWindow = 1h;
+SigninLogs
+| where ResultType == "0"
+| summarize Locations=make_set(Location), LocationCount=dcount(Location) by UserPrincipalName, bin(TimeGenerated, timeWindow)
+| where LocationCount > 1</code></pre></div>
+                        </div>
+                        <div class="detection-response"><strong>Response:</strong> Verify with user, check for VPN usage, force MFA re-auth if suspicious</div>
+                    </div>
+                </details>
+                <details class="detection-rule-card">
+                    <summary><span class="pb-severity medium">MED</span> Data Exfiltration via Cloud Storage (3.1.3, 3.8.1)</summary>
+                    <div class="detection-body">
+                        <div class="detection-queries">
+                            <div class="query-block"><span class="query-label">Splunk SPL</span><pre><code>index=proxy sourcetype=web_proxy 
+  (dest="*dropbox.com" OR dest="*drive.google.com" OR dest="*onedrive.live.com")
+  action=allowed bytes_out>10000000
+| stats sum(bytes_out) as total_bytes by src_ip, user, dest
+| where total_bytes > 100000000</code></pre></div>
+                        </div>
+                        <div class="detection-response"><strong>Response:</strong> Block upload, investigate files transferred, check DLP policy violations, notify data owner</div>
+                    </div>
+                </details>
+                <details class="detection-rule-card">
+                    <summary><span class="pb-severity low">LOW</span> Audit Log Tampering (3.3.4, 3.3.8)</summary>
+                    <div class="detection-body">
+                        <div class="detection-queries">
+                            <div class="query-block"><span class="query-label">Splunk SPL</span><pre><code>index=wineventlog sourcetype=WinEventLog:Security 
+  (EventCode=1102 OR EventCode=1100)
+| table _time, Computer, User, EventCode, Message</code></pre></div>
+                            <div class="query-block"><span class="query-label">Sentinel KQL</span><pre><code>SecurityEvent
+| where EventID in (1102, 1100)
+| project TimeGenerated, Computer, Account, Activity</code></pre></div>
+                        </div>
+                        <div class="detection-response"><strong>Response:</strong> Investigate who cleared logs, check for compromise indicators, restore from backup, escalate to Tier 2</div>
+                    </div>
+                </details>
+            </div>
+        </div>`;
+    },
+
+    renderOperationsSection: function() {
+        return `
+        <div class="operations-section">
+            <h3>24/7 SOC Operations</h3>
+            <p class="section-desc">Standard operating procedures, runbooks, and KPIs for a CMMC-compliant 24/7 Security Operations Center.</p>
+
+            <div class="backend-ops-grid">
+                <div class="ops-category"><h4>Tier 1: Alert Monitoring</h4><ul><li>Monitor SIEM dashboards continuously</li><li>Triage alerts within 15 minutes (MTTA)</li><li>Classify: True Positive, False Positive, Benign</li><li>Enrich with threat intelligence (MITRE ATT&CK)</li><li>Escalate P1/P2 to Tier 2 immediately</li><li>Document all actions in ticket system</li><li><strong>Tools:</strong> SIEM console, EDR console, TI feeds</li></ul></div>
+                <div class="ops-category"><h4>Tier 2: Investigation</h4><ul><li>Deep-dive analysis of escalated incidents</li><li>Correlate across multiple data sources</li><li>Perform host/network forensics</li><li>Identify attack scope and impact</li><li>Execute containment actions</li><li>Coordinate with client IT teams</li><li><strong>Tools:</strong> SIEM, EDR, SOAR, forensic tools</li></ul></div>
+                <div class="ops-category"><h4>Tier 3: Threat Hunting</h4><ul><li>Proactive hypothesis-driven hunts</li><li>MITRE ATT&CK-based hunt campaigns</li><li>Develop new detection rules from findings</li><li>Analyze adversary TTPs</li><li>Red team / purple team exercises</li><li>Threat intelligence analysis</li><li><strong>Tools:</strong> SIEM, EDR, YARA, Sigma rules</li></ul></div>
+                <div class="ops-category"><h4>SOC Manager</h4><ul><li>Oversee shift operations and staffing</li><li>Client communication and reporting</li><li>SLA management and metrics</li><li>Incident escalation decisions</li><li>Continuous improvement programs</li><li>Compliance evidence coordination</li><li><strong>Deliverables:</strong> Monthly SOC reports, QBRs</li></ul></div>
+            </div>
+
+            <h3 style="margin-top:20px">SOC KPIs & Metrics</h3>
+            <table class="msp-comparison-table">
+                <thead><tr><th>Metric</th><th>Target</th><th>Measurement</th><th>CMMC Relevance</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>MTTA</strong> (Mean Time to Acknowledge)</td><td class="good">&lt; 15 min</td><td>Ticket creation → first analyst action</td><td>3.6.1 Incident Handling</td></tr>
+                    <tr><td><strong>MTTR</strong> (Mean Time to Resolve)</td><td class="good">&lt; 4 hrs (P1)</td><td>Detection → containment complete</td><td>3.6.1, 3.6.2</td></tr>
+                    <tr><td><strong>False Positive Rate</strong></td><td class="good">&lt; 30%</td><td>FP alerts / total alerts</td><td>3.3.5 Audit Review</td></tr>
+                    <tr><td><strong>Detection Coverage</strong></td><td class="good">&gt; 80% ATT&CK</td><td>Techniques with active rules</td><td>3.14.6 Monitor Communications</td></tr>
+                    <tr><td><strong>Log Source Health</strong></td><td class="good">&gt; 99%</td><td>Active sources / expected sources</td><td>3.3.1 System Auditing</td></tr>
+                    <tr><td><strong>Patch SLA Compliance</strong></td><td class="good">&gt; 95%</td><td>Patched within SLA / total critical</td><td>3.14.1 Flaw Remediation</td></tr>
+                    <tr><td><strong>Client Satisfaction</strong></td><td class="good">&gt; 4.5/5</td><td>Quarterly survey scores</td><td>Business metric</td></tr>
+                </tbody>
+            </table>
+
+            <h3 style="margin-top:20px">DFARS 252.204-7012 Incident Reporting</h3>
+            <div class="dfars-important" style="margin-top:8px;padding:12px;border-radius:6px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);font-size:0.78rem;">
+                <strong>72-Hour Reporting Requirement:</strong> Cyber incidents affecting CUI must be reported to DIBNet within 72 hours. Forensic images must be preserved for 90 days minimum. The MSSP must have pre-established procedures for each client to ensure timely reporting. Report via <a href="https://dibnet.dod.mil" target="_blank" rel="noopener" style="color:#8ba2ff">DIBNet</a>.
+            </div>
+        </div>`;
     },
 
     renderLoggingReqs: function() {
         const reqs = [
-            { ctrl: '3.3.1', title: 'Create audit records', logs: ['Authentication events', 'Authorization decisions', 'System events'] },
-            { ctrl: '3.3.2', title: 'Unique user attribution', logs: ['User session logs', 'Service account activity', 'Privileged operations'] },
-            { ctrl: '3.3.4', title: 'Alert on failure', logs: ['Audit processing failures', 'Log storage alerts', 'Agent health'] },
-            { ctrl: '3.3.5', title: 'Correlate audit review', logs: ['Cross-system correlation', 'Timeline analysis', 'Entity behavior'] }
+            { ctrl: '3.3.1', title: 'Create audit records', logs: ['Authentication events', 'Authorization decisions', 'System events', 'Object access', 'Policy changes'] },
+            { ctrl: '3.3.2', title: 'Unique user attribution', logs: ['User session logs', 'Service account activity', 'Privileged operations', 'Remote access'] },
+            { ctrl: '3.3.4', title: 'Alert on failure', logs: ['Audit processing failures', 'Log storage alerts', 'Agent health', 'Disk space warnings'] },
+            { ctrl: '3.3.5', title: 'Correlate audit review', logs: ['Cross-system correlation', 'Timeline analysis', 'Entity behavior analytics', 'UEBA'] },
+            { ctrl: '3.3.8', title: 'Protect audit info', logs: ['Log integrity (hashing)', 'Immutable storage', 'Access controls on logs', 'Encryption at rest'] }
         ];
         return `<div class="logging-requirements">${reqs.map(r => `<div class="logging-req-card"><div class="req-header"><span class="req-control">${r.ctrl}</span><span class="req-title">${r.title}</span></div><div class="req-logs">${r.logs.map(l => `<span class="log-tag">${l}</span>`).join('')}</div></div>`).join('')}</div>`;
     },
@@ -1155,10 +1495,10 @@ gcloud assured workloads create \\
     renderMSPBackendOps: function() {
         return `
         <div class="backend-ops-grid">
-            <div class="ops-category"><h4>🔒 Access Separation</h4><ul><li>Dedicated admin accounts per client</li><li>Just-in-time access via PIM</li><li>Separate credentials for CUI environments</li><li>Break-glass procedures documented</li></ul></div>
-            <div class="ops-category"><h4>💾 Data Isolation</h4><ul><li>Separate Log Analytics workspaces</li><li>Client-specific encryption keys</li><li>Network segmentation per client</li><li>No shared storage for CUI</li></ul></div>
-            <div class="ops-category"><h4>⏰ Retention & Compliance</h4><ul><li>Minimum 1-year log retention</li><li>Immutable audit trails</li><li>Regular compliance audits</li><li>Evidence preservation workflows</li></ul></div>
-            <div class="ops-category"><h4>🚨 Incident Response</h4><ul><li>Client-specific IR playbooks</li><li>Escalation procedures</li><li>Breach notification templates</li><li>Forensic preservation process</li></ul></div>
+            <div class="ops-category"><h4>Access Separation</h4><ul><li>Dedicated admin accounts per client</li><li>Just-in-time access via PIM</li><li>Separate credentials for CUI environments</li><li>Break-glass procedures documented</li><li>PAM solution for privileged sessions</li></ul></div>
+            <div class="ops-category"><h4>Data Isolation</h4><ul><li>Separate Log Analytics workspaces</li><li>Client-specific encryption keys</li><li>Network segmentation per client</li><li>No shared storage for CUI</li><li>Tenant-isolated SIEM indexes</li></ul></div>
+            <div class="ops-category"><h4>Retention & Compliance</h4><ul><li>Minimum 1-year log retention</li><li>Immutable audit trails (WORM)</li><li>Regular compliance audits</li><li>Evidence preservation workflows</li><li>Automated retention policies</li></ul></div>
+            <div class="ops-category"><h4>Incident Response</h4><ul><li>Client-specific IR playbooks</li><li>Escalation procedures per severity</li><li>Breach notification templates</li><li>Forensic preservation process</li><li>DFARS 72-hour reporting SOP</li></ul></div>
         </div>`;
     },
 
