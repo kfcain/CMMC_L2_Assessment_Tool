@@ -207,14 +207,14 @@ switch ($Method) {
         Write-Host "Checking for Self-Encrypting Drive (SED)..." -FG White
         
         # Check if BitLocker is on — crypto-erase by deleting keys
-        $bl = Get-BitLockerVolume -MountPoint "${DriveLetter}:" -EA SilentlyContinue
+        $bl = Get-BitLockerVolume -MountPoint "\${DriveLetter}:" -EA SilentlyContinue
         if ($bl -and $bl.ProtectionStatus -eq "On") {
             Write-Host "  BitLocker detected — performing crypto-erase" -FG Cyan
             # Remove all key protectors (makes data unrecoverable)
             $bl.KeyProtector | ForEach-Object {
-                Remove-BitLockerKeyProtector -MountPoint "${DriveLetter}:" -KeyProtectorId $_.KeyProtectorId
+                Remove-BitLockerKeyProtector -MountPoint "\${DriveLetter}:" -KeyProtectorId $_.KeyProtectorId
             }
-            Disable-BitLocker -MountPoint "${DriveLetter}:"
+            Disable-BitLocker -MountPoint "\${DriveLetter}:"
             Format-Volume -DriveLetter $DriveLetter.TrimEnd(':') -FileSystem NTFS -Full -Force
             Write-Host "  Crypto-erase + format complete." -FG Green
         } else {

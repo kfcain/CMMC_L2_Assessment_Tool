@@ -1145,33 +1145,40 @@ class AssessmentApp {
             this.renderOSCInventory();
         } else if (view === 'rev3-crosswalk') {
             // Rev3 Crosswalk view - render using Rev3Crosswalk module
-            const renderCrosswalk = () => {
+            // Note: rev3-crosswalk.js is deferred, so it may not be loaded yet when
+            // app-main.js (synchronous) restores the last view on init.
+            // Poll every 200ms for up to 5s to wait for the module.
+            const tryRender = () => {
                 try {
                     const xw = window.Rev3Crosswalk || (typeof Rev3Crosswalk !== 'undefined' ? Rev3Crosswalk : null);
                     if (xw && xw.renderView) {
                         xw.renderView();
-                    } else {
-                        return false;
+                        return true;
                     }
                 } catch (e) {
                     console.error('[App] rev3-crosswalk render error:', e);
                     const c = document.getElementById('rev3-crosswalk-content');
                     if (c) c.innerHTML = '<div style="padding:40px;color:var(--text-muted);text-align:center">Failed to load crosswalk. Try refreshing the page.</div>';
+                    return true; // stop retrying on error
                 }
-                return true;
+                return false;
             };
-            if (!renderCrosswalk()) {
-                // Deferred script may not be loaded yet — retry after short delay
-                setTimeout(() => {
-                    if (!renderCrosswalk()) {
-                        setTimeout(() => {
-                            if (!renderCrosswalk()) {
-                                const c = document.getElementById('rev3-crosswalk-content');
-                                if (c) c.innerHTML = '<div style="padding:40px;color:var(--text-muted);text-align:center">Crosswalk module is loading... <button onclick="window.app && window.app.switchView(\'rev3-crosswalk\')" style="margin-left:8px;padding:6px 16px;background:var(--accent-blue);color:#fff;border:none;border-radius:6px;cursor:pointer">Retry</button></div>';
-                            }
-                        }, 500);
+            if (!tryRender()) {
+                let attempts = 0;
+                const maxAttempts = 25; // 25 * 200ms = 5 seconds
+                const poll = setInterval(() => {
+                    attempts++;
+                    if (tryRender() || attempts >= maxAttempts) {
+                        clearInterval(poll);
+                        if (attempts >= maxAttempts && !window.Rev3Crosswalk) {
+                            const c = document.getElementById('rev3-crosswalk-content');
+                            if (c) c.innerHTML = '<div style="padding:40px;color:var(--text-muted);text-align:center">Crosswalk module failed to load. <button id="retry-crosswalk-btn" style="margin-left:8px;padding:6px 16px;background:var(--accent-blue);color:#fff;border:none;border-radius:6px;cursor:pointer">Retry</button></div>';
+                            document.getElementById('retry-crosswalk-btn')?.addEventListener('click', () => {
+                                if (window.app) window.app.switchView('rev3-crosswalk');
+                            });
+                        }
                     }
-                }, 150);
+                }, 200);
             }
         } else if (view === 'cmvp-explorer') {
             if (typeof CMVPExplorer !== 'undefined') {

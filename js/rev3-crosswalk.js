@@ -301,109 +301,34 @@ const Rev3Crosswalk = {
         { id: '03.14.08', family: 'SI', title: 'Information Management and Retention', description: 'Manage and retain CUI in accordance with applicable requirements' }
     ],
 
+    // Family name lookup
+    FAM_NAMES: { '1': 'AC', '2': 'AT', '3': 'AU', '4': 'CM', '5': 'IA', '6': 'IR', '7': 'MA', '8': 'MP', '9': 'PS', '10': 'PE', '11': 'RA', '12': 'CA', '13': 'SC', '14': 'SI' },
+    FAM_NUMS: { 'AC': '1', 'AT': '2', 'AU': '3', 'CM': '4', 'IA': '5', 'IR': '6', 'MA': '7', 'MP': '8', 'PS': '9', 'PE': '10', 'RA': '11', 'CA': '12', 'SC': '13', 'SI': '14' },
+    FAM_FULL: {
+        'AC': 'Access Control', 'AT': 'Awareness & Training', 'AU': 'Audit & Accountability',
+        'CM': 'Configuration Management', 'IA': 'Identification & Authentication', 'IR': 'Incident Response',
+        'MA': 'Maintenance', 'MP': 'Media Protection', 'PE': 'Physical & Environmental Protection',
+        'PS': 'Personnel Security', 'RA': 'Risk Assessment', 'CA': 'Security Assessment',
+        'SC': 'System & Communications Protection', 'SI': 'System & Information Integrity',
+        'PL': 'Planning', 'SA': 'System & Services Acquisition', 'SR': 'Supply Chain Risk Management'
+    },
+
+    // Current filter state
+    _filter: { status: 'all', family: 'all', showOdps: true },
+
     init: function() {
-        this.bindEvents();
         console.log('[Rev3Crosswalk] Initialized');
     },
 
-    bindEvents: function() {
-        // Crosswalk tab buttons — delegated so they work even after re-render
-        document.addEventListener('click', (e) => {
-            const tab = e.target.closest('.rev3-xwalk-tabs .xwalk-tab[data-tab]');
-            if (tab) this.switchTab(tab.dataset.tab);
-        });
-    },
-
+    // ── Main unified render ──────────────────────────────────────────
     renderView: function() {
         const container = document.getElementById('rev3-crosswalk-content');
         if (!container) return;
-        
+
         const stats = this.calculateStats();
-        
-        container.innerHTML = `
-            <div class="crosswalk-summary">
-                <div class="summary-stat"><span class="stat-value">${stats.total}</span><span class="stat-label">Total Controls</span></div>
-                <div class="summary-stat unchanged"><span class="stat-value">${stats.unchanged}</span><span class="stat-label">Unchanged</span></div>
-                <div class="summary-stat modified"><span class="stat-value">${stats.modified}</span><span class="stat-label">Modified</span></div>
-                <div class="summary-stat new"><span class="stat-value">${this.NEW_CONTROLS_REV3.length}</span><span class="stat-label">New in Rev3</span></div>
-            </div>
-            <div class="crosswalk-content" id="crosswalk-tab-content">
-                ${this.renderMappingTable()}
-            </div>
-        `;
-        
-        // Reset tab state
-        document.querySelectorAll('.rev3-xwalk-tabs .xwalk-tab').forEach(t => {
-            t.classList.toggle('active', t.dataset.tab === 'mapping');
-        });
+        this._filter = { status: 'all', family: 'all', showOdps: true };
 
-        // Bind filter/toggle events (replaces inline onchange handlers blocked by CSP)
-        this.bindContentEvents();
-    },
-
-    renderCrosswalkContent: function() {
-        const stats = this.calculateStats();
-        
-        return `
-        <div class="crosswalk-container">
-            <div class="crosswalk-summary">
-                <div class="summary-stat"><span class="stat-value">${stats.total}</span><span class="stat-label">Total Controls</span></div>
-                <div class="summary-stat unchanged"><span class="stat-value">${stats.unchanged}</span><span class="stat-label">Unchanged</span></div>
-                <div class="summary-stat modified"><span class="stat-value">${stats.modified}</span><span class="stat-label">Modified</span></div>
-                <div class="summary-stat new"><span class="stat-value">${this.NEW_CONTROLS_REV3.length}</span><span class="stat-label">New in Rev3</span></div>
-            </div>
-
-            <div class="crosswalk-content" id="crosswalk-tab-content">
-                ${this.renderMappingTable()}
-            </div>
-        </div>`;
-    },
-
-    calculateStats: function() {
-        const total = this.CONTROL_MAPPING.length;
-        const unchanged = this.CONTROL_MAPPING.filter(c => c.status === 'unchanged').length;
-        const modified = this.CONTROL_MAPPING.filter(c => c.status === 'modified').length;
-        return { total, unchanged, modified };
-    },
-
-    switchTab: function(tab) {
-        // Update tab active states in header
-        document.querySelectorAll('.rev3-xwalk-tabs .xwalk-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-        // Update content
-        const content = document.getElementById('crosswalk-tab-content');
-        if (!content) return;
-        if (tab === 'mapping') content.innerHTML = this.renderMappingTable();
-        else if (tab === 'sp53') content.innerHTML = this.render53To171Mapping();
-        else if (tab === 'odps') content.innerHTML = this.renderODPsTable();
-        else if (tab === 'new') content.innerHTML = this.renderNewControls();
-        // Re-bind events for dynamically rendered content
-        this.bindContentEvents();
-    },
-
-    // Bind events for dynamically rendered filter selects and toggles
-    // (replaces inline onchange handlers that CSP blocks)
-    bindContentEvents: function() {
-        const familyFilter = document.getElementById('family-filter');
-        if (familyFilter) {
-            familyFilter.addEventListener('change', () => this.filterByFamily(familyFilter.value));
-        }
-        const statusFilter = document.getElementById('status-filter');
-        if (statusFilter) {
-            statusFilter.addEventListener('change', () => this.filterByStatus(statusFilter.value));
-        }
-        const odpToggle = document.getElementById('xwalk-show-odps');
-        if (odpToggle) {
-            odpToggle.addEventListener('change', () => this.toggleInlineOdps(odpToggle.checked));
-        }
-        const sp53FamilyFilter = document.getElementById('sp53-family-filter');
-        if (sp53FamilyFilter) {
-            sp53FamilyFilter.addEventListener('change', () => this.filter53Family(sp53FamilyFilter.value));
-        }
-    },
-
-    renderMappingTable: function() {
-        const families = this.groupByFamily();
-        // Build withdrawn lookup from REV2_TO_REV3_MIGRATION
+        // Build withdrawn lookup
         const withdrawnMap = {};
         if (typeof REV2_TO_REV3_MIGRATION !== 'undefined') {
             for (const [rev2Id, m] of Object.entries(REV2_TO_REV3_MIGRATION)) {
@@ -413,306 +338,299 @@ const Rev3Crosswalk = {
                 }
             }
         }
-        
-        return `
-        <div class="mapping-filters">
-            <select id="family-filter">
-                <option value="all">All Families</option>
-                ${Object.keys(families).map(f => `<option value="${f}">${f}</option>`).join('')}
-            </select>
-            <select id="status-filter">
-                <option value="all">All Status</option>
-                <option value="modified">Modified Only</option>
-                <option value="unchanged">Unchanged Only</option>
-            </select>
-            <label class="xwalk-toggle"><input type="checkbox" id="xwalk-show-odps" checked> Show ODPs inline</label>
-        </div>
-        <div class="mapping-cards-container" id="mapping-cards">
-            ${this.CONTROL_MAPPING.map(c => this.renderMappingCard(c, withdrawnMap)).join('')}
-        </div>`;
+
+        container.innerHTML = `
+            <!-- Sticky header: title + stats + filters -->
+            <div class="xwu-header">
+                <div class="xwu-title-row">
+                    <div>
+                        <h2>NIST 800-171 Rev 2 → Rev 3 Crosswalk</h2>
+                        <p class="xwu-subtitle">Control mapping with DoD-Defined ODPs (2025)</p>
+                    </div>
+                </div>
+                <div class="xwu-stats">
+                    <div class="xwu-stat"><span class="xwu-stat-val">${stats.total}</span><span class="xwu-stat-lbl">Total</span></div>
+                    <div class="xwu-stat xwu-stat-unchanged"><span class="xwu-stat-val">${stats.unchanged}</span><span class="xwu-stat-lbl">Unchanged</span></div>
+                    <div class="xwu-stat xwu-stat-modified"><span class="xwu-stat-val">${stats.modified}</span><span class="xwu-stat-lbl">Modified</span></div>
+                    <div class="xwu-stat xwu-stat-new"><span class="xwu-stat-val">${this.NEW_CONTROLS_REV3.length}</span><span class="xwu-stat-lbl">New in Rev 3</span></div>
+                </div>
+                <div class="xwu-filters">
+                    <div class="xwu-chips" id="xwu-status-chips">
+                        <button class="xwu-chip active" data-status="all">All</button>
+                        <button class="xwu-chip" data-status="modified">Modified</button>
+                        <button class="xwu-chip" data-status="unchanged">Unchanged</button>
+                        <button class="xwu-chip" data-status="new">New in Rev 3</button>
+                    </div>
+                    <select id="xwu-family-filter" class="xwu-select">
+                        <option value="all">All Families</option>
+                        ${Object.entries(this.FAM_FULL).map(([code, name]) =>
+                            `<option value="${code}">${code} — ${name}</option>`
+                        ).join('')}
+                    </select>
+                    <label class="xwu-toggle"><input type="checkbox" id="xwu-show-odps" checked> Show ODPs</label>
+                </div>
+            </div>
+
+            <!-- Rev2 → Rev3 mapping cards -->
+            <section class="xwu-section" id="xwu-mapping-section">
+                <div class="xwu-cards" id="xwu-mapping-cards">
+                    ${this.CONTROL_MAPPING.map(c => this.renderCard(c, withdrawnMap)).join('')}
+                </div>
+            </section>
+
+            <!-- New Controls in Rev3 -->
+            <section class="xwu-section xwu-new-section" id="xwu-new-section">
+                <div class="xwu-section-head">
+                    <h3>New Controls Added in Rev 3</h3>
+                    <span class="xwu-section-count">${this.NEW_CONTROLS_REV3.length} controls</span>
+                </div>
+                <p class="xwu-section-desc">These controls are new in Revision 3 and have no Rev 2 equivalent. Organizations transitioning must implement these additional requirements.</p>
+                <div class="xwu-new-grid">
+                    ${this.NEW_CONTROLS_REV3.map(c => `
+                        <div class="xwu-new-card" data-family="${c.family}">
+                            <div class="xwu-new-card-head">
+                                <code>${c.id}</code>
+                                <span class="xwu-fam-badge">${c.family}</span>
+                            </div>
+                            <h4>${c.title}</h4>
+                            <p>${c.description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </section>
+
+            <!-- 800-53 → 171 Reference (collapsible) -->
+            <section class="xwu-section xwu-ref-section" id="xwu-ref-section">
+                <button class="xwu-collapse-btn" id="xwu-ref-toggle">
+                    <svg class="xwu-collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                    <h3>NIST 800-53 Rev 5 → 800-171 Rev 3 Reference</h3>
+                    <span class="xwu-section-desc-inline">Upstream tailoring mapping</span>
+                </button>
+                <div class="xwu-ref-body" id="xwu-ref-body" style="display:none">
+                    ${this.render53Section()}
+                </div>
+            </section>
+        `;
+
+        this.bindEvents();
     },
 
-    renderMappingCard: function(control, withdrawnMap) {
+    calculateStats: function() {
+        const total = this.CONTROL_MAPPING.length;
+        const unchanged = this.CONTROL_MAPPING.filter(c => c.status === 'unchanged').length;
+        const modified = this.CONTROL_MAPPING.filter(c => c.status === 'modified').length;
+        return { total, unchanged, modified };
+    },
+
+    // ── Single mapping card ──────────────────────────────────────────
+    renderCard: function(control, withdrawnMap) {
         const statusClass = control.status === 'modified' ? 'status-modified' : 'status-unchanged';
-        const odpList = control.newOdps ? control.newOdps.map(o => `<span class="odp-tag">${o}</span>`).join('') : '';
+        const odpTags = control.newOdps ? control.newOdps.map(o => `<span class="xwu-odp-tag">${o}</span>`).join('') : '';
         const famNum = control.rev2.split('.')[1];
-        
-        // Get full ODP details for this Rev3 control
+
+        // ODP detail rows
         const dodOdps = this.DOD_ODPS[control.rev3];
         const r3Odps = (typeof REV3_ODPS !== 'undefined') ? REV3_ODPS[control.rev3] : null;
-        let odpDetailHtml = '';
+        let odpHtml = '';
         if (dodOdps && dodOdps.odps && dodOdps.odps.length > 0) {
-            odpDetailHtml = `<div class="xwalk-odp-detail">
-                ${dodOdps.odps.map(odp => `<div class="xwalk-odp-row">
-                    <code class="xwalk-odp-id">${odp.id}</code>
-                    <span class="xwalk-odp-param">${odp.param}</span>
-                    <span class="xwalk-odp-val">${odp.value}</span>
+            odpHtml = `<div class="xwu-odp-detail">
+                <div class="xwu-odp-title">${dodOdps.title} — DoD ODPs</div>
+                ${dodOdps.odps.map(odp => `<div class="xwu-odp-row">
+                    <code>${odp.id}</code>
+                    <span class="xwu-odp-param">${odp.param}</span>
+                    <span class="xwu-odp-val">${odp.value}</span>
                 </div>`).join('')}
             </div>`;
         } else if (r3Odps && r3Odps.parameters && r3Odps.parameters.length > 0) {
-            odpDetailHtml = `<div class="xwalk-odp-detail">
-                ${r3Odps.parameters.map((p, i) => `<div class="xwalk-odp-row">
-                    <code class="xwalk-odp-id">${control.rev3}[${i+1}]</code>
-                    <span class="xwalk-odp-param">${p.description}</span>
-                    <span class="xwalk-odp-val">${p.suggestedValue}</span>
+            odpHtml = `<div class="xwu-odp-detail">
+                ${r3Odps.parameters.map((p, i) => `<div class="xwu-odp-row">
+                    <code>${control.rev3}[${i+1}]</code>
+                    <span class="xwu-odp-param">${p.description}</span>
+                    <span class="xwu-odp-val">${p.suggestedValue}</span>
                 </div>`).join('')}
             </div>`;
         }
 
-        // Withdrawn Rev2 controls that were consolidated into this Rev3 control
+        // Consolidated controls
         const consolidated = withdrawnMap ? (withdrawnMap[control.rev3] || []) : [];
         let consolidatedHtml = '';
         if (consolidated.length > 0) {
-            consolidatedHtml = `<div class="xwalk-consolidated">
-                <span class="xwalk-consol-label">Consolidated from Rev 2:</span>
-                ${consolidated.map(w => `<code class="xwalk-consol-id" title="${w.notes}">${w.rev2Id}</code>`).join('')}
+            consolidatedHtml = `<div class="xwu-consolidated">
+                <span class="xwu-consol-label">Consolidated from Rev 2:</span>
+                ${consolidated.map(w => `<code title="${w.notes}">${w.rev2Id}</code>`).join('')}
             </div>`;
         }
 
-        // Get objective count from Rev3 families data
+        // Objective count
         let objCount = '';
         if (typeof REV3_FAMILIES !== 'undefined') {
             for (const fam of REV3_FAMILIES) {
                 if (!fam.controls) continue;
                 const ctrl = fam.controls.find(c => c.id === control.rev3);
                 if (ctrl && ctrl.objectives) {
-                    objCount = `<span class="xwalk-obj-count" title="${ctrl.objectives.length} assessment objectives">${ctrl.objectives.length} obj</span>`;
+                    objCount = `<span class="xwu-obj-count">${ctrl.objectives.length} obj</span>`;
                     break;
                 }
             }
         }
 
+        // 800-53 related controls
+        const relatedHtml = dodOdps ? `<span class="xwu-related">${dodOdps.relatedControls.map(rc => `<code>${rc}</code>`).join('')}</span>` : '';
+
         return `
-        <div class="xwalk-card" data-family="${famNum}" data-status="${control.status}">
-            <div class="xwalk-card-main">
-                <div class="xwalk-card-ids">
-                    <code class="xwalk-rev2">${control.rev2}</code>
+        <div class="xwu-card" data-family="${famNum}" data-status="${control.status}">
+            <div class="xwu-card-top">
+                <div class="xwu-card-ids">
+                    <code class="xwu-rev2">${control.rev2}</code>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    <code class="xwalk-rev3">${control.rev3}</code>
+                    <code class="xwu-rev3">${control.rev3}</code>
                     ${objCount}
+                    ${relatedHtml}
                 </div>
-                <div class="xwalk-card-meta">
-                    <span class="status-badge ${statusClass}">${control.status}</span>
-                    ${odpList}
+                <div class="xwu-card-badges">
+                    <span class="xwu-status ${statusClass}">${control.status}</span>
+                    ${odpTags}
                 </div>
             </div>
-            <div class="xwalk-card-change">${control.change}</div>
+            <div class="xwu-card-change">${control.change}</div>
             ${consolidatedHtml}
-            ${odpDetailHtml}
+            ${odpHtml}
         </div>`;
     },
 
-    toggleInlineOdps: function(show) {
-        document.querySelectorAll('.xwalk-odp-detail').forEach(el => {
-            el.style.display = show ? '' : 'none';
+    // ── 800-53 → 171 collapsible reference ───────────────────────────
+    render53Section: function() {
+        if (typeof NIST_800_53_TO_171_MAPPING === 'undefined') {
+            return `<p class="xwu-muted">800-53 to 171 mapping data not loaded. This data is lazy-loaded when the Crosswalk Visualizer view is opened.</p>`;
+        }
+        const grouped = {};
+        for (const [ctrl, data] of Object.entries(NIST_800_53_TO_171_MAPPING)) {
+            const fam = ctrl.split('-')[0];
+            if (!grouped[fam]) grouped[fam] = [];
+            grouped[fam].push({ control: ctrl, ...data });
+        }
+        return `
+            <div class="xwu-ref-filter">
+                <select id="xwu-53-family" class="xwu-select">
+                    <option value="all">All Families</option>
+                    ${Object.entries(this.FAM_FULL).map(([c, n]) => `<option value="${c}">${c} — ${n}</option>`).join('')}
+                </select>
+            </div>
+            <div class="xwu-ref-grid" id="xwu-ref-grid">
+                ${Object.entries(grouped).map(([fam, ctrls]) => `
+                    <div class="xwu-ref-fam" data-family="${fam}">
+                        <div class="xwu-ref-fam-head"><code>${fam}</code><span>${this.FAM_FULL[fam] || fam}</span><span class="xwu-ref-count">${ctrls.length}</span></div>
+                        ${ctrls.map(c => {
+                            const subs = c.subControls ? Object.entries(c.subControls).map(([sid, sd]) =>
+                                `<div class="xwu-ref-sub"><code>${sid}</code><span>${sd.title}</span><code class="xwu-ref-171">${sd['171Rev3']}</code></div>`
+                            ).join('') : '';
+                            return `<div class="xwu-ref-card">
+                                <div class="xwu-ref-card-head">
+                                    <code>${c.control}</code>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <code class="xwu-ref-171">${c['171Rev3']}</code>
+                                    <span class="xwu-ref-tailoring xwu-ref-tailoring-${c.tailoring.toLowerCase()}">${c.tailoring}</span>
+                                </div>
+                                <div class="xwu-ref-titles"><span>${c.title}</span><span class="xwu-ref-arrow-sm">→</span><span>${c['171Title']}</span></div>
+                                ${c.notes ? `<div class="xwu-ref-notes">${c.notes}</div>` : ''}
+                                ${subs ? `<div class="xwu-ref-subs">${subs}</div>` : ''}
+                            </div>`;
+                        }).join('')}
+                    </div>
+                `).join('')}
+            </div>`;
+    },
+
+    // ── Event binding ────────────────────────────────────────────────
+    bindEvents: function() {
+        // Status filter chips
+        document.querySelectorAll('#xwu-status-chips .xwu-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('#xwu-status-chips .xwu-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                this._filter.status = chip.dataset.status;
+                this.applyFilters();
+            });
+        });
+        // Family filter
+        const famSel = document.getElementById('xwu-family-filter');
+        if (famSel) famSel.addEventListener('change', () => { this._filter.family = famSel.value; this.applyFilters(); });
+        // ODP toggle
+        const odpTog = document.getElementById('xwu-show-odps');
+        if (odpTog) odpTog.addEventListener('change', () => { this._filter.showOdps = odpTog.checked; this.applyFilters(); });
+        // 800-53 reference collapse
+        const refToggle = document.getElementById('xwu-ref-toggle');
+        if (refToggle) refToggle.addEventListener('click', () => {
+            const body = document.getElementById('xwu-ref-body');
+            const icon = refToggle.querySelector('.xwu-collapse-icon');
+            if (body) {
+                const open = body.style.display !== 'none';
+                body.style.display = open ? 'none' : '';
+                if (icon) icon.style.transform = open ? '' : 'rotate(180deg)';
+            }
+        });
+        // 800-53 family filter
+        const ref53Sel = document.getElementById('xwu-53-family');
+        if (ref53Sel) ref53Sel.addEventListener('change', () => {
+            const val = ref53Sel.value;
+            document.querySelectorAll('.xwu-ref-fam').forEach(g => {
+                g.style.display = (val === 'all' || g.dataset.family === val) ? '' : 'none';
+            });
         });
     },
 
+    // ── Apply combined filters ───────────────────────────────────────
+    applyFilters: function() {
+        const { status, family, showOdps } = this._filter;
+        const isNew = status === 'new';
+
+        // Mapping cards
+        document.querySelectorAll('.xwu-card').forEach(card => {
+            if (isNew) { card.style.display = 'none'; return; }
+            const statusMatch = status === 'all' || card.dataset.status === status;
+            const famMatch = family === 'all' || card.dataset.family === this.FAM_NUMS[family];
+            card.style.display = (statusMatch && famMatch) ? '' : 'none';
+        });
+
+        // Mapping section visibility
+        const mappingSec = document.getElementById('xwu-mapping-section');
+        if (mappingSec) mappingSec.style.display = isNew ? 'none' : '';
+
+        // New controls section
+        const newSec = document.getElementById('xwu-new-section');
+        if (newSec) {
+            if (status === 'modified' || status === 'unchanged') {
+                newSec.style.display = 'none';
+            } else {
+                newSec.style.display = '';
+                // Apply family filter to new control cards too
+                document.querySelectorAll('.xwu-new-card').forEach(card => {
+                    const famMatch = family === 'all' || card.dataset.family === family;
+                    card.style.display = famMatch ? '' : 'none';
+                });
+            }
+        }
+
+        // ODP visibility
+        document.querySelectorAll('.xwu-odp-detail').forEach(el => {
+            el.style.display = showOdps ? '' : 'none';
+        });
+    },
+
+    // ── Helpers ──────────────────────────────────────────────────────
     groupByFamily: function() {
         const families = {};
         this.CONTROL_MAPPING.forEach(c => {
             const fam = c.rev2.split('.')[1];
-            const famNames = { '1': 'AC', '2': 'AT', '3': 'AU', '4': 'CM', '5': 'IA', '6': 'IR', '7': 'MA', '8': 'MP', '9': 'PS', '10': 'PE', '11': 'RA', '12': 'CA', '13': 'SC', '14': 'SI' };
-            const famName = famNames[fam] || fam;
+            const famName = this.FAM_NAMES[fam] || fam;
             if (!families[famName]) families[famName] = [];
             families[famName].push(c);
         });
         return families;
     },
 
-    filterByFamily: function(family) {
-        const cards = document.querySelectorAll('.xwalk-card');
-        const famNum = { 'AC': '1', 'AT': '2', 'AU': '3', 'CM': '4', 'IA': '5', 'IR': '6', 'MA': '7', 'MP': '8', 'PS': '9', 'PE': '10', 'RA': '11', 'CA': '12', 'SC': '13', 'SI': '14' };
-        const statusFilter = document.getElementById('status-filter')?.value || 'all';
-        cards.forEach(card => {
-            const famMatch = family === 'all' || card.dataset.family === famNum[family];
-            const statusMatch = statusFilter === 'all' || card.dataset.status === statusFilter;
-            card.style.display = (famMatch && statusMatch) ? '' : 'none';
-        });
-    },
-
-    filterByStatus: function(status) {
-        const cards = document.querySelectorAll('.xwalk-card');
-        const familyFilter = document.getElementById('family-filter')?.value || 'all';
-        const famNum = { 'AC': '1', 'AT': '2', 'AU': '3', 'CM': '4', 'IA': '5', 'IR': '6', 'MA': '7', 'MP': '8', 'PS': '9', 'PE': '10', 'RA': '11', 'CA': '12', 'SC': '13', 'SI': '14' };
-        cards.forEach(card => {
-            const statusMatch = status === 'all' || card.dataset.status === status;
-            const famMatch = familyFilter === 'all' || card.dataset.family === famNum[familyFilter];
-            card.style.display = (famMatch && statusMatch) ? '' : 'none';
-        });
-    },
-
-    renderODPsTable: function() {
-        return `
-        <div class="odps-container">
-            <div class="odps-intro">
-                <h3>DoD-Defined Organization-Defined Parameters (ODPs)</h3>
-                <p>These parameters were defined by the DoD in 2025 to provide specific values for CMMC compliance. Organizations must implement these exact values unless a deviation is documented and approved.</p>
-                <p class="odp-source">Source: DoD CUI ODP Attachment A - NIST SP 800-171 Revision 3</p>
-            </div>
-            <div class="odps-grid">
-                ${Object.entries(this.DOD_ODPS).map(([ctrl, data]) => `
-                    <div class="odp-card">
-                        <div class="odp-header">
-                            <code>${ctrl}</code>
-                            <span class="odp-title">${data.title}</span>
-                        </div>
-                        <div class="odp-related">
-                            <span class="related-label">800-53 Rev5:</span>
-                            ${data.relatedControls.map(rc => `<code class="related-ctrl">${rc}</code>`).join('')}
-                        </div>
-                        <div class="odp-values">
-                            ${data.odps.map(odp => `
-                                <div class="odp-value-row">
-                                    <code class="odp-id">${odp.id}</code>
-                                    <span class="odp-param">${odp.param}</span>
-                                    <span class="odp-val">${odp.value}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>`;
-    },
-
-    renderNewControls: function() {
-        return `
-        <div class="new-controls-container">
-            <div class="new-controls-intro">
-                <h3>New Controls in NIST 800-171 Rev3</h3>
-                <p>These controls were added in Revision 3 and are not present in Revision 2. Organizations transitioning to Rev3 must implement these additional requirements.</p>
-            </div>
-            <div class="new-controls-grid">
-                ${this.NEW_CONTROLS_REV3.map(c => `
-                    <div class="new-control-card">
-                        <div class="control-header">
-                            <code>${c.id}</code>
-                            <span class="control-family">${c.family}</span>
-                        </div>
-                        <h4>${c.title}</h4>
-                        <p>${c.description}</p>
-                    </div>
-                `).join('')}
-            </div>
-        </div>`;
-    },
-
-    render53To171Mapping: function() {
-        // Check if the NIST_800_53_TO_171_MAPPING data is available
-        if (typeof NIST_800_53_TO_171_MAPPING === 'undefined') {
-            return `<div class="error-message">800-53 to 171 mapping data not loaded.</div>`;
-        }
-        
-        const families = {
-            'AC': 'Access Control',
-            'AT': 'Awareness and Training',
-            'AU': 'Audit and Accountability',
-            'CM': 'Configuration Management',
-            'IA': 'Identification and Authentication',
-            'IR': 'Incident Response',
-            'MA': 'Maintenance',
-            'MP': 'Media Protection',
-            'PE': 'Physical and Environmental Protection',
-            'RA': 'Risk Assessment',
-            'CA': 'Security Assessment',
-            'SC': 'System and Communications Protection',
-            'SI': 'System and Information Integrity'
-        };
-        
-        // Group controls by family
-        const groupedControls = {};
-        for (const [ctrl, data] of Object.entries(NIST_800_53_TO_171_MAPPING)) {
-            const family = ctrl.split('-')[0];
-            if (!groupedControls[family]) groupedControls[family] = [];
-            groupedControls[family].push({ control: ctrl, ...data });
-        }
-        
-        return `
-        <div class="sp53-mapping-container">
-            <div class="sp53-intro">
-                <h3>NIST SP 800-53 Rev 5 → SP 800-171 Rev 3 Mapping</h3>
-                <p>Official mapping showing how NIST SP 800-53 Rev 5 controls are tailored into SP 800-171 Rev 3 security requirements for protecting CUI in non-federal systems.</p>
-                <p class="sp53-source">Source: NIST SP 800-171r3 IPD CUI Overlay</p>
-            </div>
-            <div class="sp53-filter">
-                <select id="sp53-family-filter">
-                    <option value="all">All Families</option>
-                    ${Object.entries(families).map(([code, name]) => 
-                        `<option value="${code}">${code} - ${name}</option>`
-                    ).join('')}
-                </select>
-            </div>
-            <div class="sp53-grid" id="sp53-grid">
-                ${Object.entries(groupedControls).map(([family, controls]) => `
-                    <div class="sp53-family-group" data-family="${family}">
-                        <div class="sp53-family-header">
-                            <code>${family}</code>
-                            <span>${families[family] || family}</span>
-                            <span class="sp53-count">${controls.length} controls</span>
-                        </div>
-                        <div class="sp53-controls">
-                            ${controls.map(c => this.render53ControlCard(c)).join('')}
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>`;
-    },
-    
-    render53ControlCard: function(ctrl) {
-        const subControlsHtml = ctrl.subControls ? `
-            <div class="sp53-subcontrols">
-                ${Object.entries(ctrl.subControls).map(([subId, subData]) => `
-                    <div class="sp53-subcontrol">
-                        <code class="sub-id">${subId}</code>
-                        <span class="sub-title">${subData.title}</span>
-                        <code class="sub-171">${subData['171Rev3']}</code>
-                    </div>
-                `).join('')}
-            </div>
-        ` : '';
-        
-        const notesHtml = ctrl.notes ? `<div class="sp53-notes">${ctrl.notes}</div>` : '';
-        
-        return `
-        <div class="sp53-control-card">
-            <div class="sp53-control-header">
-                <div class="sp53-ids">
-                    <code class="ctrl-53">${ctrl.control}</code>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    <code class="ctrl-171">${ctrl['171Rev3']}</code>
-                </div>
-                <span class="tailoring-badge tailoring-${ctrl.tailoring.toLowerCase()}">${ctrl.tailoring}</span>
-            </div>
-            <div class="sp53-titles">
-                <div class="title-53">${ctrl.title}</div>
-                <div class="title-171">${ctrl['171Title']}</div>
-            </div>
-            ${notesHtml}
-            ${subControlsHtml}
-        </div>`;
-    },
-    
-    filter53Family: function(family) {
-        const groups = document.querySelectorAll('.sp53-family-group');
-        groups.forEach(g => {
-            if (family === 'all') g.style.display = '';
-            else g.style.display = g.dataset.family === family ? '' : 'none';
-        });
-    },
-
-    attachCrosswalkEvents: function() {
-        // Any additional event handling
-    },
-
-    // Export crosswalk data
     exportCrosswalk: function() {
-        return {
-            mapping: this.CONTROL_MAPPING,
-            odps: this.DOD_ODPS,
-            newControls: this.NEW_CONTROLS_REV3
-        };
+        return { mapping: this.CONTROL_MAPPING, odps: this.DOD_ODPS, newControls: this.NEW_CONTROLS_REV3 };
     }
 };
 
@@ -720,4 +638,7 @@ const Rev3Crosswalk = {
 if (typeof document !== 'undefined') {
     document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', () => Rev3Crosswalk.init()) : Rev3Crosswalk.init();
 }
-if (typeof window !== 'undefined') window.Rev3Crosswalk = Rev3Crosswalk;
+if (typeof window !== 'undefined') {
+    window.Rev3Crosswalk = Rev3Crosswalk;
+    console.log('[Rev3Crosswalk] Module registered on window. renderView:', typeof Rev3Crosswalk.renderView, 'CONTROL_MAPPING:', Rev3Crosswalk.CONTROL_MAPPING.length, 'items');
+}

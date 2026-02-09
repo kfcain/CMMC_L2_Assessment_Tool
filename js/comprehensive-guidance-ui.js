@@ -233,11 +233,205 @@ const ComprehensiveGuidanceUI = {
 
             const guidanceDiv = document.createElement('div');
             guidanceDiv.className = 'cg-root';
-            guidanceDiv.innerHTML = '<div class="cg-header"><span class="cg-title">Implementation Guidance</span><span class="cg-count">' + techs.length + ' platform' + (techs.length !== 1 ? 's' : '') + '</span></div>' + this.renderTechDropdowns(techs, objectiveId);
+
+            // Build unified top-level guidance (steps, evidence, verification, procedures)
+            var topHtml = '<div class="cg-header"><span class="cg-title">Implementation Guidance</span></div>';
+            topHtml += this.renderUnifiedTopLevel(objectiveId, guidance, techs);
+
+            // Vendor-specific details collapsed below
+            if (techs.length > 0) {
+                topHtml += '<details class="cg-platforms-section">';
+                topHtml += '<summary class="cg-platforms-summary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg> Platform-Specific Implementation <span class="cg-count">' + techs.length + ' platform' + (techs.length !== 1 ? 's' : '') + '</span></summary>';
+                topHtml += this.renderTechDropdowns(techs, objectiveId);
+                topHtml += '</details>';
+            }
+
+            guidanceDiv.innerHTML = topHtml;
             container.appendChild(guidanceDiv);
         } catch (error) {
             console.error('[ComprehensiveGuidanceUI] Error rendering guidance for', objectiveId, error);
         }
+    },
+
+    // Render the unified top-level guidance: consolidated steps, evidence, verification, GCC High data
+    renderUnifiedTopLevel: function(objectiveId, guidance, techs) {
+        var html = '';
+
+        // 1. Objective summary if available
+        if (guidance.objective) {
+            html += '<p class="cg-objective-summary">' + guidance.objective + '</p>';
+        }
+        if (guidance.summary) {
+            html += '<p class="cg-approach">' + guidance.summary + '</p>';
+        }
+
+        // 2. GCC High / cloud-agnostic guidance (automation, human intervention)
+        var gccGuidance = null;
+        if (typeof getGCCHighGuidance === 'function') {
+            gccGuidance = getGCCHighGuidance(objectiveId);
+        }
+        if (gccGuidance && gccGuidance.automation && gccGuidance.automation !== 'Automation guidance not yet available for this objective. Check Microsoft Learn documentation.') {
+            html += '<div class="cg-unified-section cg-unified-automation">';
+            html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Automation Approach</div>';
+            html += '<p>' + gccGuidance.automation + '</p>';
+            if (gccGuidance.azureService) {
+                html += '<div class="cg-tags"><span class="cg-tag">' + gccGuidance.azureService.split(',').map(function(s) { return s.trim(); }).join('</span><span class="cg-tag">') + '</span></div>';
+            }
+            html += '</div>';
+
+            if (gccGuidance.humanIntervention) {
+                html += '<div class="cg-unified-section cg-unified-human">';
+                html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Human Intervention Required</div>';
+                html += '<p>' + gccGuidance.humanIntervention + '</p>';
+                html += '</div>';
+            }
+        }
+
+        // 3. Implementation notes (steps, human-in-the-loop, policy evidence, manual evidence)
+        var implNotes = null;
+        if (typeof getImplNotes === 'function') {
+            implNotes = getImplNotes(objectiveId, 'azure') || getImplNotes(objectiveId, 'aws') || getImplNotes(objectiveId, 'gcp');
+        }
+        if (implNotes) {
+            if (implNotes.steps && implNotes.steps.length > 0) {
+                html += '<div class="cg-unified-section">';
+                html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Technical Implementation Steps</div>';
+                html += '<ol class="cg-unified-steps">';
+                for (var i = 0; i < implNotes.steps.length; i++) {
+                    html += '<li>' + implNotes.steps[i] + '</li>';
+                }
+                html += '</ol>';
+                if (implNotes.quickWin) {
+                    html += '<div class="cg-quick-win"><strong>Quick Win:</strong> ' + implNotes.quickWin + '</div>';
+                }
+                html += '</div>';
+            }
+
+            if (implNotes.humanInTheLoop && implNotes.humanInTheLoop.length > 0) {
+                html += '<div class="cg-unified-section cg-unified-human-loop">';
+                html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Human-in-the-Loop Requirements</div>';
+                html += '<ul>';
+                for (var h = 0; h < implNotes.humanInTheLoop.length; h++) {
+                    html += '<li>' + implNotes.humanInTheLoop[h] + '</li>';
+                }
+                html += '</ul></div>';
+            }
+
+            if (implNotes.policyEvidence && implNotes.policyEvidence.length > 0) {
+                html += '<div class="cg-unified-section cg-unified-policy">';
+                html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Policy &amp; Procedural Evidence</div>';
+                html += '<ul>';
+                for (var p = 0; p < implNotes.policyEvidence.length; p++) {
+                    html += '<li>' + implNotes.policyEvidence[p] + '</li>';
+                }
+                html += '</ul></div>';
+            }
+
+            if (implNotes.manualEvidence && implNotes.manualEvidence.length > 0) {
+                html += '<div class="cg-unified-section cg-unified-manual">';
+                html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Manual Evidence Collection</div>';
+                html += '<ul>';
+                for (var m = 0; m < implNotes.manualEvidence.length; m++) {
+                    html += '<li>' + implNotes.manualEvidence[m] + '</li>';
+                }
+                html += '</ul></div>';
+            }
+
+            if (implNotes.evidenceMethodology) {
+                html += '<div class="cg-unified-section cg-unified-methodology">';
+                html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Evidence Collection Methodology</div>';
+                html += '<p>' + implNotes.evidenceMethodology + '</p>';
+                html += '</div>';
+            }
+
+            if (implNotes.evidenceArtifact) {
+                html += '<div class="cg-unified-artifact"><strong>Machine-Readable Artifact:</strong> <code>' + implNotes.evidenceArtifact + '</code></div>';
+            }
+        }
+
+        // 4. Consolidated evidence artifacts from all techs (Access Review Guide data)
+        var allEvidence = [], allPitfalls = [], allVerification = [];
+        for (var t = 0; t < techs.length; t++) {
+            var td = techs[t].data;
+            var ti = td.implementation || td;
+            if (td.evidenceArtifacts) {
+                for (var ea = 0; ea < td.evidenceArtifacts.length; ea++) {
+                    if (allEvidence.indexOf(td.evidenceArtifacts[ea]) === -1) allEvidence.push(td.evidenceArtifacts[ea]);
+                }
+            }
+            if (td.pitfalls) {
+                for (var pf = 0; pf < td.pitfalls.length; pf++) {
+                    if (allPitfalls.indexOf(td.pitfalls[pf]) === -1) allPitfalls.push(td.pitfalls[pf]);
+                }
+            }
+            if (ti.verification) {
+                for (var vf = 0; vf < ti.verification.length; vf++) {
+                    if (allVerification.indexOf(ti.verification[vf]) === -1) allVerification.push(ti.verification[vf]);
+                }
+            }
+        }
+
+        if (allVerification.length > 0) {
+            html += '<div class="cg-unified-section cg-unified-verify">';
+            html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Verification Steps</div>';
+            html += '<ul>';
+            for (var v = 0; v < allVerification.length; v++) {
+                html += '<li>' + allVerification[v] + '</li>';
+            }
+            html += '</ul></div>';
+        }
+
+        if (allEvidence.length > 0) {
+            html += '<div class="cg-unified-section cg-unified-evidence">';
+            html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Evidence Artifacts for C3PAO</div>';
+            html += '<ul>';
+            for (var e = 0; e < allEvidence.length; e++) {
+                html += '<li>' + allEvidence[e] + '</li>';
+            }
+            html += '</ul></div>';
+        }
+
+        if (allPitfalls.length > 0) {
+            html += '<div class="cg-unified-section cg-unified-pitfalls">';
+            html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Common Pitfalls</div>';
+            html += '<ul>';
+            for (var pf2 = 0; pf2 < allPitfalls.length; pf2++) {
+                html += '<li>' + allPitfalls[pf2] + '</li>';
+            }
+            html += '</ul></div>';
+        }
+
+        // 5. CLI commands from GCC High guidance
+        if (gccGuidance && gccGuidance.cliCommands && gccGuidance.cliCommands.length > 0) {
+            html += '<details class="cg-unified-cli-section">';
+            html += '<summary class="cg-unified-section-title cg-clickable"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg> Verification Commands</summary>';
+            html += '<div class="cg-unified-cli-list">';
+            for (var cl = 0; cl < gccGuidance.cliCommands.length; cl++) {
+                html += '<div class="cg-unified-cli-item"><code>' + this.escapeHtml(gccGuidance.cliCommands[cl]) + '</code></div>';
+            }
+            html += '</div></details>';
+        }
+
+        // 6. Documentation link
+        if (gccGuidance && gccGuidance.docLink) {
+            html += '<div class="cg-unified-doclink"><a href="' + gccGuidance.docLink + '" target="_blank" rel="noopener noreferrer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Microsoft Learn Documentation</a></div>';
+        }
+
+        // 7. Small business guidance (if present)
+        if (guidance.small_business && typeof guidance.small_business === 'object' && guidance.small_business.approach) {
+            html += '<div class="cg-unified-section cg-unified-smallbiz">';
+            html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg> Small Business Guidance</div>';
+            html += '<p>' + guidance.small_business.approach + '</p>';
+            if (guidance.small_business.cost_estimate) {
+                html += '<span class="cg-badge cg-badge-cost">' + guidance.small_business.cost_estimate + '</span> ';
+            }
+            if (guidance.small_business.effort_hours) {
+                html += '<span class="cg-badge cg-badge-effort">' + guidance.small_business.effort_hours + 'h</span>';
+            }
+            html += '</div>';
+        }
+
+        return html;
     },
 
     // Get guidance data for an objective
