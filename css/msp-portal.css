@@ -526,6 +526,31 @@
     color: var(--accent-blue);
 }
 
+.msp-btn-icon-danger:hover {
+    background: rgba(248,113,113,0.1);
+    color: var(--status-not-met, #f87171);
+}
+
+.msp-btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: rgba(248,113,113,0.1);
+    color: var(--status-not-met, #f87171);
+    border: 1px solid rgba(248,113,113,0.25);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.msp-btn-danger:hover {
+    background: rgba(248,113,113,0.2);
+    border-color: rgba(248,113,113,0.4);
+}
+
 /* ==================== Empty States ==================== */
 .msp-empty-state {
     text-align: center;

@@ -549,6 +549,158 @@ const MSPPortal = {
         this.switchView('projects');
     },
 
+    editClient: function(clientId) {
+        const client = this.state.clients.find(c => c.id === clientId);
+        if (!client) return;
+        const esc = typeof Sanitize !== 'undefined' ? Sanitize.html : (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const modalHtml = `
+        <div class="msp-modal-overlay" id="msp-edit-client-modal">
+            <div class="msp-modal">
+                <div class="msp-modal-header">
+                    <h3>${this.getIcon('edit')} Edit Client</h3>
+                    <button class="msp-modal-close" onclick="MSPPortal.closeEditClientModal()">${this.getIcon('x')}</button>
+                </div>
+                <div class="msp-modal-body">
+                    <form id="msp-edit-client-form">
+                        <input type="hidden" name="id" value="${client.id}">
+                        <div class="msp-form-group">
+                            <label for="edit-client-name">Organization Name *</label>
+                            <input type="text" id="edit-client-name" name="name" required value="${esc(client.name || '')}" maxlength="200">
+                        </div>
+                        <div class="msp-form-row">
+                            <div class="msp-form-group">
+                                <label for="edit-client-level">CMMC Level *</label>
+                                <select id="edit-client-level" name="assessmentLevel" required>
+                                    <option value="1" ${client.assessmentLevel == '1' ? 'selected' : ''}>Level 1 (FCI)</option>
+                                    <option value="2" ${client.assessmentLevel == '2' ? 'selected' : ''}>Level 2 (CUI)</option>
+                                    <option value="3" ${client.assessmentLevel == '3' ? 'selected' : ''}>Level 3 (Enhanced)</option>
+                                </select>
+                            </div>
+                            <div class="msp-form-group">
+                                <label for="edit-client-industry">Industry</label>
+                                <select id="edit-client-industry" name="industry">
+                                    ${['Defense','Aerospace','Manufacturing','IT Services','Research','Other'].map(i => `<option value="${i}" ${client.industry === i ? 'selected' : ''}>${i === 'Defense' ? 'Defense Contractor' : i}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="msp-form-row">
+                            <div class="msp-form-group">
+                                <label for="edit-client-sprs">Current SPRS Score</label>
+                                <input type="number" id="edit-client-sprs" name="sprsScore" min="-203" max="110" value="${client.sprsScore ?? ''}">
+                            </div>
+                            <div class="msp-form-group">
+                                <label for="edit-client-assessment-date">Target Assessment Date</label>
+                                <input type="date" id="edit-client-assessment-date" name="nextAssessment" value="${client.nextAssessment || ''}">
+                            </div>
+                        </div>
+                        <div class="msp-form-group">
+                            <label for="edit-client-contact">Primary Contact</label>
+                            <input type="text" id="edit-client-contact" name="contact" value="${esc(client.contact || '')}" maxlength="200">
+                        </div>
+                        <div class="msp-form-group">
+                            <label for="edit-client-email">Contact Email</label>
+                            <input type="email" id="edit-client-email" name="email" value="${esc(client.email || '')}">
+                        </div>
+                        <div class="msp-form-group">
+                            <label for="edit-client-notes">Notes</label>
+                            <textarea id="edit-client-notes" name="notes" rows="3" maxlength="5000">${esc(client.notes || '')}</textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="msp-modal-footer">
+                    <button class="msp-btn-danger" onclick="MSPPortal.confirmRemoveClient('${client.id}')" style="margin-right:auto">${this.getIcon('x')} Remove Client</button>
+                    <button class="msp-btn-secondary" onclick="MSPPortal.closeEditClientModal()">Cancel</button>
+                    <button class="msp-btn-primary" onclick="MSPPortal.submitEditClient()">${this.getIcon('check-circle')} Save Changes</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    },
+
+    closeEditClientModal: function() {
+        document.getElementById('msp-edit-client-modal')?.remove();
+    },
+
+    submitEditClient: function() {
+        const form = document.getElementById('msp-edit-client-form');
+        if (!form || !form.checkValidity()) { form?.reportValidity(); return; }
+        const fd = new FormData(form);
+        const id = fd.get('id');
+        const idx = this.state.clients.findIndex(c => c.id === id);
+        if (idx === -1) return;
+        this.state.clients[idx] = {
+            ...this.state.clients[idx],
+            name: fd.get('name'),
+            assessmentLevel: fd.get('assessmentLevel'),
+            industry: fd.get('industry'),
+            sprsScore: fd.get('sprsScore') ? parseInt(fd.get('sprsScore')) : null,
+            nextAssessment: fd.get('nextAssessment') || null,
+            contact: fd.get('contact'),
+            email: fd.get('email'),
+            notes: fd.get('notes'),
+            updatedAt: new Date().toISOString()
+        };
+        this.saveState();
+        this.closeEditClientModal();
+        this.switchView('clients');
+    },
+
+    confirmRemoveClient: function(clientId) {
+        const client = this.state.clients.find(c => c.id === clientId);
+        if (!client) return;
+        if (confirm('Remove client "' + client.name + '"? This action cannot be undone.')) {
+            this.removeClient(clientId);
+            this.closeEditClientModal();
+            this.switchView('clients');
+        }
+    },
+
+    removeClient: function(clientId) {
+        this.state.clients = this.state.clients.filter(c => c.id !== clientId);
+        delete this.state.projectPlans[clientId];
+        if (this.state.activeClient === clientId) this.state.activeClient = null;
+        this.saveState();
+    },
+
+    filterClients: function(searchTerm) {
+        const term = searchTerm.toLowerCase().trim();
+        document.querySelectorAll('.msp-client-card').forEach(card => {
+            const name = card.querySelector('h4')?.textContent?.toLowerCase() || '';
+            const industry = card.querySelector('.client-industry')?.textContent?.toLowerCase() || '';
+            card.style.display = (term === '' || name.includes(term) || industry.includes(term)) ? '' : 'none';
+        });
+    },
+
+    exportPortfolio: function() {
+        if (this.state.clients.length === 0) {
+            if (typeof app !== 'undefined' && app.showToast) app.showToast('No clients to export', 'error');
+            return;
+        }
+        const report = {
+            title: 'MSP Portfolio Summary',
+            generatedAt: new Date().toISOString(),
+            totalClients: this.state.clients.length,
+            clients: this.state.clients.map(c => ({
+                name: c.name,
+                level: 'L' + c.assessmentLevel,
+                industry: c.industry || 'N/A',
+                sprsScore: c.sprsScore ?? 'N/A',
+                completionPercent: (c.completionPercent || 0) + '%',
+                poamCount: c.poamCount || 0,
+                contact: c.contact || 'N/A',
+                email: c.email || 'N/A',
+                targetAssessment: c.nextAssessment || 'TBD'
+            }))
+        };
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'msp-portfolio-' + new Date().toISOString().split('T')[0] + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    },
+
     generateReport: function(type) {
         if (typeof ReportGenerator !== 'undefined') {
             const data = typeof app !== 'undefined' ? app.assessmentData : {};

@@ -6,7 +6,7 @@ const MSPPortalViews = {
         return `
         <div class="msp-clients-view">
             <div class="msp-view-header">
-                <div class="msp-search-bar"><input type="search" placeholder="Search clients..." class="msp-search-input"></div>
+                <div class="msp-search-bar"><input type="search" placeholder="Search clients..." class="msp-search-input" oninput="MSPPortal.filterClients(this.value)"></div>
                 <button class="msp-btn-primary" onclick="MSPPortal.showAddClientModal()">${portal.getIcon('user-plus')} Add Client</button>
             </div>
             <div class="msp-client-grid">
@@ -30,7 +30,8 @@ const MSPPortalViews = {
             <div class="client-card-progress"><div class="progress-bar"><div class="progress-fill" style="width:${client.completionPercent||0}%"></div></div></div>
             <div class="client-card-actions">
                 <button class="msp-btn-secondary" onclick="MSPPortal.openClientProject('${client.id}')">${portal.getIcon('calendar')} Project</button>
-                <button class="msp-btn-icon" onclick="MSPPortal.editClient('${client.id}')">${portal.getIcon('edit')}</button>
+                <button class="msp-btn-icon" onclick="MSPPortal.editClient('${client.id}')" title="Edit client">${portal.getIcon('edit')}</button>
+                <button class="msp-btn-icon msp-btn-icon-danger" onclick="MSPPortal.confirmRemoveClient('${client.id}')" title="Remove client">${portal.getIcon('x')}</button>
             </div>
         </div>`;
     },

@@ -1200,6 +1200,10 @@ class AssessmentApp {
             if (typeof CommandCenter !== 'undefined') {
                 CommandCenter.render();
             }
+        } else if (view === 'exec-dashboard') {
+            if (typeof ExecDashboard !== 'undefined') {
+                ExecDashboard.render();
+            }
         }
         
         // Prefetch adjacent views for faster navigation
