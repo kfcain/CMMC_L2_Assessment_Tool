@@ -7006,8 +7006,10 @@ body::after {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, #1a2744 100%);
-    border-top: 1px solid var(--border-color);
+    background: var(--glass-bg);
+    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    border-top: 1px solid var(--glass-border);
     padding: 16px 24px;
     z-index: 1000;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
@@ -10438,7 +10440,7 @@ table td {
     -webkit-backdrop-filter: saturate(180%) blur(24px);
     border-top: 1px solid var(--glass-border);
     padding: 10px 16px;
-    z-index: 99999;
+    z-index: 900;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
