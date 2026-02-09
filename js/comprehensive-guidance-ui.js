@@ -264,7 +264,7 @@ const ComprehensiveGuidanceUI = {
 
             // === Tab 2: Evidence & Policy ===
             topHtml += '<div class="cg-tab-panel" data-panel="evidence">';
-            topHtml += this.renderEvidenceTab(objectiveId, guidance);
+            topHtml += this.renderEvidenceTab(objectiveId, guidance, techs);
             topHtml += '</div>';
 
             // === Tab 3: Platforms ===
@@ -429,13 +429,15 @@ const ComprehensiveGuidanceUI = {
     },
 
     // === TAB 2: Evidence & Policy ===
-    renderEvidenceTab: function(objectiveId, guidance) {
+    renderEvidenceTab: function(objectiveId, guidance, techs) {
         var html = '';
+        var self = this;
         var implNotes = null;
         if (typeof getImplNotes === 'function') {
             implNotes = getImplNotes(objectiveId, 'azure') || getImplNotes(objectiveId, 'aws') || getImplNotes(objectiveId, 'gcp');
         }
 
+        // --- Section 1: Policy & Procedural Evidence (from implNotes) ---
         if (implNotes) {
             if (implNotes.policyEvidence && implNotes.policyEvidence.length > 0) {
                 html += '<div class="cg-unified-section cg-unified-policy">';
@@ -466,6 +468,137 @@ const ComprehensiveGuidanceUI = {
 
             if (implNotes.evidenceArtifact) {
                 html += '<div class="cg-unified-artifact"><strong>Machine-Readable Artifact:</strong> <code>' + implNotes.evidenceArtifact + '</code></div>';
+            }
+        }
+
+        // --- Section 2: Platform Verification (grouped by category, deduplicated) ---
+        if (techs && techs.length > 0) {
+            // Collect verification/evidence/pitfalls from all platforms, grouped by category
+            var catGroups = {};  // { categoryName: { verification: [], evidence: [], pitfalls: [], platforms: [] } }
+            var seenVerify = {};
+            var seenEvidence = {};
+            var seenPitfalls = {};
+
+            for (var ti = 0; ti < techs.length; ti++) {
+                var tech = techs[ti];
+                var data = tech.data;
+                var impl = data.implementation || data;
+                var cat = self.getCategoryForTech(tech.key);
+                var name = self.techNames[tech.key] || tech.key.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+
+                if (!catGroups[cat]) {
+                    catGroups[cat] = { verification: [], evidence: [], pitfalls: [], platforms: [] };
+                }
+                if (catGroups[cat].platforms.indexOf(name) === -1) {
+                    catGroups[cat].platforms.push(name);
+                }
+
+                // Deduplicate verification items across platforms
+                if (impl.verification && impl.verification.length > 0) {
+                    for (var vi = 0; vi < impl.verification.length; vi++) {
+                        var vItem = impl.verification[vi];
+                        var vKey = vItem.toLowerCase().replace(/\s+/g, ' ').trim();
+                        if (!seenVerify[vKey]) {
+                            seenVerify[vKey] = true;
+                            catGroups[cat].verification.push({ text: vItem, platform: name });
+                        }
+                    }
+                }
+
+                // Deduplicate evidence artifacts
+                if (data.evidenceArtifacts && data.evidenceArtifacts.length > 0) {
+                    for (var ei = 0; ei < data.evidenceArtifacts.length; ei++) {
+                        var eItem = data.evidenceArtifacts[ei];
+                        var eKey = eItem.toLowerCase().replace(/\s+/g, ' ').trim();
+                        if (!seenEvidence[eKey]) {
+                            seenEvidence[eKey] = true;
+                            catGroups[cat].evidence.push({ text: eItem, platform: name });
+                        }
+                    }
+                }
+
+                // Deduplicate pitfalls
+                if (data.pitfalls && data.pitfalls.length > 0) {
+                    for (var pi = 0; pi < data.pitfalls.length; pi++) {
+                        var pItem = data.pitfalls[pi];
+                        var pKey = pItem.toLowerCase().replace(/\s+/g, ' ').trim();
+                        if (!seenPitfalls[pKey]) {
+                            seenPitfalls[pKey] = true;
+                            catGroups[cat].pitfalls.push({ text: pItem, platform: name });
+                        }
+                    }
+                }
+            }
+
+            // Render grouped verification by category
+            var catKeys = Object.keys(catGroups);
+            var hasAnyVerification = false;
+            for (var ci = 0; ci < catKeys.length; ci++) {
+                var g = catGroups[catKeys[ci]];
+                if (g.verification.length > 0 || g.evidence.length > 0 || g.pitfalls.length > 0) {
+                    hasAnyVerification = true;
+                    break;
+                }
+            }
+
+            if (hasAnyVerification) {
+                html += '<div class="cg-ev-grouped">';
+                html += '<div class="cg-ev-grouped-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Platform Verification &amp; Evidence</div>';
+                html += '<p class="cg-ev-grouped-desc">Verification steps grouped by platform category. Expand a category to see platform-specific checks.</p>';
+
+                for (var ck = 0; ck < catKeys.length; ck++) {
+                    var catName = catKeys[ck];
+                    var group = catGroups[catName];
+                    var totalItems = group.verification.length + group.evidence.length + group.pitfalls.length;
+                    if (totalItems === 0) continue;
+
+                    html += '<details class="cg-ev-cat-group">';
+                    html += '<summary class="cg-ev-cat-summary">';
+                    html += '<span class="cg-ev-cat-name">' + catName + '</span>';
+                    html += '<span class="cg-ev-cat-platforms">' + group.platforms.slice(0, 3).join(', ') + (group.platforms.length > 3 ? ' +' + (group.platforms.length - 3) + ' more' : '') + '</span>';
+                    html += '<span class="cg-count">' + totalItems + '</span>';
+                    html += '<svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+                    html += '</summary>';
+                    html += '<div class="cg-ev-cat-body">';
+
+                    // Verification checks
+                    if (group.verification.length > 0) {
+                        html += '<div class="cg-ev-subsection">';
+                        html += '<div class="cg-ev-subsection-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Verification Checks</div>';
+                        html += '<ul class="cg-ev-list">';
+                        for (var vj = 0; vj < group.verification.length; vj++) {
+                            html += '<li>' + self.formatVerifyText(group.verification[vj].text) + '</li>';
+                        }
+                        html += '</ul></div>';
+                    }
+
+                    // Evidence artifacts
+                    if (group.evidence.length > 0) {
+                        html += '<div class="cg-ev-subsection">';
+                        html += '<div class="cg-ev-subsection-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Evidence Artifacts</div>';
+                        html += '<ul class="cg-ev-list">';
+                        for (var ej = 0; ej < group.evidence.length; ej++) {
+                            html += '<li>' + self.formatVerifyText(group.evidence[ej].text) + '</li>';
+                        }
+                        html += '</ul></div>';
+                    }
+
+                    // Pitfalls
+                    if (group.pitfalls.length > 0) {
+                        html += '<div class="cg-ev-subsection">';
+                        html += '<div class="cg-ev-subsection-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Common Pitfalls</div>';
+                        html += '<ul class="cg-ev-list">';
+                        for (var pj = 0; pj < group.pitfalls.length; pj++) {
+                            html += '<li>' + self.formatVerifyText(group.pitfalls[pj].text) + '</li>';
+                        }
+                        html += '</ul></div>';
+                    }
+
+                    html += '</div>'; // end cat-body
+                    html += '</details>';
+                }
+
+                html += '</div>'; // end ev-grouped
             }
         }
 
@@ -813,32 +946,8 @@ const ComprehensiveGuidanceUI = {
             html += '<details class="cg-code"><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> ' + label + '</summary><pre><code>' + this.escapeHtml(val) + '</code></pre></details>';
         }
 
-        // Verification
-        if (impl.verification && impl.verification.length > 0) {
-            html += '<div class="cg-verify"><div class="cg-verify-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Verification</div><ul>';
-            for (var v = 0; v < impl.verification.length; v++) {
-                html += '<li>' + impl.verification[v] + '</li>';
-            }
-            html += '</ul></div>';
-        }
-
-        // Evidence Artifacts (Access Review Guide)
-        if (data.evidenceArtifacts && data.evidenceArtifacts.length > 0) {
-            html += '<div class="cg-verify"><div class="cg-verify-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Evidence Artifacts for C3PAO</div><ul>';
-            for (var ea = 0; ea < data.evidenceArtifacts.length; ea++) {
-                html += '<li>' + data.evidenceArtifacts[ea] + '</li>';
-            }
-            html += '</ul></div>';
-        }
-
-        // Common Pitfalls (Access Review Guide)
-        if (data.pitfalls && data.pitfalls.length > 0) {
-            html += '<div class="cg-verify"><div class="cg-verify-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Common Pitfalls</div><ul>';
-            for (var pf = 0; pf < data.pitfalls.length; pf++) {
-                html += '<li>' + data.pitfalls[pf] + '</li>';
-            }
-            html += '</ul></div>';
-        }
+        // Verification, Evidence Artifacts, and Pitfalls are consolidated
+        // in the Evidence & Policy tab — not repeated per-platform dropdown.
 
         // Cost & Effort (detailed, inside body)
         if (impl.cost_estimate || data.total_cost_estimate || data.cost_estimate) {
@@ -846,6 +955,33 @@ const ComprehensiveGuidanceUI = {
         }
 
         return html;
+    },
+
+    // Format verification/evidence text: detect CLI commands and wrap in <code>
+    formatVerifyText: function(text) {
+        if (!text) return '';
+        // Pattern: "Description: command --flags here" or "Description: path/to/thing"
+        // Split on the LAST colon that precedes something that looks like a command
+        var cmdPatterns = /:\s+((?:aws |az |gcloud |kubectl |docker |oc |git |curl |wget |pip |npm |node |python |terraform |ansible |helm |vault |ssh |scp |openssl |certutil |gpg |chmod |chown |systemctl |journalctl |grep |cat |ls |find |sudo |nmap |nikto |nessus|show |set |configure |test |get-|new-|remove-|enable-|disable-|add-|import-|export-|invoke-|connect-|disconnect-|start-|stop-|restart-|verify |check |run |confirm |review ).+)$/i;
+        var match = text.match(cmdPatterns);
+        if (match) {
+            var cmdStart = text.lastIndexOf(match[1]);
+            var desc = text.substring(0, cmdStart).replace(/:\s*$/, '');
+            var cmd = match[1].trim();
+            return desc + ': <code class="cg-inline-cmd">' + this.escapeHtml(cmd) + '</code>';
+        }
+
+        // Detect inline code-like fragments: paths, flags, variable references
+        // Wrap things that look like: file.ext, --flag, $VAR, /path/to, key=value commands
+        var inlineCode = text.replace(
+            /(?:^|\s)((?:\/[\w.\-]+){2,}[\w.\-]*|(?:[\w.\-]+\.(?:json|yaml|yml|xml|conf|cfg|log|txt|ps1|sh|py|tf|hcl|csv|pem|crt|key))\b|--[\w][\w\-]+=?[\w.\-/]*|\$\{?[\w]+\}?|(?:[\w\-]+:\/\/[\w.\-/:@]+))/g,
+            function(full, code) {
+                var leading = full.charAt(0) === ' ' || full.charAt(0) === '\t' ? full.charAt(0) : '';
+                return leading + '<code class="cg-inline-cmd">' + code + '</code>';
+            }
+        );
+
+        return inlineCode;
     },
 
     // Escape HTML to prevent XSS
