@@ -263,12 +263,15 @@ const SettingsPage = {
                     <div class="stg-mcp-status">
                         <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">17</span><span class="stg-mcp-stat-label">Tools</span></div>
                         <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">2</span><span class="stg-mcp-stat-label">Layers</span></div>
-                        <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">207+</span><span class="stg-mcp-stat-label">Controls</span></div>
+                        <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">230+</span><span class="stg-mcp-stat-label">Controls</span></div>
                         <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">742+</span><span class="stg-mcp-stat-label">Objectives</span></div>
+                        <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">165+</span><span class="stg-mcp-stat-label">Guidance</span></div>
+                        <div class="stg-mcp-stat"><span class="stg-mcp-stat-val">4</span><span class="stg-mcp-stat-label">GRC Platforms</span></div>
                     </div>
                     <p style="color:var(--text-muted);font-size:0.75rem;margin:10px 0 0">
-                        <strong>Layer 1:</strong> Static reference data (controls, crosswalk, guidance, FedRAMP, SPRS) &mdash; always safe, no auth<br>
-                        <strong>Layer 2:</strong> Assessment context bridge (snapshot export &rarr; local file &rarr; MCP read) &mdash; ephemeral, redacted
+                        <strong>Layer 1:</strong> Static reference data (controls, crosswalk, guidance, FedRAMP, SPRS, GRC platforms) &mdash; always safe, no auth<br>
+                        <strong>Layer 2:</strong> Assessment context bridge (snapshot export &rarr; local file &rarr; MCP read) &mdash; ephemeral, redacted<br>
+                        <strong>Coverage:</strong> Rev 2 (110 controls) + Rev 3 (97 controls) + L3/800-172A (23 controls) &bull; FedRAMP Low/Moderate/High/20x baselines
                     </p>
                 </div>
             </div>

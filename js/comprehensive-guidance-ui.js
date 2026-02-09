@@ -161,6 +161,7 @@ const ComprehensiveGuidanceUI = {
         secureframe: 'Secureframe',
         archer: 'Archer IRM',
         servicenow: 'ServiceNow',
+        intelligrc: 'IntelliGRC',
         intune: 'Microsoft Intune',
         jamf: 'Jamf Pro',
         kandji: 'Kandji',
@@ -208,7 +209,7 @@ const ComprehensiveGuidanceUI = {
         'RMM & Endpoint Mgmt': ['ninjaone', 'datto_rmm', 'connectwise', 'nable'],
         'MDM / UEM': ['intune', 'jamf', 'kandji', 'workspace_one'],
         'Backup & Recovery': ['veeam', 'druva', 'datto_bcdr', 'acronis'],
-        'GRC & Compliance': ['vanta', 'drata', 'secureframe', 'archer', 'servicenow'],
+        'GRC & Compliance': ['vanta', 'drata', 'secureframe', 'intelligrc', 'archer', 'servicenow'],
         'NDR / Network Detection': ['darktrace', 'vectra'],
         'CSPM / Cloud Security': ['prisma_cloud', 'wiz', 'orca'],
         'Physical Security': ['verkada', 'brivo'],
@@ -236,8 +237,25 @@ const ComprehensiveGuidanceUI = {
 
             var uid = 'cg-' + objectiveId.replace(/[^a-zA-Z0-9]/g, '-');
 
-            // Header
-            var topHtml = '<div class="cg-header"><span class="cg-title">Implementation Guidance</span></div>';
+            // Header with FedRAMP baseline badges
+            var topHtml = '<div class="cg-header"><span class="cg-title">Implementation Guidance</span>';
+            // FedRAMP baseline tags
+            var controlId = objectiveId.replace(/\[.*\]$/, '');
+            var fedrampBaselines = (typeof FEDRAMP_BASELINE_MAP !== 'undefined') ? FEDRAMP_BASELINE_MAP[controlId] : null;
+            var is20xLow = (typeof FEDRAMP_20X_LOW_CONTROLS !== 'undefined') ? FEDRAMP_20X_LOW_CONTROLS.indexOf(controlId) !== -1 : false;
+            if (fedrampBaselines || is20xLow) {
+                topHtml += '<span class="cg-fedramp-badges">';
+                if (is20xLow) topHtml += '<span class="cg-fedramp-badge cg-fedramp-20x">20x Low</span>';
+                if (fedrampBaselines) {
+                    for (var bi = 0; bi < fedrampBaselines.length; bi++) {
+                        var bl = fedrampBaselines[bi];
+                        var cls = bl === 'High' ? 'cg-fedramp-high' : bl === 'Moderate' ? 'cg-fedramp-mod' : 'cg-fedramp-low';
+                        topHtml += '<span class="cg-fedramp-badge ' + cls + '">' + bl + '</span>';
+                    }
+                }
+                topHtml += '</span>';
+            }
+            topHtml += '</div>';
 
             // Objective summary (always visible)
             if (guidance.objective) {
@@ -710,6 +728,7 @@ const ComprehensiveGuidanceUI = {
             typeof COMPREHENSIVE_GUIDANCE_R3_EXPANDED !== 'undefined' ? COMPREHENSIVE_GUIDANCE_R3_EXPANDED : null,
             typeof COMPREHENSIVE_GUIDANCE_R3_NEW !== 'undefined' ? COMPREHENSIVE_GUIDANCE_R3_NEW : null,
             typeof COMPREHENSIVE_GUIDANCE_R3_NEW2 !== 'undefined' ? COMPREHENSIVE_GUIDANCE_R3_NEW2 : null,
+            typeof COMPREHENSIVE_GUIDANCE_GRC !== 'undefined' ? COMPREHENSIVE_GUIDANCE_GRC : null,
             typeof COMPREHENSIVE_GUIDANCE_SPA !== 'undefined' ? COMPREHENSIVE_GUIDANCE_SPA : null,
             typeof COMPREHENSIVE_GUIDANCE_SOC !== 'undefined' ? COMPREHENSIVE_GUIDANCE_SOC : null,
             typeof ACCESS_REVIEW_GUIDE !== 'undefined' ? ACCESS_REVIEW_GUIDE : null

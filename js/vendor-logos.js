@@ -176,6 +176,14 @@ VendorLogos.logos.defender = VendorLogos._pill('#0078D4', '#fff', 'MD');
 VendorLogos.logos.s3 = '<svg width="16" height="16" viewBox="0 0 256 256"><rect width="256" height="256" rx="28" fill="#569A31"/><text x="128" y="156" text-anchor="middle" fill="#fff" font-size="80" font-weight="bold" font-family="Arial,sans-serif">S3</text></svg>';
 VendorLogos.logos.notion = VendorLogos._pill('#000000', '#fff', 'N');
 
+// ── GRC & Compliance ──
+VendorLogos.logos.drata = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#1A1A2E"/><path d="M128 48c-44.2 0-80 35.8-80 80s35.8 80 80 80 80-35.8 80-80-35.8-80-80-80zm0 130c-27.6 0-50-22.4-50-50s22.4-50 50-50 50 22.4 50 50-22.4 50-50 50z" fill="#6C63FF"/><circle cx="128" cy="128" r="20" fill="#6C63FF"/></svg>';
+VendorLogos.logos.vanta = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#1B1464"/><path d="M128 56l60 144H68L128 56z" fill="#fff"/></svg>';
+VendorLogos.logos.secureframe = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#6366F1"/><path d="M128 48l72 40v48c0 42-30 81-72 96-42-15-72-54-72-96V88l72-40z" fill="none" stroke="#fff" stroke-width="16"/><polyline points="100,128 120,148 156,112" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+VendorLogos.logos.intelligrc = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#0D47A1"/><text x="128" y="155" text-anchor="middle" fill="#fff" font-size="56" font-weight="bold" font-family="Arial,sans-serif">iGRC</text></svg>';
+VendorLogos.logos.archer = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#C62828"/><circle cx="128" cy="128" r="60" fill="none" stroke="#fff" stroke-width="12"/><circle cx="128" cy="128" r="30" fill="none" stroke="#fff" stroke-width="12"/><circle cx="128" cy="128" r="6" fill="#fff"/></svg>';
+VendorLogos.logos.servicenow = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#81B5A1"/><circle cx="128" cy="128" r="56" fill="none" stroke="#fff" stroke-width="16"/><circle cx="128" cy="128" r="20" fill="#fff"/></svg>';
+
 // ── Generic categories (non-vendor, use icon fallbacks) ──
 VendorLogos.logos.firewall = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="12" y1="3" x2="12" y2="21"/></svg>';
 VendorLogos.logos.general = VendorLogos._fallback(16);

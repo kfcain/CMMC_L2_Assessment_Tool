@@ -2080,6 +2080,13 @@ class AssessmentApp {
         let dynControls = 0, dynObjectives = 0;
         activeFamilies.forEach(f => f.controls.forEach(c => { dynControls++; dynObjectives += c.objectives.length; }));
         const hasL3 = typeof NIST_800_172A_FAMILIES !== 'undefined' && NIST_800_172A_FAMILIES.length > 0;
+        let l3Controls = 0, l3Objectives = 0;
+        if (hasL3) {
+            NIST_800_172A_FAMILIES.forEach(f => f.controls.forEach(c => { l3Controls++; l3Objectives += c.objectives.length; }));
+        }
+        // Count vendor platforms from comprehensive guidance UI
+        const cgui = typeof ComprehensiveGuidanceUI !== 'undefined' ? ComprehensiveGuidanceUI : null;
+        const vendorCount = cgui ? Object.keys(cgui.techNames || {}).length : 60;
 
         const categories = [
             { id: 'project-plan', name: 'Project Plan', desc: 'Implementation timeline, milestones, and task tracking for your CMMC journey', icon: 'clipboard-list', items: guide?.phases?.length || 8 },
@@ -2087,7 +2094,7 @@ class AssessmentApp {
             { id: 'policies', name: 'Policies & Procedures', desc: 'Required policy documents and procedure templates mapped to controls', icon: 'file-text', items: 24 },
             { id: 'ssp', name: 'System Security Plan', desc: 'SSP structure, control responsibility matrix, and documentation guidance', icon: 'shield', items: 14 },
             { id: 'services', name: 'Cloud Services', desc: 'FedRAMP-authorized services and configuration guidance for your platform', icon: 'cloud', items: 45 },
-            { id: 'security-stack', name: 'Security Stack', desc: 'Vendor-specific implementation guidance — Palo Alto, SentinelOne, NinjaOne, Tenable, and cloud platforms', icon: 'layers', items: dynControls },
+            { id: 'security-stack', name: 'Security Stack', desc: 'Vendor & GRC platform guidance — Drata, Vanta, Secureframe, IntelliGRC, Palo Alto, SentinelOne, NinjaOne, Tenable, and 50+ more', icon: 'layers', items: vendorCount },
             { id: 'architecture', name: 'Reference Architecture', desc: 'Network diagrams, enclave patterns, and VDI deployment options', icon: 'layout', items: 12 },
             { id: 'cui-discovery', name: 'CUI Discovery', desc: 'Native tools for identifying and classifying CUI in your environment', icon: 'search', items: 6 },
             { id: 'extras', name: 'Extras & Deep Dives', desc: 'Advanced topics, ITAR guidance, and platform-specific configurations', icon: 'layers', items: 8 }
@@ -2106,15 +2113,20 @@ class AssessmentApp {
         
         return `
             <div class="arch-quick-stats">
-                <div class="arch-quick-stat"><div class="value">${dynControls}</div><div class="label">Controls</div></div>
-                <div class="arch-quick-stat"><div class="value">${dynObjectives}</div><div class="label">Objectives</div></div>
+                <div class="arch-quick-stat"><div class="value">${dynControls}${hasL3 ? '<span style="font-size:0.55em;color:#fbbf24;margin-left:2px">+' + l3Controls + '</span>' : ''}</div><div class="label">${isRev3 ? 'Rev 3' : 'Rev 2'} Controls${hasL3 ? ' + L3' : ''}</div></div>
+                <div class="arch-quick-stat"><div class="value">${dynObjectives}${hasL3 ? '<span style="font-size:0.55em;color:#fbbf24;margin-left:2px">+' + l3Objectives + '</span>' : ''}</div><div class="label">Objectives${hasL3 ? ' + L3' : ''}</div></div>
                 <div class="arch-quick-stat"><div class="value">${activeFamilies.length}</div><div class="label">Families</div></div>
-                <div class="arch-quick-stat"><div class="value">${categories.length}</div><div class="label">Categories</div></div>
-                ${hasL3 ? '<div class="arch-quick-stat"><div class="value" style="color:#fbbf24">L3</div><div class="label">Enhanced</div></div>' : ''}
+                <div class="arch-quick-stat"><div class="value">${vendorCount}</div><div class="label">Vendor Platforms</div></div>
+                <div class="arch-quick-stat"><div class="value">4</div><div class="label">GRC Platforms</div></div>
+                <div class="arch-quick-stat"><div class="value" style="font-size:0.85em">L/M/H</div><div class="label">FedRAMP Baselines</div></div>
             </div>
             ${isRev3 ? `<div class="arch-rev-banner" style="display:flex;align-items:center;gap:10px;padding:10px 16px;margin-bottom:16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:8px;font-size:0.8rem;color:var(--text-secondary)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                <span><strong style="color:#10b981">Rev 3 Active</strong> — ${activeFamilies.length} families, ${dynControls} controls, ${dynObjectives} objectives. Includes new families (PL, SR) and updated control numbering (03.xx.xx format).</span>
+                <span><strong style="color:#10b981">Rev 3 Active</strong> — ${activeFamilies.length} families, ${dynControls} controls, ${dynObjectives} objectives. Includes new families (PL, SR, SA) and updated control numbering (03.xx.xx format).</span>
+            </div>` : ''}
+            ${hasL3 ? `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;margin-bottom:16px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:8px;font-size:0.8rem;color:var(--text-secondary)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span><strong style="color:#fbbf24">CMMC Level 3 Enhanced</strong> — ${l3Controls} additional controls, ${l3Objectives} objectives from NIST SP 800-172A for protecting CUI against advanced persistent threats.</span>
             </div>` : ''}
             <div class="arch-category-grid">
                 ${categories.map(cat => `
@@ -2242,6 +2254,22 @@ class AssessmentApp {
               controls: 'All families — identity, compliance workloads, SIEM, zero-trust, encryption' }
         ];
 
+        // GRC & Compliance platforms with per-control guidance
+        const grcPlatforms = [
+            { key: 'drata', name: 'Drata', color: '#6C63FF',
+              desc: 'Automated compliance monitoring, access reviews, evidence collection, risk management, policy center',
+              controls: 'All families — continuous compliance monitoring, automated evidence, access reviews, vendor management' },
+            { key: 'vanta', name: 'Vanta', color: '#1B1464',
+              desc: 'Trust management, automated security monitoring, access reviews, vendor risk, policy management',
+              controls: 'All families — automated testing, continuous monitoring, trust center, personnel management' },
+            { key: 'secureframe', name: 'Secureframe', color: '#6366F1',
+              desc: 'Compliance automation, continuous monitoring, personnel tracking, risk management, readiness reports',
+              controls: 'All families — compliance dashboard, automated evidence, risk management, readiness tracking' },
+            { key: 'intelligrc', name: 'IntelliGRC', color: '#0D47A1',
+              desc: 'GRC platform with control management, evidence library, risk register, assessment scheduling, policy library',
+              controls: 'All families — control mapping, evidence management, risk assessment, policy tracking' }
+        ];
+
         // Additional vendors available in comprehensive guidance
         const additionalVendors = [
             { category: 'Identity & Access (IAM/PAM)', vendors: ['Okta', 'CyberArk', 'Delinea', 'BeyondTrust', 'JumpCloud', 'Cisco Duo', 'Keeper'] },
@@ -2249,7 +2277,6 @@ class AssessmentApp {
             { category: 'Email Security', vendors: ['Proofpoint', 'Mimecast', 'Abnormal Security'] },
             { category: 'DLP & Data Protection', vendors: ['Microsoft Purview', 'Netskope', 'Code42 Incydr'] },
             { category: 'Backup & Recovery', vendors: ['Veeam', 'Druva', 'Datto BCDR', 'Acronis'] },
-            { category: 'GRC & Compliance', vendors: ['Vanta', 'Drata', 'Secureframe', 'RSA Archer', 'ServiceNow'] },
             { category: 'MDM / UEM', vendors: ['Microsoft Intune', 'Jamf Pro', 'Kandji', 'VMware Workspace ONE'] },
             { category: 'CSPM / Cloud Security', vendors: ['Palo Alto Prisma Cloud', 'Wiz', 'Orca Security'] }
         ];
@@ -2295,6 +2322,38 @@ class AssessmentApp {
                                 </div>
                             </div>
                         `).join('')}
+                    </div>
+
+                    <h3 style="font-size:0.9rem;color:var(--text-primary);margin:0 0 12px 0;font-weight:600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" style="vertical-align:-2px;margin-right:6px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                        GRC & Compliance Platforms
+                    </h3>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 12px 0">Per-control implementation guidance for automated compliance platforms. Each platform has steps for evidence collection, control mapping, and continuous monitoring.</p>
+                    <div class="impl-cards-grid" style="margin-bottom:24px">
+                        ${grcPlatforms.map(v => {
+                            const logo = (typeof VendorLogos !== 'undefined' && VendorLogos.has(v.key)) ? VendorLogos.get(v.key, 20) : '';
+                            return `
+                            <div class="impl-policy-card" style="border-top:3px solid ${v.color}">
+                                <div class="impl-policy-header" style="background:${v.color}15;display:flex;align-items:center;gap:10px">
+                                    <span>${logo}</span>
+                                    <div>
+                                        <h4 style="margin:0">${v.name}</h4>
+                                        <span style="font-size:0.65rem;opacity:0.7">GRC & Compliance</span>
+                                    </div>
+                                </div>
+                                <div class="impl-policy-body">
+                                    <p style="font-size:0.8rem;margin:0 0 10px 0;color:var(--text-secondary)">${v.desc}</p>
+                                    <div style="font-size:0.7rem;color:var(--text-muted)">
+                                        <strong>Control Families:</strong> ${v.controls}
+                                    </div>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:20px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:8px;font-size:0.8rem;color:var(--text-secondary)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span><strong>FedRAMP Baselines:</strong> Each control in the Assessment view now shows FedRAMP baseline tags (Low, Moderate, High, 20x Low) indicating which FedRAMP baselines require that control.</span>
                     </div>
 
                     <h3 style="font-size:0.9rem;color:var(--text-primary);margin:0 0 12px 0;font-weight:600">Additional Vendors by Category</h3>
