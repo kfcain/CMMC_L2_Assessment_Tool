@@ -15,10 +15,19 @@ const JS_DIR = resolve(import.meta.dirname, '../../js');
  */
 function evalDataFile(filePath) {
   try {
-    const code = readFileSync(filePath, 'utf-8');
-    const sandbox = {};
+    let code = readFileSync(filePath, 'utf-8');
+    // Replace const/let with var so declarations attach to the sandbox object
+    // (const/let in vm contexts are block-scoped and don't become sandbox properties)
+    code = code.replace(/^(const|let)\s+/gm, 'var ');
+    const sandbox = { window: {}, console: { log() {}, error() {}, warn() {} } };
     vm.createContext(sandbox);
-    vm.runInContext(code, sandbox, { filename: filePath, timeout: 5000 });
+    vm.runInContext(code, sandbox, { filename: filePath, timeout: 10000 });
+    // Also merge anything attached to window (some files do window.X = ...)
+    for (const [k, v] of Object.entries(sandbox.window)) {
+      if (v && !sandbox[k]) sandbox[k] = v;
+    }
+    delete sandbox.window;
+    delete sandbox.console;
     return sandbox;
   } catch (e) {
     console.error(`[DataLoader] Failed to parse ${filePath}: ${e.message}`);
