@@ -6219,6 +6219,142 @@ body::after {
     }
 }
 
+/* ═══════════════════════════════════════════════
+   iOS / MOBILE OPTIMIZATION
+   Safe area insets, touch targets, viewport fixes
+   ═══════════════════════════════════════════════ */
+
+/* iOS safe area padding */
+.top-header-bar {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+}
+.main-content {
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+/* Fix iOS 100vh issue — use dvh where supported */
+@supports (height: 100dvh) {
+    .msp-portal-overlay {
+        height: 100dvh;
+    }
+    .command-search-overlay {
+        height: 100dvh;
+    }
+}
+
+/* Prevent iOS text size adjust */
+@media (max-width: 768px) {
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    /* Ensure minimum touch target sizes (44px per Apple HIG) */
+    .hamburger-nav-btn,
+    .msp-btn-primary,
+    .msp-btn-secondary,
+    .msp-action-btn,
+    .status-btn,
+    .stg-nav-btn,
+    .stg-btn-primary,
+    .stg-btn-secondary,
+    .header-search-btn {
+        min-height: 44px;
+    }
+
+    /* Prevent horizontal overflow on mobile */
+    body {
+        overflow-x: hidden;
+    }
+
+    /* Header adjustments for mobile */
+    .top-header-bar {
+        padding-top: env(safe-area-inset-top, 0);
+    }
+
+    /* Slide-out panel full width on small screens */
+    .hb-panel {
+        width: min(280px, 85vw);
+    }
+
+    /* Command search modal mobile optimization */
+    .command-search-container {
+        width: 95vw;
+        max-width: 95vw;
+        margin: 10vh auto 0;
+    }
+    .command-search-box {
+        max-height: 70vh;
+    }
+
+    /* MSP Portal sidebar collapse on mobile */
+    .msp-sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        bottom: 0;
+        z-index: 1001;
+        transition: left 0.25s ease;
+    }
+    .msp-sidebar.open {
+        left: 0;
+    }
+    .msp-main-content {
+        margin-left: 0 !important;
+    }
+
+    /* Table horizontal scroll on mobile */
+    .msp-table,
+    .poam-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Stack form rows on mobile */
+    .msp-form-row {
+        flex-direction: column;
+    }
+
+    /* Prevent zoom on input focus (iOS) */
+    input[type="text"],
+    input[type="search"],
+    input[type="email"],
+    input[type="password"],
+    input[type="date"],
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+
+/* Extra small screens (iPhone SE, etc.) */
+@media (max-width: 375px) {
+    .top-header-bar {
+        gap: 6px;
+    }
+    .header-branding {
+        gap: 4px;
+    }
+    .header-badge {
+        font-size: 0.55rem;
+        padding: 2px 6px;
+    }
+    .header-title {
+        font-size: 0.85rem;
+    }
+    .main-content {
+        padding: 56px 8px 16px;
+    }
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .summary-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 /* SPRS Scoring Badges */
 .sprs-badge {
     display: inline-flex;
@@ -8188,8 +8324,58 @@ body::after {
     letter-spacing: -0.02em;
 }
 
-.top-header-bar .header-theme-picker {
+/* Header Search Button (Cmd+K trigger) */
+.header-search-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     margin-left: auto;
+    padding: 5px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    font-family: inherit;
+    line-height: 1;
+}
+.header-search-btn:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+.header-search-btn svg {
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+.header-search-label {
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+.header-search-kbd {
+    font-size: 0.58rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    padding: 1px 5px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+@media (max-width: 480px) {
+    .header-search-label,
+    .header-search-kbd {
+        display: none;
+    }
+    .header-search-btn {
+        padding: 6px 8px;
+    }
+}
+
+.top-header-bar .header-theme-picker {
+    margin-left: 8px;
 }
 
 /* ═══════════════════════════════════════════════

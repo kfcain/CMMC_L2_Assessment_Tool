@@ -562,6 +562,11 @@ class AssessmentApp {
             }
         });
 
+        // Header search button click
+        document.getElementById('header-search-btn')?.addEventListener('click', () => {
+            this.openCommandSearch();
+        });
+
         // Close on backdrop click
         this.commandSearchModal?.querySelector('.command-search-backdrop')?.addEventListener('click', () => {
             this.closeCommandSearch();

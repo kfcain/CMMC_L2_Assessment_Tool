@@ -635,6 +635,127 @@ echo "Key rotation complete for $SA_EMAIL"`
                 cmmcAlignment: ["3.1.1", "3.4.1", "3.4.2", "3.8.1"]
             }
         ]
+    },
+
+    // ==================== MDM SOLUTIONS ====================
+    mdmSolutions: {
+        title: "Mobile Device Management (MDM) Solutions",
+        description: "Enterprise MDM platforms for managing and securing mobile devices, enforcing compliance policies, and protecting CUI on endpoints",
+
+        platforms: [
+            {
+                name: "Microsoft Intune (GCC High)",
+                fedrampStatus: "FedRAMP Authorized (High)",
+                url: "https://learn.microsoft.com/en-us/mem/intune/",
+                supportedPlatforms: ["Windows", "macOS", "iOS", "Android"],
+                encryptionMethod: "BitLocker (Windows), FileVault (macOS), device-level encryption (mobile)",
+                features: [
+                    "Conditional Access integration with Entra ID",
+                    "Compliance policies with automated remediation",
+                    "App protection policies (MAM without enrollment)",
+                    "Configuration profiles for security baselines",
+                    "Windows Autopilot zero-touch deployment",
+                    "Endpoint Privilege Management",
+                    "Remote wipe and selective wipe",
+                    "Certificate-based authentication via SCEP/PKCS"
+                ],
+                bestPractices: [
+                    "Deploy CMMC security baseline configuration profiles",
+                    "Require device compliance for Conditional Access",
+                    "Enable BitLocker/FileVault with key escrow to Entra ID",
+                    "Block personal devices from accessing CUI via MAM policies",
+                    "Use Windows Autopilot for consistent, secure provisioning"
+                ],
+                cmmcAlignment: ["3.1.1", "3.1.2", "3.1.18", "3.1.19", "3.4.1", "3.4.2", "3.4.6", "3.8.1", "3.13.11"]
+            },
+            {
+                name: "VMware Workspace ONE UEM",
+                fedrampStatus: "FedRAMP Authorized (Moderate)",
+                url: "https://www.omnissa.com/platform/workspace-one/",
+                supportedPlatforms: ["Windows", "macOS", "iOS", "Android", "ChromeOS", "Linux"],
+                encryptionMethod: "Platform-native encryption enforcement",
+                features: [
+                    "Unified endpoint management across all platforms",
+                    "Intelligence-driven automation and analytics",
+                    "Tunnel VPN for per-app secure access",
+                    "Content Locker for secure document distribution",
+                    "Freestyle Orchestrator for workflow automation",
+                    "Sensors and scripts for custom compliance checks"
+                ],
+                bestPractices: [
+                    "Use compliance policies to enforce encryption and passcode",
+                    "Deploy per-app VPN tunnels for CUI applications",
+                    "Leverage Content Locker for secure CUI document access",
+                    "Configure automated compliance escalation actions"
+                ],
+                cmmcAlignment: ["3.1.1", "3.1.2", "3.1.18", "3.4.1", "3.4.2", "3.8.1"]
+            },
+            {
+                name: "Jamf Pro",
+                fedrampStatus: "FedRAMP Authorized (Moderate)",
+                url: "https://www.jamf.com/products/jamf-pro/",
+                supportedPlatforms: ["macOS", "iOS", "iPadOS", "tvOS"],
+                encryptionMethod: "FileVault 2 (macOS), device-level (iOS)",
+                features: [
+                    "Apple-native device management",
+                    "Zero-touch deployment via Apple Business Manager",
+                    "Smart Groups for dynamic device targeting",
+                    "Jamf Protect for endpoint security",
+                    "Self Service app catalog",
+                    "Declarative Device Management (DDM)",
+                    "Compliance Reporter for CIS/STIG benchmarks"
+                ],
+                bestPractices: [
+                    "Enforce FileVault with institutional recovery key escrow",
+                    "Use Jamf Protect + Jamf Pro for unified Apple security",
+                    "Deploy CIS macOS benchmarks via configuration profiles",
+                    "Restrict App Store and sideloading on managed devices"
+                ],
+                cmmcAlignment: ["3.1.1", "3.4.1", "3.4.2", "3.4.6", "3.8.1", "3.13.11"]
+            },
+            {
+                name: "Ivanti Neurons for MDM (MobileIron)",
+                fedrampStatus: "FedRAMP Authorized (Moderate)",
+                url: "https://www.ivanti.com/products/mobileiron",
+                supportedPlatforms: ["Windows", "macOS", "iOS", "Android"],
+                encryptionMethod: "Platform-native + Ivanti Docs@Work encryption",
+                features: [
+                    "Zero Sign-On with certificate-based auth",
+                    "Threat Defense integration for mobile threat detection",
+                    "AppConnect containerization for managed apps",
+                    "Sentry gateway for secure email/app access",
+                    "Compliance and privacy engine"
+                ],
+                bestPractices: [
+                    "Deploy AppConnect containers for CUI-handling apps",
+                    "Use Sentry as gateway to block non-compliant devices",
+                    "Enable Threat Defense for real-time mobile threat detection"
+                ],
+                cmmcAlignment: ["3.1.1", "3.1.2", "3.1.18", "3.4.1", "3.8.1", "3.14.2"]
+            },
+            {
+                name: "BlackBerry UEM",
+                fedrampStatus: "FedRAMP Authorized (High)",
+                url: "https://www.blackberry.com/us/en/products/blackberry-uem",
+                supportedPlatforms: ["Windows", "macOS", "iOS", "Android"],
+                encryptionMethod: "FIPS 140-2 validated encryption (BlackBerry Dynamics)",
+                features: [
+                    "FIPS 140-2 validated secure container",
+                    "BlackBerry Dynamics SDK for app containerization",
+                    "CylancePROTECT AI-driven endpoint protection",
+                    "Secure communication (BBM Enterprise)",
+                    "Multi-OS management from single console",
+                    "DoD-approved for classified environments"
+                ],
+                bestPractices: [
+                    "Use BlackBerry Dynamics containers for CUI apps",
+                    "Deploy CylancePROTECT for AI-based threat prevention",
+                    "Leverage FIPS-validated crypto for all data at rest/in transit",
+                    "Ideal for organizations requiring highest security posture"
+                ],
+                cmmcAlignment: ["3.1.1", "3.1.2", "3.1.18", "3.1.19", "3.4.1", "3.8.1", "3.13.8", "3.13.11"]
+            }
+        ]
     }
 };
 

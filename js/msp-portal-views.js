@@ -3,33 +3,65 @@
 const MSPPortalViews = {
     // ==================== CLIENTS VIEW ====================
     clients: function(portal) {
+        const clients = portal.state.clients;
+        const totalClients = clients.length;
+        const readyCount = clients.filter(c => (c.completionPercent || 0) >= 100).length;
+        const avgSprs = totalClients > 0 ? Math.round(clients.reduce((s, c) => s + (c.sprsScore || 0), 0) / totalClients) : 0;
+
         return `
         <div class="msp-clients-view">
             <div class="msp-view-header">
                 <div class="msp-search-bar"><input type="search" placeholder="Search clients..." class="msp-search-input" oninput="MSPPortal.filterClients(this.value)"></div>
+                <div class="cp-header-stats">
+                    <span class="cp-stat">${totalClients} client${totalClients !== 1 ? 's' : ''}</span>
+                    <span class="cp-stat good">${readyCount} ready</span>
+                    <span class="cp-stat">Avg SPRS: ${avgSprs}</span>
+                </div>
                 <button class="msp-btn-primary" onclick="MSPPortal.showAddClientModal()">${portal.getIcon('user-plus')} Add Client</button>
             </div>
             <div class="msp-client-grid">
-                ${portal.state.clients.length > 0 ? portal.state.clients.map(c => this.renderClientCard(c, portal)).join('') : this.renderEmptyClients(portal)}
+                ${clients.length > 0 ? clients.map(c => this.renderClientCard(c, portal)).join('') : this.renderEmptyClients(portal)}
             </div>
         </div>`;
     },
 
     renderClientCard: function(client, portal) {
+        const tasks = this._getKanbanTasks(client.id);
+        const taskStats = this._getKanbanStats(tasks);
+        const pct = client.completionPercent || 0;
+        const statusClass = pct >= 100 ? 'ready' : pct >= 50 ? 'progress' : 'early';
+        const statusLabel = pct >= 100 ? 'Assessment Ready' : pct >= 50 ? 'In Progress' : 'Early Stage';
+        const sprsClass = (client.sprsScore ?? -1) >= 70 ? 'good' : (client.sprsScore ?? -1) >= 0 ? 'warning' : '';
+        const nextDate = client.nextAssessment ? new Date(client.nextAssessment) : null;
+        const daysUntil = nextDate ? Math.ceil((nextDate - new Date()) / 86400000) : null;
+
         return `
         <div class="msp-client-card" data-client-id="${client.id}">
             <div class="client-card-header">
-                <div class="client-info"><h4>${client.name}</h4><span class="client-industry">${client.industry || 'Defense'}</span></div>
+                <div class="client-info">
+                    <h4>${client.name}</h4>
+                    <div class="client-meta-row">
+                        <span class="client-industry">${client.industry || 'Defense'}</span>
+                        <span class="cp-status-badge ${statusClass}">${statusLabel}</span>
+                    </div>
+                </div>
                 <span class="level-badge large">L${client.assessmentLevel}</span>
             </div>
             <div class="client-card-metrics">
-                <div class="metric"><span class="metric-value ${client.sprsScore >= 70 ? 'good' : 'warning'}">${client.sprsScore ?? '--'}</span><span class="metric-label">SPRS</span></div>
-                <div class="metric"><span class="metric-value">${client.completionPercent || 0}%</span><span class="metric-label">Complete</span></div>
+                <div class="metric"><span class="metric-value ${sprsClass}">${client.sprsScore ?? '--'}</span><span class="metric-label">SPRS</span></div>
+                <div class="metric"><span class="metric-value">${pct}%</span><span class="metric-label">Complete</span></div>
                 <div class="metric"><span class="metric-value">${client.poamCount || 0}</span><span class="metric-label">POA&M</span></div>
+                <div class="metric"><span class="metric-value">${taskStats.total}</span><span class="metric-label">Tasks</span></div>
             </div>
-            <div class="client-card-progress"><div class="progress-bar"><div class="progress-fill" style="width:${client.completionPercent||0}%"></div></div></div>
+            <div class="client-card-progress"><div class="progress-bar"><div class="progress-fill ${statusClass}" style="width:${pct}%"></div></div></div>
+            ${nextDate ? `<div class="cp-next-assessment ${daysUntil !== null && daysUntil < 30 ? 'urgent' : ''}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Assessment: ${nextDate.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'})}${daysUntil !== null ? ` (${daysUntil > 0 ? daysUntil + 'd' : 'overdue'})` : ''}
+            </div>` : ''}
+            ${taskStats.overdue > 0 ? `<div class="cp-alert"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ${taskStats.overdue} overdue task${taskStats.overdue > 1 ? 's' : ''}</div>` : ''}
             <div class="client-card-actions">
-                <button class="msp-btn-secondary" onclick="MSPPortal.openClientProject('${client.id}')">${portal.getIcon('calendar')} Project</button>
+                <button class="msp-btn-secondary" onclick="MSPPortalViews._switchKanbanClient('${client.id}');MSPPortal.switchView('projects')">${portal.getIcon('calendar')} Board</button>
+                <button class="msp-btn-secondary" onclick="MSPPortal.switchView('reports')">${portal.getIcon('file-text')} Report</button>
                 <button class="msp-btn-icon" onclick="MSPPortal.editClient('${client.id}')" title="Edit client">${portal.getIcon('edit')}</button>
                 <button class="msp-btn-icon msp-btn-icon-danger" onclick="MSPPortal.confirmRemoveClient('${client.id}')" title="Remove client">${portal.getIcon('x')}</button>
             </div>
@@ -40,33 +72,258 @@ const MSPPortalViews = {
         return `<div class="msp-empty-state full-width"><div class="empty-icon">${portal.getIcon('users')}</div><h3>No Clients Yet</h3><p>Add your first client to start managing CMMC assessments</p><button class="msp-btn-primary" onclick="MSPPortal.showAddClientModal()">${portal.getIcon('user-plus')} Add First Client</button></div>`;
     },
 
-    // ==================== PROJECTS VIEW ====================
+    // ==================== PROJECTS VIEW (KANBAN) ====================
     projects: function(portal) {
+        const clients = portal.state.clients;
+        const selectedClient = portal._kanbanClient || (clients.length > 0 ? clients[0].id : null);
+        const client = clients.find(c => c.id === selectedClient);
+        const tasks = this._getKanbanTasks(selectedClient);
+        const columns = [
+            { id: 'backlog', name: 'Backlog', color: '#4e5263' },
+            { id: 'todo', name: 'To Do', color: '#6c8aff' },
+            { id: 'in-progress', name: 'In Progress', color: '#f59e0b' },
+            { id: 'review', name: 'Review', color: '#8b5cf6' },
+            { id: 'done', name: 'Done', color: '#34d399' }
+        ];
+
+        if (clients.length === 0) {
+            return `<div class="msp-empty-state"><div class="empty-icon">${portal.getIcon('calendar')}</div><h3>No Projects</h3><p>Add clients to create project plans</p><button class="msp-btn-primary" onclick="MSPPortal.showAddClientModal()">${portal.getIcon('user-plus')} Add Client</button></div>`;
+        }
+
+        const stats = this._getKanbanStats(tasks);
+
         return `
-        <div class="msp-projects-view">
-            <div class="msp-view-header">
-                <div class="msp-tabs">
-                    <button class="msp-tab active" data-tab="all">All Projects</button>
-                    <button class="msp-tab" data-tab="timeline">Timeline</button>
+        <div class="kb-planner">
+            <div class="kb-header">
+                <div class="kb-client-select">
+                    <select class="stg-select" id="kb-client-picker" onchange="MSPPortalViews._switchKanbanClient(this.value)">
+                        ${clients.map(c => `<option value="${c.id}" ${c.id === selectedClient ? 'selected' : ''}>${c.name}</option>`).join('')}
+                    </select>
+                    ${client ? `<span class="kb-level-badge">L${client.assessmentLevel}</span>` : ''}
+                </div>
+                <div class="kb-actions">
+                    <div class="kb-stats">
+                        <span class="kb-stat">${stats.total} tasks</span>
+                        <span class="kb-stat done">${stats.done} done</span>
+                        ${stats.overdue > 0 ? `<span class="kb-stat overdue">${stats.overdue} overdue</span>` : ''}
+                    </div>
+                    <button class="msp-btn-primary" onclick="MSPPortalViews._showAddTaskModal('${selectedClient}')">
+                        ${portal.getIcon('plus')} Add Task
+                    </button>
                 </div>
             </div>
-            <div class="msp-projects-content">${this.renderAllProjects(portal)}</div>
+            <div class="kb-board" id="kb-board">
+                ${columns.map(col => {
+                    const colTasks = tasks.filter(t => t.status === col.id);
+                    return `
+                    <div class="kb-column" data-column="${col.id}">
+                        <div class="kb-col-header">
+                            <span class="kb-col-dot" style="background:${col.color}"></span>
+                            <span class="kb-col-name">${col.name}</span>
+                            <span class="kb-col-count">${colTasks.length}</span>
+                        </div>
+                        <div class="kb-col-body" data-column="${col.id}" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="MSPPortalViews._dropTask(event,'${col.id}')">
+                            ${colTasks.map(task => this._renderKanbanCard(task, portal)).join('')}
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
         </div>`;
     },
 
-    renderAllProjects: function(portal) {
-        if (portal.state.clients.length === 0) return `<div class="msp-empty-state"><div class="empty-icon">${portal.getIcon('calendar')}</div><h3>No Projects</h3><p>Add clients to create project plans</p></div>`;
-        return `<div class="projects-list">${portal.state.clients.map(c => this.renderProjectCard(c, portal)).join('')}</div>`;
-    },
-
-    renderProjectCard: function(client, portal) {
-        const project = portal.state.projectPlans[client.id] || { progress: 0, totalTasks: 0, completedTasks: 0 };
+    _renderKanbanCard: function(task, portal) {
+        const priorityColors = { high: '#ef4444', medium: '#f59e0b', low: '#34d399' };
+        const tagColors = ['#6c8aff', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
+        const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'done';
         return `
-        <div class="project-card">
-            <div class="project-header"><div class="project-info"><h4>${client.name}</h4><span>CMMC Level ${client.assessmentLevel}</span></div><div class="project-progress-ring" style="--progress:${project.progress||0}"><span>${project.progress||0}%</span></div></div>
-            <div class="project-timeline"><div class="timeline-bar"><div class="timeline-progress" style="width:${project.progress||0}%"></div></div><div class="timeline-labels"><span>Start</span><span>${client.nextAssessment ? new Date(client.nextAssessment).toLocaleDateString() : 'TBD'}</span></div></div>
-            <div class="project-actions"><button class="msp-btn-secondary" onclick="MSPPortal.openProjectPlanner('${client.id}')">${portal.getIcon('edit')} Manage</button></div>
+        <div class="kb-card ${isOverdue ? 'overdue' : ''}" draggable="true" data-task-id="${task.id}" ondragstart="MSPPortalViews._dragTask(event,'${task.id}')">
+            <div class="kb-card-top">
+                <span class="kb-priority" style="background:${priorityColors[task.priority] || '#4e5263'}" title="${task.priority || 'normal'} priority"></span>
+                <div class="kb-card-actions">
+                    <button class="kb-card-btn" onclick="MSPPortalViews._editTask('${task.id}')" title="Edit">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button class="kb-card-btn" onclick="MSPPortalViews._deleteTask('${task.id}')" title="Delete">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="kb-card-title">${task.title}</div>
+            ${task.description ? `<div class="kb-card-desc">${task.description}</div>` : ''}
+            <div class="kb-card-meta">
+                ${(task.tags || []).map((tag, i) => `<span class="kb-tag" style="background:${tagColors[i % tagColors.length]}20;color:${tagColors[i % tagColors.length]}">${tag}</span>`).join('')}
+            </div>
+            <div class="kb-card-footer">
+                ${task.assignee ? `<span class="kb-assignee" title="${task.assignee}">${task.assignee.split(' ').map(n => n[0]).join('').toUpperCase()}</span>` : ''}
+                ${task.dueDate ? `<span class="kb-due ${isOverdue ? 'overdue' : ''}">${new Date(task.dueDate).toLocaleDateString('en-US', {month:'short',day:'numeric'})}</span>` : ''}
+            </div>
         </div>`;
+    },
+
+    _getKanbanTasks: function(clientId) {
+        if (!clientId) return [];
+        try {
+            const all = JSON.parse(localStorage.getItem('msp_kanban_tasks') || '{}');
+            return all[clientId] || [];
+        } catch(e) { return []; }
+    },
+
+    _saveKanbanTasks: function(clientId, tasks) {
+        try {
+            const all = JSON.parse(localStorage.getItem('msp_kanban_tasks') || '{}');
+            all[clientId] = tasks;
+            localStorage.setItem('msp_kanban_tasks', JSON.stringify(all));
+        } catch(e) { console.error('[Kanban] Save failed', e); }
+    },
+
+    _getKanbanStats: function(tasks) {
+        const now = new Date();
+        return {
+            total: tasks.length,
+            done: tasks.filter(t => t.status === 'done').length,
+            overdue: tasks.filter(t => t.dueDate && new Date(t.dueDate) < now && t.status !== 'done').length
+        };
+    },
+
+    _switchKanbanClient: function(clientId) {
+        if (typeof MSPPortal !== 'undefined') {
+            MSPPortal._kanbanClient = clientId;
+            MSPPortal.switchView('projects');
+        }
+    },
+
+    _dragTask: function(e, taskId) {
+        e.dataTransfer.setData('text/plain', taskId);
+        e.target.classList.add('dragging');
+    },
+
+    _dropTask: function(e, columnId) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+        const taskId = e.dataTransfer.getData('text/plain');
+        const clientId = document.getElementById('kb-client-picker')?.value;
+        if (!clientId || !taskId) return;
+        const tasks = this._getKanbanTasks(clientId);
+        const task = tasks.find(t => t.id === taskId);
+        if (task) {
+            task.status = columnId;
+            task.updatedAt = new Date().toISOString();
+            this._saveKanbanTasks(clientId, tasks);
+            if (typeof MSPPortal !== 'undefined') MSPPortal.switchView('projects');
+        }
+    },
+
+    _showAddTaskModal: function(clientId) {
+        const modal = document.createElement('div');
+        modal.className = 'msp-modal-overlay';
+        modal.id = 'kb-task-modal';
+        modal.innerHTML = `
+        <div class="msp-modal" style="max-width:500px">
+            <div class="msp-modal-header"><h3>Add Task</h3><button class="msp-modal-close" onclick="document.getElementById('kb-task-modal')?.remove()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="msp-modal-body">
+                <div class="msp-form-group"><label>Title *</label><input type="text" id="kb-task-title" class="stg-input" style="width:100%" required placeholder="Task title"></div>
+                <div class="msp-form-group"><label>Description</label><textarea id="kb-task-desc" class="stg-input" style="width:100%;min-height:60px" placeholder="Optional description"></textarea></div>
+                <div class="msp-form-row" style="display:flex;gap:10px">
+                    <div class="msp-form-group" style="flex:1"><label>Priority</label><select id="kb-task-priority" class="stg-select"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+                    <div class="msp-form-group" style="flex:1"><label>Status</label><select id="kb-task-status" class="stg-select"><option value="backlog">Backlog</option><option value="todo" selected>To Do</option><option value="in-progress">In Progress</option><option value="review">Review</option><option value="done">Done</option></select></div>
+                </div>
+                <div class="msp-form-row" style="display:flex;gap:10px">
+                    <div class="msp-form-group" style="flex:1"><label>Due Date</label><input type="date" id="kb-task-due" class="stg-input" style="width:100%"></div>
+                    <div class="msp-form-group" style="flex:1"><label>Assignee</label><input type="text" id="kb-task-assignee" class="stg-input" style="width:100%" placeholder="Name"></div>
+                </div>
+                <div class="msp-form-group"><label>Tags (comma-separated)</label><input type="text" id="kb-task-tags" class="stg-input" style="width:100%" placeholder="SSP, AC, remediation..."></div>
+            </div>
+            <div class="msp-modal-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--glass-border,rgba(255,255,255,0.05))">
+                <button class="msp-btn-secondary" onclick="document.getElementById('kb-task-modal')?.remove()">Cancel</button>
+                <button class="msp-btn-primary" onclick="MSPPortalViews._submitAddTask('${clientId}')">Add Task</button>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+        document.getElementById('kb-task-title')?.focus();
+    },
+
+    _submitAddTask: function(clientId) {
+        const title = document.getElementById('kb-task-title')?.value?.trim();
+        if (!title) return;
+        const tasks = this._getKanbanTasks(clientId);
+        tasks.push({
+            id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+            title: title,
+            description: document.getElementById('kb-task-desc')?.value?.trim() || '',
+            priority: document.getElementById('kb-task-priority')?.value || 'medium',
+            status: document.getElementById('kb-task-status')?.value || 'todo',
+            dueDate: document.getElementById('kb-task-due')?.value || '',
+            assignee: document.getElementById('kb-task-assignee')?.value?.trim() || '',
+            tags: (document.getElementById('kb-task-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
+        this._saveKanbanTasks(clientId, tasks);
+        document.getElementById('kb-task-modal')?.remove();
+        if (typeof MSPPortal !== 'undefined') MSPPortal.switchView('projects');
+    },
+
+    _editTask: function(taskId) {
+        const clientId = document.getElementById('kb-client-picker')?.value;
+        if (!clientId) return;
+        const tasks = this._getKanbanTasks(clientId);
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        const modal = document.createElement('div');
+        modal.className = 'msp-modal-overlay';
+        modal.id = 'kb-task-modal';
+        modal.innerHTML = `
+        <div class="msp-modal" style="max-width:500px">
+            <div class="msp-modal-header"><h3>Edit Task</h3><button class="msp-modal-close" onclick="document.getElementById('kb-task-modal')?.remove()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="msp-modal-body">
+                <div class="msp-form-group"><label>Title *</label><input type="text" id="kb-task-title" class="stg-input" style="width:100%" value="${task.title.replace(/"/g, '&quot;')}"></div>
+                <div class="msp-form-group"><label>Description</label><textarea id="kb-task-desc" class="stg-input" style="width:100%;min-height:60px">${task.description || ''}</textarea></div>
+                <div class="msp-form-row" style="display:flex;gap:10px">
+                    <div class="msp-form-group" style="flex:1"><label>Priority</label><select id="kb-task-priority" class="stg-select"><option value="low" ${task.priority==='low'?'selected':''}>Low</option><option value="medium" ${task.priority==='medium'?'selected':''}>Medium</option><option value="high" ${task.priority==='high'?'selected':''}>High</option></select></div>
+                    <div class="msp-form-group" style="flex:1"><label>Status</label><select id="kb-task-status" class="stg-select"><option value="backlog" ${task.status==='backlog'?'selected':''}>Backlog</option><option value="todo" ${task.status==='todo'?'selected':''}>To Do</option><option value="in-progress" ${task.status==='in-progress'?'selected':''}>In Progress</option><option value="review" ${task.status==='review'?'selected':''}>Review</option><option value="done" ${task.status==='done'?'selected':''}>Done</option></select></div>
+                </div>
+                <div class="msp-form-row" style="display:flex;gap:10px">
+                    <div class="msp-form-group" style="flex:1"><label>Due Date</label><input type="date" id="kb-task-due" class="stg-input" style="width:100%" value="${task.dueDate || ''}"></div>
+                    <div class="msp-form-group" style="flex:1"><label>Assignee</label><input type="text" id="kb-task-assignee" class="stg-input" style="width:100%" value="${(task.assignee || '').replace(/"/g, '&quot;')}"></div>
+                </div>
+                <div class="msp-form-group"><label>Tags (comma-separated)</label><input type="text" id="kb-task-tags" class="stg-input" style="width:100%" value="${(task.tags || []).join(', ')}"></div>
+            </div>
+            <div class="msp-modal-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--glass-border,rgba(255,255,255,0.05))">
+                <button class="msp-btn-secondary" onclick="document.getElementById('kb-task-modal')?.remove()">Cancel</button>
+                <button class="msp-btn-primary" onclick="MSPPortalViews._submitEditTask('${clientId}','${taskId}')">Save</button>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+    },
+
+    _submitEditTask: function(clientId, taskId) {
+        const title = document.getElementById('kb-task-title')?.value?.trim();
+        if (!title) return;
+        const tasks = this._getKanbanTasks(clientId);
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+        task.title = title;
+        task.description = document.getElementById('kb-task-desc')?.value?.trim() || '';
+        task.priority = document.getElementById('kb-task-priority')?.value || 'medium';
+        task.status = document.getElementById('kb-task-status')?.value || 'todo';
+        task.dueDate = document.getElementById('kb-task-due')?.value || '';
+        task.assignee = document.getElementById('kb-task-assignee')?.value?.trim() || '';
+        task.tags = (document.getElementById('kb-task-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean);
+        task.updatedAt = new Date().toISOString();
+        this._saveKanbanTasks(clientId, tasks);
+        document.getElementById('kb-task-modal')?.remove();
+        if (typeof MSPPortal !== 'undefined') MSPPortal.switchView('projects');
+    },
+
+    _deleteTask: function(taskId) {
+        if (!confirm('Delete this task?')) return;
+        const clientId = document.getElementById('kb-client-picker')?.value;
+        if (!clientId) return;
+        let tasks = this._getKanbanTasks(clientId);
+        tasks = tasks.filter(t => t.id !== taskId);
+        this._saveKanbanTasks(clientId, tasks);
+        if (typeof MSPPortal !== 'undefined') MSPPortal.switchView('projects');
     },
 
     // ==================== EVIDENCE VIEW ====================
@@ -87,6 +344,268 @@ const MSPPortalViews = {
                 <div class="report-card" onclick="MSPPortal.exportPortfolio()"><div class="report-icon">${portal.getIcon('users')}</div><h4>Portfolio Summary</h4><p>All clients overview</p></div>
                 <div class="report-card" onclick="MSPPortal.generateReport('poam')"><div class="report-icon">${portal.getIcon('list')}</div><h4>POA&M Report</h4><p>Plan of Action & Milestones</p></div>
             </div>
+        </div>`;
+    },
+
+    // ==================== ANALYTICS DASHBOARD VIEW ====================
+    analytics: function(portal) {
+        const clients = portal.state.clients;
+        const now = new Date();
+        const esc = typeof Sanitize !== 'undefined' ? Sanitize.html : (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+        // Aggregate metrics
+        const totalClients = clients.length;
+        const avgSprs = totalClients > 0 ? Math.round(clients.reduce((s, c) => s + (c.sprsScore || 0), 0) / totalClients) : 0;
+        const avgCompletion = totalClients > 0 ? Math.round(clients.reduce((s, c) => s + (c.completionPercent || 0), 0) / totalClients) : 0;
+        const readyCount = clients.filter(c => (c.completionPercent || 0) >= 100).length;
+        const atRiskCount = clients.filter(c => c.sprsScore !== null && c.sprsScore !== undefined && c.sprsScore < 70).length;
+        const totalPoam = clients.reduce((s, c) => s + (c.poamCount || 0), 0);
+        const upcomingAssessments = clients.filter(c => {
+            if (!c.nextAssessment) return false;
+            const d = new Date(c.nextAssessment);
+            return d >= now && d <= new Date(now.getTime() + 90 * 86400000);
+        }).length;
+
+        // SPRS distribution buckets
+        const sprsBuckets = { 'Below 0': 0, '0-49': 0, '50-69': 0, '70-89': 0, '90-110': 0 };
+        clients.forEach(c => {
+            const s = c.sprsScore;
+            if (s == null) return;
+            if (s < 0) sprsBuckets['Below 0']++;
+            else if (s < 50) sprsBuckets['0-49']++;
+            else if (s < 70) sprsBuckets['50-69']++;
+            else if (s < 90) sprsBuckets['70-89']++;
+            else sprsBuckets['90-110']++;
+        });
+        const sprsMax = Math.max(1, ...Object.values(sprsBuckets));
+
+        // Level distribution
+        const levelDist = { '1': 0, '2': 0, '3': 0 };
+        clients.forEach(c => { levelDist[String(c.assessmentLevel || '2')]++; });
+
+        // Industry distribution
+        const industries = {};
+        clients.forEach(c => { const ind = c.industry || 'Other'; industries[ind] = (industries[ind] || 0) + 1; });
+
+        // Risk color helper
+        const riskColor = (score) => {
+            if (score == null) return 'var(--text-muted)';
+            if (score >= 90) return 'var(--status-met, #34d399)';
+            if (score >= 70) return 'var(--status-partial, #fbbf24)';
+            return 'var(--status-not-met, #f87171)';
+        };
+
+        // Sparkline SVG helper (mini bar chart)
+        const miniBar = (vals, maxH) => {
+            if (vals.length === 0) return '';
+            const mx = Math.max(1, ...vals);
+            const w = 4, gap = 2, totalW = vals.length * (w + gap);
+            return `<svg width="${totalW}" height="${maxH}" viewBox="0 0 ${totalW} ${maxH}">${vals.map((v, i) => {
+                const h = Math.max(1, (v / mx) * maxH);
+                const color = v / mx > 0.7 ? 'var(--status-met)' : v / mx > 0.4 ? 'var(--status-partial)' : 'var(--status-not-met)';
+                return `<rect x="${i * (w + gap)}" y="${maxH - h}" width="${w}" height="${h}" rx="1" fill="${color}" opacity="0.8"/>`;
+            }).join('')}</svg>`;
+        };
+
+        return `
+        <div class="splunk-analytics">
+            <!-- Ticker Strip -->
+            <div class="splk-ticker">
+                <div class="splk-ticker-item">
+                    <div class="splk-ticker-val">${totalClients}</div>
+                    <div class="splk-ticker-lbl">Total Clients</div>
+                </div>
+                <div class="splk-ticker-sep"></div>
+                <div class="splk-ticker-item">
+                    <div class="splk-ticker-val" style="color:var(--status-met)">${readyCount}</div>
+                    <div class="splk-ticker-lbl">Assessment Ready</div>
+                </div>
+                <div class="splk-ticker-sep"></div>
+                <div class="splk-ticker-item">
+                    <div class="splk-ticker-val" style="color:var(--status-not-met)">${atRiskCount}</div>
+                    <div class="splk-ticker-lbl">At Risk</div>
+                </div>
+                <div class="splk-ticker-sep"></div>
+                <div class="splk-ticker-item">
+                    <div class="splk-ticker-val">${avgSprs}</div>
+                    <div class="splk-ticker-lbl">Avg SPRS</div>
+                </div>
+                <div class="splk-ticker-sep"></div>
+                <div class="splk-ticker-item">
+                    <div class="splk-ticker-val">${avgCompletion}%</div>
+                    <div class="splk-ticker-lbl">Avg Completion</div>
+                </div>
+                <div class="splk-ticker-sep"></div>
+                <div class="splk-ticker-item">
+                    <div class="splk-ticker-val" style="color:var(--status-partial)">${totalPoam}</div>
+                    <div class="splk-ticker-lbl">Open POA&Ms</div>
+                </div>
+                <div class="splk-ticker-sep"></div>
+                <div class="splk-ticker-item">
+                    <div class="splk-ticker-val">${upcomingAssessments}</div>
+                    <div class="splk-ticker-lbl">Assessments (90d)</div>
+                </div>
+            </div>
+
+            <!-- Panel Grid -->
+            <div class="splk-grid">
+
+                <!-- SPRS Distribution -->
+                <div class="splk-panel">
+                    <div class="splk-panel-head">
+                        <span class="splk-panel-title">${portal.getIcon('bar-chart')} SPRS Score Distribution</span>
+                        <span class="splk-panel-badge">${totalClients} clients</span>
+                    </div>
+                    <div class="splk-panel-body">
+                        ${totalClients === 0 ? '<div class="splk-empty">Add clients to see distribution</div>' : `
+                        <div class="splk-bar-chart">
+                            ${Object.entries(sprsBuckets).map(([label, count]) => `
+                                <div class="splk-bar-row">
+                                    <div class="splk-bar-label">${label}</div>
+                                    <div class="splk-bar-track">
+                                        <div class="splk-bar-fill ${label === '90-110' ? 'green' : label === '70-89' ? 'blue' : label === '50-69' ? 'amber' : 'red'}" style="width:${(count / sprsMax) * 100}%"></div>
+                                    </div>
+                                    <div class="splk-bar-count">${count}</div>
+                                </div>
+                            `).join('')}
+                        </div>`}
+                    </div>
+                </div>
+
+                <!-- Client Risk Matrix -->
+                <div class="splk-panel">
+                    <div class="splk-panel-head">
+                        <span class="splk-panel-title">${portal.getIcon('alert-triangle')} Client Risk Matrix</span>
+                    </div>
+                    <div class="splk-panel-body">
+                        ${totalClients === 0 ? '<div class="splk-empty">No client data</div>' : `
+                        <div class="splk-risk-table">
+                            <div class="splk-risk-header">
+                                <span>Client</span><span>SPRS</span><span>Progress</span><span>Risk</span>
+                            </div>
+                            ${clients.slice().sort((a, b) => (a.sprsScore || -999) - (b.sprsScore || -999)).slice(0, 8).map(c => {
+                                const risk = (c.sprsScore == null || c.sprsScore < 50) ? 'CRITICAL' : c.sprsScore < 70 ? 'HIGH' : c.sprsScore < 90 ? 'MEDIUM' : 'LOW';
+                                const riskClass = risk === 'CRITICAL' ? 'critical' : risk === 'HIGH' ? 'high' : risk === 'MEDIUM' ? 'medium' : 'low';
+                                return `<div class="splk-risk-row">
+                                    <span class="splk-risk-name">${esc(c.name)}</span>
+                                    <span style="color:${riskColor(c.sprsScore)};font-weight:600">${c.sprsScore ?? '--'}</span>
+                                    <span>
+                                        <div class="splk-mini-bar"><div class="splk-mini-fill" style="width:${c.completionPercent || 0}%"></div></div>
+                                    </span>
+                                    <span class="splk-risk-badge ${riskClass}">${risk}</span>
+                                </div>`;
+                            }).join('')}
+                        </div>`}
+                    </div>
+                </div>
+
+                <!-- Portfolio Compliance Heatmap -->
+                <div class="splk-panel splk-wide">
+                    <div class="splk-panel-head">
+                        <span class="splk-panel-title">${portal.getIcon('layout')} Portfolio Compliance Heatmap</span>
+                    </div>
+                    <div class="splk-panel-body">
+                        ${totalClients === 0 ? '<div class="splk-empty">Add clients to see heatmap</div>' : `
+                        <div class="splk-heatmap">
+                            ${clients.map(c => {
+                                const pct = c.completionPercent || 0;
+                                const hue = pct >= 90 ? '160' : pct >= 70 ? '45' : pct >= 40 ? '30' : '0';
+                                const sat = '70%';
+                                const light = pct >= 90 ? '40%' : pct >= 70 ? '45%' : '45%';
+                                return `<div class="splk-hm-cell" title="${esc(c.name)}: ${pct}% complete, SPRS ${c.sprsScore ?? 'N/A'}" style="background:hsla(${hue},${sat},${light},0.7)">
+                                    <div class="splk-hm-name">${esc(c.name)}</div>
+                                    <div class="splk-hm-val">${pct}%</div>
+                                </div>`;
+                            }).join('')}
+                        </div>`}
+                    </div>
+                </div>
+
+                <!-- Level Distribution -->
+                <div class="splk-panel splk-narrow">
+                    <div class="splk-panel-head">
+                        <span class="splk-panel-title">${portal.getIcon('layers')} CMMC Level Mix</span>
+                    </div>
+                    <div class="splk-panel-body">
+                        <div class="splk-donut-stats">
+                            ${['1','2','3'].map(l => {
+                                const count = levelDist[l];
+                                const pct = totalClients > 0 ? Math.round((count / totalClients) * 100) : 0;
+                                const color = l === '1' ? 'var(--accent-blue)' : l === '2' ? 'var(--status-partial)' : 'var(--status-not-met)';
+                                return `<div class="splk-level-row">
+                                    <span class="splk-level-badge" style="background:${color}20;color:${color}">L${l}</span>
+                                    <span class="splk-level-bar"><div class="splk-level-fill" style="width:${pct}%;background:${color}"></div></span>
+                                    <span class="splk-level-count">${count}</span>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Industry Breakdown -->
+                <div class="splk-panel splk-narrow">
+                    <div class="splk-panel-head">
+                        <span class="splk-panel-title">${portal.getIcon('database')} Industry Breakdown</span>
+                    </div>
+                    <div class="splk-panel-body">
+                        ${Object.keys(industries).length === 0 ? '<div class="splk-empty">No data</div>' : `
+                        <div class="splk-industry-list">
+                            ${Object.entries(industries).sort((a, b) => b[1] - a[1]).map(([ind, count]) => `
+                                <div class="splk-industry-row">
+                                    <span class="splk-industry-name">${esc(ind)}</span>
+                                    <span class="splk-industry-count">${count}</span>
+                                </div>
+                            `).join('')}
+                        </div>`}
+                    </div>
+                </div>
+
+                <!-- Upcoming Assessments -->
+                <div class="splk-panel">
+                    <div class="splk-panel-head">
+                        <span class="splk-panel-title">${portal.getIcon('calendar')} Upcoming Assessments</span>
+                    </div>
+                    <div class="splk-panel-body">
+                        ${(() => {
+                            const upcoming = clients.filter(c => c.nextAssessment).sort((a, b) => new Date(a.nextAssessment) - new Date(b.nextAssessment)).slice(0, 6);
+                            if (upcoming.length === 0) return '<div class="splk-empty">No assessment dates set</div>';
+                            return `<div class="splk-timeline">${upcoming.map(c => {
+                                const d = new Date(c.nextAssessment);
+                                const daysOut = Math.ceil((d - now) / 86400000);
+                                const urgency = daysOut < 0 ? 'overdue' : daysOut <= 30 ? 'urgent' : daysOut <= 90 ? 'soon' : 'planned';
+                                return `<div class="splk-tl-item ${urgency}">
+                                    <div class="splk-tl-date">${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                                    <div class="splk-tl-dot"></div>
+                                    <div class="splk-tl-info">
+                                        <div class="splk-tl-name">${esc(c.name)}</div>
+                                        <div class="splk-tl-days">${daysOut < 0 ? Math.abs(daysOut) + 'd overdue' : daysOut + 'd away'}</div>
+                                    </div>
+                                </div>`;
+                            }).join('')}</div>`;
+                        })()}
+                    </div>
+                </div>
+
+                <!-- Client Completion Sparklines -->
+                <div class="splk-panel">
+                    <div class="splk-panel-head">
+                        <span class="splk-panel-title">${portal.getIcon('activity')} Client Completion Overview</span>
+                    </div>
+                    <div class="splk-panel-body">
+                        ${totalClients === 0 ? '<div class="splk-empty">No clients</div>' : `
+                        <div class="splk-spark-list">
+                            ${clients.slice(0, 10).map(c => `
+                                <div class="splk-spark-row">
+                                    <span class="splk-spark-name">${esc(c.name)}</span>
+                                    <span class="splk-spark-chart">${miniBar([c.completionPercent || 0, c.sprsScore != null ? Math.max(0, Math.round((c.sprsScore + 203) / 313 * 100)) : 0], 20)}</span>
+                                    <span class="splk-spark-val" style="color:${riskColor(c.sprsScore)}">${c.completionPercent || 0}%</span>
+                                </div>
+                            `).join('')}
+                        </div>`}
+                    </div>
+                </div>
+
+            </div><!-- /splk-grid -->
         </div>`;
     },
 

@@ -1204,6 +1204,10 @@ class AssessmentApp {
             if (typeof ExecDashboard !== 'undefined') {
                 ExecDashboard.render();
             }
+        } else if (view === 'settings') {
+            if (typeof SettingsPage !== 'undefined') {
+                SettingsPage.render();
+            }
         }
         
         // Prefetch adjacent views for faster navigation

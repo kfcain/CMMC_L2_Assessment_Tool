@@ -1,0 +1,21 @@
+{
+  "name": "cmmc-reference-mcp",
+  "version": "1.0.0",
+  "description": "CMMC/NIST 800-171 Reference MCP Server — static compliance data for AI tools",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "cmmc-mcp": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

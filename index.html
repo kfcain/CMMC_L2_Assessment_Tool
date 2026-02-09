@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="css/diagram-hub.css?v=1">
     <link rel="stylesheet" href="css/command-center.css?v=20260208b">
     <link rel="stylesheet" href="css/executive-dashboard.css?v=20260209a">
+    <link rel="stylesheet" href="css/settings-page.css?v=20260214a">
     <link rel="stylesheet" href="css/scuba-baselines.css?v=1">
     <link rel="stylesheet" href="css/purple-background.css?v=1">
     <link rel="stylesheet" href="css/markitdown.css?v=1">
@@ -57,6 +58,11 @@
             <span class="header-badge">CMMC 2.0</span>
             <span class="header-title">Assessment Tool</span>
         </div>
+        <button class="header-search-btn" id="header-search-btn" aria-label="Search" title="Search (⌘K)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <span class="header-search-label">Search</span>
+            <kbd class="header-search-kbd">⌘K</kbd>
+        </button>
         <div class="header-theme-picker" id="header-theme-picker"></div>
     </header>
 
@@ -179,6 +185,14 @@
                     <button class="hamburger-nav-btn" id="open-msp-portal-btn">
                         <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
                         <span class="hb-label">MSP Portal</span>
+                    </button>
+                </div>
+
+                <!-- Settings -->
+                <div class="hb-group">
+                    <button class="hamburger-nav-btn" data-view="settings">
+                        <span class="hb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+                        <span class="hb-label">Settings</span>
                     </button>
                 </div>
             </nav>
@@ -398,6 +412,13 @@
             <div id="exec-dashboard-view" class="view">
                 <div id="exec-dashboard-content" class="exec-dashboard-container">
                     <!-- Content rendered by ExecDashboard.render() -->
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings-view" class="view">
+                <div id="settings-content">
+                    <!-- Content rendered by SettingsPage.render() -->
                 </div>
             </div>
 
@@ -868,6 +889,7 @@
     
     <!-- Reporting & Analytics -->
     <script src="js/executive-dashboard.js?v=20260209a" defer></script>
+    <script src="js/settings-page.js?v=20260214a" defer></script>
     
     <!-- Service Worker Registration -->
     <script>
