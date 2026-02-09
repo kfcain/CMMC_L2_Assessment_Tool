@@ -661,8 +661,9 @@ const ComprehensiveGuidanceUI = {
             var cat = techsWithCategory[ti].category || '';
             var icon = (typeof VendorLogos !== 'undefined' && VendorLogos.has(tech.key)) ? VendorLogos.get(tech.key) : (this.icons[tech.key] || this.icons.general);
             var name = this.techNames[tech.key] || tech.key.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+            var fedrampBadge = (typeof FedRAMPMarketplace !== 'undefined' && FedRAMPMarketplace.loaded) ? FedRAMPMarketplace.renderBadge(tech.key) : '';
             html += '<details class="cg-tech-dropdown" data-tech="' + tech.key + '" data-category="' + cat + '">';
-            html += '<summary class="cg-tech-summary"><span class="cg-tech-icon">' + icon + '</span><span class="cg-tech-name">' + name + '</span>' + this.renderBadges(tech.data) + '<svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></summary>';
+            html += '<summary class="cg-tech-summary"><span class="cg-tech-icon">' + icon + '</span><span class="cg-tech-name">' + name + '</span>' + this.renderBadges(tech.data) + fedrampBadge + '<svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></summary>';
             html += '<div class="cg-tech-body">' + this.renderTechContent(tech) + '</div>';
             html += '</details>';
         }
@@ -836,8 +837,9 @@ const ComprehensiveGuidanceUI = {
             const icon = (typeof VendorLogos !== 'undefined' && VendorLogos.has(tech.key)) ? VendorLogos.get(tech.key) : (this.icons[tech.key] || this.icons.general);
             const name = this.techNames[tech.key] || tech.key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             const uid = objectiveId + '-' + tech.key;
+            const fedrampBadge = (typeof FedRAMPMarketplace !== 'undefined' && FedRAMPMarketplace.loaded) ? FedRAMPMarketplace.renderBadge(tech.key) : '';
             html += '<details class="cg-tech-dropdown" data-tech="' + tech.key + '">';
-            html += '<summary class="cg-tech-summary"><span class="cg-tech-icon">' + icon + '</span><span class="cg-tech-name">' + name + '</span>' + this.renderBadges(tech.data) + '<svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></summary>';
+            html += '<summary class="cg-tech-summary"><span class="cg-tech-icon">' + icon + '</span><span class="cg-tech-name">' + name + '</span>' + this.renderBadges(tech.data) + fedrampBadge + '<svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></summary>';
             html += '<div class="cg-tech-body">' + this.renderTechContent(tech) + '</div>';
             html += '</details>';
         }

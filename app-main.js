@@ -2303,16 +2303,21 @@ class AssessmentApp {
                         <span><strong>Tip:</strong> Each control's objectives in the Assessment view include expandable implementation guidance with CLI commands, Terraform examples, verification steps, and cost estimates per vendor.</span>
                     </div>
 
+                    <div id="fedramp-mkt-stats-banner"></div>
+
                     <h3 style="font-size:0.9rem;color:var(--text-primary);margin:0 0 12px 0;font-weight:600">Primary Vendor Stack</h3>
                     <div class="impl-cards-grid" style="margin-bottom:24px">
-                        ${vendorStack.map(v => `
+                        ${vendorStack.map(v => {
+                            const fBadge = (typeof FedRAMPMarketplace !== 'undefined' && FedRAMPMarketplace.loaded) ? FedRAMPMarketplace.renderBadge(v.key, {size:'sm'}) : `<span class="fedramp-badge-slot" data-vendor="${v.key}"></span>`;
+                            return `
                             <div class="impl-policy-card" style="border-top:3px solid ${v.color}">
                                 <div class="impl-policy-header" style="background:${v.color}15;display:flex;align-items:center;gap:10px">
                                     <span>${icons[v.key] || ''}</span>
-                                    <div>
+                                    <div style="flex:1">
                                         <h4 style="margin:0">${v.name}</h4>
                                         <span style="font-size:0.65rem;opacity:0.7">${v.category}</span>
                                     </div>
+                                    ${fBadge}
                                 </div>
                                 <div class="impl-policy-body">
                                     <p style="font-size:0.8rem;margin:0 0 10px 0;color:var(--text-secondary)">${v.desc}</p>
@@ -2320,8 +2325,8 @@ class AssessmentApp {
                                         <strong>Control Families:</strong> ${v.controls}
                                     </div>
                                 </div>
-                            </div>
-                        `).join('')}
+                            </div>`;
+                        }).join('')}
                     </div>
 
                     <h3 style="font-size:0.9rem;color:var(--text-primary);margin:0 0 12px 0;font-weight:600">
@@ -2332,14 +2337,16 @@ class AssessmentApp {
                     <div class="impl-cards-grid" style="margin-bottom:24px">
                         ${grcPlatforms.map(v => {
                             const logo = (typeof VendorLogos !== 'undefined' && VendorLogos.has(v.key)) ? VendorLogos.get(v.key, 20) : '';
+                            const fBadge = (typeof FedRAMPMarketplace !== 'undefined' && FedRAMPMarketplace.loaded) ? FedRAMPMarketplace.renderBadge(v.key, {size:'sm'}) : `<span class="fedramp-badge-slot" data-vendor="${v.key}"></span>`;
                             return `
                             <div class="impl-policy-card" style="border-top:3px solid ${v.color}">
                                 <div class="impl-policy-header" style="background:${v.color}15;display:flex;align-items:center;gap:10px">
                                     <span>${logo}</span>
-                                    <div>
+                                    <div style="flex:1">
                                         <h4 style="margin:0">${v.name}</h4>
                                         <span style="font-size:0.65rem;opacity:0.7">GRC & Compliance</span>
                                     </div>
+                                    ${fBadge}
                                 </div>
                                 <div class="impl-policy-body">
                                     <p style="font-size:0.8rem;margin:0 0 10px 0;color:var(--text-secondary)">${v.desc}</p>
@@ -2479,6 +2486,39 @@ class AssessmentApp {
                     }
                 });
             });
+        }
+
+        // FedRAMP Marketplace: deferred backfill when data loads after render
+        if (typeof FedRAMPMarketplace !== 'undefined') {
+            const backfillFedRAMP = () => {
+                // Fill badge placeholder slots
+                container.querySelectorAll('.fedramp-badge-slot[data-vendor]').forEach(slot => {
+                    const badge = FedRAMPMarketplace.renderBadge(slot.dataset.vendor, {size:'sm'});
+                    if (badge) slot.outerHTML = badge;
+                });
+                // Render marketplace stats banner
+                const banner = container.querySelector('#fedramp-mkt-stats-banner');
+                if (banner && !banner.hasChildNodes()) {
+                    const tracked = FedRAMPMarketplace.getTrackedVendorStats();
+                    const stats = FedRAMPMarketplace.getStats();
+                    if (tracked && stats) {
+                        banner.innerHTML = `<div class="fedramp-mkt-stats">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+                            <span><strong>FedRAMP Marketplace</strong> (live data)</span>
+                            <span class="fedramp-mkt-stat"><span class="fedramp-mkt-stat-val">${stats.total}</span><span class="fedramp-mkt-stat-label">CSO listings</span></span>
+                            <span class="fedramp-mkt-stat"><span class="fedramp-mkt-stat-val">${tracked.authorized}</span><span class="fedramp-mkt-stat-label">of ${tracked.total} tracked vendors authorized</span></span>
+                            <span class="fedramp-mkt-stat"><span class="fedramp-mkt-stat-val">${tracked.inProcess}</span><span class="fedramp-mkt-stat-label">in process</span></span>
+                            <span class="fedramp-mkt-stat"><span class="fedramp-mkt-stat-val">${stats.high}</span><span class="fedramp-mkt-stat-label">High</span></span>
+                            <span class="fedramp-mkt-stat"><span class="fedramp-mkt-stat-val">${stats.moderate}</span><span class="fedramp-mkt-stat-label">Moderate</span></span>
+                        </div>`;
+                    }
+                }
+            };
+            if (FedRAMPMarketplace.loaded) {
+                backfillFedRAMP();
+            } else {
+                FedRAMPMarketplace.onReady(backfillFedRAMP);
+            }
         }
     }
 
