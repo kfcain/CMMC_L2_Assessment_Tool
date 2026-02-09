@@ -75,6 +75,50 @@ const IntegrationsHub = {
             controls: [],
             requiredCredentials: [],
             docUrl: 'https://pages.nist.gov/OSCAL/'
+        },
+        notion: {
+            id: 'notion',
+            name: 'Notion',
+            description: 'Sync meeting notes, documentation pages, and assessment evidence from Notion workspaces',
+            icon: 'notion',
+            category: 'documentation',
+            controls: [],
+            requiredCredentials: ['apiKey'],
+            baseUrl: 'https://api.notion.com/v1',
+            docUrl: 'https://developers.notion.com/'
+        },
+        m365: {
+            id: 'm365',
+            name: 'Microsoft 365',
+            description: 'Access SharePoint sites, OneDrive files, and Teams channels for policy documents and evidence artifacts',
+            icon: 'm365',
+            category: 'storage',
+            controls: ['3.8.1', '3.8.2', '3.8.3', '3.8.5', '3.8.6', '3.13.8', '3.13.16'],
+            requiredCredentials: ['tenantId', 'clientId', 'clientSecret'],
+            baseUrl: 'https://graph.microsoft.com/v1.0',
+            authUrl: 'https://login.microsoftonline.com',
+            docUrl: 'https://learn.microsoft.com/en-us/graph/api/resources/sharepoint'
+        },
+        gdrive: {
+            id: 'gdrive',
+            name: 'Google Workspace',
+            description: 'Browse Google Drive folders, Shared Drives, and Docs for policies, procedures, and evidence collection',
+            icon: 'gdrive',
+            category: 'storage',
+            controls: ['3.8.1', '3.8.2', '3.8.3', '3.8.5', '3.13.8', '3.13.16'],
+            requiredCredentials: ['apiKey'],
+            baseUrl: 'https://www.googleapis.com/drive/v3',
+            docUrl: 'https://developers.google.com/drive/api/reference/rest/v3'
+        },
+        s3: {
+            id: 's3',
+            name: 'AWS S3',
+            description: 'Connect to S3 buckets for artifact storage, evidence uploads, and policy document management',
+            icon: 's3',
+            category: 'storage',
+            controls: ['3.8.1', '3.8.6', '3.13.8', '3.13.16'],
+            requiredCredentials: ['accessKeyId', 'secretAccessKey', 'region', 'bucket'],
+            docUrl: 'https://docs.aws.amazon.com/AmazonS3/latest/API/'
         }
     },
 
@@ -175,17 +219,21 @@ const IntegrationsHub = {
             knowbe4: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
             tenable: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>',
             jira: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 12l10 10 10-10L12 2z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>',
-            oscal: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>'
+            oscal: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>',
+            notion: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v6H4z"/><path d="M14 4h6v16H8V10"/><path d="M14 4v6h6"/></svg>',
+            m365: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>',
+            gdrive: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 19h7l3-5"/><path d="M12 2l10 17h-7l-3-5"/><path d="M5 14h14"/></svg>',
+            s3: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>'
         };
         return icons[providerId] || '';
     },
 
     getCategoryLabel(cat) {
-        return { identity: 'Identity & Access', training: 'Security Training', vulnerability: 'Vulnerability Mgmt', ticketing: 'Ticketing & POA&M', standard: 'Standards & Export' }[cat] || cat;
+        return { identity: 'Identity & Access', training: 'Security Training', vulnerability: 'Vulnerability Mgmt', ticketing: 'Ticketing & POA&M', standard: 'Standards & Export', documentation: 'Documentation & Notes', storage: 'File Storage & Evidence' }[cat] || cat;
     },
 
     getCategoryColor(cat) {
-        return { identity: '#3b82f6', training: '#10b981', vulnerability: '#f59e0b', ticketing: '#8b5cf6', standard: '#6366f1' }[cat] || '#6b7280';
+        return { identity: '#3b82f6', training: '#10b981', vulnerability: '#f59e0b', ticketing: '#8b5cf6', standard: '#6366f1', documentation: '#ec4899', storage: '#14b8a6' }[cat] || '#6b7280';
     },
 
     // =========================================
@@ -379,6 +427,23 @@ const IntegrationsHub = {
                 { key: 'domain', label: 'Jira Domain', placeholder: 'yourcompany (from yourcompany.atlassian.net)', type: 'text' },
                 { key: 'email', label: 'Email', placeholder: 'your-email@company.com', type: 'email' },
                 { key: 'apiToken', label: 'API Token', placeholder: 'Jira API token from id.atlassian.com', type: 'password' }
+            ],
+            notion: [
+                { key: 'apiKey', label: 'Integration Token', placeholder: 'secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', type: 'password' }
+            ],
+            m365: [
+                { key: 'tenantId', label: 'Tenant ID', placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', type: 'text' },
+                { key: 'clientId', label: 'Application (Client) ID', placeholder: 'App registration client ID', type: 'text' },
+                { key: 'clientSecret', label: 'Client Secret', placeholder: 'Client secret value', type: 'password' }
+            ],
+            gdrive: [
+                { key: 'apiKey', label: 'API Key', placeholder: 'Google Cloud API key with Drive scope', type: 'password' }
+            ],
+            s3: [
+                { key: 'accessKeyId', label: 'Access Key ID', placeholder: 'AKIAIOSFODNN7EXAMPLE', type: 'text' },
+                { key: 'secretAccessKey', label: 'Secret Access Key', placeholder: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY', type: 'password' },
+                { key: 'region', label: 'Region', placeholder: 'us-east-1, us-gov-west-1, etc.', type: 'text' },
+                { key: 'bucket', label: 'Bucket Name', placeholder: 'my-evidence-bucket', type: 'text' }
             ]
         };
 
@@ -507,6 +572,10 @@ const IntegrationsHub = {
                 case 'knowbe4': return await this.testKnowBe4Connection();
                 case 'tenable': return await this.testTenableConnection();
                 case 'jira': return await this.testJiraConnection();
+                case 'notion': return await this.testNotionConnection();
+                case 'm365': return await this.testM365Connection();
+                case 'gdrive': return await this.testGDriveConnection();
+                case 's3': return await this.testS3Connection();
                 default: return { success: false, message: 'Unknown provider' };
             }
         } catch (e) {
@@ -525,6 +594,10 @@ const IntegrationsHub = {
                 case 'knowbe4': await this.syncKnowBe4(); break;
                 case 'tenable': await this.syncTenable(); break;
                 case 'jira': await this.syncJira(); break;
+                case 'notion': await this.syncNotion(); break;
+                case 'm365': await this.syncM365(); break;
+                case 'gdrive': await this.syncGDrive(); break;
+                case 's3': await this.syncS3(); break;
             }
             this.showToast(`${this.providers[providerId].name} sync complete!`, 'success');
             if (parentModal) this.refreshHub(parentModal);
@@ -980,6 +1053,277 @@ const IntegrationsHub = {
             },
             projects,
             poamIssues
+        };
+        this.saveData();
+    },
+
+    // =========================================
+    // NOTION API
+    // =========================================
+    async notionGet(path) {
+        const creds = this.getCredentials('notion');
+        if (!creds) throw new Error('Notion credentials not configured');
+        const resp = await fetch(`${this.providers.notion.baseUrl}${path}`, {
+            headers: {
+                'Authorization': `Bearer ${creds.apiKey}`,
+                'Notion-Version': '2022-06-28',
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.message || `Notion API error (${resp.status})`);
+        }
+        return resp.json();
+    },
+
+    async notionPost(path, body) {
+        const creds = this.getCredentials('notion');
+        if (!creds) throw new Error('Notion credentials not configured');
+        const resp = await fetch(`${this.providers.notion.baseUrl}${path}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${creds.apiKey}`,
+                'Notion-Version': '2022-06-28',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.message || `Notion API error (${resp.status})`);
+        }
+        return resp.json();
+    },
+
+    async testNotionConnection() {
+        const me = await this.notionGet('/users/me');
+        return { success: true, message: `Connected as ${me.name || me.type || 'Notion bot'}` };
+    },
+
+    async syncNotion() {
+        // 1. Search for pages shared with the integration
+        const searchResp = await this.notionPost('/search', {
+            filter: { property: 'object', value: 'page' },
+            sort: { direction: 'descending', timestamp: 'last_edited_time' },
+            page_size: 50
+        });
+        const pages = (searchResp.results || []).map(p => ({
+            id: p.id,
+            title: p.properties?.title?.title?.[0]?.plain_text || p.properties?.Name?.title?.[0]?.plain_text || 'Untitled',
+            url: p.url,
+            lastEdited: p.last_edited_time,
+            createdTime: p.created_time,
+            icon: p.icon?.emoji || null
+        }));
+
+        // 2. Search for databases
+        const dbResp = await this.notionPost('/search', {
+            filter: { property: 'object', value: 'database' },
+            page_size: 20
+        });
+        const databases = (dbResp.results || []).map(d => ({
+            id: d.id,
+            title: d.title?.[0]?.plain_text || 'Untitled DB',
+            url: d.url,
+            lastEdited: d.last_edited_time
+        }));
+
+        this.data.notion = {
+            lastSync: new Date().toISOString(),
+            stats: {
+                pageCount: pages.length,
+                databaseCount: databases.length
+            },
+            pages,
+            databases
+        };
+        this.saveData();
+    },
+
+    // =========================================
+    // MICROSOFT 365 (SharePoint / OneDrive)
+    // =========================================
+    async getM365Token() {
+        const creds = this.getCredentials('m365');
+        if (!creds) throw new Error('M365 credentials not configured');
+        const tokenUrl = `${this.providers.m365.authUrl}/${creds.tenantId}/oauth2/v2.0/token`;
+        const body = new URLSearchParams({
+            grant_type: 'client_credentials',
+            client_id: creds.clientId,
+            client_secret: creds.clientSecret,
+            scope: 'https://graph.microsoft.com/.default'
+        });
+        const resp = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString()
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.error_description || `M365 auth failed (${resp.status})`);
+        }
+        return (await resp.json()).access_token;
+    },
+
+    async m365Get(path, token) {
+        const resp = await fetch(`${this.providers.m365.baseUrl}${path}`, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.error?.message || `Graph API error (${resp.status})`);
+        }
+        return resp.json();
+    },
+
+    async testM365Connection() {
+        const token = await this.getM365Token();
+        const org = await this.m365Get('/organization', token);
+        return { success: true, message: `Connected to ${org.value?.[0]?.displayName || 'M365 tenant'}` };
+    },
+
+    async syncM365() {
+        const token = await this.getM365Token();
+
+        // 1. SharePoint sites
+        let sites = [];
+        try {
+            const sitesResp = await this.m365Get('/sites?search=*&$top=50', token);
+            sites = (sitesResp.value || []).map(s => ({
+                id: s.id,
+                name: s.displayName || s.name,
+                webUrl: s.webUrl,
+                lastModified: s.lastModifiedDateTime
+            }));
+        } catch (e) { console.warn('[M365] Sites error:', e.message); }
+
+        // 2. Root OneDrive files (top-level folders)
+        let driveItems = [];
+        try {
+            const driveResp = await this.m365Get('/drive/root/children?$top=50', token);
+            driveItems = (driveResp.value || []).map(i => ({
+                id: i.id,
+                name: i.name,
+                type: i.folder ? 'folder' : 'file',
+                size: i.size,
+                webUrl: i.webUrl,
+                lastModified: i.lastModifiedDateTime,
+                mimeType: i.file?.mimeType || null,
+                childCount: i.folder?.childCount || 0
+            }));
+        } catch (e) { console.warn('[M365] OneDrive error:', e.message); }
+
+        this.data.m365 = {
+            lastSync: new Date().toISOString(),
+            stats: {
+                siteCount: sites.length,
+                driveItemCount: driveItems.length,
+                folderCount: driveItems.filter(i => i.type === 'folder').length,
+                fileCount: driveItems.filter(i => i.type === 'file').length
+            },
+            sites,
+            driveItems
+        };
+        this.saveData();
+    },
+
+    // =========================================
+    // GOOGLE DRIVE / WORKSPACE
+    // =========================================
+    async gdriveGet(path) {
+        const creds = this.getCredentials('gdrive');
+        if (!creds) throw new Error('Google Drive credentials not configured');
+        const separator = path.includes('?') ? '&' : '?';
+        const resp = await fetch(`${this.providers.gdrive.baseUrl}${path}${separator}key=${creds.apiKey}`, {
+            headers: { 'Accept': 'application/json' }
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.error?.message || `Google Drive API error (${resp.status})`);
+        }
+        return resp.json();
+    },
+
+    async testGDriveConnection() {
+        const about = await this.gdriveGet('/about?fields=user');
+        return { success: true, message: `Connected as ${about.user?.displayName || about.user?.emailAddress || 'Google user'}` };
+    },
+
+    async syncGDrive() {
+        // List files (recent, shared, policy-related)
+        let files = [];
+        try {
+            const filesResp = await this.gdriveGet('/files?pageSize=50&orderBy=modifiedTime desc&fields=files(id,name,mimeType,size,webViewLink,modifiedTime,owners,shared,parents)');
+            files = (filesResp.files || []).map(f => ({
+                id: f.id,
+                name: f.name,
+                mimeType: f.mimeType,
+                size: f.size ? parseInt(f.size) : 0,
+                webUrl: f.webViewLink,
+                lastModified: f.modifiedTime,
+                owner: f.owners?.[0]?.displayName || 'Unknown',
+                shared: f.shared || false,
+                isFolder: f.mimeType === 'application/vnd.google-apps.folder'
+            }));
+        } catch (e) { console.warn('[GDrive] Files error:', e.message); }
+
+        // Shared drives
+        let sharedDrives = [];
+        try {
+            const drivesResp = await this.gdriveGet('/drives?pageSize=20');
+            sharedDrives = (drivesResp.drives || []).map(d => ({
+                id: d.id,
+                name: d.name
+            }));
+        } catch (e) { console.warn('[GDrive] Shared drives error:', e.message); }
+
+        this.data.gdrive = {
+            lastSync: new Date().toISOString(),
+            stats: {
+                fileCount: files.filter(f => !f.isFolder).length,
+                folderCount: files.filter(f => f.isFolder).length,
+                sharedDriveCount: sharedDrives.length,
+                totalSize: files.reduce((sum, f) => sum + (f.size || 0), 0)
+            },
+            files,
+            sharedDrives
+        };
+        this.saveData();
+    },
+
+    // =========================================
+    // AWS S3
+    // =========================================
+    async testS3Connection() {
+        // S3 REST API requires AWS Signature V4 which is complex client-side.
+        // For now, validate credentials are present and well-formed.
+        const creds = this.getCredentials('s3');
+        if (!creds) throw new Error('S3 credentials not configured');
+        if (!creds.accessKeyId || !creds.secretAccessKey || !creds.region || !creds.bucket) {
+            throw new Error('All S3 fields are required');
+        }
+        // Basic format validation
+        if (!/^[A-Z0-9]{16,128}$/i.test(creds.accessKeyId)) {
+            throw new Error('Access Key ID format appears invalid');
+        }
+        return { success: true, message: `Configured for bucket "${creds.bucket}" in ${creds.region}. Full S3 sync requires AWS SDK — use the AI agent bridge for file operations.` };
+    },
+
+    async syncS3() {
+        // S3 ListObjectsV2 requires AWS Signature V4 signing which is non-trivial
+        // in a browser without the AWS SDK. Store config for AI agent access.
+        const creds = this.getCredentials('s3');
+        if (!creds) throw new Error('S3 credentials not configured');
+
+        this.data.s3 = {
+            lastSync: new Date().toISOString(),
+            bucket: creds.bucket,
+            region: creds.region,
+            stats: {
+                configured: true,
+                note: 'S3 file listing requires AWS SDK. Use the MCP agent bridge or export credentials for CLI access.'
+            }
         };
         this.saveData();
     },
@@ -1448,6 +1792,10 @@ const IntegrationsHub = {
             case 'knowbe4': return this.renderKnowBe4Data(data);
             case 'tenable': return this.renderTenableData(data);
             case 'jira': return this.renderJiraData(data);
+            case 'notion': return this.renderNotionData(data);
+            case 'm365': return this.renderM365Data(data);
+            case 'gdrive': return this.renderGDriveData(data);
+            case 's3': return this.renderS3Data(data);
             default: return '<p>No data renderer available.</p>';
         }
     },
@@ -1600,6 +1948,156 @@ const IntegrationsHub = {
         `;
     },
 
+    renderNotionData(data) {
+        const s = data.stats || {};
+        return `
+            <div class="ih-data-header">
+                <h4>Notion Workspace</h4>
+                <span class="ih-data-sync">Last sync: ${this.formatDateTime(data.lastSync)}</span>
+            </div>
+            <div class="ih-data-kpi-strip">
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.pageCount || 0}</span>
+                    <span class="ih-data-kpi-label">Pages</span>
+                </div>
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.databaseCount || 0}</span>
+                    <span class="ih-data-kpi-label">Databases</span>
+                </div>
+            </div>
+            <h5>Recent Pages</h5>
+            <div class="ih-oscal-table-wrap"><table class="ih-oscal-table"><thead><tr><th></th><th>Title</th><th>Last Edited</th><th>Link</th></tr></thead><tbody>
+            ${(data.pages || []).slice(0, 20).map(p => `<tr>
+                <td>${p.icon || '📄'}</td>
+                <td>${this.esc(p.title)}</td>
+                <td>${this.formatDateTime(p.lastEdited)}</td>
+                <td>${p.url ? `<a href="${this.esc(p.url)}" target="_blank" rel="noopener noreferrer">Open</a>` : '—'}</td>
+            </tr>`).join('')}
+            </tbody></table></div>
+            ${data.databases.length > 0 ? `
+                <h5>Databases</h5>
+                <div class="ih-oscal-table-wrap"><table class="ih-oscal-table"><thead><tr><th>Name</th><th>Last Edited</th><th>Link</th></tr></thead><tbody>
+                ${data.databases.map(d => `<tr>
+                    <td>${this.esc(d.title)}</td>
+                    <td>${this.formatDateTime(d.lastEdited)}</td>
+                    <td>${d.url ? `<a href="${this.esc(d.url)}" target="_blank" rel="noopener noreferrer">Open</a>` : '—'}</td>
+                </tr>`).join('')}
+                </tbody></table></div>
+            ` : ''}
+        `;
+    },
+
+    renderM365Data(data) {
+        const s = data.stats || {};
+        return `
+            <div class="ih-data-header">
+                <h4>Microsoft 365</h4>
+                <span class="ih-data-sync">Last sync: ${this.formatDateTime(data.lastSync)}</span>
+            </div>
+            <div class="ih-data-kpi-strip">
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.siteCount || 0}</span>
+                    <span class="ih-data-kpi-label">SharePoint Sites</span>
+                </div>
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.folderCount || 0}</span>
+                    <span class="ih-data-kpi-label">OneDrive Folders</span>
+                </div>
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.fileCount || 0}</span>
+                    <span class="ih-data-kpi-label">OneDrive Files</span>
+                </div>
+            </div>
+            ${data.sites.length > 0 ? `
+                <h5>SharePoint Sites</h5>
+                <div class="ih-oscal-table-wrap"><table class="ih-oscal-table"><thead><tr><th>Site</th><th>Last Modified</th><th>Link</th></tr></thead><tbody>
+                ${data.sites.slice(0, 15).map(s => `<tr>
+                    <td>${this.esc(s.name)}</td>
+                    <td>${this.formatDateTime(s.lastModified)}</td>
+                    <td>${s.webUrl ? `<a href="${this.esc(s.webUrl)}" target="_blank" rel="noopener noreferrer">Open</a>` : '—'}</td>
+                </tr>`).join('')}
+                </tbody></table></div>
+            ` : ''}
+            ${data.driveItems.length > 0 ? `
+                <h5>OneDrive Root Items</h5>
+                <div class="ih-oscal-table-wrap"><table class="ih-oscal-table"><thead><tr><th>Name</th><th>Type</th><th>Size</th><th>Last Modified</th></tr></thead><tbody>
+                ${data.driveItems.slice(0, 20).map(i => `<tr>
+                    <td>${this.esc(i.name)}</td>
+                    <td>${i.type === 'folder' ? `📁 Folder (${i.childCount})` : '📄 File'}</td>
+                    <td>${i.size ? (i.size > 1048576 ? (i.size / 1048576).toFixed(1) + ' MB' : (i.size / 1024).toFixed(0) + ' KB') : '—'}</td>
+                    <td>${this.formatDateTime(i.lastModified)}</td>
+                </tr>`).join('')}
+                </tbody></table></div>
+            ` : ''}
+        `;
+    },
+
+    renderGDriveData(data) {
+        const s = data.stats || {};
+        const totalMB = s.totalSize ? (s.totalSize / 1048576).toFixed(1) : '0';
+        return `
+            <div class="ih-data-header">
+                <h4>Google Workspace</h4>
+                <span class="ih-data-sync">Last sync: ${this.formatDateTime(data.lastSync)}</span>
+            </div>
+            <div class="ih-data-kpi-strip">
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.fileCount || 0}</span>
+                    <span class="ih-data-kpi-label">Files</span>
+                </div>
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.folderCount || 0}</span>
+                    <span class="ih-data-kpi-label">Folders</span>
+                </div>
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.sharedDriveCount || 0}</span>
+                    <span class="ih-data-kpi-label">Shared Drives</span>
+                </div>
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${totalMB} MB</span>
+                    <span class="ih-data-kpi-label">Total Size</span>
+                </div>
+            </div>
+            <h5>Recent Files</h5>
+            <div class="ih-oscal-table-wrap"><table class="ih-oscal-table"><thead><tr><th>Name</th><th>Owner</th><th>Modified</th><th>Link</th></tr></thead><tbody>
+            ${(data.files || []).filter(f => !f.isFolder).slice(0, 20).map(f => `<tr>
+                <td>${this.esc(f.name)}</td>
+                <td>${this.esc(f.owner)}</td>
+                <td>${this.formatDateTime(f.lastModified)}</td>
+                <td>${f.webUrl ? `<a href="${this.esc(f.webUrl)}" target="_blank" rel="noopener noreferrer">Open</a>` : '—'}</td>
+            </tr>`).join('')}
+            </tbody></table></div>
+        `;
+    },
+
+    renderS3Data(data) {
+        return `
+            <div class="ih-data-header">
+                <h4>AWS S3 — ${this.esc(data.bucket || 'N/A')}</h4>
+                <span class="ih-data-sync">Last sync: ${this.formatDateTime(data.lastSync)}</span>
+            </div>
+            <div class="ih-data-kpi-strip">
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${this.esc(data.region || 'N/A')}</span>
+                    <span class="ih-data-kpi-label">Region</span>
+                </div>
+                <div class="ih-data-kpi ih-kpi-green">
+                    <span class="ih-data-kpi-value">✓</span>
+                    <span class="ih-data-kpi-label">Configured</span>
+                </div>
+            </div>
+            <div class="ih-data-alert ih-alert-info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                S3 bucket browsing requires AWS Signature V4 signing which is not available in the browser. Use the AI agent bridge (MCP server) to list and retrieve objects, or use the AWS CLI with the configured credentials.
+            </div>
+            <div style="margin-top:12px;">
+                <p style="font-size:0.75rem;color:var(--text-secondary);">Bucket: <code>${this.esc(data.bucket)}</code></p>
+                <p style="font-size:0.75rem;color:var(--text-secondary);">Region: <code>${this.esc(data.region)}</code></p>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">AI agents with access to this integration can read/write evidence artifacts, policy documents, and assessment exports from this bucket.</p>
+            </div>
+        `;
+    },
+
     // =========================================
     // PUBLIC API — for other modules
     // =========================================
@@ -1607,6 +2105,10 @@ const IntegrationsHub = {
     getKnowBe4Stats() { return this.data.knowbe4?.stats || null; },
     getTenableStats() { return this.data.tenable?.stats || null; },
     getJiraStats() { return this.data.jira?.stats || null; },
+    getNotionStats() { return this.data.notion?.stats || null; },
+    getM365Stats() { return this.data.m365?.stats || null; },
+    getGDriveStats() { return this.data.gdrive?.stats || null; },
+    getS3Stats() { return this.data.s3?.stats || null; },
 
     getControlEvidence(controlId) {
         const evidence = [];
@@ -1655,8 +2157,43 @@ const IntegrationsHub = {
                 summary: `Vulns: ${s.vulnerabilities?.critical || 0} critical, ${s.vulnerabilities?.high || 0} high | ${s.totalAssets} assets scanned`
             });
         }
+        // M365 — Media protection, data protection
+        if (this.data.m365 && this.providers.m365.controls.includes(controlId)) {
+            const s = this.data.m365.stats;
+            evidence.push({
+                source: 'Microsoft 365',
+                type: 'automated',
+                syncDate: this.data.m365.lastSync,
+                data: { siteCount: s.siteCount, fileCount: s.fileCount },
+                summary: `${s.siteCount} SharePoint sites | ${s.fileCount} OneDrive files accessible`
+            });
+        }
+        // Google Drive — Media protection, data protection
+        if (this.data.gdrive && this.providers.gdrive.controls.includes(controlId)) {
+            const s = this.data.gdrive.stats;
+            evidence.push({
+                source: 'Google Workspace',
+                type: 'automated',
+                syncDate: this.data.gdrive.lastSync,
+                data: { fileCount: s.fileCount, sharedDriveCount: s.sharedDriveCount },
+                summary: `${s.fileCount} files | ${s.sharedDriveCount} shared drives`
+            });
+        }
+        // S3 — Media protection
+        if (this.data.s3 && this.providers.s3.controls.includes(controlId)) {
+            evidence.push({
+                source: 'AWS S3',
+                type: 'configured',
+                syncDate: this.data.s3.lastSync,
+                data: { bucket: this.data.s3.bucket, region: this.data.s3.region },
+                summary: `S3 bucket "${this.data.s3.bucket}" in ${this.data.s3.region} configured for evidence storage`
+            });
+        }
         return evidence;
-    }
+    },
+
+    // Alias for settings-page.js compatibility
+    openHub() { this.showHub(); }
 };
 
 // Auto-init on DOM ready
