@@ -280,7 +280,7 @@ try {
         
         # Register scheduled task
         $taskAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -File \`"$ScriptPath\`""
-        $taskTrigger = New-ScheduledTaskTrigger -Monthly -DaysOfMonth $DayOfMonth -At "${Hour}:00"
+        $taskTrigger = New-ScheduledTaskTrigger -Monthly -DaysOfMonth $DayOfMonth -At "\${Hour}:00"
         $taskSettings = New-ScheduledTaskSettingsSet -RunOnlyIfNetworkAvailable -WakeToRun -AllowStartIfOnBatteries
         $taskPrincipal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
         
@@ -289,7 +289,7 @@ try {
             -Description "Monthly CMMC evidence collection for all control families"
         
         Write-Host "Scheduled task created: CMMC-MonthlyEvidenceCollection" -FG Green
-        Write-Host "Runs: Day $DayOfMonth of each month at ${Hour}:00" -FG Cyan
+        Write-Host "Runs: Day $DayOfMonth of each month at \${Hour}:00" -FG Cyan
         Write-Host "Script: $ScriptPath" -FG Cyan
         
         # Also output Linux cron equivalent

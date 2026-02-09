@@ -1145,8 +1145,33 @@ class AssessmentApp {
             this.renderOSCInventory();
         } else if (view === 'rev3-crosswalk') {
             // Rev3 Crosswalk view - render using Rev3Crosswalk module
-            if (typeof Rev3Crosswalk !== 'undefined' && Rev3Crosswalk.renderView) {
-                Rev3Crosswalk.renderView();
+            const renderCrosswalk = () => {
+                try {
+                    const xw = window.Rev3Crosswalk || (typeof Rev3Crosswalk !== 'undefined' ? Rev3Crosswalk : null);
+                    if (xw && xw.renderView) {
+                        xw.renderView();
+                    } else {
+                        return false;
+                    }
+                } catch (e) {
+                    console.error('[App] rev3-crosswalk render error:', e);
+                    const c = document.getElementById('rev3-crosswalk-content');
+                    if (c) c.innerHTML = '<div style="padding:40px;color:var(--text-muted);text-align:center">Failed to load crosswalk. Try refreshing the page.</div>';
+                }
+                return true;
+            };
+            if (!renderCrosswalk()) {
+                // Deferred script may not be loaded yet — retry after short delay
+                setTimeout(() => {
+                    if (!renderCrosswalk()) {
+                        setTimeout(() => {
+                            if (!renderCrosswalk()) {
+                                const c = document.getElementById('rev3-crosswalk-content');
+                                if (c) c.innerHTML = '<div style="padding:40px;color:var(--text-muted);text-align:center">Crosswalk module is loading... <button onclick="window.app && window.app.switchView(\'rev3-crosswalk\')" style="margin-left:8px;padding:6px 16px;background:var(--accent-blue);color:#fff;border:none;border-radius:6px;cursor:pointer">Retry</button></div>';
+                            }
+                        }, 500);
+                    }
+                }, 150);
             }
         } else if (view === 'cmvp-explorer') {
             if (typeof CMVPExplorer !== 'undefined') {

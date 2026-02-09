@@ -115,7 +115,7 @@ for DEV in $(lsblk -dpno NAME | grep -v loop); do
         if [[ "$CIPHER" == *"aes-xts"* ]] && [[ "$KEY_SIZE" -ge 512 ]]; then
             echo "  Compliance: FIPS-COMPLIANT (AES-256-XTS)" >> "$REPORT"
         else
-            echo "  Compliance: REVIEW NEEDED ($CIPHER, ${KEY_SIZE}bit)" >> "$REPORT"
+            echo "  Compliance: REVIEW NEEDED ($CIPHER, \${KEY_SIZE}bit)" >> "$REPORT"
         fi
     else
         # Check if it's a partition

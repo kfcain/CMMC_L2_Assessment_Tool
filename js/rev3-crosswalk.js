@@ -473,6 +473,7 @@ const Rev3Crosswalk = {
         let objCount = '';
         if (typeof REV3_FAMILIES !== 'undefined') {
             for (const fam of REV3_FAMILIES) {
+                if (!fam.controls) continue;
                 const ctrl = fam.controls.find(c => c.id === control.rev3);
                 if (ctrl && ctrl.objectives) {
                     objCount = `<span class="xwalk-obj-count" title="${ctrl.objectives.length} assessment objectives">${ctrl.objectives.length} obj</span>`;
