@@ -8300,9 +8300,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.app = new AssessmentApp();
         console.log('[App] AssessmentApp initialized successfully');
         
-        // Initialize Cmd+K search
-        initGlobalSearch();
-
         // Footer dismiss toggle
         const siteFooter = document.getElementById('site-footer');
         const footerToggle = document.getElementById('footer-toggle-btn');

@@ -119,6 +119,48 @@ const IntegrationsHub = {
             controls: ['3.8.1', '3.8.6', '3.13.8', '3.13.16'],
             requiredCredentials: ['accessKeyId', 'secretAccessKey', 'region', 'bucket'],
             docUrl: 'https://docs.aws.amazon.com/AmazonS3/latest/API/'
+        },
+        defender: {
+            id: 'defender',
+            name: 'Microsoft Defender',
+            description: 'Pull endpoint protection status, threat detections, vulnerability assessments, and device compliance from Defender for Endpoint via Graph Security API',
+            icon: 'defender',
+            category: 'endpoint',
+            controls: ['3.4.1', '3.4.2', '3.4.6', '3.4.7', '3.4.8', '3.4.9', '3.11.1', '3.11.2', '3.11.3', '3.14.1', '3.14.2', '3.14.3', '3.14.4', '3.14.5', '3.14.6', '3.14.7'],
+            requiredCredentials: ['tenantId', 'clientId', 'clientSecret'],
+            baseUrl: 'https://graph.microsoft.com/v1.0',
+            authUrl: 'https://login.microsoftonline.com',
+            docUrl: 'https://learn.microsoft.com/en-us/graph/api/resources/security-api-overview'
+        },
+        sentinelone: {
+            id: 'sentinelone',
+            name: 'SentinelOne',
+            description: 'Import endpoint agent status, threat detections, device inventory, and vulnerability data from SentinelOne management console',
+            icon: 'sentinelone',
+            category: 'endpoint',
+            controls: ['3.4.1', '3.4.2', '3.11.1', '3.11.2', '3.14.1', '3.14.2', '3.14.3', '3.14.4', '3.14.5', '3.14.6', '3.14.7'],
+            requiredCredentials: ['apiToken', 'consoleUrl'],
+            docUrl: 'https://usea1-partners.sentinelone.net/api-doc/overview'
+        },
+        crowdstrike: {
+            id: 'crowdstrike',
+            name: 'CrowdStrike Falcon',
+            description: 'Pull host inventory, detection events, vulnerability scores, and Zero Trust assessments from CrowdStrike Falcon platform',
+            icon: 'crowdstrike',
+            category: 'endpoint',
+            controls: ['3.4.1', '3.4.2', '3.4.6', '3.11.1', '3.11.2', '3.11.3', '3.14.1', '3.14.2', '3.14.3', '3.14.4', '3.14.5', '3.14.6', '3.14.7'],
+            requiredCredentials: ['clientId', 'clientSecret', 'baseUrl'],
+            docUrl: 'https://falcon.crowdstrike.com/documentation/'
+        },
+        qualys: {
+            id: 'qualys',
+            name: 'Qualys VMDR',
+            description: 'Import vulnerability scan results, asset inventory, compliance posture, and patch status from Qualys VMDR platform',
+            icon: 'qualys',
+            category: 'vulnerability',
+            controls: ['3.4.1', '3.4.2', '3.4.8', '3.4.9', '3.11.1', '3.11.2', '3.11.3', '3.14.1', '3.14.2', '3.14.6', '3.14.7'],
+            requiredCredentials: ['username', 'password', 'apiUrl'],
+            docUrl: 'https://qualysguard.qg2.apps.qualys.com/qwebhelp/fo_portal/api_doc/'
         }
     },
 
@@ -223,17 +265,21 @@ const IntegrationsHub = {
             notion: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v6H4z"/><path d="M14 4h6v16H8V10"/><path d="M14 4v6h6"/></svg>',
             m365: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>',
             gdrive: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 19h7l3-5"/><path d="M12 2l10 17h-7l-3-5"/><path d="M5 14h14"/></svg>',
-            s3: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>'
+            s3: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',
+            defender: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>',
+            sentinelone: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+            crowdstrike: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+            qualys: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>'
         };
         return icons[providerId] || '';
     },
 
     getCategoryLabel(cat) {
-        return { identity: 'Identity & Access', training: 'Security Training', vulnerability: 'Vulnerability Mgmt', ticketing: 'Ticketing & POA&M', standard: 'Standards & Export', documentation: 'Documentation & Notes', storage: 'File Storage & Evidence' }[cat] || cat;
+        return { identity: 'Identity & Access', training: 'Security Training', vulnerability: 'Vulnerability Mgmt', ticketing: 'Ticketing & POA&M', standard: 'Standards & Export', documentation: 'Documentation & Notes', storage: 'File Storage & Evidence', endpoint: 'Endpoint Protection' }[cat] || cat;
     },
 
     getCategoryColor(cat) {
-        return { identity: '#3b82f6', training: '#10b981', vulnerability: '#f59e0b', ticketing: '#8b5cf6', standard: '#6366f1', documentation: '#ec4899', storage: '#14b8a6' }[cat] || '#6b7280';
+        return { identity: '#3b82f6', training: '#10b981', vulnerability: '#f59e0b', ticketing: '#8b5cf6', standard: '#6366f1', documentation: '#ec4899', storage: '#14b8a6', endpoint: '#ef4444' }[cat] || '#6b7280';
     },
 
     // =========================================
@@ -444,6 +490,25 @@ const IntegrationsHub = {
                 { key: 'secretAccessKey', label: 'Secret Access Key', placeholder: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY', type: 'password' },
                 { key: 'region', label: 'Region', placeholder: 'us-east-1, us-gov-west-1, etc.', type: 'text' },
                 { key: 'bucket', label: 'Bucket Name', placeholder: 'my-evidence-bucket', type: 'text' }
+            ],
+            defender: [
+                { key: 'tenantId', label: 'Tenant ID', placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', type: 'text' },
+                { key: 'clientId', label: 'Application (Client) ID', placeholder: 'App registration client ID', type: 'text' },
+                { key: 'clientSecret', label: 'Client Secret', placeholder: 'Client secret value', type: 'password' }
+            ],
+            sentinelone: [
+                { key: 'apiToken', label: 'API Token', placeholder: 'SentinelOne API token', type: 'password' },
+                { key: 'consoleUrl', label: 'Console URL', placeholder: 'https://usea1-xxx.sentinelone.net', type: 'text' }
+            ],
+            crowdstrike: [
+                { key: 'clientId', label: 'Client ID', placeholder: 'CrowdStrike OAuth2 client ID', type: 'text' },
+                { key: 'clientSecret', label: 'Client Secret', placeholder: 'CrowdStrike OAuth2 client secret', type: 'password' },
+                { key: 'baseUrl', label: 'API Base URL', placeholder: 'https://api.crowdstrike.com (or https://api.us-2.crowdstrike.com)', type: 'text' }
+            ],
+            qualys: [
+                { key: 'username', label: 'Username', placeholder: 'Qualys API username', type: 'text' },
+                { key: 'password', label: 'Password', placeholder: 'Qualys API password', type: 'password' },
+                { key: 'apiUrl', label: 'API URL', placeholder: 'https://qualysapi.qualys.com (or https://qualysapi.qg2.apps.qualys.com)', type: 'text' }
             ]
         };
 
@@ -576,6 +641,10 @@ const IntegrationsHub = {
                 case 'm365': return await this.testM365Connection();
                 case 'gdrive': return await this.testGDriveConnection();
                 case 's3': return await this.testS3Connection();
+                case 'defender': return await this.testDefenderConnection();
+                case 'sentinelone': return await this.testSentinelOneConnection();
+                case 'crowdstrike': return await this.testCrowdStrikeConnection();
+                case 'qualys': return await this.testQualysConnection();
                 default: return { success: false, message: 'Unknown provider' };
             }
         } catch (e) {
@@ -598,6 +667,10 @@ const IntegrationsHub = {
                 case 'm365': await this.syncM365(); break;
                 case 'gdrive': await this.syncGDrive(); break;
                 case 's3': await this.syncS3(); break;
+                case 'defender': await this.syncDefender(); break;
+                case 'sentinelone': await this.syncSentinelOne(); break;
+                case 'crowdstrike': await this.syncCrowdStrike(); break;
+                case 'qualys': await this.syncQualys(); break;
             }
             this.showToast(`${this.providers[providerId].name} sync complete!`, 'success');
             if (parentModal) this.refreshHub(parentModal);
@@ -1329,6 +1402,381 @@ const IntegrationsHub = {
     },
 
     // =========================================
+    // MICROSOFT DEFENDER FOR ENDPOINT (Graph Security API)
+    // =========================================
+    async getDefenderToken() {
+        const creds = this.getCredentials('defender');
+        if (!creds) throw new Error('Defender credentials not configured');
+        const tokenUrl = `${this.providers.defender.authUrl}/${creds.tenantId}/oauth2/v2.0/token`;
+        const body = new URLSearchParams({
+            grant_type: 'client_credentials',
+            client_id: creds.clientId,
+            client_secret: creds.clientSecret,
+            scope: 'https://graph.microsoft.com/.default'
+        });
+        const resp = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString()
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.error_description || `Defender auth failed (${resp.status})`);
+        }
+        return (await resp.json()).access_token;
+    },
+
+    async defenderGet(path, token) {
+        const resp = await fetch(`${this.providers.defender.baseUrl}${path}`, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.error?.message || `Defender API error (${resp.status})`);
+        }
+        return resp.json();
+    },
+
+    async testDefenderConnection() {
+        const token = await this.getDefenderToken();
+        const org = await this.defenderGet('/organization', token);
+        return { success: true, message: `Connected to ${org.value?.[0]?.displayName || 'Defender tenant'}` };
+    },
+
+    async syncDefender() {
+        const token = await this.getDefenderToken();
+
+        // 1. Managed devices
+        let devices = [];
+        try {
+            const devResp = await this.defenderGet('/deviceManagement/managedDevices?$top=200&$select=id,deviceName,operatingSystem,complianceState,lastSyncDateTime,managedDeviceOwnerType', token);
+            devices = (devResp.value || []).map(d => ({
+                id: d.id,
+                name: d.deviceName,
+                os: d.operatingSystem,
+                compliance: d.complianceState,
+                lastSync: d.lastSyncDateTime,
+                ownerType: d.managedDeviceOwnerType
+            }));
+        } catch (e) { console.warn('[Defender] Devices error:', e.message); }
+
+        // 2. Security alerts
+        let alerts = [];
+        try {
+            const alertResp = await this.defenderGet('/security/alerts_v2?$top=50&$orderby=createdDateTime desc', token);
+            alerts = (alertResp.value || []).map(a => ({
+                id: a.id,
+                title: a.title,
+                severity: a.severity,
+                status: a.status,
+                category: a.category,
+                createdDateTime: a.createdDateTime,
+                description: (a.description || '').substring(0, 200)
+            }));
+        } catch (e) { console.warn('[Defender] Alerts error:', e.message); }
+
+        // 3. Secure score
+        let secureScore = null;
+        try {
+            const scoreResp = await this.defenderGet('/security/secureScores?$top=1', token);
+            const latest = scoreResp.value?.[0];
+            if (latest) {
+                secureScore = {
+                    currentScore: latest.currentScore,
+                    maxScore: latest.maxScore,
+                    percentage: latest.maxScore > 0 ? Math.round((latest.currentScore / latest.maxScore) * 100) : 0,
+                    createdDateTime: latest.createdDateTime
+                };
+            }
+        } catch (e) { console.warn('[Defender] Secure score error:', e.message); }
+
+        // Compute stats
+        const compliant = devices.filter(d => d.compliance === 'compliant').length;
+        const nonCompliant = devices.filter(d => d.compliance === 'noncompliant').length;
+        const critAlerts = alerts.filter(a => a.severity === 'high' || a.severity === 'critical').length;
+
+        this.data.defender = {
+            lastSync: new Date().toISOString(),
+            stats: {
+                totalDevices: devices.length,
+                compliantDevices: compliant,
+                nonCompliantDevices: nonCompliant,
+                complianceRate: devices.length > 0 ? Math.round((compliant / devices.length) * 100) : 0,
+                totalAlerts: alerts.length,
+                criticalAlerts: critAlerts,
+                secureScorePercent: secureScore?.percentage || null
+            },
+            devices: devices.slice(0, 50),
+            alerts: alerts.slice(0, 25),
+            secureScore
+        };
+        this.saveData();
+    },
+
+    // =========================================
+    // SENTINELONE API
+    // =========================================
+    async sentinelOneGet(path) {
+        const creds = this.getCredentials('sentinelone');
+        if (!creds) throw new Error('SentinelOne credentials not configured');
+        const baseUrl = creds.consoleUrl.replace(/\/+$/, '');
+        const resp = await fetch(`${baseUrl}/web/api/v2.1${path}`, {
+            headers: { 'Authorization': `ApiToken ${creds.apiToken}`, 'Content-Type': 'application/json' }
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.errors?.[0]?.detail || `SentinelOne API error (${resp.status})`);
+        }
+        return resp.json();
+    },
+
+    async testSentinelOneConnection() {
+        const resp = await this.sentinelOneGet('/system/info');
+        return { success: true, message: `Connected to SentinelOne (build ${resp.data?.build || 'unknown'})` };
+    },
+
+    async syncSentinelOne() {
+        // 1. Agent statistics
+        let agents = [];
+        try {
+            const agentResp = await this.sentinelOneGet('/agents?limit=200&sortBy=updatedAt&sortOrder=desc');
+            agents = (agentResp.data || []).map(a => ({
+                id: a.id,
+                computerName: a.computerName,
+                os: a.osName,
+                osVersion: a.osRevision,
+                agentVersion: a.agentVersion,
+                isActive: a.isActive,
+                infected: a.infected,
+                networkStatus: a.networkStatus,
+                lastActiveDate: a.lastActiveDate,
+                threatRebootRequired: a.threatRebootRequired
+            }));
+        } catch (e) { console.warn('[SentinelOne] Agents error:', e.message); }
+
+        // 2. Threats
+        let threats = [];
+        try {
+            const threatResp = await this.sentinelOneGet('/threats?limit=50&sortBy=createdAt&sortOrder=desc');
+            threats = (threatResp.data || []).map(t => ({
+                id: t.id,
+                classification: t.classification,
+                agentComputerName: t.agentRealtimeInfo?.agentComputerName,
+                threatName: t.threatInfo?.threatName,
+                confidenceLevel: t.threatInfo?.confidenceLevel,
+                mitigationStatus: t.mitigationStatus?.[0],
+                createdAt: t.createdAt
+            }));
+        } catch (e) { console.warn('[SentinelOne] Threats error:', e.message); }
+
+        // Stats
+        const activeAgents = agents.filter(a => a.isActive).length;
+        const infectedAgents = agents.filter(a => a.infected).length;
+
+        this.data.sentinelone = {
+            lastSync: new Date().toISOString(),
+            stats: {
+                totalAgents: agents.length,
+                activeAgents,
+                infectedAgents,
+                healthRate: agents.length > 0 ? Math.round(((agents.length - infectedAgents) / agents.length) * 100) : 0,
+                totalThreats: threats.length,
+                activeThreats: threats.filter(t => t.mitigationStatus !== 'mitigated').length
+            },
+            agents: agents.slice(0, 50),
+            threats: threats.slice(0, 25)
+        };
+        this.saveData();
+    },
+
+    // =========================================
+    // CROWDSTRIKE FALCON API
+    // =========================================
+    async getCrowdStrikeToken() {
+        const creds = this.getCredentials('crowdstrike');
+        if (!creds) throw new Error('CrowdStrike credentials not configured');
+        const baseUrl = (creds.baseUrl || 'https://api.crowdstrike.com').replace(/\/+$/, '');
+        const resp = await fetch(`${baseUrl}/oauth2/token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ client_id: creds.clientId, client_secret: creds.clientSecret }).toString()
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.errors?.[0]?.message || `CrowdStrike auth failed (${resp.status})`);
+        }
+        const data = await resp.json();
+        return { token: data.access_token, baseUrl };
+    },
+
+    async crowdStrikeGet(path, token, baseUrl) {
+        const resp = await fetch(`${baseUrl}${path}`, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.errors?.[0]?.message || `CrowdStrike API error (${resp.status})`);
+        }
+        return resp.json();
+    },
+
+    async testCrowdStrikeConnection() {
+        const { token, baseUrl } = await this.getCrowdStrikeToken();
+        const resp = await this.crowdStrikeGet('/sensors/queries/sensors/v1?limit=1', token, baseUrl);
+        return { success: true, message: `Connected to CrowdStrike Falcon (${resp.meta?.pagination?.total || 0} sensors)` };
+    },
+
+    async syncCrowdStrike() {
+        const { token, baseUrl } = await this.getCrowdStrikeToken();
+
+        // 1. Host count and recent hosts
+        let hostIds = [];
+        let hosts = [];
+        try {
+            const hostIdResp = await this.crowdStrikeGet('/devices/queries/devices-scroll/v1?limit=200&sort=last_seen.desc', token, baseUrl);
+            hostIds = hostIdResp.resources || [];
+            if (hostIds.length > 0) {
+                const detailResp = await this.crowdStrikeGet(`/devices/entities/devices/v2?ids=${hostIds.slice(0, 50).join('&ids=')}`, token, baseUrl);
+                hosts = (detailResp.resources || []).map(h => ({
+                    id: h.device_id,
+                    hostname: h.hostname,
+                    os: h.os_product_name || h.platform_name,
+                    osVersion: h.os_version,
+                    lastSeen: h.last_seen,
+                    status: h.status,
+                    agentVersion: h.agent_version,
+                    externalIp: h.external_ip
+                }));
+            }
+        } catch (e) { console.warn('[CrowdStrike] Hosts error:', e.message); }
+
+        // 2. Detection summary
+        let detections = [];
+        try {
+            const detResp = await this.crowdStrikeGet('/detects/queries/detects/v1?limit=50&sort=last_behavior|desc', token, baseUrl);
+            const detIds = detResp.resources || [];
+            if (detIds.length > 0) {
+                const detDetailResp = await this.crowdStrikeGet(`/detects/entities/summaries/GET/v1`, token, baseUrl);
+                // Fallback: just use count
+                detections = detIds.map(id => ({ id }));
+            }
+        } catch (e) { console.warn('[CrowdStrike] Detections error:', e.message); }
+
+        // 3. Zero Trust Assessment (if available)
+        let ztaScore = null;
+        try {
+            const ztaResp = await this.crowdStrikeGet('/zero-trust-assessment/queries/assessments/v1?limit=1', token, baseUrl);
+            if (ztaResp.resources?.length > 0) {
+                ztaScore = ztaResp.resources[0];
+            }
+        } catch (e) { /* ZTA may not be available */ }
+
+        const onlineHosts = hosts.filter(h => h.status === 'normal' || h.status === 'contained').length;
+
+        this.data.crowdstrike = {
+            lastSync: new Date().toISOString(),
+            stats: {
+                totalHosts: hostIds.length,
+                onlineHosts,
+                detectionCount: detections.length,
+                ztaScore: ztaScore?.overall || null
+            },
+            hosts: hosts.slice(0, 50),
+            detections: detections.slice(0, 25),
+            ztaScore
+        };
+        this.saveData();
+    },
+
+    // =========================================
+    // QUALYS VMDR API
+    // =========================================
+    async qualysGet(path) {
+        const creds = this.getCredentials('qualys');
+        if (!creds) throw new Error('Qualys credentials not configured');
+        const apiUrl = (creds.apiUrl || 'https://qualysapi.qualys.com').replace(/\/+$/, '');
+        const auth = btoa(`${creds.username}:${creds.password}`);
+        const resp = await fetch(`${apiUrl}${path}`, {
+            headers: {
+                'Authorization': `Basic ${auth}`,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        });
+        if (!resp.ok) {
+            throw new Error(`Qualys API error (${resp.status}): ${resp.statusText}`);
+        }
+        return resp.json();
+    },
+
+    async testQualysConnection() {
+        // Use the VMDR API to check connectivity
+        const creds = this.getCredentials('qualys');
+        if (!creds) throw new Error('Qualys credentials not configured');
+        const apiUrl = (creds.apiUrl || 'https://qualysapi.qualys.com').replace(/\/+$/, '');
+        const auth = btoa(`${creds.username}:${creds.password}`);
+        const resp = await fetch(`${apiUrl}/api/2.0/fo/activity_log/?action=list&truncation_limit=1`, {
+            headers: {
+                'Authorization': `Basic ${auth}`,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        if (!resp.ok) throw new Error(`Qualys auth failed (${resp.status})`);
+        return { success: true, message: 'Connected to Qualys VMDR' };
+    },
+
+    async syncQualys() {
+        // 1. Host count
+        let hostCount = 0;
+        try {
+            const hostResp = await this.qualysGet('/api/2.0/fo/asset/host/?action=list&truncation_limit=0');
+            hostCount = hostResp?.HOST_LIST_OUTPUT?.RESPONSE?.HOST_LIST?.HOST?.length || 0;
+        } catch (e) {
+            console.warn('[Qualys] Host count error:', e.message);
+            // Try VMDR asset count endpoint
+            try {
+                const assetResp = await this.qualysGet('/rest/2.0/count/am/asset');
+                hostCount = assetResp?.count || 0;
+            } catch (e2) { console.warn('[Qualys] Asset count error:', e2.message); }
+        }
+
+        // 2. Vulnerability summary via VMDR
+        let vulnSummary = { severity1: 0, severity2: 0, severity3: 0, severity4: 0, severity5: 0 };
+        try {
+            const vulnResp = await this.qualysGet('/api/2.0/fo/knowledge_base/vuln/?action=count');
+            // Parse counts if available
+            if (vulnResp) {
+                vulnSummary.total = vulnResp.count || 0;
+            }
+        } catch (e) { console.warn('[Qualys] Vuln summary error:', e.message); }
+
+        // 3. Scan list
+        let scans = [];
+        try {
+            const scanResp = await this.qualysGet('/api/2.0/fo/scan/?action=list&show_last=10');
+            const scanList = scanResp?.SCAN_LIST_OUTPUT?.RESPONSE?.SCAN_LIST?.SCAN || [];
+            scans = (Array.isArray(scanList) ? scanList : [scanList]).filter(Boolean).map(s => ({
+                ref: s.REF,
+                title: s.TITLE,
+                status: s.STATUS?.STATE,
+                launchDate: s.LAUNCH_DATETIME,
+                type: s.TYPE
+            }));
+        } catch (e) { console.warn('[Qualys] Scans error:', e.message); }
+
+        this.data.qualys = {
+            lastSync: new Date().toISOString(),
+            stats: {
+                hostCount,
+                scanCount: scans.length,
+                vulnSummary
+            },
+            scans
+        };
+        this.saveData();
+    },
+
+    // =========================================
     // JIRA — CREATE TICKET FROM POA&M
     // =========================================
     async createJiraTicketFromPoam(poamItem, projectKey) {
@@ -1796,6 +2244,10 @@ const IntegrationsHub = {
             case 'm365': return this.renderM365Data(data);
             case 'gdrive': return this.renderGDriveData(data);
             case 's3': return this.renderS3Data(data);
+            case 'defender': return this.renderDefenderData(data);
+            case 'sentinelone': return this.renderSentinelOneData(data);
+            case 'crowdstrike': return this.renderCrowdStrikeData(data);
+            case 'qualys': return this.renderQualysData(data);
             default: return '<p>No data renderer available.</p>';
         }
     },
@@ -2098,6 +2550,164 @@ const IntegrationsHub = {
         `;
     },
 
+    renderDefenderData(data) {
+        const s = data.stats || {};
+        return `
+            <div class="ih-data-header">
+                <h4>Microsoft Defender for Endpoint</h4>
+                <span class="ih-data-sync">Last sync: ${this.formatDateTime(data.lastSync)}</span>
+            </div>
+            <div class="ih-data-kpi-strip">
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.totalDevices || 0}</span>
+                    <span class="ih-data-kpi-label">Managed Devices</span>
+                </div>
+                <div class="ih-data-kpi ${s.complianceRate >= 95 ? 'ih-kpi-green' : s.complianceRate >= 80 ? 'ih-kpi-amber' : 'ih-kpi-red'}">
+                    <span class="ih-data-kpi-value">${s.complianceRate || 0}%</span>
+                    <span class="ih-data-kpi-label">Compliance Rate</span>
+                </div>
+                <div class="ih-data-kpi ${s.criticalAlerts > 0 ? 'ih-kpi-red' : 'ih-kpi-green'}">
+                    <span class="ih-data-kpi-value">${s.criticalAlerts || 0}</span>
+                    <span class="ih-data-kpi-label">Critical/High Alerts</span>
+                </div>
+                ${s.secureScorePercent !== null ? `<div class="ih-data-kpi ${s.secureScorePercent >= 80 ? 'ih-kpi-green' : s.secureScorePercent >= 60 ? 'ih-kpi-amber' : 'ih-kpi-red'}">
+                    <span class="ih-data-kpi-value">${s.secureScorePercent}%</span>
+                    <span class="ih-data-kpi-label">Secure Score</span>
+                </div>` : ''}
+            </div>
+            ${s.nonCompliantDevices > 0 ? `<div class="ih-data-alert ih-alert-warn">&#9888; ${s.nonCompliantDevices} non-compliant device(s). Review device compliance policies for CM and SI control families.</div>` : '<div class="ih-data-alert ih-alert-good">&#10003; All managed devices are compliant.</div>'}
+            ${(data.alerts || []).length > 0 ? `
+                <h5>Recent Security Alerts</h5>
+                <div class="ih-oscal-table-wrap"><table class="ih-oscal-table"><thead><tr><th>Alert</th><th>Severity</th><th>Category</th><th>Status</th><th>Date</th></tr></thead><tbody>
+                ${data.alerts.slice(0, 15).map(a => `<tr>
+                    <td>${this.esc(a.title)}</td>
+                    <td><span class="ih-status-tag ih-status-${a.severity === 'critical' || a.severity === 'high' ? 'red' : a.severity === 'medium' ? 'amber' : 'gray'}">${a.severity}</span></td>
+                    <td>${this.esc(a.category || '—')}</td>
+                    <td>${this.esc(a.status)}</td>
+                    <td>${this.formatDateTime(a.createdDateTime)}</td>
+                </tr>`).join('')}
+                </tbody></table></div>
+            ` : ''}
+        `;
+    },
+
+    renderSentinelOneData(data) {
+        const s = data.stats || {};
+        return `
+            <div class="ih-data-header">
+                <h4>SentinelOne</h4>
+                <span class="ih-data-sync">Last sync: ${this.formatDateTime(data.lastSync)}</span>
+            </div>
+            <div class="ih-data-kpi-strip">
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.totalAgents || 0}</span>
+                    <span class="ih-data-kpi-label">Total Agents</span>
+                </div>
+                <div class="ih-data-kpi ${s.healthRate >= 95 ? 'ih-kpi-green' : s.healthRate >= 80 ? 'ih-kpi-amber' : 'ih-kpi-red'}">
+                    <span class="ih-data-kpi-value">${s.healthRate || 0}%</span>
+                    <span class="ih-data-kpi-label">Health Rate</span>
+                </div>
+                <div class="ih-data-kpi ${s.infectedAgents > 0 ? 'ih-kpi-red' : 'ih-kpi-green'}">
+                    <span class="ih-data-kpi-value">${s.infectedAgents || 0}</span>
+                    <span class="ih-data-kpi-label">Infected</span>
+                </div>
+                <div class="ih-data-kpi ${s.activeThreats > 0 ? 'ih-kpi-red' : 'ih-kpi-green'}">
+                    <span class="ih-data-kpi-value">${s.activeThreats || 0}</span>
+                    <span class="ih-data-kpi-label">Active Threats</span>
+                </div>
+            </div>
+            ${s.infectedAgents > 0 ? `<div class="ih-data-alert ih-alert-warn">&#9888; ${s.infectedAgents} infected endpoint(s) detected. Immediate remediation required for SI-3.14.1 compliance.</div>` : '<div class="ih-data-alert ih-alert-good">&#10003; No infected endpoints detected.</div>'}
+            ${(data.threats || []).length > 0 ? `
+                <h5>Recent Threats</h5>
+                <div class="ih-oscal-table-wrap"><table class="ih-oscal-table"><thead><tr><th>Threat</th><th>Host</th><th>Classification</th><th>Confidence</th><th>Status</th></tr></thead><tbody>
+                ${data.threats.slice(0, 15).map(t => `<tr>
+                    <td>${this.esc(t.threatName || '—')}</td>
+                    <td>${this.esc(t.agentComputerName || '—')}</td>
+                    <td>${this.esc(t.classification || '—')}</td>
+                    <td>${this.esc(t.confidenceLevel || '—')}</td>
+                    <td><span class="ih-status-tag ih-status-${t.mitigationStatus === 'mitigated' ? 'green' : 'red'}">${this.esc(t.mitigationStatus || 'active')}</span></td>
+                </tr>`).join('')}
+                </tbody></table></div>
+            ` : ''}
+        `;
+    },
+
+    renderCrowdStrikeData(data) {
+        const s = data.stats || {};
+        return `
+            <div class="ih-data-header">
+                <h4>CrowdStrike Falcon</h4>
+                <span class="ih-data-sync">Last sync: ${this.formatDateTime(data.lastSync)}</span>
+            </div>
+            <div class="ih-data-kpi-strip">
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.totalHosts || 0}</span>
+                    <span class="ih-data-kpi-label">Total Hosts</span>
+                </div>
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.onlineHosts || 0}</span>
+                    <span class="ih-data-kpi-label">Online</span>
+                </div>
+                <div class="ih-data-kpi ${s.detectionCount > 0 ? 'ih-kpi-red' : 'ih-kpi-green'}">
+                    <span class="ih-data-kpi-value">${s.detectionCount || 0}</span>
+                    <span class="ih-data-kpi-label">Detections</span>
+                </div>
+                ${s.ztaScore !== null ? `<div class="ih-data-kpi ${s.ztaScore >= 80 ? 'ih-kpi-green' : s.ztaScore >= 60 ? 'ih-kpi-amber' : 'ih-kpi-red'}">
+                    <span class="ih-data-kpi-value">${s.ztaScore}</span>
+                    <span class="ih-data-kpi-label">ZTA Score</span>
+                </div>` : ''}
+            </div>
+            ${s.detectionCount > 0 ? `<div class="ih-data-alert ih-alert-warn">&#9888; ${s.detectionCount} detection(s) require review. Impacts SI-3.14.x controls.</div>` : '<div class="ih-data-alert ih-alert-good">&#10003; No active detections.</div>'}
+            ${(data.hosts || []).length > 0 ? `
+                <h5>Recent Hosts</h5>
+                <div class="ih-oscal-table-wrap"><table class="ih-oscal-table"><thead><tr><th>Hostname</th><th>OS</th><th>Status</th><th>Agent</th><th>Last Seen</th></tr></thead><tbody>
+                ${data.hosts.slice(0, 20).map(h => `<tr>
+                    <td>${this.esc(h.hostname)}</td>
+                    <td>${this.esc(h.os || '—')}</td>
+                    <td><span class="ih-status-tag ih-status-${h.status === 'normal' ? 'green' : 'amber'}">${h.status}</span></td>
+                    <td>${this.esc(h.agentVersion || '—')}</td>
+                    <td>${this.formatDateTime(h.lastSeen)}</td>
+                </tr>`).join('')}
+                </tbody></table></div>
+            ` : ''}
+        `;
+    },
+
+    renderQualysData(data) {
+        const s = data.stats || {};
+        return `
+            <div class="ih-data-header">
+                <h4>Qualys VMDR</h4>
+                <span class="ih-data-sync">Last sync: ${this.formatDateTime(data.lastSync)}</span>
+            </div>
+            <div class="ih-data-kpi-strip">
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.hostCount || 0}</span>
+                    <span class="ih-data-kpi-label">Hosts</span>
+                </div>
+                <div class="ih-data-kpi">
+                    <span class="ih-data-kpi-value">${s.scanCount || 0}</span>
+                    <span class="ih-data-kpi-label">Recent Scans</span>
+                </div>
+                ${s.vulnSummary?.total ? `<div class="ih-data-kpi ih-kpi-amber">
+                    <span class="ih-data-kpi-value">${s.vulnSummary.total}</span>
+                    <span class="ih-data-kpi-label">Known Vulns</span>
+                </div>` : ''}
+            </div>
+            ${(data.scans || []).length > 0 ? `
+                <h5>Recent Scans</h5>
+                <div class="ih-oscal-table-wrap"><table class="ih-oscal-table"><thead><tr><th>Scan</th><th>Type</th><th>Status</th><th>Launch Date</th></tr></thead><tbody>
+                ${data.scans.map(s => `<tr>
+                    <td>${this.esc(s.title || s.ref)}</td>
+                    <td>${this.esc(s.type || '—')}</td>
+                    <td><span class="ih-status-tag ih-status-${s.status === 'Finished' ? 'green' : 'blue'}">${this.esc(s.status || '—')}</span></td>
+                    <td>${this.formatDateTime(s.launchDate)}</td>
+                </tr>`).join('')}
+                </tbody></table></div>
+            ` : ''}
+        `;
+    },
+
     // =========================================
     // PUBLIC API — for other modules
     // =========================================
@@ -2109,6 +2719,10 @@ const IntegrationsHub = {
     getM365Stats() { return this.data.m365?.stats || null; },
     getGDriveStats() { return this.data.gdrive?.stats || null; },
     getS3Stats() { return this.data.s3?.stats || null; },
+    getDefenderStats() { return this.data.defender?.stats || null; },
+    getSentinelOneStats() { return this.data.sentinelone?.stats || null; },
+    getCrowdStrikeStats() { return this.data.crowdstrike?.stats || null; },
+    getQualysStats() { return this.data.qualys?.stats || null; },
 
     getControlEvidence(controlId) {
         const evidence = [];
@@ -2187,6 +2801,50 @@ const IntegrationsHub = {
                 syncDate: this.data.s3.lastSync,
                 data: { bucket: this.data.s3.bucket, region: this.data.s3.region },
                 summary: `S3 bucket "${this.data.s3.bucket}" in ${this.data.s3.region} configured for evidence storage`
+            });
+        }
+        // Defender — Endpoint protection, config mgmt, vulnerability, system integrity
+        if (this.data.defender && this.providers.defender.controls.includes(controlId)) {
+            const s = this.data.defender.stats;
+            evidence.push({
+                source: 'Microsoft Defender',
+                type: 'automated',
+                syncDate: this.data.defender.lastSync,
+                data: { complianceRate: s.complianceRate, criticalAlerts: s.criticalAlerts, secureScore: s.secureScorePercent },
+                summary: `${s.totalDevices} devices | ${s.complianceRate}% compliant | ${s.criticalAlerts} critical alerts${s.secureScorePercent !== null ? ' | Secure Score: ' + s.secureScorePercent + '%' : ''}`
+            });
+        }
+        // SentinelOne — Endpoint protection, system integrity
+        if (this.data.sentinelone && this.providers.sentinelone.controls.includes(controlId)) {
+            const s = this.data.sentinelone.stats;
+            evidence.push({
+                source: 'SentinelOne',
+                type: 'automated',
+                syncDate: this.data.sentinelone.lastSync,
+                data: { healthRate: s.healthRate, infectedAgents: s.infectedAgents, activeThreats: s.activeThreats },
+                summary: `${s.totalAgents} agents | ${s.healthRate}% healthy | ${s.activeThreats} active threats`
+            });
+        }
+        // CrowdStrike — Endpoint protection, vulnerability, system integrity
+        if (this.data.crowdstrike && this.providers.crowdstrike.controls.includes(controlId)) {
+            const s = this.data.crowdstrike.stats;
+            evidence.push({
+                source: 'CrowdStrike Falcon',
+                type: 'automated',
+                syncDate: this.data.crowdstrike.lastSync,
+                data: { totalHosts: s.totalHosts, detectionCount: s.detectionCount, ztaScore: s.ztaScore },
+                summary: `${s.totalHosts} hosts | ${s.detectionCount} detections${s.ztaScore !== null ? ' | ZTA: ' + s.ztaScore : ''}`
+            });
+        }
+        // Qualys — Vulnerability, config mgmt, system integrity
+        if (this.data.qualys && this.providers.qualys.controls.includes(controlId)) {
+            const s = this.data.qualys.stats;
+            evidence.push({
+                source: 'Qualys VMDR',
+                type: 'automated',
+                syncDate: this.data.qualys.lastSync,
+                data: { hostCount: s.hostCount, scanCount: s.scanCount },
+                summary: `${s.hostCount} hosts | ${s.scanCount} recent scans`
             });
         }
         return evidence;
