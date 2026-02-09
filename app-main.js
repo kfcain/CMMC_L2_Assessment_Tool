@@ -8302,6 +8302,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Initialize Cmd+K search
         initGlobalSearch();
+
+        // Footer dismiss toggle
+        const siteFooter = document.getElementById('site-footer');
+        const footerToggle = document.getElementById('footer-toggle-btn');
+        if (siteFooter && footerToggle) {
+            if (localStorage.getItem('footer-collapsed') === '1') siteFooter.classList.add('collapsed');
+            footerToggle.addEventListener('click', () => {
+                siteFooter.classList.toggle('collapsed');
+                localStorage.setItem('footer-collapsed', siteFooter.classList.contains('collapsed') ? '1' : '0');
+            });
+        }
     } catch (error) {
         console.error('[App] Failed to initialize:', error);
         console.error('[App] Error stack:', error.stack);

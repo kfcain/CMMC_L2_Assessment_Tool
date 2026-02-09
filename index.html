@@ -11,7 +11,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://public-api.granola.ai https://graph.microsoft.com https://login.microsoftonline.com https://*.api.knowbe4.com https://cloud.tenable.com https://*.atlassian.net; frame-src 'self' https://www.figma.com https://lucid.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
     <title>CMMC 2.0 Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=20260209b">
+    <link rel="stylesheet" href="styles.css?v=20260209c">
     <link rel="stylesheet" href="css/theme-picker.css?v=1">
     <link rel="stylesheet" href="css/comprehensive-guidance.css?v=20260209a">
     <link rel="stylesheet" href="css/crosswalk.css?v=20260209b">
@@ -825,7 +825,7 @@
     <script src="js/comprehensive-guidance-ui.js?v=20260209a" defer></script>
     
     <script src="js/purple-background.js?v=1"></script>
-    <script src="app-main.js?v=20260209b"></script>
+    <script src="app-main.js?v=20260209c"></script>
     <script src="js/supabase-client.js?v=1" defer></script>
     <script src="js/evidence-ui.js?v=1" defer></script>
     <script src="js/theme-picker.js?v=20260208c"></script>
@@ -943,11 +943,14 @@
         </svg>
     </button>
 
-    <!-- Permanent Footer Disclaimer -->
-    <footer class="site-footer-disclaimer">
+    <!-- Footer Disclaimer -->
+    <footer class="site-footer-disclaimer" id="site-footer">
         <div class="footer-disclaimer-content">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <span><strong>Personal Use Only:</strong> This tool is provided solely for personal, non-commercial use. It is not intended for, and should not be used in, any commercial setting or for commercial purposes.</span>
+            <button class="footer-dismiss-btn" id="footer-toggle-btn" aria-label="Collapse footer" title="Collapse">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
         </div>
         <div class="footer-oss-notice">
             <span>Content derived from public domain U.S. Government publications (NIST, DoD, FedRAMP). Built with <a href="LICENSE" target="_blank" rel="noopener noreferrer">open source components</a> licensed under Apache 2.0, MIT, and SIL OFL.</span>

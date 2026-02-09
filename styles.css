@@ -8285,7 +8285,7 @@ body::after {
     left: 0;
     right: 0;
     height: 48px;
-    background: rgba(10, 10, 15, 0.85);
+    background: var(--glass-bg);
     backdrop-filter: saturate(180%) blur(24px);
     -webkit-backdrop-filter: saturate(180%) blur(24px);
     border-bottom: 1px solid var(--glass-border);
@@ -8294,7 +8294,7 @@ body::after {
     padding: 0 16px;
     gap: 12px;
     z-index: 1000;
-    box-shadow: 0 1px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 20px var(--shadow-color);
 }
 
 .header-branding {
@@ -10427,16 +10427,38 @@ table td {
     transform: translateY(0);
 }
 
-/* Permanent Footer Disclaimer */
+/* Footer Disclaimer — theme-aware, dismissible */
 .site-footer-disclaimer {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(135deg, #1e3a5f 0%, #0f2942 100%);
-    border-top: 2px solid #f59e0b;
+    background: var(--glass-bg);
+    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    border-top: 1px solid var(--glass-border);
     padding: 10px 16px;
     z-index: 99999;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Collapsed state — single-line mini bar */
+.site-footer-disclaimer.collapsed {
+    padding: 4px 16px;
+}
+.site-footer-disclaimer.collapsed .footer-disclaimer-content {
+    font-size: 0.55rem;
+    gap: 6px;
+}
+.site-footer-disclaimer.collapsed .footer-disclaimer-content svg {
+    width: 10px;
+    height: 10px;
+}
+.site-footer-disclaimer.collapsed .footer-oss-notice {
+    display: none;
+}
+.site-footer-disclaimer.collapsed .footer-dismiss-btn svg {
+    transform: rotate(180deg);
 }
 
 .footer-disclaimer-content {
@@ -10447,17 +10469,43 @@ table td {
     justify-content: center;
     gap: 10px;
     font-size: 0.7rem;
-    color: #94a3b8;
+    color: var(--text-secondary);
     text-align: center;
 }
 
 .footer-disclaimer-content svg {
     flex-shrink: 0;
-    color: #f59e0b;
+    color: var(--status-partial);
+    transition: all 0.3s;
 }
 
 .footer-disclaimer-content strong {
-    color: #f59e0b;
+    color: var(--status-partial);
+}
+
+.footer-dismiss-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    margin-left: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+.footer-dismiss-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+}
+.footer-dismiss-btn svg {
+    color: var(--text-muted) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .footer-oss-notice {
@@ -10465,24 +10513,29 @@ table td {
     margin: 4px auto 0;
     text-align: center;
     font-size: 0.6rem;
-    color: #64748b;
+    color: var(--text-muted);
     letter-spacing: 0.01em;
+    transition: all 0.3s;
 }
 
 .footer-oss-notice a {
-    color: #94a3b8;
+    color: var(--text-secondary);
     text-decoration: underline;
     text-underline-offset: 2px;
     transition: color 0.15s;
 }
 
 .footer-oss-notice a:hover {
-    color: #e2e8f0;
+    color: var(--text-primary);
 }
 
 /* Add bottom padding to main content to account for fixed footer */
 .main-content {
     padding-bottom: 60px;
+}
+.site-footer-disclaimer.collapsed ~ .main-content,
+body:has(.site-footer-disclaimer.collapsed) .main-content {
+    padding-bottom: 30px;
 }
 
 /* Small Organization Guidance Styling */
@@ -10518,16 +10571,18 @@ table td {
     .site-footer-disclaimer {
         padding: 8px 12px;
     }
+    .site-footer-disclaimer.collapsed {
+        padding: 3px 12px;
+    }
     
     .footer-disclaimer-content {
         font-size: 0.6rem;
         gap: 8px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
     }
     
-    .footer-disclaimer-content svg {
-        width: 12px;
-        height: 12px;
+    .footer-disclaimer-content svg:first-child {
+        display: none;
     }
     
     .footer-oss-notice {
