@@ -377,6 +377,7 @@ const AIAssessor = {
             }
         } else {
             this.showSetup();
+            this.selectProvider(this._selectedProvider || 'anthropic');
         }
     },
 
@@ -424,6 +425,17 @@ const AIAssessor = {
             const connectBtn = document.getElementById('ai-connect-btn');
             connectBtn.textContent = 'Connect';
             connectBtn.disabled = false;
+
+            // Rate limit (429) means the key IS valid — save it and proceed
+            if (error.message && error.message.includes('Rate limited')) {
+                input.value = '';
+                this.showChat();
+                this.updateModelBadge();
+                const displayName = AIProvider.getActiveDisplayName();
+                this.addSystemMessage('Connected to ' + displayName + '. (Test call was rate-limited — your key is saved. Wait a moment before sending requests.)');
+                return;
+            }
+
             AIProvider.clearApiKey(providerId);
             this.showInputError(input, error.message);
         }
