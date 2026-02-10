@@ -4210,6 +4210,16 @@
 .soc-date {
     color: var(--text-secondary, #8b8fa3);
 }
+.soc-sync-source {
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(52, 211, 153, 0.1);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.15);
+    letter-spacing: 0.03em;
+}
 .soc-status-right {
     display: flex;
     align-items: center;

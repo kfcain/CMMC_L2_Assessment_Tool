@@ -619,8 +619,12 @@ class AssessmentApp {
         document.querySelectorAll('.hamburger-nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const view = e.currentTarget.dataset.view;
-                if (view) this.switchView(view);
-                updateActiveNav(e.currentTarget);
+                if (view) {
+                    this.switchView(view);
+                    updateActiveNav(e.currentTarget);
+                } else if (e.currentTarget.id === 'open-msp-portal-btn') {
+                    if (typeof MSPPortal !== 'undefined') MSPPortal.openPortal();
+                }
                 closeAllDropdowns();
                 closeMenu();
             });

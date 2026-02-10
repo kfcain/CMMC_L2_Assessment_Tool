@@ -72,6 +72,44 @@ const MSPPortal = {
 
     _escHandler: null,
 
+    // ── Live SOC Clock (synced via NTP → WorldTimeAPI) ──────────────
+    _clockInterval: null,
+    _ntpOffset: 0,
+    _ntpSynced: false,
+
+    _syncNTPTime: function() {
+        const self = this;
+        fetch('https://worldtimeapi.org/api/timezone/Etc/UTC', { cache: 'no-store' })
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.utc_datetime) {
+                    const serverTime = new Date(data.utc_datetime).getTime();
+                    self._ntpOffset = serverTime - Date.now();
+                    self._ntpSynced = true;
+                    const badge = document.querySelector('.soc-sync-source');
+                    if (badge) badge.textContent = 'NTP Synced';
+                }
+            })
+            .catch(() => { self._ntpSynced = false; });
+    },
+
+    _startClock: function() {
+        this._stopClock();
+        this._syncNTPTime();
+        const self = this;
+        this._clockInterval = setInterval(function() {
+            const now = new Date(Date.now() + self._ntpOffset);
+            const timeEl = document.querySelector('.soc-time');
+            const dateEl = document.querySelector('.soc-date');
+            if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'UTC' }) + ' UTC';
+            if (dateEl) dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
+        }, 1000);
+    },
+
+    _stopClock: function() {
+        if (this._clockInterval) { clearInterval(this._clockInterval); this._clockInterval = null; }
+    },
+
     bindEvents: function() {
         document.addEventListener('click', (e) => {
             if (e.target.closest('#open-msp-portal-btn')) this.openPortal();
@@ -121,6 +159,8 @@ const MSPPortal = {
         </div>`;
         document.body.insertAdjacentHTML('beforeend', html);
         this.attachPortalEvents();
+        // Start live clock on dashboard
+        if (this.state.activeView === 'dashboard') this._startClock();
 
         // Escape key handler
         this._escHandler = (e) => { if (e.key === 'Escape') this.closePortal(); };
@@ -128,6 +168,7 @@ const MSPPortal = {
     },
 
     closePortal: function() {
+        this._stopClock();
         // Remove Escape handler
         if (this._escHandler) {
             document.removeEventListener('keydown', this._escHandler);
@@ -539,6 +580,8 @@ const MSPPortal = {
         document.getElementById('msp-view-title').textContent = nav?.name || viewId;
         document.getElementById('msp-portal-content').innerHTML = this.renderView(viewId);
         this.attachDataViewEvents();
+        // Start/stop live clock based on view
+        if (viewId === 'dashboard') this._startClock(); else this._stopClock();
     },
 
     refresh: function() { this.loadState(); this.switchView(this.state.activeView); },
@@ -601,8 +644,9 @@ const MSPPortal = {
                 <div class="soc-status-left">
                     <span class="soc-pulse"></span>
                     <span class="soc-status-text">SOC OPERATIONAL</span>
-                    <span class="soc-time">${timeStr}</span>
+                    <span class="soc-time">${timeStr} UTC</span>
                     <span class="soc-date">${dateStr}</span>
+                    <span class="soc-sync-source" title="Clock synced via NTP (worldtimeapi.org)">Syncing...</span>
                 </div>
                 <div class="soc-status-right">
                     <span class="soc-integrations-badge">${connectedCount} Integrations Active</span>
