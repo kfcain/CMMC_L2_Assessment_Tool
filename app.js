@@ -340,12 +340,56 @@ class AssessmentApp {
     }
 
     bindEvents() {
-        // Hamburger Menu Toggle
+        // ── Top-nav dropdown logic (Apple/AWS style) ──
+        const topnavCats = document.querySelectorAll('.topnav-cat');
+        let closeTimer = null;
+
+        const closeAllDropdowns = () => {
+            topnavCats.forEach(c => {
+                c.classList.remove('open');
+                const trigger = c.querySelector('.topnav-trigger');
+                if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            });
+        };
+
+        topnavCats.forEach(cat => {
+            const trigger = cat.querySelector('.topnav-trigger');
+            if (!trigger) return;
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = cat.classList.contains('open');
+                closeAllDropdowns();
+                if (!isOpen) {
+                    cat.classList.add('open');
+                    trigger.setAttribute('aria-expanded', 'true');
+                }
+            });
+            cat.addEventListener('mouseenter', () => {
+                clearTimeout(closeTimer);
+                closeAllDropdowns();
+                cat.classList.add('open');
+                trigger.setAttribute('aria-expanded', 'true');
+            });
+            cat.addEventListener('mouseleave', () => {
+                closeTimer = setTimeout(() => {
+                    cat.classList.remove('open');
+                    trigger.setAttribute('aria-expanded', 'false');
+                }, 150);
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.topnav-cat')) closeAllDropdowns();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeAllDropdowns();
+        });
+
+        // ── Mobile hamburger ──
         const hamburgerToggle = document.getElementById('hamburger-menu-toggle');
         const hamburgerDropdown = document.getElementById('hamburger-dropdown');
         const hamburgerOverlay = document.getElementById('hamburger-overlay');
-        const hbCloseBtn = document.getElementById('hb-close-btn');
-        
+
         const openMenu = () => {
             hamburgerDropdown?.classList.add('active');
             hamburgerOverlay?.classList.add('active');
@@ -356,32 +400,46 @@ class AssessmentApp {
             hamburgerOverlay?.classList.remove('active');
             hamburgerToggle?.classList.remove('open');
         };
-        
+
         hamburgerToggle?.addEventListener('click', () => {
             hamburgerDropdown?.classList.contains('active') ? closeMenu() : openMenu();
         });
-        
         hamburgerOverlay?.addEventListener('click', closeMenu);
-        hbCloseBtn?.addEventListener('click', closeMenu);
-        
-        // Hamburger Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && hamburgerDropdown?.classList.contains('active')) closeMenu();
+        });
+
+        // ── Nav button clicks ──
+        const updateActiveNav = (activeBtn) => {
+            document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
+            activeBtn?.classList.add('active');
+            topnavCats.forEach(c => c.classList.remove('has-active'));
+            const parentCat = activeBtn?.closest('.topnav-cat');
+            if (parentCat) parentCat.classList.add('has-active');
+        };
+
         document.querySelectorAll('.hamburger-nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const view = e.currentTarget.dataset.view;
                 if (view) this.switchView(view);
-                // Update active state in hamburger menu
-                document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
+                updateActiveNav(e.currentTarget);
+                closeAllDropdowns();
                 closeMenu();
             });
         });
+
+        const initialActive = document.querySelector('.hamburger-nav-btn.active');
+        if (initialActive) {
+            const parentCat = initialActive.closest('.topnav-cat');
+            if (parentCat) parentCat.classList.add('has-active');
+        }
 
         // Header Branding - Click to go to Dashboard
         const headerBranding = document.getElementById('header-branding');
         headerBranding?.addEventListener('click', () => {
             this.switchView('dashboard');
-            document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector('.hamburger-nav-btn[data-view="dashboard"]')?.classList.add('active');
+            const dashBtn = document.querySelector('.hamburger-nav-btn[data-view="dashboard"]');
+            updateActiveNav(dashBtn);
         });
 
         // Legacy Sidebar Navigation
@@ -892,6 +950,14 @@ class AssessmentApp {
             this.renderImplPlanner();
         } else if (view === 'osc-inventory') {
             this.renderOSCInventory();
+        } else if (view === 'docs-hub') {
+            if (typeof DocsHub !== 'undefined') {
+                DocsHub.render();
+            }
+        } else if (view === 'fedramp-explorer') {
+            if (typeof FedRAMPExplorer !== 'undefined') {
+                FedRAMPExplorer.render();
+            }
         }
         
         // Prefetch adjacent views for faster navigation
@@ -3114,8 +3180,13 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 // Get KSI details for tooltip and level
                 const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? FEDRAMP_20X_KSI.indicators[ksi] : null;
                 const tooltip = ksiInfo ? `${ksiInfo.title}: ${ksiInfo.description}` : ksi;
-                const levelBadge = ksiInfo ? (ksiInfo.low ? '<span class="ksi-level-badge ksi-low">L</span>' : '<span class="ksi-level-badge ksi-mod">M</span>') : '';
-                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="framework-link fedramp20x" title="${tooltip}">${ksi}${levelBadge}</a>`;
+                let levelBadges = '';
+                if (ksiInfo) {
+                    if (ksiInfo.low) levelBadges += '<span class="ksi-level-badge ksi-low">Low</span>';
+                    if (ksiInfo.moderate) levelBadges += '<span class="ksi-level-badge ksi-mod">Mod</span>';
+                    if (!ksiInfo.low && !ksiInfo.moderate) levelBadges += '<span class="ksi-level-badge ksi-mod">Mod</span>';
+                }
+                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="framework-link fedramp20x" title="${tooltip}">${ksi}${levelBadges}</a>`;
             }).join('')
             : '<span class="framework-na">N/A</span>';
 
@@ -3375,7 +3446,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     }
 
     calculateL1ControlsMet() {
-        // L1 controls per CMMC 2.0 / FAR 52.204-21 (17 total)
+        // L1 controls per CMMC 2.0 / FAR 52.240-93 (formerly 52.204-21) (17 total)
         const L1_CONTROL_IDS = [
             '3.1.1', '3.1.2', '3.1.20', '3.1.22',  // AC (4)
             '3.3.1', '3.3.2',                       // AU (2)

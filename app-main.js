@@ -530,12 +530,63 @@ class AssessmentApp {
     }
 
     bindEvents() {
-        // Hamburger Menu Toggle
+        // ── Top-nav dropdown logic (Apple/AWS style) ──
+        const topnavCats = document.querySelectorAll('.topnav-cat');
+        let closeTimer = null;
+
+        const closeAllDropdowns = () => {
+            topnavCats.forEach(c => {
+                c.classList.remove('open');
+                const trigger = c.querySelector('.topnav-trigger');
+                if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            });
+        };
+
+        topnavCats.forEach(cat => {
+            const trigger = cat.querySelector('.topnav-trigger');
+            if (!trigger) return;
+
+            // Click to toggle
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = cat.classList.contains('open');
+                closeAllDropdowns();
+                if (!isOpen) {
+                    cat.classList.add('open');
+                    trigger.setAttribute('aria-expanded', 'true');
+                }
+            });
+
+            // Hover open (desktop) — with small delay to prevent flicker
+            cat.addEventListener('mouseenter', () => {
+                clearTimeout(closeTimer);
+                closeAllDropdowns();
+                cat.classList.add('open');
+                trigger.setAttribute('aria-expanded', 'true');
+            });
+            cat.addEventListener('mouseleave', () => {
+                closeTimer = setTimeout(() => {
+                    cat.classList.remove('open');
+                    trigger.setAttribute('aria-expanded', 'false');
+                }, 150);
+            });
+        });
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.topnav-cat')) closeAllDropdowns();
+        });
+
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeAllDropdowns();
+        });
+
+        // ── Mobile hamburger (unchanged IDs) ──
         const hamburgerToggle = document.getElementById('hamburger-menu-toggle');
         const hamburgerDropdown = document.getElementById('hamburger-dropdown');
         const hamburgerOverlay = document.getElementById('hamburger-overlay');
-        const hbCloseBtn = document.getElementById('hb-close-btn');
-        
+
         const openMenu = () => {
             hamburgerDropdown?.classList.add('active');
             hamburgerOverlay?.classList.add('active');
@@ -546,32 +597,48 @@ class AssessmentApp {
             hamburgerOverlay?.classList.remove('active');
             hamburgerToggle?.classList.remove('open');
         };
-        
+
         hamburgerToggle?.addEventListener('click', () => {
             hamburgerDropdown?.classList.contains('active') ? closeMenu() : openMenu();
         });
-        
         hamburgerOverlay?.addEventListener('click', closeMenu);
-        hbCloseBtn?.addEventListener('click', closeMenu);
-        
-        // Hamburger Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && hamburgerDropdown?.classList.contains('active')) closeMenu();
+        });
+
+        // ── Nav button clicks (shared between desktop dropdowns & mobile) ──
+        const updateActiveNav = (activeBtn) => {
+            document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
+            activeBtn?.classList.add('active');
+            // Update parent category has-active state
+            topnavCats.forEach(c => c.classList.remove('has-active'));
+            const parentCat = activeBtn?.closest('.topnav-cat');
+            if (parentCat) parentCat.classList.add('has-active');
+        };
+
         document.querySelectorAll('.hamburger-nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const view = e.currentTarget.dataset.view;
                 if (view) this.switchView(view);
-                // Update active state in hamburger menu
-                document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
+                updateActiveNav(e.currentTarget);
+                closeAllDropdowns();
                 closeMenu();
             });
         });
+
+        // Set initial has-active on the category containing the active button
+        const initialActive = document.querySelector('.hamburger-nav-btn.active');
+        if (initialActive) {
+            const parentCat = initialActive.closest('.topnav-cat');
+            if (parentCat) parentCat.classList.add('has-active');
+        }
 
         // Header Branding - Click to go to Dashboard
         const headerBranding = document.getElementById('header-branding');
         headerBranding?.addEventListener('click', () => {
             this.switchView('dashboard');
-            document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector('.hamburger-nav-btn[data-view="dashboard"]')?.classList.add('active');
+            const dashBtn = document.querySelector('.hamburger-nav-btn[data-view="dashboard"]');
+            updateActiveNav(dashBtn);
         });
 
         // Header Settings Cog - Click to open Settings (Appearance tab)
@@ -581,8 +648,8 @@ class AssessmentApp {
                 SettingsPage._activeSection = 'theme';
             }
             this.switchView('settings');
-            document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
-            document.querySelector('.hamburger-nav-btn[data-view="settings"]')?.classList.add('active');
+            const setBtn = document.querySelector('.hamburger-nav-btn[data-view="settings"]');
+            updateActiveNav(setBtn);
         });
 
         // Legacy Sidebar Navigation
@@ -698,11 +765,6 @@ class AssessmentApp {
         document.getElementById('impl-modal-close-btn')?.addEventListener('click', () => this.closeImplementationModal());
         document.getElementById('impl-modal-cancel-btn')?.addEventListener('click', () => this.closeImplementationModal());
 
-        // Disclaimer banner close button
-        document.getElementById('disclaimer-close-btn')?.addEventListener('click', (e) => {
-            e.target.closest('.disclaimer-banner')?.remove();
-        });
-
         // Implementation Guide Modal
         document.getElementById('open-impl-guide-btn')?.addEventListener('click', () => this.openImplGuideModal());
         document.getElementById('close-impl-guide-btn')?.addEventListener('click', () => this.closeImplGuideModal());
@@ -788,6 +850,15 @@ class AssessmentApp {
                     mobileOverlay?.classList.remove('active');
                 }
             });
+        });
+
+        // Global back button handler for dynamically-rendered views
+        document.addEventListener('click', (e) => {
+            const backBtn = e.target.closest('.view-back-btn');
+            if (backBtn) {
+                const targetView = backBtn.dataset.backView || 'dashboard';
+                this.switchView(targetView);
+            }
         });
 
         // Initialize Command Search (Cmd+K)
@@ -904,7 +975,9 @@ class AssessmentApp {
             { id: 'impl-guide', title: 'Implementation Guide', desc: 'Technical implementation guidance' },
             { id: 'cheat-sheet', title: 'Assessor Cheat Sheet', desc: 'Quick reference for assessors' },
             { id: 'cmvp-explorer', title: 'CMVP Explorer', desc: 'Search FIPS 140 validated cryptographic modules' },
-            { id: 'fedramp-reference', title: 'FedRAMP Reference', desc: 'FedRAMP 20x KSI families and control mappings' }
+            { id: 'fedramp-reference', title: 'FedRAMP Reference', desc: 'FedRAMP 20x KSI families and control mappings' },
+            { id: 'docs-hub', title: 'Documentation Hub', desc: 'Curated CMMC, NIST, FedRAMP, and DoD documents' },
+            { id: 'fedramp-explorer', title: 'FedRAMP Marketplace Explorer', desc: 'Browse and search all FedRAMP authorized cloud service offerings' }
         ];
         views.forEach(v => {
             this.searchIndex.push({
@@ -1219,6 +1292,14 @@ class AssessmentApp {
             if (typeof SettingsPage !== 'undefined') {
                 SettingsPage.render();
             }
+        } else if (view === 'docs-hub') {
+            if (typeof DocsHub !== 'undefined') {
+                DocsHub.render();
+            }
+        } else if (view === 'fedramp-explorer') {
+            if (typeof FedRAMPExplorer !== 'undefined') {
+                FedRAMPExplorer.render();
+            }
         }
         
         // Prefetch adjacent views for faster navigation
@@ -1298,6 +1379,10 @@ class AssessmentApp {
             <!-- Header -->
             <div class="impl-planner-header">
                 <div class="impl-planner-header-top">
+                    <button class="view-back-btn" data-back-view="dashboard" title="Back to Dashboard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back
+                    </button>
                     <h1>
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 14l2 2 4-4"/></svg>
                         CMMC Implementation Planner
@@ -2037,6 +2122,10 @@ class AssessmentApp {
                 <div class="arch-guide-header">
                     <div class="arch-guide-header-top">
                         <div class="arch-guide-title">
+                            <button class="view-back-btn" data-back-view="dashboard" title="Back to Dashboard">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                                Back
+                            </button>
                             <div class="arch-status-panel">
                                 <div class="arch-status-ring">
                                     <svg viewBox="0 0 36 36" class="arch-progress-ring">
@@ -3888,8 +3977,13 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 // Get KSI details for tooltip and level
                 const ksiInfo = typeof FEDRAMP_20X_KSI !== 'undefined' ? FEDRAMP_20X_KSI.indicators[ksi] : null;
                 const tooltip = ksiInfo ? `${ksiInfo.title}: ${ksiInfo.description}` : ksi;
-                const levelBadge = ksiInfo ? (ksiInfo.low ? '<span class="ksi-level-badge ksi-low">L</span>' : '<span class="ksi-level-badge ksi-mod">M</span>') : '';
-                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="framework-link fedramp20x" title="${tooltip}">${ksi}${levelBadge}</a>`;
+                let levelBadges = '';
+                if (ksiInfo) {
+                    if (ksiInfo.low) levelBadges += '<span class="ksi-level-badge ksi-low">Low</span>';
+                    if (ksiInfo.moderate) levelBadges += '<span class="ksi-level-badge ksi-mod">Mod</span>';
+                    if (!ksiInfo.low && !ksiInfo.moderate) levelBadges += '<span class="ksi-level-badge ksi-mod">Mod</span>';
+                }
+                return `<a href="https://www.myctrl.tools/frameworks/fedramp-20x-ksi/${urlId}" target="_blank" rel="noopener" class="framework-link fedramp20x" title="${tooltip}">${ksi}${levelBadges}</a>`;
             }).join('')
             : '<span class="framework-na">N/A</span>';
 
@@ -4193,7 +4287,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     }
 
     calculateL1ControlsMet() {
-        // L1 controls per CMMC 2.0 / FAR 52.204-21 (17 total)
+        // L1 controls per CMMC 2.0 / FAR 52.240-93 (formerly 52.204-21) (17 total)
         const L1_CONTROL_IDS = [
             '3.1.1', '3.1.2', '3.1.20', '3.1.22',  // AC (4)
             '3.3.1', '3.3.2',                       // AU (2)
