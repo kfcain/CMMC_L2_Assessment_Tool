@@ -343,67 +343,58 @@ const DocsHub = {
         const esc = this.esc;
         const tagType = d.tags.includes('supplemental') ? 'supplemental' : d.tags.includes('procedure') ? 'policy-procedure' : 'guidance';
         const tagLabel = tagType === 'supplemental' ? 'Supplemental' : tagType === 'policy-procedure' ? 'Policy & Procedure' : 'Guide';
+        const familyTag = d.tags.find(t => /^[A-Z]{2}$/.test(t));
 
         let card = `<div class="dh-guidance-card${isOpen ? ' dh-guidance-open' : ''}" data-guidance-id="${cardId}">
             <div class="dh-guidance-header" data-guidance-id="${cardId}">
-                <div class="dh-guidance-header-top">
-                    <span class="dh-guidance-type-badge dh-guidance-type-${tagType}">${tagLabel}</span>
-                    ${g.controls.length ? `<span class="dh-guidance-ctrl-count">${g.controls.length} control${g.controls.length !== 1 ? 's' : ''}</span>` : ''}
-                </div>
-                <div class="dh-guidance-title">${esc(d.title)}</div>
-                <div class="dh-guidance-desc">${esc(d.desc)}</div>
+                <div class="dh-doc-title">${esc(d.title)}</div>
+                <div class="dh-doc-desc">${esc(d.desc)}</div>
                 <div class="dh-doc-tags">
-                    ${d.tags.map(t => `<span class="dh-doc-tag">${esc(t)}</span>`).join('')}
+                    <span class="dh-guidance-type-badge dh-guidance-type-${tagType}">${tagLabel}</span>
+                    ${familyTag ? `<span class="dh-doc-tag">${esc(familyTag)}</span>` : ''}
+                    ${g.controls.length ? `<span class="dh-doc-tag">${g.controls.length} controls</span>` : ''}
                 </div>
-                <div class="dh-guidance-expand-hint">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="${isOpen ? '18 15 12 9 6 15' : '6 9 12 15 18 9'}"/></svg>
-                    ${isOpen ? 'Collapse' : 'Click to explore guidance'}
+                <div class="dh-doc-link dh-guidance-expand-hint">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="${isOpen ? '18 15 12 9 6 15' : '6 9 12 15 18 9'}"/></svg>
+                    ${isOpen ? 'Collapse' : 'View guidance'}
                 </div>
             </div>`;
 
         if (isOpen) {
             card += `<div class="dh-guidance-body">
-                <div class="dh-guidance-section">
-                    <div class="dh-guidance-section-title">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                        Summary
-                    </div>
-                    <div class="dh-guidance-section-text">${esc(g.summary)}</div>
-                </div>
+                <div class="dh-guidance-summary">${esc(g.summary)}</div>
 
-                <div class="dh-guidance-section">
-                    <div class="dh-guidance-section-title">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-                        Who Should This Apply To?
+                <div class="dh-guidance-columns">
+                    <div class="dh-guidance-section">
+                        <div class="dh-guidance-section-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                            Applies To
+                        </div>
+                        <ul class="dh-guidance-list">
+                            ${g.applicability.map(a => `<li>${esc(a)}</li>`).join('')}
+                        </ul>
                     </div>
-                    <ul class="dh-guidance-list">
-                        ${g.applicability.map(a => `<li>${esc(a)}</li>`).join('')}
-                    </ul>
+                    ${g.controls.length ? `<div class="dh-guidance-section">
+                        <div class="dh-guidance-section-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                            Related Controls
+                        </div>
+                        <div class="dh-guidance-controls">
+                            ${g.controls.map(c => `<span class="dh-guidance-ctrl-chip">${esc(c)}</span>`).join('')}
+                        </div>
+                    </div>` : ''}
                 </div>
 
                 <div class="dh-guidance-section">
                     <div class="dh-guidance-section-title">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        Implementation Considerations
+                        Key Considerations
                     </div>
                     <ul class="dh-guidance-considerations">
                         ${g.considerations.map(c => `<li>${esc(c)}</li>`).join('')}
                     </ul>
-                </div>`;
-
-            if (g.controls.length) {
-                card += `<div class="dh-guidance-section">
-                    <div class="dh-guidance-section-title">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-                        Related NIST 800-171 Controls
-                    </div>
-                    <div class="dh-guidance-controls">
-                        ${g.controls.map(c => `<span class="dh-guidance-ctrl-chip">${esc(c)}</span>`).join('')}
-                    </div>
-                </div>`;
-            }
-
-            card += `</div>`;
+                </div>
+            </div>`;
         }
 
         card += `</div>`;

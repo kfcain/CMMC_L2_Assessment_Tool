@@ -1,7 +1,7 @@
 // Service Worker for CMMC Assessment Tool
 // Provides offline caching and faster repeat visits
 
-const CACHE_NAME = 'cmmc-tool-v64';
+const CACHE_NAME = 'cmmc-tool-v65';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Core files that should always be cached
