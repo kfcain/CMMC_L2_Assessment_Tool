@@ -574,6 +574,17 @@ class AssessmentApp {
             document.querySelector('.hamburger-nav-btn[data-view="dashboard"]')?.classList.add('active');
         });
 
+        // Header Settings Cog - Click to open Settings (Appearance tab)
+        const settingsBtn = document.getElementById('header-settings-btn');
+        settingsBtn?.addEventListener('click', () => {
+            if (typeof SettingsPage !== 'undefined') {
+                SettingsPage._activeSection = 'theme';
+            }
+            this.switchView('settings');
+            document.querySelectorAll('.hamburger-nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.hamburger-nav-btn[data-view="settings"]')?.classList.add('active');
+        });
+
         // Legacy Sidebar Navigation
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {

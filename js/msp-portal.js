@@ -27,7 +27,7 @@ const MSPPortal = {
         { id: 'automation', name: 'Automation & Compliance', icon: 'cpu', section: 'security' },
         { id: 'automation-platforms', name: 'RMM & Automation Tools', icon: 'settings', section: 'tools' },
         { id: 'cloud-templates', name: 'Cloud Templates', icon: 'database', section: 'tools' },
-        { id: 'aws-toolkit', name: 'AWS Compliance Toolkit', icon: 'server', section: 'tools' },
+        { id: 'cloud-toolkits', name: 'Cloud Compliance Toolkits', icon: 'server', section: 'tools' },
         { id: 'evidence-lists', name: 'Evidence Collection Lists', icon: 'list', section: 'tools' },
         { id: 'data-protection', name: 'Data Protection Guide', icon: 'shield', section: 'tools' },
         { id: 'tech-scripts', name: 'Technical Scripts', icon: 'terminal', section: 'tools' },
@@ -182,6 +182,36 @@ const MSPPortal = {
         this.attachDataViewEvents();
     },
 
+    _bindCloudToolkitSubTabs: function() {
+        document.querySelectorAll('.ctk-sub-tab').forEach(tab => {
+            const newTab = tab.cloneNode(true);
+            tab.parentNode.replaceChild(newTab, tab);
+            newTab.addEventListener('click', (e) => {
+                const subtab = e.target.dataset.subtab;
+                const provider = e.target.closest('.ctk-sub-tabs')?.dataset.provider;
+                if (!subtab || !provider) return;
+
+                // Update active sub-tab
+                e.target.closest('.ctk-sub-tabs').querySelectorAll('.ctk-sub-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+
+                // Get the correct data source
+                const dataSources = {
+                    aws: typeof MSP_AWS_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_AWS_COMPLIANCE_TOOLKIT : null,
+                    azure: typeof MSP_AZURE_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_AZURE_COMPLIANCE_TOOLKIT : null,
+                    gcp: typeof MSP_GCP_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_GCP_COMPLIANCE_TOOLKIT : null
+                };
+                const data = dataSources[provider];
+                if (!data) return;
+
+                const contentEl = document.getElementById(`ctk-sub-content-${provider}`);
+                if (contentEl) {
+                    contentEl.innerHTML = MSPPortalViews._renderProviderSubSection(data, subtab, provider);
+                }
+            });
+        });
+    },
+
     attachDataViewEvents: function() {
         // Data view tabs (automation platforms, cloud templates, data protection)
         // Use setTimeout to ensure DOM is fully rendered
@@ -211,9 +241,9 @@ const MSPPortal = {
                     } else if (contentId === 'cloud-templates-content') {
                         const data = typeof MSP_CLOUD_TEMPLATES !== 'undefined' ? MSP_CLOUD_TEMPLATES : null;
                         if (data) contentEl.innerHTML = MSPPortalViews.renderCloudTemplatesSection(data, section);
-                    } else if (contentId === 'aws-toolkit-content') {
-                        const data = typeof MSP_AWS_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_AWS_COMPLIANCE_TOOLKIT : null;
-                        if (data) contentEl.innerHTML = MSPPortalViews.renderAWSToolkitSection(data, section);
+                    } else if (contentId === 'cloud-toolkits-content') {
+                        contentEl.innerHTML = MSPPortalViews.renderCloudToolkitContent(section);
+                        MSPPortal._bindCloudToolkitSubTabs();
                     } else if (contentId === 'data-protection-content') {
                         const data = typeof MSP_DATA_PROTECTION !== 'undefined' ? MSP_DATA_PROTECTION : null;
                         if (data) contentEl.innerHTML = MSPPortalViews.renderDataProtectionSection(data, section);
@@ -264,6 +294,9 @@ const MSPPortal = {
                     }
                 });
             });
+
+            // Cloud Toolkit sub-tabs (provider-level)
+            this._bindCloudToolkitSubTabs();
 
             // MSSP Playbook tabs
             document.querySelectorAll('.mssp-pb-tab').forEach(tab => {

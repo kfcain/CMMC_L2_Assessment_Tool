@@ -1765,45 +1765,145 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
         </div>`;
     },
 
-    // ==================== AWS COMPLIANCE TOOLKIT VIEW ====================
-    'aws-toolkit': function(portal) {
-        const data = typeof MSP_AWS_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_AWS_COMPLIANCE_TOOLKIT : null;
-        if (!data) return '<div class="msp-empty-state"><p>AWS Compliance Toolkit data not loaded</p></div>';
+    // ==================== CLOUD COMPLIANCE TOOLKITS VIEW ====================
+    'cloud-toolkits': function(portal) {
+        const aws = typeof MSP_AWS_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_AWS_COMPLIANCE_TOOLKIT : null;
+        const azure = typeof MSP_AZURE_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_AZURE_COMPLIANCE_TOOLKIT : null;
+        const gcp = typeof MSP_GCP_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_GCP_COMPLIANCE_TOOLKIT : null;
 
-        const sections = [
-            { id: 'cloudformation', label: 'CloudFormation', icon: '&#9729;' },
-            { id: 'lambda', label: 'Lambda Functions', icon: '&#955;' },
-            { id: 'ssm', label: 'Systems Manager', icon: '&#8862;' },
-            { id: 'orchestration', label: 'Orchestration', icon: '&#8644;' },
-            { id: 'athena', label: 'Athena Queries', icon: '&#8981;' },
-            { id: 'quickref', label: 'Service → Control Map', icon: '&#9776;' }
-        ];
+        if (!aws && !azure && !gcp) return '<div class="msp-empty-state"><p>Cloud compliance toolkit data not loaded</p></div>';
 
         return `
         <div class="msp-data-view">
             <div class="msp-intro-banner">
                 <div class="banner-content">
-                    <h2>${data.overview.title}</h2>
-                    <p>${data.overview.description}</p>
+                    <h2>Cloud Compliance Toolkits</h2>
+                    <p>Production-ready templates, functions, detection rules, and orchestration patterns for CMMC/FedRAMP compliance across AWS, Azure, and GCP.</p>
                 </div>
             </div>
             <div class="msp-data-tabs">
-                ${sections.map((s, i) => `<button class="msp-data-tab ${i === 0 ? 'active' : ''}" data-section="${s.id}"><span style="margin-right:4px">${s.icon}</span> ${s.label}</button>`).join('')}
+                ${aws ? '<button class="msp-data-tab active" data-section="aws">AWS GovCloud</button>' : ''}
+                ${azure ? '<button class="msp-data-tab' + (!aws ? ' active' : '') + '" data-section="azure">Azure GCC High</button>' : ''}
+                ${gcp ? '<button class="msp-data-tab' + (!aws && !azure ? ' active' : '') + '" data-section="gcp">GCP Assured Workloads</button>' : ''}
             </div>
-            <div class="msp-data-content" id="aws-toolkit-content">
-                ${this.renderAWSToolkitSection(data, 'cloudformation')}
+            <div class="msp-data-content" id="cloud-toolkits-content">
+                ${this.renderCloudToolkitContent(aws ? 'aws' : azure ? 'azure' : 'gcp')}
             </div>
         </div>`;
     },
 
-    renderAWSToolkitSection: function(data, sectionId) {
-        if (sectionId === 'cloudformation') return this._renderCFNSection(data.cloudformation);
-        if (sectionId === 'lambda') return this._renderLambdaSection(data.lambda);
-        if (sectionId === 'ssm') return this._renderSSMSection(data.systemsManager);
-        if (sectionId === 'orchestration') return this._renderOrchSection(data.orchestration);
-        if (sectionId === 'athena') return this._renderAthenaSection(data.athena);
-        if (sectionId === 'quickref') return this._renderQuickRefSection(data.quickReference);
+    renderCloudToolkitContent: function(provider) {
+        const aws = typeof MSP_AWS_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_AWS_COMPLIANCE_TOOLKIT : null;
+        const azure = typeof MSP_AZURE_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_AZURE_COMPLIANCE_TOOLKIT : null;
+        const gcp = typeof MSP_GCP_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_GCP_COMPLIANCE_TOOLKIT : null;
+
+        if (provider === 'aws' && aws) return this._renderAWSProvider(aws);
+        if (provider === 'azure' && azure) return this._renderAzureProvider(azure);
+        if (provider === 'gcp' && gcp) return this._renderGCPProvider(gcp);
+        return '<p>Provider data not loaded</p>';
+    },
+
+    _renderAWSProvider: function(data) {
+        const tabs = [
+            { id: 'cloudformation', label: 'CloudFormation' },
+            { id: 'lambda', label: 'Lambda Functions' },
+            { id: 'ssm', label: 'Systems Manager' },
+            { id: 'orchestration', label: 'Orchestration' },
+            { id: 'athena', label: 'Athena Queries' },
+            { id: 'quickref', label: 'Service Map' }
+        ];
+        return this._renderProviderWithSubTabs(data, tabs, 'aws');
+    },
+
+    _renderAzureProvider: function(data) {
+        const tabs = [
+            { id: 'arm', label: 'ARM / Bicep' },
+            { id: 'functions', label: 'Azure Functions' },
+            { id: 'logicapps', label: 'Logic Apps' },
+            { id: 'sentinel', label: 'Sentinel Analytics' },
+            { id: 'lighthouse', label: 'Lighthouse & Multi-Tenant' },
+            { id: 'quickref', label: 'Service Map' }
+        ];
+        return this._renderProviderWithSubTabs(data, tabs, 'azure');
+    },
+
+    _renderGCPProvider: function(data) {
+        const tabs = [
+            { id: 'infra', label: 'Terraform / gcloud' },
+            { id: 'functions', label: 'Cloud Functions' },
+            { id: 'chronicle', label: 'Chronicle SIEM' },
+            { id: 'bigquery', label: 'BigQuery Queries' },
+            { id: 'quickref', label: 'Service Map' }
+        ];
+        return this._renderProviderWithSubTabs(data, tabs, 'gcp');
+    },
+
+    _renderProviderWithSubTabs: function(data, tabs, provider) {
+        const activeTab = tabs[0].id;
+        return `
+            <div class="ctk-provider-header">
+                <h3>${data.overview.title}</h3>
+                <p style="color:var(--text-secondary);font-size:0.85rem;margin:4px 0 12px">${data.overview.description}</p>
+            </div>
+            <div class="ctk-sub-tabs" data-provider="${provider}">
+                ${tabs.map((t, i) => `<button class="ctk-sub-tab ${i === 0 ? 'active' : ''}" data-subtab="${t.id}">${t.label}</button>`).join('')}
+            </div>
+            <div class="ctk-sub-content" id="ctk-sub-content-${provider}">
+                ${this._renderProviderSubSection(data, activeTab, provider)}
+            </div>`;
+    },
+
+    _renderProviderSubSection: function(data, tabId, provider) {
+        if (provider === 'aws') {
+            if (tabId === 'cloudformation') return this._renderCFNSection(data.cloudformation);
+            if (tabId === 'lambda') return this._renderLambdaSection(data.lambda);
+            if (tabId === 'ssm') return this._renderSSMSection(data.systemsManager);
+            if (tabId === 'orchestration') return this._renderOrchSection(data.orchestration);
+            if (tabId === 'athena') return this._renderAthenaSection(data.athena);
+            if (tabId === 'quickref') return this._renderQuickRefSection(data.quickReference);
+        } else if (provider === 'azure') {
+            if (tabId === 'arm') return this._renderCFNSection(data.armTemplates);
+            if (tabId === 'functions') return this._renderLambdaSection(data.functions);
+            if (tabId === 'logicapps') return this._renderLogicAppsSection(data.logicApps);
+            if (tabId === 'sentinel') return this._renderAthenaSection(data.sentinelAnalytics);
+            if (tabId === 'lighthouse') return this._renderOrchSection(data.multiTenant);
+            if (tabId === 'quickref') return this._renderQuickRefSection(data.quickReference);
+        } else if (provider === 'gcp') {
+            if (tabId === 'infra') return this._renderCFNSection(data.infrastructure);
+            if (tabId === 'functions') return this._renderLambdaSection(data.functions);
+            if (tabId === 'chronicle') return this._renderAthenaSection(data.chronicleDetections);
+            if (tabId === 'bigquery') return this._renderAthenaSection(data.bigqueryQueries);
+            if (tabId === 'quickref') return this._renderQuickRefSection(data.quickReference);
+        }
         return '<p>Section not found</p>';
+    },
+
+    _renderLogicAppsSection: function(la) {
+        if (!la) return '<p>No Logic Apps data</p>';
+        return `<div class="data-section">
+            <h3>${la.title}</h3>
+            <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.85rem">${la.description}</p>
+            ${la.workflows.map(w => `
+                <div class="template-card">
+                    <div class="template-header">
+                        <h4>${w.name}</h4>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+                            <span class="msp-badge" style="background:rgba(108,138,255,0.12);color:#6c8aff;font-size:0.7rem">${w.category}</span>
+                            <span class="msp-badge" style="background:rgba(52,211,153,0.12);color:#34d399;font-size:0.7rem">${w.type}</span>
+                        </div>
+                    </div>
+                    <p class="template-desc">${w.description}</p>
+                    <div style="margin-bottom:10px">
+                        <strong style="font-size:0.8rem;color:var(--text-secondary)">CMMC Controls:</strong>
+                        <span style="font-size:0.75rem;color:var(--text-muted)"> ${w.controls.map(c => '<code>' + c + '</code>').join(' ')}</span>
+                    </div>
+                    <details class="aws-tk-code-details">
+                        <summary class="aws-tk-code-summary">View Workflow Definition</summary>
+                        <pre class="code-block" style="max-height:400px;overflow:auto"><code>${this.escapeHtml(w.template)}</code></pre>
+                    </details>
+                </div>
+            `).join('')}
+        </div>`;
     },
 
     _renderCFNSection: function(cfn) {

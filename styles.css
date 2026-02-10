@@ -8455,6 +8455,36 @@ body::after {
     }
 }
 
+/* Header Settings Cog Button */
+.header-settings-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin-left: 6px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.3s;
+    flex-shrink: 0;
+}
+.header-settings-btn:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: color-mix(in srgb, var(--border-color) 50%, transparent);
+    color: var(--text-primary);
+    transform: rotate(30deg);
+}
+.header-settings-btn:active {
+    transform: rotate(60deg);
+}
+.header-settings-btn svg {
+    flex-shrink: 0;
+}
+
 .top-header-bar .header-theme-picker {
     margin-left: 8px;
 }
