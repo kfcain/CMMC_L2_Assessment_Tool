@@ -892,6 +892,12 @@ class AssessmentApp {
             }
         });
 
+        // Wire the nav bar search trigger button to open command search
+        const searchTrigger = document.getElementById('search-trigger');
+        if (searchTrigger) {
+            searchTrigger.addEventListener('click', () => this.openCommandSearch());
+        }
+
         // Close on backdrop click
         this.commandSearchModal?.querySelector('.command-search-backdrop')?.addEventListener('click', () => {
             this.closeCommandSearch();
