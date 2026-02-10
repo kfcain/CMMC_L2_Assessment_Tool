@@ -67,13 +67,13 @@ const GapAnalysisUI = {
             <div class="modal-content modal-xlarge">
                 <div class="modal-header">
                     <h2>🎯 Gap Analysis Report</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop" data-backdrop=".modal-overlay">×</button>
                 </div>
                 <div class="modal-body">
                     ${this.renderDashboard(analysis)}
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Close</button>
+                    <button class="btn-secondary" data-action="close-backdrop" data-backdrop=".modal-overlay">Close</button>
                     <button class="btn-primary" id="export-gap-report-btn">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>

@@ -58,7 +58,7 @@ const EvidenceCollector = {
             <div class="modal-content modal-xlarge">
                 <div class="modal-header">
                     <h2>📚 Evidence Library</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop" data-backdrop=".modal-overlay">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="evidence-library-container">
@@ -170,7 +170,7 @@ const EvidenceCollector = {
             <div class="modal-content modal-medium">
                 <div class="modal-header">
                     <h2>➕ Add Evidence</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop" data-backdrop=".modal-overlay">×</button>
                 </div>
                 <div class="modal-body">
                     <form id="add-evidence-form">
@@ -206,7 +206,7 @@ const EvidenceCollector = {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+                    <button class="btn-secondary" data-action="close-backdrop" data-backdrop=".modal-overlay">Cancel</button>
                     <button class="btn-primary" id="save-evidence-btn">Save Evidence</button>
                 </div>
             </div>
@@ -267,7 +267,7 @@ const EvidenceCollector = {
             <div class="modal-content modal-medium">
                 <div class="modal-header">
                     <h2>${this.getEvidenceIcon(evidence.type)} ${evidence.title}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop" data-backdrop=".modal-overlay">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="evidence-details">
@@ -308,7 +308,7 @@ const EvidenceCollector = {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Close</button>
+                    <button class="btn-secondary" data-action="close-backdrop" data-backdrop=".modal-overlay">Close</button>
                 </div>
             </div>
         `;

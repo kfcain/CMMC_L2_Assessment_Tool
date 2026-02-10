@@ -196,7 +196,7 @@ const LocalCollaboration = {
             <div class="modal-content modal-medium">
                 <div class="modal-header">
                     <h2>Edit History - ${objectiveId}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop" data-backdrop=".modal-overlay">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="edit-history-list">
@@ -287,14 +287,14 @@ const LocalCollaboration = {
             <div class="activity-panel">
                 <div class="activity-panel-header">
                     <h3>Recent Activity</h3>
-                    <button class="panel-close" onclick="this.closest('.activity-panel-overlay').remove()">×</button>
+                    <button class="panel-close" data-action="close-overlay">×</button>
                 </div>
                 <div class="activity-panel-body">
                     <div id="activity-feed"></div>
                 </div>
                 <div class="activity-panel-footer">
-                    <button class="btn-secondary" onclick="LocalCollaboration.clearActivityLog()">Clear History</button>
-                    <button class="btn-secondary" onclick="LocalCollaboration.exportActivityLog()">Export Log</button>
+                    <button class="btn-secondary" data-action="collab-clear-log">Clear History</button>
+                    <button class="btn-secondary" data-action="collab-export-log">Export Log</button>
                 </div>
             </div>
         `;

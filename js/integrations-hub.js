@@ -431,7 +431,7 @@ const IntegrationsHub = {
                         <h2>Integrations Hub</h2>
                         <span class="ih-version">v${this.config.version}</span>
                     </div>
-                    <button class="ih-modal-close" onclick="this.closest('.ih-modal-backdrop').remove()">&times;</button>
+                    <button class="ih-modal-close">&times;</button>
                 </div>
                 <div class="ih-modal-body">
                     <div class="ih-stats-strip">
@@ -497,6 +497,10 @@ const IntegrationsHub = {
         modal.querySelectorAll('.ih-oscal-export-btn').forEach(btn => {
             btn.addEventListener('click', () => this.showOscalExportModal(modal));
         });
+
+        // Close button
+        const closeBtn = modal.querySelector('.ih-modal-close');
+        if (closeBtn) closeBtn.addEventListener('click', () => modal.remove());
 
         // Close on backdrop click
         modal.addEventListener('click', (e) => {

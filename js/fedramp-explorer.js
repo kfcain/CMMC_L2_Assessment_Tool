@@ -31,11 +31,37 @@ const FedRAMPExplorer = {
 
         if (FedRAMPMarketplace.loaded) {
             this._onDataReady();
+        } else if (FedRAMPMarketplace.error) {
+            this._showError(FedRAMPMarketplace.error);
         } else {
             this.container.innerHTML = '<div class="fre-loading"><div class="fre-spinner"></div><span>Loading FedRAMP Marketplace data...</span></div>';
-            FedRAMPMarketplace.onReady(() => this._onDataReady());
+            FedRAMPMarketplace.onReady(() => {
+                if (FedRAMPMarketplace.loaded) {
+                    this._onDataReady();
+                } else {
+                    this._showError(FedRAMPMarketplace.error || 'Failed to load data');
+                }
+            });
             if (!FedRAMPMarketplace.loading) FedRAMPMarketplace.init();
         }
+    },
+
+    _showError(msg) {
+        if (!this.container) return;
+        this.container.innerHTML = `
+            <div class="fre-empty" style="text-align:center;padding:40px 20px">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--status-not-met, #f87171)" stroke-width="1.5" style="margin-bottom:12px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <h3 style="margin:0 0 8px;font-size:1rem;color:var(--text-primary)">Unable to load FedRAMP Marketplace</h3>
+                <p style="margin:0 0 16px;font-size:0.8rem;color:var(--text-secondary)">${typeof Sanitize !== 'undefined' ? Sanitize.html(msg) : msg}</p>
+                <button class="fre-retry-btn" style="padding:8px 20px;border-radius:8px;border:1px solid var(--accent-blue);background:rgba(108,138,255,0.1);color:var(--accent-blue);cursor:pointer;font-size:0.8rem;font-weight:500">Retry</button>
+            </div>`;
+        var retryBtn = this.container.querySelector('.fre-retry-btn');
+        if (retryBtn) retryBtn.addEventListener('click', () => {
+            FedRAMPMarketplace.loaded = false;
+            FedRAMPMarketplace.loading = false;
+            FedRAMPMarketplace.error = null;
+            this.render();
+        });
     },
 
     _onDataReady() {

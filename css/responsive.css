@@ -1,0 +1,262 @@
+/* ═══════════════════════════════════════════════════════════════
+   COMPREHENSIVE RESPONSIVE / MOBILE OPTIMIZATION
+   Loaded LAST to override all other stylesheets.
+   Breakpoints: 1024px (tablet), 768px (mobile), 480px (small), 375px (xs)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── TABLET (≤1024px) ─────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .dash-hero-row { grid-template-columns: repeat(3, 1fr); }
+    .scorecard-hero { grid-template-columns: 1fr; }
+    .scorecard-metrics { grid-template-columns: repeat(2, 1fr); }
+    .planner-progress-summary { grid-template-columns: 1fr; }
+    .progress-stats { grid-template-columns: repeat(2, 1fr); }
+    .time-summary,
+    .task-details-grid { grid-template-columns: repeat(2, 1fr); }
+    .result-stats { grid-template-columns: repeat(2, 1fr); }
+    .library-stats { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-scores-row { grid-template-columns: 1fr; }
+    .portfolio-header { flex-direction: column; gap: 12px; }
+    .portfolio-actions { width: 100%; }
+}
+
+/* ── MOBILE (≤768px) ──────────────────────────────────────── */
+@media (max-width: 768px) {
+    /* ── Global layout ── */
+    .main-content {
+        margin-left: 0;
+        padding: 80px 12px 24px;
+    }
+    .view-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    .header-right {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    /* ── Dashboard grids ── */
+    .dash-hero-row { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-card-stats { grid-template-columns: repeat(2, 1fr); }
+    .scorecard-metrics { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-grid,
+    .timeline-summary,
+    .roles-grid,
+    .gap-summary-cards,
+    .effort-cards,
+    .kpi-section,
+    .poam-stats,
+    .inventory-stats { grid-template-columns: 1fr; }
+
+    /* ── Card grids → single column ── */
+    .evidence-grid,
+    .integrations-grid,
+    .planner-phases,
+    .family-grid,
+    .info-grid,
+    .fedramp-ksi-grid,
+    .fedramp-external-links,
+    .cmvp-modules-grid,
+    .impl-guide-grid,
+    .impl-detail-171-grid,
+    .purview-labels-grid { grid-template-columns: 1fr; }
+
+    /* ── Platform selection: 2-col ── */
+    .platform-selection { grid-template-columns: repeat(2, 1fr); }
+
+    /* ── Fixed-col grids → 1-col ── */
+    .objective-detail-stats,
+    .ll-header { grid-template-columns: 1fr; }
+    .l3-guidance .guidance-tabs { grid-template-columns: 1fr; }
+    .l3-assessment-modal .tech-grid { grid-template-columns: 1fr; }
+
+    /* ── Tables: horizontal scroll ── */
+    .impl-table,
+    table.compact,
+    .poam-table,
+    .msp-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+    }
+
+    /* ── Modals: full-width on mobile ── */
+    .modal-content,
+    .modal-backdrop .modal-content {
+        width: calc(100% - 24px);
+        max-width: calc(100% - 24px);
+        margin: 12px auto;
+        max-height: calc(100vh - 24px);
+    }
+    .modal-header { padding: 14px 16px; }
+    .modal-body { padding: 14px 16px; }
+
+    /* ── Form rows: single column ── */
+    .form-row { grid-template-columns: 1fr; }
+    .form-actions { flex-direction: column; }
+    .btn-cancel, .btn-save { width: 100%; justify-content: center; }
+
+    /* ── Implementation guide sections ── */
+    .impl-section { padding: 12px; }
+    .impl-section-title { font-size: 0.9rem; }
+    .impl-tabs { flex-wrap: wrap; gap: 4px; }
+    .impl-tab { font-size: 0.7rem; padding: 6px 10px; }
+
+    /* ── Regex / code sections ── */
+    .regex-category-card { margin-bottom: 8px; }
+    .regex-category-header { font-size: 0.8rem; padding: 8px 12px; }
+    pre, .script-code { font-size: 0.65rem; max-width: 100%; overflow-x: auto; }
+
+    /* ── Assessment details dropdowns ── */
+    .impl-details > .impl-summary { padding: 10px 12px; font-size: 0.8rem; }
+
+    /* ── Portfolio / Enhanced features ── */
+    .portfolio-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .client-metrics { grid-template-columns: repeat(2, 1fr); }
+    .portfolio-header { flex-direction: column; gap: 8px; }
+    .portfolio-actions { width: 100%; flex-wrap: wrap; }
+
+    /* ── MSP Portal ── */
+    .msp-sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0; bottom: 0;
+        z-index: 1001;
+        transition: left 0.25s ease;
+    }
+    .msp-sidebar.open { left: 0; }
+    .msp-main-content { margin-left: 0 !important; }
+    .msp-form-row { flex-direction: column; grid-template-columns: 1fr; }
+    .msp-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .msp-card-grid,
+    .msp-client-grid,
+    .msp-dashboard-grid,
+    .msp-quick-actions { grid-template-columns: 1fr; }
+    .client-card-metrics { grid-template-columns: repeat(2, 1fr); }
+    .checklist-grid,
+    .siem-dashboard-grid,
+    .logging-requirements,
+    .backend-ops-grid,
+    .docs-grid,
+    .licensing-grid,
+    .enclave-controls-grid { grid-template-columns: 1fr; }
+    .vdi-options-grid,
+    .automation-tools,
+    .enclave-grid { grid-template-columns: 1fr; }
+    .principles-grid,
+    .security-reqs-grid { grid-template-columns: repeat(2, 1fr); }
+    .projects-list { grid-template-columns: 1fr; }
+    .platforms-grid, .templates-grid, .policies-grid, .info-types-grid {
+        grid-template-columns: 1fr;
+    }
+    .scoping-details { grid-template-columns: 1fr; }
+    .splk-grid { grid-template-columns: 1fr; }
+    .soc-grid,
+    .soc-overview-grid { grid-template-columns: 1fr; }
+    .soc-actions-grid { grid-template-columns: repeat(2, 1fr); }
+
+    /* ── Settings page ── */
+    .stg-grid { grid-template-columns: 1fr; }
+    .stg-form-row { grid-template-columns: 1fr; }
+
+    /* ── Crosswalk ── */
+    .xwu-controls-grid { grid-template-columns: 1fr; }
+
+    /* ── Executive dashboard ── */
+    .ed-grid { grid-template-columns: 1fr; }
+    .ed-kpi-strip { grid-template-columns: repeat(2, 1fr); }
+
+    /* ── Command search ── */
+    .command-search-container {
+        width: 95vw;
+        max-width: 95vw;
+        margin: 8vh auto 0;
+    }
+    .command-search-box { max-height: 70vh; }
+
+    /* ── Conditional status banner ── */
+    .conditional-status-body { flex-direction: column; align-items: flex-start; }
+
+    /* ── Action buttons: full width ── */
+    .action-btn { width: 100%; justify-content: center; }
+
+    /* ── Toast: edge-to-edge ── */
+    .toast { left: 12px; right: 12px; bottom: 12px; }
+
+    /* ── FedRAMP widget ── */
+    .fre-widget-stats { flex-wrap: wrap; }
+
+    /* ── Prevent horizontal overflow ── */
+    body { overflow-x: hidden; }
+
+    /* ── Prevent iOS zoom on input focus ── */
+    input[type="text"],
+    input[type="search"],
+    input[type="email"],
+    input[type="password"],
+    input[type="date"],
+    input[type="number"],
+    input[type="url"],
+    select,
+    textarea { font-size: 16px; }
+}
+
+/* ── SMALL MOBILE (≤480px) ────────────────────────────────── */
+@media (max-width: 480px) {
+    .main-content { padding: 70px 8px 20px; }
+
+    /* All multi-col grids → 1-col */
+    .dash-hero-row,
+    .dashboard-card-stats,
+    .scorecard-metrics,
+    .progress-stats,
+    .time-summary,
+    .task-details-grid,
+    .result-stats,
+    .library-stats,
+    .platform-selection,
+    .portfolio-stats-grid,
+    .client-metrics,
+    .msp-stats-grid,
+    .msp-dashboard-stats,
+    .client-card-metrics,
+    .principles-grid,
+    .security-reqs-grid,
+    .soc-actions-grid,
+    .ed-kpi-strip { grid-template-columns: 1fr; }
+
+    /* Form rows always single col */
+    .form-row { grid-template-columns: 1fr !important; }
+
+    /* Smaller text */
+    .header-left h2 { font-size: 1.1rem; }
+    .section-title { font-size: 14px; }
+    .impl-section-title { font-size: 0.85rem; }
+
+    /* Compact cards */
+    .dashboard-card,
+    .family-card { padding: 12px; }
+
+    /* Modals: tighter */
+    .modal-content {
+        width: calc(100% - 16px);
+        max-width: calc(100% - 16px);
+        margin: 8px;
+    }
+
+    /* Hamburger dropdown */
+    .hamburger-dropdown { width: calc(100vw - 16px); max-width: 320px; }
+}
+
+/* ── EXTRA SMALL (≤375px — iPhone SE) ─────────────────────── */
+@media (max-width: 375px) {
+    .main-content { padding: 56px 6px 16px; }
+    .top-header-bar { gap: 4px; }
+    .header-branding { gap: 4px; }
+    .header-badge { font-size: 0.55rem; padding: 2px 5px; }
+    .header-title { font-size: 0.8rem; }
+    .hamburger-dropdown { width: calc(100vw - 12px); }
+}

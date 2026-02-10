@@ -396,14 +396,14 @@ const PortfolioDashboard = {
             <div class="client-card-footer">
                 <span class="client-industry">${client.industry || 'Defense'}</span>
                 <div class="client-actions">
-                    <button class="btn-icon" onclick="PortfolioDashboard.openClient('${client.id}')" title="Open Assessment">
+                    <button class="btn-icon" data-pd-action="open-client" data-client-id="${client.id}" title="Open Assessment">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
                             <polyline points="15 3 21 3 21 9"/>
                             <line x1="10" y1="14" x2="21" y2="3"/>
                         </svg>
                     </button>
-                    <button class="btn-icon" onclick="PortfolioDashboard.showClientDetails('${client.id}')" title="Details">
+                    <button class="btn-icon" data-pd-action="show-details" data-client-id="${client.id}" title="Details">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>
                             <path d="M12 16v-4M12 8h.01"/>
@@ -421,7 +421,7 @@ const PortfolioDashboard = {
             <div class="modal-content modal-fullscreen">
                 <div class="modal-header">
                     <h2>Client Portfolio</h2>
-                    <button class="modal-close" onclick="document.getElementById('portfolio-modal').remove()">×</button>
+                    <button class="modal-close" data-pd-action="close-modal" data-modal-id="portfolio-modal">×</button>
                 </div>
                 <div class="modal-body">
                     ${this.renderPortfolioDashboard()}
@@ -430,6 +430,7 @@ const PortfolioDashboard = {
         </div>`;
         
         document.body.insertAdjacentHTML('beforeend', modalHTML);
+        this._bindModalEvents('portfolio-modal');
         this.initClientSearch();
     },
 
@@ -479,7 +480,7 @@ const PortfolioDashboard = {
             <div class="modal-content">
                 <div class="modal-header">
                     <h3>Add New Client</h3>
-                    <button class="modal-close" onclick="document.getElementById('add-client-modal').remove()">×</button>
+                    <button class="modal-close" data-pd-action="close-modal" data-modal-id="add-client-modal">×</button>
                 </div>
                 <div class="modal-body">
                     <form id="add-client-form">
@@ -534,13 +535,14 @@ const PortfolioDashboard = {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="document.getElementById('add-client-modal').remove()">Cancel</button>
-                    <button class="btn-primary" onclick="PortfolioDashboard.saveNewClient()">Add Client</button>
+                    <button class="btn-secondary" data-pd-action="close-modal" data-modal-id="add-client-modal">Cancel</button>
+                    <button class="btn-primary" data-pd-action="save-new-client">Add Client</button>
                 </div>
             </div>
         </div>`;
         
         document.body.insertAdjacentHTML('beforeend', modalHTML);
+        this._bindModalEvents('add-client-modal');
     },
 
     saveNewClient: function() {
@@ -596,7 +598,7 @@ const PortfolioDashboard = {
             <div class="modal-content">
                 <div class="modal-header">
                     <h3>${client.name}</h3>
-                    <button class="modal-close" onclick="document.getElementById('client-details-modal').remove()">×</button>
+                    <button class="modal-close" data-pd-action="close-modal" data-modal-id="client-details-modal">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="detail-grid">
@@ -641,13 +643,14 @@ const PortfolioDashboard = {
                     ` : ''}
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-danger" onclick="PortfolioDashboard.confirmRemoveClient('${client.id}')">Remove</button>
-                    <button class="btn-primary" onclick="PortfolioDashboard.openClient('${client.id}')">Open Assessment</button>
+                    <button class="btn-danger" data-pd-action="remove-client" data-client-id="${client.id}">Remove</button>
+                    <button class="btn-primary" data-pd-action="open-client" data-client-id="${client.id}">Open Assessment</button>
                 </div>
             </div>
         </div>`;
         
         document.body.insertAdjacentHTML('beforeend', modalHTML);
+        this._bindModalEvents('client-details-modal');
     },
 
     confirmRemoveClient: function(clientId) {
@@ -671,6 +674,25 @@ const PortfolioDashboard = {
                 }
             }
         }
+    },
+
+    _bindModalEvents: function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modal.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-pd-action]');
+            if (!btn) return;
+            const action = btn.dataset.pdAction;
+            const clientId = btn.dataset.clientId || '';
+            const mid = btn.dataset.modalId || '';
+            switch (action) {
+                case 'close-modal': document.getElementById(mid)?.remove(); break;
+                case 'open-client': this.openClient(clientId); break;
+                case 'show-details': this.showClientDetails(clientId); break;
+                case 'save-new-client': this.saveNewClient(); break;
+                case 'remove-client': this.confirmRemoveClient(clientId); break;
+            }
+        });
     },
 
     refreshPortfolio: function() {

@@ -8,7 +8,7 @@
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://public-api.granola.ai https://graph.microsoft.com https://graph.microsoft.us https://dod-graph.microsoft.us https://login.microsoftonline.com https://login.microsoftonline.us https://*.securitycenter.microsoft.us https://*.api.knowbe4.com https://cloud.tenable.com https://fedcloud.tenable.com https://*.atlassian.net https://api.notion.com https://www.googleapis.com https://*.crowdstrike.com https://*.gcw.crowdstrike.com https://*.qualys.com https://*.sentinelone.net; frame-src 'self' https://www.figma.com https://lucid.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://public-api.granola.ai https://graph.microsoft.com https://graph.microsoft.us https://dod-graph.microsoft.us https://login.microsoftonline.com https://login.microsoftonline.us https://*.securitycenter.microsoft.us https://*.api.knowbe4.com https://cloud.tenable.com https://fedcloud.tenable.com https://*.atlassian.net https://api.notion.com https://www.googleapis.com https://*.crowdstrike.com https://*.gcw.crowdstrike.com https://*.qualys.com https://*.sentinelone.net https://raw.githubusercontent.com; frame-src 'self' https://www.figma.com https://lucid.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
     <title>CMMC 2.0 Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css?v=20260210b">
@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="css/command-center.css?v=20260208b">
     <link rel="stylesheet" href="css/executive-dashboard.css?v=20260209a">
     <link rel="stylesheet" href="css/settings-page.css?v=20260214a">
-    <link rel="stylesheet" href="css/docs-hub.css?v=1">
+    <link rel="stylesheet" href="css/docs-hub.css?v=20260210a">
     <link rel="stylesheet" href="css/scuba-baselines.css?v=1">
     <link rel="stylesheet" href="css/purple-background.css?v=1">
     <link rel="stylesheet" href="css/markitdown.css?v=1">
@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="css/fedramp-marketplace.css?v=20260210a">
     <link rel="stylesheet" href="css/fedramp-explorer.css?v=20260210a">
     <link rel="stylesheet" href="css/integrations-hub.css?v=20260210a">
+    <link rel="stylesheet" href="css/responsive.css?v=20260210a">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -876,14 +877,26 @@
     <!-- Reporting & Analytics -->
     <script src="js/executive-dashboard.js?v=20260209a" defer></script>
     <script src="js/settings-page.js?v=20260214b" defer></script>
-    <script src="js/docs-hub.js?v=1" defer></script>
+    <script src="js/docs-hub.js?v=20260210a" defer></script>
     
     <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('[App] Service Worker registered'))
+                    .then(reg => {
+                        console.log('[App] Service Worker registered');
+                        reg.update();
+                        if (reg.waiting) {
+                            reg.waiting.postMessage('skipWaiting');
+                        }
+                        reg.addEventListener('updatefound', () => {
+                            var nw = reg.installing;
+                            if (nw) nw.addEventListener('statechange', () => {
+                                if (nw.state === 'activated') window.location.reload();
+                            });
+                        });
+                    })
                     .catch(err => console.log('[App] Service Worker registration failed:', err));
             });
         }

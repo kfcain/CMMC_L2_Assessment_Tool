@@ -1254,7 +1254,7 @@ class AssessmentApp {
                                         <td><div class="deliverable" style="font-size: 0.8rem; color: var(--text-secondary);">${task.deliverable}</div></td>
                                         <td><span class="priority-badge ${task.priority}">${task.priority}</span></td>
                                         <td>
-                                            <button class="task-status-btn ${this.implPlannerProgress[task.implTaskId] ? 'complete' : ''}" data-task-id="${task.implTaskId}" onclick="app.toggleProjectPlanTask('${task.implTaskId}')">
+                                            <button class="task-status-btn ${this.implPlannerProgress[task.implTaskId] ? 'complete' : ''}" data-task-id="${task.implTaskId}" data-action="app-toggle-task" data-param="${task.implTaskId}">
                                                 ${this.implPlannerProgress[task.implTaskId] ? '✓ Complete' : '○ Pending'}
                                             </button>
                                         </td>
@@ -1840,7 +1840,7 @@ class AssessmentApp {
                                                 <td>
                                                     <button class="task-status-btn ${this.implPlannerProgress[task.implTaskId] ? 'complete' : ''}" 
                                                     data-task-id="${task.implTaskId}"
-                                                    onclick="app.toggleProjectPlanTask('${task.implTaskId}')">
+                                                    data-action="app-toggle-task" data-param="${task.implTaskId}">
                                                     ${this.implPlannerProgress[task.implTaskId] ? '✓ Complete' : '○ Pending'}
                                                     </button>
                                                 </td>
@@ -2833,7 +2833,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 <summary class="ps-connect-summary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
                     <span>${cloud === 'azure' ? 'PowerShell Connection Scripts' : 'CLI Connection Commands'}</span>
-                    <button class="ps-copy-all-btn" onclick="event.stopPropagation();navigator.clipboard.writeText(this.closest('.ps-connect-section').querySelector('pre').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy All',2000)">Copy All</button>
+                    <button class="ps-copy-all-btn" data-action="copy-closest-pre" data-copy-selector=".ps-connect-section pre" data-copy-label="Copy All">Copy All</button>
                 </summary>
                 <pre class="ps-connect-code">${psConnectScript}</pre>
             </details>
@@ -2845,7 +2845,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             const cmdList = guidance.cliCommands.map(cmd => `
                 <div class="cli-command">
                     <code>${cmd}</code>
-                    <button class="cli-copy-btn" title="Copy command" onclick="navigator.clipboard.writeText('${cmd.replace(/'/g, "\\'")}')">
+                    <button class="cli-copy-btn" title="Copy command" data-action="copy-sibling-code">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                     </button>
                 </div>
@@ -2865,7 +2865,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 <div class="automation-script-item">
                     <div class="script-header">
                         <span class="script-name">${script.name}</span>
-                        <button class="script-copy-btn" title="Copy script" onclick="navigator.clipboard.writeText(this.closest('.automation-script-item').querySelector('pre').textContent)">
+                        <button class="script-copy-btn" title="Copy script" data-action="copy-closest-pre" data-copy-selector=".automation-script-item pre">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                         </button>
                     </div>
@@ -4912,7 +4912,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             <div class="impl-ssp-item">
                 <div class="impl-ssp-control">${ctrl}</div>
                 <div class="impl-ssp-text">${text}</div>
-                <button class="impl-copy-btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent);this.textContent='Copied!'">
+                <button class="impl-copy-btn" data-action="copy-prev-sibling">
                     Copy
                 </button>
             </div>
@@ -5921,7 +5921,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 
                 ${cmmc.assessmentQuestionsEnhanced ? cmmc.assessmentQuestionsEnhanced.map((q, idx) => `
                     <div class="impl-policy-card" style="margin-bottom:16px">
-                        <div class="impl-policy-header" style="cursor:pointer" onclick="this.parentElement.querySelector('.impl-tech-details').classList.toggle('expanded')">
+                        <div class="impl-policy-header" style="cursor:pointer" data-action="toggle-tech-details">
                             <h4 style="font-size:0.85rem;flex:1">${q.question}</h4>
                             <span style="font-size:0.7rem;opacity:0.7">▼ Click to expand</span>
                         </div>
@@ -5933,7 +5933,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                                 <strong style="font-size:0.7rem;color:var(--accent-blue)">Applicable Controls:</strong>
                                 <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
                                     ${q.controls.map(c => `
-                                        <button class="control-link-btn" onclick="event.stopPropagation(); window.app && window.app.navigateToControl && window.app.navigateToControl('${c}')" 
+                                        <button class="control-link-btn" data-action="navigate-control" data-param="${c}" 
                                             style="background:var(--accent-blue);color:white;border:none;padding:4px 10px;border-radius:4px;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;gap:4px">
                                             <span style="font-weight:600">${c}</span>
                                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -6657,7 +6657,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                             <div class="evidence-cmd-output">
                                 <strong>Output:</strong> ${cmd.output}
                             </div>
-                            <button class="impl-copy-btn evidence-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.evidence-cmd-card').querySelector('.evidence-cmd-code').textContent);this.textContent='Copied!'">Copy Command</button>
+                            <button class="impl-copy-btn evidence-copy-btn" data-action="copy-closest-pre" data-copy-selector=".evidence-cmd-card .evidence-cmd-code">Copy Command</button>
                         </div>
                     `).join('') || '<p class="evidence-no-data">No automated commands available for this cloud.</p>';
                     
@@ -6843,7 +6843,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         </div>
                         <div class="impl-policy-body">
                             <p style="font-size:0.7rem;line-height:1.6">${guide.systemUseBanner.text}</p>
-                            <button class="impl-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.impl-policy-body').querySelector('p').textContent);this.textContent='Copied!'">Copy Banner Text</button>
+                            <button class="impl-copy-btn" data-action="copy-closest-pre" data-copy-selector=".impl-policy-body p">Copy Banner Text</button>
                         </div>
                     </div>
                 </div>
@@ -6882,7 +6882,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     </div>
                     <div class="impl-policy-body">
                         <pre class="script-code" style="font-size:0.65rem;max-height:150px;overflow:auto">${s.policy}</pre>
-                        <button class="impl-copy-btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent);this.textContent='Copied!'">Copy Policy</button>
+                        <button class="impl-copy-btn" data-action="copy-prev-sibling">Copy Policy</button>
                     </div>
                 </div>
             `).join('');
@@ -7226,7 +7226,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     <tr>
                         <td><strong>${p.name}</strong></td>
                         <td><code class="regex-code">${p.regex.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>
-                            <button class="regex-copy-btn" onclick="navigator.clipboard.writeText('${p.regex.replace(/'/g, "\\'")}');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+                            <button class="regex-copy-btn" data-action="copy-sibling-code">Copy</button>
                         </td>
                         <td style="font-size:0.65rem">${p.description}</td>
                         <td style="font-size:0.6rem;color:var(--text-muted)">${p.examples.join(', ')}</td>
@@ -7253,7 +7253,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         <td><strong>${p.name}</strong></td>
                         <td><span class="regex-category-badge ${p.category.toLowerCase()}">${p.category}</span></td>
                         <td><code class="regex-code">${p.regex.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>
-                            <button class="regex-copy-btn" onclick="navigator.clipboard.writeText('${p.regex.replace(/'/g, "\\'")}');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+                            <button class="regex-copy-btn" data-action="copy-sibling-code">Copy</button>
                         </td>
                         <td style="font-size:0.65rem">${p.description}</td>
                     </tr>
@@ -7339,7 +7339,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                             <summary class="ps-deploy-summary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
                                 <span>View Deployment Script</span>
-                                <button class="ps-copy-all-btn" onclick="event.stopPropagation();navigator.clipboard.writeText(this.closest('.ps-deploy-section').querySelector('pre').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy All',2000)">Copy All</button>
+                                <button class="ps-copy-all-btn" data-action="copy-deploy-script">Copy All</button>
                             </summary>
                             <pre class="ps-deploy-code">${plc.powershellDeployment}</pre>
                         </details>

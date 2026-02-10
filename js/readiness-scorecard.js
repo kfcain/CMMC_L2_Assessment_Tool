@@ -222,7 +222,7 @@ const ReadinessScorecard = {
             <div class="modal-content scorecard-modal">
                 <div class="modal-header">
                     <h2>Compliance Readiness Scorecard</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <!-- Overall Score -->

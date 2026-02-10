@@ -140,7 +140,7 @@ const APIIntegrations = {
             <div class="modal-content" style="max-width: 1000px;">
                 <div class="modal-header">
                     <h2>🔌 API Integrations</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="integrations-header">
@@ -228,7 +228,7 @@ const APIIntegrations = {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Close</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Close</button>
                 </div>
             </div>
         `;
@@ -243,7 +243,7 @@ const APIIntegrations = {
             <div class="modal-content" style="max-width: 600px;">
                 <div class="modal-header">
                     <h2>Add API Integration</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <p>Select a platform to integrate:</p>
@@ -275,7 +275,7 @@ const APIIntegrations = {
             <div class="modal-content" style="max-width: 700px;">
                 <div class="modal-header">
                     <h2>Configure ${platform.name} Integration</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="integration-config-form">
@@ -349,7 +349,7 @@ const APIIntegrations = {
                     <div id="connection-status" class="connection-status"></div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Cancel</button>
                     <button class="btn-secondary" id="test-connection-btn" data-platform="${platformKey}">
                         Test Connection
                     </button>
@@ -485,7 +485,7 @@ const APIIntegrations = {
             <div class="modal-content" style="max-width: 800px;">
                 <div class="modal-header">
                     <h2>${platform.name} Sync Logs</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="sync-logs">
@@ -505,7 +505,7 @@ const APIIntegrations = {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Close</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Close</button>
                 </div>
             </div>
         `;

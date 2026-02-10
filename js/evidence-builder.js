@@ -339,7 +339,7 @@ const EvidenceBuilder = {
                     <strong>${gaps.length} Required Artifacts Missing</strong>
                     <p>Complete these before your C3PAO assessment</p>
                 </div>
-                <button class="btn-text" onclick="EvidenceBuilder.scrollToGaps()">View Gaps</button>
+                <button class="btn-text" data-action="eb-scroll-gaps">View Gaps</button>
             </div>
             ` : `
             <div class="evidence-complete-alert">
@@ -364,7 +364,7 @@ const EvidenceBuilder = {
         
         return `
         <div class="evidence-family ${isComplete ? 'complete' : ''}" data-family="${familyId}">
-            <div class="family-header" onclick="EvidenceBuilder.toggleFamily('${familyId}')">
+            <div class="family-header" data-action="eb-toggle-family" data-param="${familyId}">
                 <div class="family-info">
                     <span class="family-icon">${isComplete ? '✓' : '○'}</span>
                     <span class="family-name">${family.name}</span>
@@ -403,7 +403,7 @@ const EvidenceBuilder = {
             <div class="artifact-badges">
                 ${artifact.required ? '<span class="badge required">Required</span>' : '<span class="badge optional">Optional</span>'}
             </div>
-            <button class="btn-icon upload-btn" onclick="EvidenceBuilder.uploadArtifact('${familyId}', '${artifact.name}')" title="Upload">
+            <button class="btn-icon upload-btn" data-action="eb-upload-artifact" data-param="${familyId}" data-artifact="${artifact.name}" title="Upload">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                     <polyline points="17 8 12 3 7 8"/>
@@ -494,7 +494,7 @@ const EvidenceBuilder = {
             <div class="modal-content modal-large">
                 <div class="modal-header">
                     <h2>Evidence Package Builder</h2>
-                    <button class="modal-close" onclick="document.getElementById('evidence-builder-modal').remove()">×</button>
+                    <button class="modal-close" data-action="close-modal" data-modal-id="evidence-builder-modal">×</button>
                 </div>
                 <div class="modal-body">
                     ${this.renderEvidenceBuilder()}

@@ -128,7 +128,7 @@ const APITester = {
                         <button class="api-tab ${this.state.activeTab === 'history' ? 'active' : ''}" data-tab="history">History</button>
                         <button class="api-tab ${this.state.activeTab === 'saved' ? 'active' : ''}" data-tab="saved">Saved</button>
                     </div>
-                    <button class="api-tester-close" onclick="APITester.close()">
+                    <button class="api-tester-close" data-action="api-close">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -261,9 +261,9 @@ const APITester = {
                                 <pre><code>${this.formatHeaders(this.state.response.headers)}</code></pre>
                             </div>
                             <div class="response-actions">
-                                <button class="action-btn" onclick="APITester.copyResponse()">📋 Copy Response</button>
-                                <button class="action-btn" onclick="APITester.downloadResponse()">⬇️ Download JSON</button>
-                                <button class="action-btn" onclick="APITester.mapToEvidence()">📎 Map to Evidence</button>
+                                <button class="action-btn" data-action="api-copy-response">📋 Copy Response</button>
+                                <button class="action-btn" data-action="api-download-response">⬇️ Download JSON</button>
+                                <button class="action-btn" data-action="api-map-evidence">📎 Map to Evidence</button>
                             </div>
                         ` : `
                             <div class="no-response">
@@ -285,7 +285,7 @@ const APITester = {
                     <div class="auth-field">
                         <label>Token:</label>
                         <input type="password" id="auth-token" placeholder="Enter bearer token" value="${this.escapeHtml(config.token || '')}">
-                        <button class="toggle-visibility" onclick="APITester.toggleVisibility('auth-token')">👁️</button>
+                        <button class="toggle-visibility" data-action="api-toggle-visibility" data-param="auth-token">👁️</button>
                     </div>
                 `;
             case 'basic':
@@ -297,7 +297,7 @@ const APITester = {
                     <div class="auth-field">
                         <label>Password:</label>
                         <input type="password" id="auth-password" placeholder="Password" value="${this.escapeHtml(config.password || '')}">
-                        <button class="toggle-visibility" onclick="APITester.toggleVisibility('auth-password')">👁️</button>
+                        <button class="toggle-visibility" data-action="api-toggle-visibility" data-param="auth-password">👁️</button>
                     </div>
                 `;
             case 'apikey':
@@ -309,7 +309,7 @@ const APITester = {
                     <div class="auth-field">
                         <label>API Key:</label>
                         <input type="password" id="auth-apikey" placeholder="Enter API key" value="${this.escapeHtml(config.apiKey || '')}">
-                        <button class="toggle-visibility" onclick="APITester.toggleVisibility('auth-apikey')">👁️</button>
+                        <button class="toggle-visibility" data-action="api-toggle-visibility" data-param="auth-apikey">👁️</button>
                     </div>
                 `;
             case 'oauth2':
@@ -328,13 +328,13 @@ const APITester = {
                     <div class="auth-field">
                         <label>Client Secret:</label>
                         <input type="password" id="oauth-client-secret" placeholder="Client Secret" value="${this.escapeHtml(config.clientSecret || '')}">
-                        <button class="toggle-visibility" onclick="APITester.toggleVisibility('oauth-client-secret')">👁️</button>
+                        <button class="toggle-visibility" data-action="api-toggle-visibility" data-param="oauth-client-secret">👁️</button>
                     </div>
                     <div class="auth-field">
                         <label>Scope:</label>
                         <input type="text" id="oauth-scope" placeholder="https://graph.microsoft.us/.default" value="${this.escapeHtml(config.scope || '')}">
                     </div>
-                    <button class="get-token-btn" onclick="APITester.getOAuthToken()">🔑 Get Token</button>
+                    <button class="get-token-btn" data-action="api-get-oauth-token">🔑 Get Token</button>
                     <div class="auth-field">
                         <label>Access Token:</label>
                         <textarea id="oauth-access-token" placeholder="Token will appear here..." readonly>${this.escapeHtml(config.accessToken || '')}</textarea>
@@ -413,7 +413,7 @@ const APITester = {
                                 ${endpoint.evidenceType ? `<span class="evidence-type">📋 ${endpoint.evidenceType}</span>` : ''}
                                 ${controls.length > 0 ? `<span class="cmmc-controls">🎯 ${controls.join(', ')}</span>` : ''}
                             </div>
-                            <button class="use-template-btn" onclick="APITester.useTemplate(this.parentElement)">Use Template</button>
+                            <button class="use-template-btn" data-action="api-use-template">Use Template</button>
                         </div>
                     `;
                 });
@@ -453,7 +453,7 @@ const APITester = {
                             ${endpoint.evidenceType ? `<span class="evidence-type">📋 ${endpoint.evidenceType}</span>` : ''}
                             ${controls.length > 0 ? `<span class="cmmc-controls">🎯 ${controls.join(', ')}</span>` : ''}
                         </div>
-                        <button class="use-template-btn" onclick="APITester.useTemplate(this.parentElement)">Use Template</button>
+                        <button class="use-template-btn" data-action="api-use-template">Use Template</button>
                     </div>
                 `;
             });
@@ -490,8 +490,8 @@ const APITester = {
                         ${req.response?.time ? `<span class="history-duration">${req.response.time}ms</span>` : ''}
                     </div>
                     <div class="history-actions">
-                        <button onclick="APITester.loadFromHistory(${this.state.requestHistory.length - 1 - i})">Load</button>
-                        <button onclick="APITester.removeFromHistory(${this.state.requestHistory.length - 1 - i})">Remove</button>
+                        <button data-action="api-load-history" data-param="${this.state.requestHistory.length - 1 - i}">Load</button>
+                        <button data-action="api-remove-history" data-param="${this.state.requestHistory.length - 1 - i}">Remove</button>
                     </div>
                 </div>
             `;
@@ -522,8 +522,8 @@ const APITester = {
                     <p class="saved-url">${this.truncate(req.url, 70)}</p>
                     ${req.description ? `<p class="saved-desc">${this.escapeHtml(req.description)}</p>` : ''}
                     <div class="saved-actions">
-                        <button onclick="APITester.loadSavedRequest(${i})">Load</button>
-                        <button onclick="APITester.deleteSavedRequest(${i})">Delete</button>
+                        <button data-action="api-load-saved" data-param="${i}">Load</button>
+                        <button data-action="api-delete-saved" data-param="${i}">Delete</button>
                     </div>
                 </div>
             `;

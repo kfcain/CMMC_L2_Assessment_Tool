@@ -149,7 +149,7 @@ const SystemInventory = {
             <div class="modal-content inventory-modal">
                 <div class="modal-header">
                     <h2>System & Information Inventory</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <!-- Stats Dashboard -->
@@ -287,7 +287,7 @@ const SystemInventory = {
             <div class="modal-content" style="max-width: 700px;">
                 <div class="modal-header">
                     <h2>${isEdit ? 'Edit Asset' : 'Add New Asset'}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <form id="asset-form">
@@ -370,7 +370,7 @@ const SystemInventory = {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Cancel</button>
                     <button class="btn-primary" id="save-asset-btn">${isEdit ? 'Update Asset' : 'Add Asset'}</button>
                 </div>
             </div>
@@ -450,7 +450,7 @@ const SystemInventory = {
             <div class="modal-content" style="max-width: 600px;">
                 <div class="modal-header">
                     <h2>${this.config.assetTypes[asset.type].icon} ${this.esc(asset.name)}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="asset-details">
@@ -507,7 +507,7 @@ const SystemInventory = {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Close</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Close</button>
                     <button class="btn-primary edit-asset-btn" data-asset-id="${assetId}">Edit Asset</button>
                 </div>
             </div>
@@ -577,7 +577,7 @@ const SystemInventory = {
             <div class="modal-content" style="max-width: 900px;">
                 <div class="modal-header">
                     <h2>📤 Bulk Upload System Assets</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="bulk-upload-instructions">
@@ -634,7 +634,7 @@ Firewall,network,10.0.0.1,dmz,high,Perimeter firewall,Security Team,no</pre>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Cancel</button>
                     <button class="btn-primary" id="process-bulk-upload-btn" disabled>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                         Import Assets
@@ -843,7 +843,7 @@ Firewall,network,10.0.0.1,dmz,high,Perimeter firewall,Security Team,no</pre>
             <div class="modal-content" style="max-width: 900px;">
                 <div class="modal-header">
                     <h2>🌐 Network Boundary Upload</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="boundary-instructions">
@@ -872,7 +872,7 @@ External API,api.example.com,outside,cloud,Third-party API service</pre>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Cancel</button>
                     <button class="btn-primary" id="process-network-boundary-btn" disabled>
                         Import Network Boundary
                     </button>

@@ -398,7 +398,7 @@ const CMMCL3Assessment = {
                         <h2>CMMC Level 3 Assessment</h2>
                         <span class="modal-subtitle">NIST SP 800-172A Enhanced Security Requirements</span>
                     </div>
-                    <button class="modal-close" onclick="document.getElementById('l3-assessment-modal').remove()">×</button>
+                    <button class="modal-close" data-action="close-modal" data-modal-id="l3-assessment-modal">×</button>
                 </div>
                 <div class="modal-body">
                     ${this.renderL3Content()}
@@ -430,7 +430,7 @@ const CMMCL3Assessment = {
 
             <div class="l3-family-nav">
                 ${Object.entries(this.ENHANCED_CONTROLS).map(([id, fam]) => 
-                    `<button class="family-nav-btn" data-family="${id}" onclick="CMMCL3Assessment.scrollToFamily('${id}')">${id}<span class="family-count">${fam.controls.length}</span></button>`
+                    `<button class="family-nav-btn" data-family="${id}" data-action="l3-scroll-family" data-param="${id}">${id}<span class="family-count">${fam.controls.length}</span></button>`
                 ).join('')}
             </div>
 
@@ -459,7 +459,7 @@ const CMMCL3Assessment = {
     renderAllFamilies: function() {
         return Object.entries(this.ENHANCED_CONTROLS).map(([id, family]) => `
             <div class="l3-family-section" id="family-${id}">
-                <div class="family-header" onclick="CMMCL3Assessment.toggleFamily('${id}')">
+                <div class="family-header" data-action="l3-toggle-family" data-param="${id}">
                     <h3><span class="family-id">${id}</span>${family.name}</h3>
                     <div class="family-header-right">
                         <span class="control-count">${family.controls.length} Enhanced Controls</span>
@@ -518,7 +518,7 @@ const CMMCL3Assessment = {
         const guidancePlaceholderId = `l3-guidance-${control.id}-${index}`;
         return `
         <div class="l3-objective-item" data-objective="${objId}">
-            <div class="objective-header" onclick="CMMCL3Assessment.toggleObjective(this)">
+            <div class="objective-header" data-action="l3-toggle-objective">
                 <div class="objective-info">
                     <span class="obj-marker">${objId}</span>
                     <span class="objective-text">${objective}</span>

@@ -524,7 +524,7 @@ const InheritedControls = {
                             `<option value="${id}">${csp.shortName}</option>`
                         ).join('')}
                     </select>
-                    <button class="btn-primary apply-template-btn" onclick="InheritedControls.applySelectedTemplate()">
+                    <button class="btn-primary apply-template-btn" data-action="ic-apply-template">
                         Apply Template
                     </button>
                 </div>
@@ -593,7 +593,7 @@ const InheritedControls = {
                              style="border-color: ${typeInfo.color};">
                             <span class="cell-id">${control.id}</span>
                             <span class="cell-icon">${typeInfo.icon}</span>
-                            <button class="edit-inheritance-btn" onclick="InheritedControls.showEditModal('${control.id}')">
+                            <button class="edit-inheritance-btn" data-action="ic-show-edit" data-param="${control.id}">
                                 ✎
                             </button>
                         </div>`;
@@ -627,7 +627,7 @@ const InheritedControls = {
             <div class="modal-content">
                 <div class="modal-header">
                     <h3>Set Inheritance: ${controlId}</h3>
-                    <button class="modal-close" onclick="document.getElementById('inheritance-modal').remove()">×</button>
+                    <button class="modal-close" data-action="close-modal" data-modal-id="inheritance-modal">×</button>
                 </div>
                 <div class="modal-body">
                     <p class="control-name">${control?.name || 'Control'}</p>
@@ -663,8 +663,8 @@ const InheritedControls = {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="document.getElementById('inheritance-modal').remove()">Cancel</button>
-                    <button class="btn-primary" onclick="InheritedControls.saveFromModal('${controlId}')">Save</button>
+                    <button class="btn-secondary" data-action="close-modal" data-modal-id="inheritance-modal">Cancel</button>
+                    <button class="btn-primary" data-action="ic-save-modal" data-param="${controlId}">Save</button>
                 </div>
             </div>
         </div>`;
@@ -1187,7 +1187,7 @@ const InheritedControls = {
             <div class="modal-content srm-modal">
                 <div class="modal-header">
                     <h3>ESP/CSP Shared Responsibility Matrix</h3>
-                    <button class="modal-close" onclick="document.getElementById('srm-upload-modal').remove()">×</button>
+                    <button class="modal-close" data-action="close-modal" data-modal-id="srm-upload-modal">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="srm-upload-section">
@@ -1216,7 +1216,7 @@ const InheritedControls = {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="document.getElementById('srm-upload-modal').remove()">Close</button>
+                    <button class="btn-secondary" data-action="close-modal" data-modal-id="srm-upload-modal">Close</button>
                 </div>
             </div>
         </div>`;

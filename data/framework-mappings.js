@@ -1,7 +1,7 @@
 // Cross-Framework Control Mappings
 // Maps NIST 800-171 Rev 2 controls to NIST 800-53 Rev 5 and CMMC L1/L2
 // Reference: NIST SP 800-171 Rev 2 Appendix D, CMMC Level 1 Assessment Guide
-// Classification: Basic/Derived per NIST 800-171; L1/L2 per CMMC 2.0 (17 L1 controls from FAR 52.204-21)
+// Classification: Basic/Derived per NIST 800-171; L1/L2 per CMMC 2.0 (17 L1 controls from FAR 52.240-93, formerly 52.204-21)
 // NOTE: FedRAMP 20x KSIs are dynamically derived from 800-53 controls via fedramp-20x-ksi.js
 
 const FRAMEWORK_MAPPINGS = {

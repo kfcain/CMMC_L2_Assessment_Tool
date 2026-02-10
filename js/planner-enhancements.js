@@ -174,7 +174,7 @@ const PlannerEnhancements = {
             <div class="modal-content" style="max-width: 700px;">
                 <div class="modal-header">
                     <h2>Task Notes - ${taskId}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     ${data.notes.length > 0 ? `
@@ -209,7 +209,7 @@ const PlannerEnhancements = {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Cancel</button>
                     <button class="btn-primary" id="save-task-note-btn">Save Note</button>
                 </div>
             </div>
@@ -251,7 +251,7 @@ const PlannerEnhancements = {
             <div class="modal-content" style="max-width: 600px;">
                 <div class="modal-header">
                     <h2>Log Time - ${taskId}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="time-summary">
@@ -325,7 +325,7 @@ const PlannerEnhancements = {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Cancel</button>
                     <button class="btn-primary" id="save-time-log-btn">Log Time</button>
                 </div>
             </div>
@@ -370,7 +370,7 @@ const PlannerEnhancements = {
             <div class="modal-content" style="max-width: 800px;">
                 <div class="modal-header">
                     <h2>Task Details - ${taskId}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="task-details-grid">
@@ -419,7 +419,7 @@ const PlannerEnhancements = {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Close</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Close</button>
                     <button class="btn-secondary add-task-note-btn" data-task-id="${taskId}">Add Note</button>
                     <button class="btn-secondary log-time-btn" data-task-id="${taskId}">Log Time</button>
                 </div>
@@ -462,7 +462,7 @@ const PlannerEnhancements = {
             <div class="modal-content planner-dashboard-modal">
                 <div class="modal-header">
                     <h2>Enhanced Implementation Planner</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <!-- Progress Summary -->

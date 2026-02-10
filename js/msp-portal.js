@@ -152,7 +152,7 @@ const MSPPortal = {
                 </div>
             `).join('')}
         </nav>
-        <div class="msp-sidebar-footer"><button class="msp-close-btn" onclick="MSPPortal.closePortal()">${this.getIcon('x')}<span>Close Portal</span></button></div>`;
+        <div class="msp-sidebar-footer"><button class="msp-close-btn" data-action="close-portal">${this.getIcon('x')}<span>Close Portal</span></button></div>`;
     },
 
     renderHeader: function() {
@@ -164,12 +164,12 @@ const MSPPortal = {
                 <div class="msp-stat-mini"><span class="stat-value">${stats.totalClients}</span><span class="stat-label">Clients</span></div>
                 <div class="msp-stat-mini"><span class="stat-value">${stats.inProgress}</span><span class="stat-label">Active</span></div>
             </div>
-            <button class="msp-header-btn" onclick="MSPPortal.refresh()">${this.getIcon('refresh-cw')}</button>
+            <button class="msp-header-btn" data-action="refresh">${this.getIcon('refresh-cw')}</button>
         </div>`;
     },
 
     attachPortalEvents: function() {
-        // Use single delegated listener on the portal container to avoid stacking
+        // Use single delegated listener on the portal container for ALL actions
         const portal = document.getElementById('msp-portal');
         if (!portal) return;
         portal.addEventListener('click', (e) => {
@@ -178,6 +178,57 @@ const MSPPortal = {
             if (navBtn) { this.switchView(navBtn.dataset.view); return; }
             // Close button
             if (e.target.closest('.msp-close-btn')) { this.closePortal(); return; }
+
+            // data-action delegation for all portal buttons
+            const actionBtn = e.target.closest('[data-action]');
+            if (actionBtn) {
+                const action = actionBtn.dataset.action;
+                const param = actionBtn.dataset.param || '';
+                switch (action) {
+                    case 'switch-view': this.switchView(param); break;
+                    case 'add-client': this.showAddClientModal(); break;
+                    case 'edit-client': this.editClient(param); break;
+                    case 'remove-client': this.confirmRemoveClient(param); break;
+                    case 'open-client-project': MSPPortalViews._switchKanbanClient(param); this.switchView('projects'); break;
+                    case 'open-hub': if (typeof IntegrationsHub !== 'undefined') IntegrationsHub.showHub(); break;
+                    case 'refresh': this.refresh(); break;
+                    case 'export-portfolio': this.exportPortfolio(); break;
+                    case 'generate-report': this.generateReport(param); break;
+                    case 'filter-clients': this.filterClients(param); break;
+                    case 'switch-env-tab': MSPPortalViews.switchEnvTab(param); break;
+                    case 'env-tab': MSPPortalViews.switchEnvTab(param); break;
+                    case 'add-task': MSPPortalViews._showAddTaskModal(param); break;
+                    case 'edit-task': MSPPortalViews._editTask(param); break;
+                    case 'seed-tasks': MSPPortalViews._seedDefaultTasks(param); break;
+                    case 'close-portal': this.closePortal(); break;
+                    case 'close-and-navigate':
+                        this.closePortal();
+                        if (window.app && typeof window.app.switchView === 'function') window.app.switchView(param);
+                        break;
+                    case 'copy-code': {
+                        const codeEl = actionBtn.closest('.dp-code-wrap, .ev-auto-cmd, .ts-code-wrap');
+                        const code = codeEl ? codeEl.querySelector('code') : null;
+                        if (code) {
+                            navigator.clipboard.writeText(code.textContent).then(() => {
+                                const orig = actionBtn.textContent;
+                                actionBtn.textContent = 'Copied!';
+                                setTimeout(() => { actionBtn.textContent = orig; }, 1500);
+                            });
+                        }
+                        break;
+                    }
+                    case 'copy-data': {
+                        const copyText = actionBtn.dataset.copy || '';
+                        const lbl = actionBtn.dataset.label || 'Copy';
+                        navigator.clipboard.writeText(copyText).then(() => {
+                            actionBtn.textContent = 'Copied!';
+                            setTimeout(() => { actionBtn.textContent = lbl; }, 1500);
+                        });
+                        break;
+                    }
+                }
+                return;
+            }
         });
         this.attachDataViewEvents();
     },
@@ -556,7 +607,7 @@ const MSPPortal = {
                 <div class="soc-status-right">
                     <span class="soc-integrations-badge">${connectedCount} Integrations Active</span>
                     <span class="soc-sync-badge">${syncedCount} Synced</span>
-                    <button class="soc-refresh-btn" onclick="MSPPortal.refresh()" title="Refresh">${this.getIcon('refresh-cw')}</button>
+                    <button class="soc-refresh-btn" data-action="refresh" title="Refresh">${this.getIcon('refresh-cw')}</button>
                 </div>
             </div>
 
@@ -619,7 +670,7 @@ const MSPPortal = {
 
                 <!-- Integration Status Panel -->
                 <div class="soc-panel soc-wide">
-                    <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('layers')} Integration Status</span><button class="soc-panel-btn" onclick="if(typeof IntegrationsHub!=='undefined')IntegrationsHub.showHub()">Open Hub</button></div>
+                    <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('layers')} Integration Status</span><button class="soc-panel-btn" data-action="open-hub">Open Hub</button></div>
                     <div class="soc-panel-body">
                         <div class="soc-integration-grid">
                             ${integrations.map(i => `
@@ -659,19 +710,19 @@ const MSPPortal = {
                     <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('cpu')} Quick Actions</span></div>
                     <div class="soc-panel-body">
                         <div class="soc-actions-grid">
-                            <button class="soc-action-btn" onclick="MSPPortal.switchView('clients')">${this.getIcon('user-plus')}<span>Clients</span></button>
-                            <button class="soc-action-btn" onclick="MSPPortal.switchView('siem')">${this.getIcon('activity')}<span>SIEM Ops</span></button>
-                            <button class="soc-action-btn" onclick="MSPPortal.switchView('projects')">${this.getIcon('calendar')}<span>Projects</span></button>
-                            <button class="soc-action-btn" onclick="MSPPortal.switchView('reports')">${this.getIcon('file-text')}<span>Reports</span></button>
-                            <button class="soc-action-btn" onclick="MSPPortal.switchView('env-setup')">${this.getIcon('server')}<span>Env Setup</span></button>
-                            <button class="soc-action-btn" onclick="if(typeof IntegrationsHub!=='undefined')IntegrationsHub.showHub()">${this.getIcon('settings')}<span>Integrations</span></button>
+                            <button class="soc-action-btn" data-action="switch-view" data-param="clients">${this.getIcon('user-plus')}<span>Clients</span></button>
+                            <button class="soc-action-btn" data-action="switch-view" data-param="siem">${this.getIcon('activity')}<span>SIEM Ops</span></button>
+                            <button class="soc-action-btn" data-action="switch-view" data-param="projects">${this.getIcon('calendar')}<span>Projects</span></button>
+                            <button class="soc-action-btn" data-action="switch-view" data-param="reports">${this.getIcon('file-text')}<span>Reports</span></button>
+                            <button class="soc-action-btn" data-action="switch-view" data-param="env-setup">${this.getIcon('server')}<span>Env Setup</span></button>
+                            <button class="soc-action-btn" data-action="open-hub">${this.getIcon('settings')}<span>Integrations</span></button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Client Overview -->
                 <div class="soc-panel soc-wide">
-                    <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('users')} Client Portfolio</span><button class="soc-panel-btn" onclick="MSPPortal.switchView('clients')">View All</button></div>
+                    <div class="soc-panel-head"><span class="soc-panel-title">${this.getIcon('users')} Client Portfolio</span><button class="soc-panel-btn" data-action="switch-view" data-param="clients">View All</button></div>
                     <div class="soc-panel-body">${this.renderClientTable()}</div>
                 </div>
             </div>
@@ -679,7 +730,7 @@ const MSPPortal = {
     },
 
     renderClientTable: function() {
-        if (this.state.clients.length === 0) return `<div class="soc-empty"><p>No clients yet</p><button class="msp-btn-primary" onclick="MSPPortal.showAddClientModal()">${this.getIcon('user-plus')} Add First Client</button></div>`;
+        if (this.state.clients.length === 0) return `<div class="soc-empty"><p>No clients yet</p><button class="msp-btn-primary" data-action="add-client">${this.getIcon('user-plus')} Add First Client</button></div>`;
         return `<table class="msp-table"><thead><tr><th>Organization</th><th>Level</th><th>SPRS</th><th>Progress</th><th>Status</th></tr></thead><tbody>
             ${this.state.clients.slice(0, 8).map(c => `<tr><td><strong>${c.name}</strong></td><td><span class="level-badge">L${c.assessmentLevel}</span></td><td class="${c.sprsScore >= 70 ? 'sprs-good' : c.sprsScore >= 0 ? 'sprs-warning' : ''}">${c.sprsScore ?? '--'}</td><td><div class="progress-bar-mini"><div class="progress-fill" style="width:${c.completionPercent||0}%"></div></div></td><td>${c.completionPercent >= 100 ? '<span class="status-badge success">Ready</span>' : '<span class="status-badge warning">In Progress</span>'}</td></tr>`).join('')}
         </tbody></table>`;
@@ -698,7 +749,7 @@ const MSPPortal = {
             <div class="msp-modal">
                 <div class="msp-modal-header">
                     <h3>${this.getIcon('user-plus')} Add New Client</h3>
-                    <button class="msp-modal-close" onclick="MSPPortal.closeAddClientModal()">${this.getIcon('x')}</button>
+                    <button class="msp-modal-close" id="msp-add-client-close-x">${this.getIcon('x')}</button>
                 </div>
                 <div class="msp-modal-body">
                     <form id="msp-add-client-form">
@@ -752,12 +803,16 @@ const MSPPortal = {
                     </form>
                 </div>
                 <div class="msp-modal-footer">
-                    <button class="msp-btn-secondary" onclick="MSPPortal.closeAddClientModal()">Cancel</button>
-                    <button class="msp-btn-primary" onclick="MSPPortal.submitAddClient()">${this.getIcon('check-circle')} Add Client</button>
+                    <button class="msp-btn-secondary" id="msp-add-client-cancel">Cancel</button>
+                    <button class="msp-btn-primary" id="msp-add-client-submit">${this.getIcon('check-circle')} Add Client</button>
                 </div>
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+        // Bind modal events programmatically
+        document.getElementById('msp-add-client-close-x')?.addEventListener('click', () => this.closeAddClientModal());
+        document.getElementById('msp-add-client-cancel')?.addEventListener('click', () => this.closeAddClientModal());
+        document.getElementById('msp-add-client-submit')?.addEventListener('click', () => this.submitAddClient());
     },
 
     closeAddClientModal: function() {
@@ -811,7 +866,7 @@ const MSPPortal = {
             <div class="msp-modal">
                 <div class="msp-modal-header">
                     <h3>${this.getIcon('edit')} Edit Client</h3>
-                    <button class="msp-modal-close" onclick="MSPPortal.closeEditClientModal()">${this.getIcon('x')}</button>
+                    <button class="msp-modal-close" id="msp-edit-client-close-x">${this.getIcon('x')}</button>
                 </div>
                 <div class="msp-modal-body">
                     <form id="msp-edit-client-form">
@@ -861,13 +916,18 @@ const MSPPortal = {
                     </form>
                 </div>
                 <div class="msp-modal-footer">
-                    <button class="msp-btn-danger" onclick="MSPPortal.confirmRemoveClient('${client.id}')" style="margin-right:auto">${this.getIcon('x')} Remove Client</button>
-                    <button class="msp-btn-secondary" onclick="MSPPortal.closeEditClientModal()">Cancel</button>
-                    <button class="msp-btn-primary" onclick="MSPPortal.submitEditClient()">${this.getIcon('check-circle')} Save Changes</button>
+                    <button class="msp-btn-danger" id="msp-edit-client-remove" style="margin-right:auto">${this.getIcon('x')} Remove Client</button>
+                    <button class="msp-btn-secondary" id="msp-edit-client-cancel">Cancel</button>
+                    <button class="msp-btn-primary" id="msp-edit-client-submit">${this.getIcon('check-circle')} Save Changes</button>
                 </div>
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+        // Bind edit modal events programmatically
+        document.getElementById('msp-edit-client-close-x')?.addEventListener('click', () => this.closeEditClientModal());
+        document.getElementById('msp-edit-client-cancel')?.addEventListener('click', () => this.closeEditClientModal());
+        document.getElementById('msp-edit-client-submit')?.addEventListener('click', () => this.submitEditClient());
+        document.getElementById('msp-edit-client-remove')?.addEventListener('click', () => this.confirmRemoveClient(client.id));
     },
 
     closeEditClientModal: function() {

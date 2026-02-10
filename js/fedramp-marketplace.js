@@ -159,9 +159,10 @@ const FedRAMPMarketplace = {
     async init() {
         if (this.loaded || this.loading) return;
         this.loading = true;
+        this.error = null;
 
         try {
-            // Try cache first
+            // Try cache first — instant load
             const cached = this._loadCache();
             if (cached) {
                 this.providers = cached;
@@ -180,21 +181,30 @@ const FedRAMPMarketplace = {
             this.error = e.message;
             this.loading = false;
             console.warn('[FedRAMP] Failed to load marketplace data:', e.message);
+            this._notify(); // notify listeners so UI can show error instead of spinner
         }
     },
 
     async _fetchFresh() {
         console.log('[FedRAMP] Fetching marketplace data...');
-        const resp = await fetch(this.DATA_URL);
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        const json = await resp.json();
-        this.providers = json?.data?.Providers || [];
-        this._buildIndex();
-        this._saveCache();
-        this.loaded = true;
-        this.loading = false;
-        this._notify();
-        console.log('[FedRAMP] Loaded ' + this.providers.length + ' CSO listings');
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
+        try {
+            const resp = await fetch(this.DATA_URL, { signal: controller.signal });
+            clearTimeout(timeout);
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const json = await resp.json();
+            this.providers = json?.data?.Providers || [];
+            this._buildIndex();
+            this._saveCache();
+            this.loaded = true;
+            this.loading = false;
+            this._notify();
+            console.log('[FedRAMP] Loaded ' + this.providers.length + ' CSO listings');
+        } catch (e) {
+            clearTimeout(timeout);
+            throw e;
+        }
     },
 
     _buildIndex() {

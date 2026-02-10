@@ -3187,7 +3187,7 @@ class AssessmentApp {
             }).join('');
             odpHtml = `
                 <div class="odp-section">
-                    <div class="odp-section-header" onclick="this.classList.toggle('expanded'); this.nextElementSibling.style.display = this.classList.contains('expanded') ? 'block' : 'none';">
+                    <div class="odp-section-header" data-action="toggle-next-sibling">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                         Organization-Defined Parameters (${control.odps.length})
                     </div>
@@ -3566,7 +3566,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 <summary class="ps-connect-summary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
                     <span>${cloud === 'azure' ? 'PowerShell Connection Scripts' : 'CLI Connection Commands'}</span>
-                    <button class="ps-copy-all-btn" onclick="event.stopPropagation();navigator.clipboard.writeText(this.closest('.ps-connect-section').querySelector('pre').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy All',2000)">Copy All</button>
+                    <button class="ps-copy-all-btn" data-action="copy-closest-pre" data-copy-selector=".ps-connect-section pre" data-copy-label="Copy All">Copy All</button>
                 </summary>
                 <pre class="ps-connect-code">${psConnectScript}</pre>
             </details>
@@ -3578,7 +3578,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             const cmdList = guidance.cliCommands.map(cmd => `
                 <div class="cli-command">
                     <code>${cmd}</code>
-                    <button class="cli-copy-btn" title="Copy command" onclick="navigator.clipboard.writeText('${cmd.replace(/'/g, "\\'")}')">
+                    <button class="cli-copy-btn" title="Copy command" data-action="copy-sibling-code">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                     </button>
                 </div>
@@ -3598,7 +3598,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 <div class="automation-script-item">
                     <div class="script-header">
                         <span class="script-name">${script.name}</span>
-                        <button class="script-copy-btn" title="Copy script" onclick="navigator.clipboard.writeText(this.closest('.automation-script-item').querySelector('pre').textContent)">
+                        <button class="script-copy-btn" title="Copy script" data-action="copy-closest-pre" data-copy-selector=".automation-script-item pre">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                         </button>
                     </div>
@@ -5899,7 +5899,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
             <div class="impl-ssp-item">
                 <div class="impl-ssp-control">${ctrl}</div>
                 <div class="impl-ssp-text">${text}</div>
-                <button class="impl-copy-btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent);this.textContent='Copied!'">
+                <button class="impl-copy-btn" data-action="copy-prev-sibling">
                     Copy
                 </button>
             </div>
@@ -6916,7 +6916,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                 
                 ${cmmc.assessmentQuestionsEnhanced ? cmmc.assessmentQuestionsEnhanced.map((q, idx) => `
                     <div class="impl-policy-card" style="margin-bottom:16px">
-                        <div class="impl-policy-header" style="cursor:pointer" onclick="this.parentElement.querySelector('.impl-tech-details').classList.toggle('expanded')">
+                        <div class="impl-policy-header" style="cursor:pointer" data-action="toggle-tech-details">
                             <h4 style="font-size:0.85rem;flex:1">${q.question}</h4>
                             <span style="font-size:0.7rem;opacity:0.7">▼ Click to expand</span>
                         </div>
@@ -6928,7 +6928,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                                 <strong style="font-size:0.7rem;color:var(--accent-blue)">Applicable Controls:</strong>
                                 <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
                                     ${q.controls.map(c => `
-                                        <button class="control-link-btn" onclick="event.stopPropagation(); window.app && window.app.navigateToControl && window.app.navigateToControl('${c}')" 
+                                        <button class="control-link-btn" data-action="navigate-control" data-param="${c}" 
                                             style="background:var(--accent-blue);color:white;border:none;padding:4px 10px;border-radius:4px;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;gap:4px">
                                             <span style="font-weight:600">${c}</span>
                                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -7652,7 +7652,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                             <div class="evidence-cmd-output">
                                 <strong>Output:</strong> ${cmd.output}
                             </div>
-                            <button class="impl-copy-btn evidence-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.evidence-cmd-card').querySelector('.evidence-cmd-code').textContent);this.textContent='Copied!'">Copy Command</button>
+                            <button class="impl-copy-btn evidence-copy-btn" data-action="copy-closest-pre" data-copy-selector=".evidence-cmd-card .evidence-cmd-code" data-copy-label="Copy Command">Copy Command</button>
                         </div>
                     `).join('') || '<p class="evidence-no-data">No automated commands available for this cloud.</p>';
                     
@@ -7838,7 +7838,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         </div>
                         <div class="impl-policy-body">
                             <p style="font-size:0.7rem;line-height:1.6">${guide.systemUseBanner.text}</p>
-                            <button class="impl-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.impl-policy-body').querySelector('p').textContent);this.textContent='Copied!'">Copy Banner Text</button>
+                            <button class="impl-copy-btn" data-action="copy-closest-pre" data-copy-selector=".impl-policy-body p" data-copy-label="Copy Banner Text">Copy Banner Text</button>
                         </div>
                     </div>
                 </div>
@@ -7877,7 +7877,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     </div>
                     <div class="impl-policy-body">
                         <pre class="script-code" style="font-size:0.65rem;max-height:150px;overflow:auto">${s.policy}</pre>
-                        <button class="impl-copy-btn" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent);this.textContent='Copied!'">Copy Policy</button>
+                        <button class="impl-copy-btn" data-action="copy-prev-sibling">Copy Policy</button>
                     </div>
                 </div>
             `).join('');
@@ -8221,7 +8221,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     <tr>
                         <td><strong>${p.name}</strong></td>
                         <td><code class="regex-code">${p.regex.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>
-                            <button class="regex-copy-btn" onclick="navigator.clipboard.writeText('${p.regex.replace(/'/g, "\\'")}');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+                            <button class="regex-copy-btn" data-action="copy-sibling-code">Copy</button>
                         </td>
                         <td style="font-size:0.65rem">${p.description}</td>
                         <td style="font-size:0.6rem;color:var(--text-muted)">${p.examples.join(', ')}</td>
@@ -8248,7 +8248,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                         <td><strong>${p.name}</strong></td>
                         <td><span class="regex-category-badge ${p.category.toLowerCase()}">${p.category}</span></td>
                         <td><code class="regex-code">${p.regex.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code>
-                            <button class="regex-copy-btn" onclick="navigator.clipboard.writeText('${p.regex.replace(/'/g, "\\'")}');this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+                            <button class="regex-copy-btn" data-action="copy-sibling-code">Copy</button>
                         </td>
                         <td style="font-size:0.65rem">${p.description}</td>
                     </tr>
@@ -8334,7 +8334,7 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                             <summary class="ps-deploy-summary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
                                 <span>View Deployment Script</span>
-                                <button class="ps-copy-all-btn" onclick="event.stopPropagation();navigator.clipboard.writeText(this.closest('.ps-deploy-section').querySelector('pre').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy All',2000)">Copy All</button>
+                                <button class="ps-copy-all-btn" data-action="copy-closest-pre" data-copy-selector=".ps-deploy-section pre" data-copy-label="Copy All">Copy All</button>
                             </summary>
                             <pre class="ps-deploy-code">${plc.powershellDeployment}</pre>
                         </details>
@@ -8845,3 +8845,186 @@ function selectSearchResult(item) {
         }
     }, 100);
 }
+
+// ============================================================
+// Global Delegated Event Handler
+// Replaces inline onclick handlers blocked by CSP script-src 'self'
+// ============================================================
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    var action = btn.dataset.action;
+    var param = btn.dataset.param || '';
+
+    switch (action) {
+        // --- Generic close patterns ---
+        case 'close-modal': {
+            var mid = btn.dataset.modalId;
+            if (mid) { var el = document.getElementById(mid); if (el) el.remove(); }
+            break;
+        }
+        case 'close-backdrop': {
+            var bd = btn.closest(btn.dataset.backdrop || '.modal-backdrop');
+            if (bd) bd.remove();
+            break;
+        }
+        case 'close-overlay': {
+            var ov = btn.closest(btn.dataset.overlay || '.activity-panel-overlay');
+            if (ov) ov.remove();
+            break;
+        }
+
+        // --- EvidenceUI ---
+        case 'evidence-signin': if (typeof evidenceUI !== 'undefined') evidenceUI.signInWithGoogle(); break;
+        case 'evidence-signout': if (typeof evidenceUI !== 'undefined') evidenceUI.signOut(); break;
+        case 'evidence-create-org': if (typeof evidenceUI !== 'undefined') evidenceUI.showCreateOrgModal(); break;
+        case 'evidence-create-assessment': if (typeof evidenceUI !== 'undefined') evidenceUI.showCreateAssessmentModal(); break;
+        case 'evidence-profile': if (typeof evidenceUI !== 'undefined') evidenceUI.showProfileModal(); break;
+        case 'evidence-close-profile': if (typeof evidenceUI !== 'undefined') evidenceUI.closeProfileModal(); break;
+        case 'evidence-close-modal': if (typeof evidenceUI !== 'undefined') evidenceUI.closeEvidenceModal(); break;
+        case 'evidence-download': if (typeof evidenceUI !== 'undefined') evidenceUI.downloadEvidence(param); break;
+        case 'evidence-delete': if (typeof evidenceUI !== 'undefined') evidenceUI.deleteEvidence(param); break;
+
+        // --- APITester ---
+        case 'api-close': if (typeof APITester !== 'undefined') APITester.close(); break;
+        case 'api-copy-response': if (typeof APITester !== 'undefined') APITester.copyResponse(); break;
+        case 'api-download-response': if (typeof APITester !== 'undefined') APITester.downloadResponse(); break;
+        case 'api-map-evidence': if (typeof APITester !== 'undefined') APITester.mapToEvidence(); break;
+        case 'api-toggle-visibility': if (typeof APITester !== 'undefined') APITester.toggleVisibility(param); break;
+        case 'api-get-oauth-token': if (typeof APITester !== 'undefined') APITester.getOAuthToken(); break;
+        case 'api-use-template': if (typeof APITester !== 'undefined') APITester.useTemplate(btn.closest('.template-item, .saved-item')); break;
+        case 'api-load-history': if (typeof APITester !== 'undefined') APITester.loadFromHistory(parseInt(param)); break;
+        case 'api-remove-history': if (typeof APITester !== 'undefined') APITester.removeFromHistory(parseInt(param)); break;
+        case 'api-load-saved': if (typeof APITester !== 'undefined') APITester.loadSavedRequest(parseInt(param)); break;
+        case 'api-delete-saved': if (typeof APITester !== 'undefined') APITester.deleteSavedRequest(parseInt(param)); break;
+
+        // --- PortfolioDashboard ---
+        case 'pd-open-client': if (typeof PortfolioDashboard !== 'undefined') PortfolioDashboard.openClient(param); break;
+        case 'pd-show-details': if (typeof PortfolioDashboard !== 'undefined') PortfolioDashboard.showClientDetails(param); break;
+        case 'pd-save-new-client': if (typeof PortfolioDashboard !== 'undefined') PortfolioDashboard.saveNewClient(); break;
+        case 'pd-remove-client': if (typeof PortfolioDashboard !== 'undefined') PortfolioDashboard.confirmRemoveClient(param); break;
+
+        // --- InheritedControls ---
+        case 'ic-show-edit': if (typeof InheritedControls !== 'undefined') InheritedControls.showEditModal(param); break;
+        case 'ic-save-modal': if (typeof InheritedControls !== 'undefined') InheritedControls.saveFromModal(param); break;
+        case 'ic-apply-template': if (typeof InheritedControls !== 'undefined') InheritedControls.applySelectedTemplate(); break;
+
+        // --- EvidenceBuilder ---
+        case 'eb-toggle-family': if (typeof EvidenceBuilder !== 'undefined') EvidenceBuilder.toggleFamily(param); break;
+        case 'eb-upload-artifact': if (typeof EvidenceBuilder !== 'undefined') EvidenceBuilder.uploadArtifact(param, btn.dataset.artifact); break;
+        case 'eb-scroll-gaps': if (typeof EvidenceBuilder !== 'undefined') EvidenceBuilder.scrollToGaps(); break;
+
+        // --- CMMCL3Assessment ---
+        case 'l3-toggle-family': if (typeof CMMCL3Assessment !== 'undefined') CMMCL3Assessment.toggleFamily(param); break;
+        case 'l3-scroll-family': if (typeof CMMCL3Assessment !== 'undefined') CMMCL3Assessment.scrollToFamily(param); break;
+        case 'l3-toggle-objective': if (typeof CMMCL3Assessment !== 'undefined') CMMCL3Assessment.toggleObjective(btn); break;
+
+        // --- LocalCollaboration ---
+        case 'collab-clear-log': if (typeof LocalCollaboration !== 'undefined') LocalCollaboration.clearActivityLog(); break;
+        case 'collab-export-log': if (typeof LocalCollaboration !== 'undefined') LocalCollaboration.exportActivityLog(); break;
+
+        // --- UserManagement ---
+        case 'um-cancel-invite': if (typeof UserManagement !== 'undefined') UserManagement.cancelInvite(param); break;
+
+        // --- OSCInventory ---
+        case 'osc-download-csv': if (typeof OSCInventory !== 'undefined') OSCInventory.downloadCSVTemplate(param); break;
+
+        // --- AssessmentEnhancements ---
+        case 'ae-manage-evidence': {
+            if (typeof AssessmentEnhancements !== 'undefined') AssessmentEnhancements.showManageEvidenceModal(param);
+            var aeBd = btn.closest('.modal-backdrop');
+            if (aeBd) aeBd.remove();
+            break;
+        }
+
+        // --- SecurityMonitor ---
+        case 'srm-close-upload': { var el2 = document.getElementById('srm-upload-modal'); if (el2) el2.remove(); break; }
+
+        // --- ReadinessScorecard ---
+        case 'rs-action': {
+            var fn = btn.dataset.fn;
+            if (fn && typeof window[fn] === 'function') window[fn](param);
+            break;
+        }
+
+        // --- Planner / POAM enhancements ---
+        case 'planner-action': {
+            var obj = btn.dataset.obj;
+            var method = btn.dataset.method;
+            if (obj && method && typeof window[obj] !== 'undefined' && typeof window[obj][method] === 'function') {
+                window[obj][method](param);
+            }
+            break;
+        }
+
+        // --- Copy helpers ---
+        case 'copy-sibling-code': {
+            var codeEl = btn.parentElement && btn.parentElement.querySelector('code');
+            if (codeEl) {
+                navigator.clipboard.writeText(codeEl.textContent);
+                btn.textContent = '\u2713';
+                setTimeout(function() { btn.textContent = 'Copy'; }, 1500);
+            }
+            break;
+        }
+        case 'copy-deploy-script': {
+            e.stopPropagation();
+            var preEl = btn.closest('.ps-deploy-section');
+            if (preEl) preEl = preEl.querySelector('pre');
+            if (preEl) {
+                navigator.clipboard.writeText(preEl.textContent);
+                btn.textContent = 'Copied!';
+                setTimeout(function() { btn.textContent = 'Copy All'; }, 2000);
+            }
+            break;
+        }
+        case 'copy-closest-pre': {
+            e.stopPropagation();
+            var cpSel = btn.dataset.copySelector;
+            var cpContainer = btn.closest('.ps-connect-section, .automation-script-item, .evidence-cmd-card, .impl-policy-body, .ps-deploy-section') || btn.parentElement;
+            var cpTarget = cpContainer && cpSel ? cpContainer.querySelector(cpSel.split(' ').pop()) : null;
+            if (!cpTarget && cpSel) cpTarget = btn.closest('[class]') && btn.closest('[class]').querySelector(cpSel.split(' ').pop());
+            if (cpTarget) {
+                navigator.clipboard.writeText(cpTarget.textContent);
+                var cpLabel = btn.dataset.copyLabel || btn.textContent.trim();
+                btn.textContent = 'Copied!';
+                setTimeout(function() { btn.textContent = cpLabel; }, 2000);
+            }
+            break;
+        }
+        case 'copy-prev-sibling': {
+            var prevEl = btn.previousElementSibling;
+            if (prevEl) {
+                navigator.clipboard.writeText(prevEl.textContent);
+                btn.textContent = 'Copied!';
+            }
+            break;
+        }
+
+        // --- Toggle helpers ---
+        case 'toggle-next-sibling': {
+            btn.classList.toggle('expanded');
+            var nextSib = btn.nextElementSibling;
+            if (nextSib) nextSib.style.display = btn.classList.contains('expanded') ? 'block' : 'none';
+            break;
+        }
+        case 'toggle-tech-details': {
+            var techDetails = btn.parentElement && btn.parentElement.querySelector('.impl-tech-details');
+            if (techDetails) techDetails.classList.toggle('expanded');
+            break;
+        }
+
+        // --- Navigation ---
+        case 'navigate-control': {
+            e.stopPropagation();
+            if (window.app && window.app.navigateToControl) window.app.navigateToControl(param);
+            break;
+        }
+
+        // --- Page reload ---
+        case 'reload-page': {
+            window.location.reload();
+            break;
+        }
+    }
+});

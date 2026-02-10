@@ -188,7 +188,7 @@ const POAMEnhancements = {
             <div class="modal-content poam-dashboard-modal">
                 <div class="modal-header">
                     <h2>Enhanced POA&M Dashboard</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <!-- Summary Stats -->
@@ -294,7 +294,7 @@ const POAMEnhancements = {
             <div class="modal-content" style="max-width: 700px;">
                 <div class="modal-header">
                     <h2>Risk Assessment - ${objectiveId}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <form id="risk-assessment-form">
@@ -337,7 +337,7 @@ const POAMEnhancements = {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Cancel</button>
                     <button class="btn-primary" id="save-risk-assessment-btn">Save Risk Assessment</button>
                 </div>
             </div>
@@ -400,7 +400,7 @@ const POAMEnhancements = {
             <div class="modal-content" style="max-width: 700px;">
                 <div class="modal-header">
                     <h2>Cost Breakdown - ${objectiveId}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="current-costs">
@@ -473,7 +473,7 @@ const POAMEnhancements = {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Close</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Close</button>
                     <button class="btn-primary" id="save-cost-breakdown-btn">Add Cost Item</button>
                 </div>
             </div>
@@ -517,7 +517,7 @@ const POAMEnhancements = {
             <div class="modal-content" style="max-width: 600px;">
                 <div class="modal-header">
                     <h2>Add Milestone - ${objectiveId}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <form id="milestone-form">
@@ -551,7 +551,7 @@ const POAMEnhancements = {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Cancel</button>
                     <button class="btn-primary" id="save-milestone-btn">Add Milestone</button>
                 </div>
             </div>

@@ -161,7 +161,7 @@ const AIAssistant = {
             <div class="modal-content" style="max-width: 700px;">
                 <div class="modal-header">
                     <h2>AI Assessment Assistant Settings</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <!-- Cost Warning Banner -->
@@ -228,7 +228,7 @@ const AIAssistant = {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Cancel</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Cancel</button>
                     <button class="btn-secondary" id="test-ai-connection-btn">Test Connection</button>
                     <button class="btn-primary" id="save-ai-config-btn">Save Configuration</button>
                 </div>
@@ -675,7 +675,7 @@ Provide your analysis in the following JSON format:
             <div class="modal-content" style="max-width: 800px;">
                 <div class="modal-header">
                     <h2>AI Analysis Results - ${objectiveId}</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    <button class="modal-close" data-action="close-backdrop">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="analysis-summary">
@@ -722,7 +722,7 @@ Provide your analysis in the following JSON format:
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Close</button>
+                    <button class="btn-secondary" data-action="close-backdrop">Close</button>
                     <button class="btn-primary analyze-objective-btn" data-objective-id="${objectiveId}">Re-analyze</button>
                 </div>
             </div>

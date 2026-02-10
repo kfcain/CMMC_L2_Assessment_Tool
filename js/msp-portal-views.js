@@ -11,13 +11,13 @@ const MSPPortalViews = {
         return `
         <div class="msp-clients-view">
             <div class="msp-view-header">
-                <div class="msp-search-bar"><input type="search" placeholder="Search clients..." class="msp-search-input" oninput="MSPPortal.filterClients(this.value)"></div>
+                <div class="msp-search-bar"><input type="search" placeholder="Search clients..." class="msp-search-input" id="msp-client-search"></div>
                 <div class="cp-header-stats">
                     <span class="cp-stat">${totalClients} client${totalClients !== 1 ? 's' : ''}</span>
                     <span class="cp-stat good">${readyCount} ready</span>
                     <span class="cp-stat">Avg SPRS: ${avgSprs}</span>
                 </div>
-                <button class="msp-btn-primary" onclick="MSPPortal.showAddClientModal()">${portal.getIcon('user-plus')} Add Client</button>
+                <button class="msp-btn-primary" data-action="add-client">${portal.getIcon('user-plus')} Add Client</button>
             </div>
             <div class="msp-client-grid">
                 ${clients.length > 0 ? clients.map(c => this.renderClientCard(c, portal)).join('') : this.renderEmptyClients(portal)}
@@ -60,16 +60,16 @@ const MSPPortalViews = {
             </div>` : ''}
             ${taskStats.overdue > 0 ? `<div class="cp-alert"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ${taskStats.overdue} overdue task${taskStats.overdue > 1 ? 's' : ''}</div>` : ''}
             <div class="client-card-actions">
-                <button class="msp-btn-secondary" onclick="MSPPortalViews._switchKanbanClient('${client.id}');MSPPortal.switchView('projects')">${portal.getIcon('calendar')} Board</button>
-                <button class="msp-btn-secondary" onclick="MSPPortal.switchView('reports')">${portal.getIcon('file-text')} Report</button>
-                <button class="msp-btn-icon" onclick="MSPPortal.editClient('${client.id}')" title="Edit client">${portal.getIcon('edit')}</button>
-                <button class="msp-btn-icon msp-btn-icon-danger" onclick="MSPPortal.confirmRemoveClient('${client.id}')" title="Remove client">${portal.getIcon('x')}</button>
+                <button class="msp-btn-secondary" data-action="open-client-project" data-param="${client.id}">${portal.getIcon('calendar')} Board</button>
+                <button class="msp-btn-secondary" data-action="switch-view" data-param="reports">${portal.getIcon('file-text')} Report</button>
+                <button class="msp-btn-icon" data-action="edit-client" data-param="${client.id}" title="Edit client">${portal.getIcon('edit')}</button>
+                <button class="msp-btn-icon msp-btn-icon-danger" data-action="remove-client" data-param="${client.id}" title="Remove client">${portal.getIcon('x')}</button>
             </div>
         </div>`;
     },
 
     renderEmptyClients: function(portal) {
-        return `<div class="msp-empty-state full-width"><div class="empty-icon">${portal.getIcon('users')}</div><h3>No Clients Yet</h3><p>Add your first client to start managing CMMC assessments</p><button class="msp-btn-primary" onclick="MSPPortal.showAddClientModal()">${portal.getIcon('user-plus')} Add First Client</button></div>`;
+        return `<div class="msp-empty-state full-width"><div class="empty-icon">${portal.getIcon('users')}</div><h3>No Clients Yet</h3><p>Add your first client to start managing CMMC assessments</p><button class="msp-btn-primary" data-action="add-client">${portal.getIcon('user-plus')} Add First Client</button></div>`;
     },
 
     // ==================== PROJECTS VIEW (KANBAN) ====================
@@ -87,7 +87,7 @@ const MSPPortalViews = {
         ];
 
         if (clients.length === 0) {
-            return `<div class="msp-empty-state"><div class="empty-icon">${portal.getIcon('calendar')}</div><h3>No Projects</h3><p>Add clients to create project plans</p><button class="msp-btn-primary" onclick="MSPPortal.showAddClientModal()">${portal.getIcon('user-plus')} Add Client</button></div>`;
+            return `<div class="msp-empty-state"><div class="empty-icon">${portal.getIcon('calendar')}</div><h3>No Projects</h3><p>Add clients to create project plans</p><button class="msp-btn-primary" data-action="add-client">${portal.getIcon('user-plus')} Add Client</button></div>`;
         }
 
         const stats = this._getKanbanStats(tasks);
@@ -97,7 +97,7 @@ const MSPPortalViews = {
         <div class="kb-planner">
             <div class="kb-header">
                 <div class="kb-client-select">
-                    <select class="stg-select" id="kb-client-picker" onchange="MSPPortalViews._switchKanbanClient(this.value)">
+                    <select class="stg-select" id="kb-client-picker">
                         ${clients.map(c => `<option value="${c.id}" ${c.id === selectedClient ? 'selected' : ''}>${c.name}</option>`).join('')}
                     </select>
                     ${client ? `<span class="kb-level-badge">L${client.assessmentLevel}</span>` : ''}
@@ -108,10 +108,10 @@ const MSPPortalViews = {
                         <span class="kb-stat done">${stats.done} done</span>
                         ${stats.overdue > 0 ? `<span class="kb-stat overdue">${stats.overdue} overdue</span>` : ''}
                     </div>
-                    <button class="msp-btn-secondary" onclick="MSPPortalViews._seedDefaultTasks('${selectedClient}')" title="Load default CMMC tasks">
+                    <button class="msp-btn-secondary" data-action="seed-tasks" data-param="${selectedClient}" title="Load default CMMC tasks">
                         ${portal.getIcon('refresh-cw')} Seed Tasks
                     </button>
-                    <button class="msp-btn-primary" onclick="MSPPortalViews._showAddTaskModal('${selectedClient}')">
+                    <button class="msp-btn-primary" data-action="add-task" data-param="${selectedClient}">
                         ${portal.getIcon('plus')} Add Task
                     </button>
                 </div>
@@ -119,7 +119,7 @@ const MSPPortalViews = {
             ${showSeedPrompt ? `
             <div class="kb-seed-prompt">
                 <p>No tasks yet for this client. Start with default CMMC assessment tasks?</p>
-                <button class="msp-btn-primary" onclick="MSPPortalViews._seedDefaultTasks('${selectedClient}')">
+                <button class="msp-btn-primary" data-action="seed-tasks" data-param="${selectedClient}">
                     ${portal.getIcon('plus')} Load Default CMMC Tasks
                 </button>
             </div>` : ''}
@@ -133,7 +133,7 @@ const MSPPortalViews = {
                             <span class="kb-col-name">${col.name}</span>
                             <span class="kb-col-count">${colTasks.length}</span>
                         </div>
-                        <div class="kb-col-body" data-column="${col.id}" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="MSPPortalViews._dropTask(event,'${col.id}')">
+                        <div class="kb-col-body" data-column="${col.id}">
                             ${colTasks.map(task => this._renderKanbanCard(task, portal)).join('')}
                         </div>
                     </div>`;
@@ -147,14 +147,14 @@ const MSPPortalViews = {
         const tagColors = ['#6c8aff', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
         const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'done';
         return `
-        <div class="kb-card ${isOverdue ? 'overdue' : ''}" draggable="true" data-task-id="${task.id}" ondragstart="MSPPortalViews._dragTask(event,'${task.id}')">
+        <div class="kb-card ${isOverdue ? 'overdue' : ''}" draggable="true" data-task-id="${task.id}">
             <div class="kb-card-top">
                 <span class="kb-priority" style="background:${priorityColors[task.priority] || '#4e5263'}" title="${task.priority || 'normal'} priority"></span>
                 <div class="kb-card-actions">
-                    <button class="kb-card-btn" onclick="MSPPortalViews._editTask('${task.id}')" title="Edit">
+                    <button class="kb-card-btn" data-action="edit-task" data-param="${task.id}" title="Edit">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
-                    <button class="kb-card-btn" onclick="MSPPortalViews._deleteTask('${task.id}')" title="Delete">
+                    <button class="kb-card-btn" data-action="delete-task" data-param="${task.id}" title="Delete">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                     </button>
                 </div>
@@ -230,7 +230,7 @@ const MSPPortalViews = {
         modal.id = 'kb-task-modal';
         modal.innerHTML = `
         <div class="msp-modal" style="max-width:500px">
-            <div class="msp-modal-header"><h3>Add Task</h3><button class="msp-modal-close" onclick="document.getElementById('kb-task-modal')?.remove()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="msp-modal-header"><h3>Add Task</h3><button class="msp-modal-close" id="kb-add-task-close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
             <div class="msp-modal-body">
                 <div class="msp-form-group"><label>Title *</label><input type="text" id="kb-task-title" class="stg-input" style="width:100%" required placeholder="Task title"></div>
                 <div class="msp-form-group"><label>Description</label><textarea id="kb-task-desc" class="stg-input" style="width:100%;min-height:60px" placeholder="Optional description"></textarea></div>
@@ -245,11 +245,14 @@ const MSPPortalViews = {
                 <div class="msp-form-group"><label>Tags (comma-separated)</label><input type="text" id="kb-task-tags" class="stg-input" style="width:100%" placeholder="SSP, AC, remediation..."></div>
             </div>
             <div class="msp-modal-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--glass-border,rgba(255,255,255,0.05))">
-                <button class="msp-btn-secondary" onclick="document.getElementById('kb-task-modal')?.remove()">Cancel</button>
-                <button class="msp-btn-primary" onclick="MSPPortalViews._submitAddTask('${clientId}')">Add Task</button>
+                <button class="msp-btn-secondary" id="kb-add-task-cancel">Cancel</button>
+                <button class="msp-btn-primary" id="kb-add-task-submit">Add Task</button>
             </div>
         </div>`;
         document.body.appendChild(modal);
+        document.getElementById('kb-add-task-close')?.addEventListener('click', () => document.getElementById('kb-task-modal')?.remove());
+        document.getElementById('kb-add-task-cancel')?.addEventListener('click', () => document.getElementById('kb-task-modal')?.remove());
+        document.getElementById('kb-add-task-submit')?.addEventListener('click', () => this._submitAddTask(clientId));
         document.getElementById('kb-task-title')?.focus();
     },
 
@@ -286,7 +289,7 @@ const MSPPortalViews = {
         modal.id = 'kb-task-modal';
         modal.innerHTML = `
         <div class="msp-modal" style="max-width:500px">
-            <div class="msp-modal-header"><h3>Edit Task</h3><button class="msp-modal-close" onclick="document.getElementById('kb-task-modal')?.remove()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+            <div class="msp-modal-header"><h3>Edit Task</h3><button class="msp-modal-close" id="kb-edit-task-close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
             <div class="msp-modal-body">
                 <div class="msp-form-group"><label>Title *</label><input type="text" id="kb-task-title" class="stg-input" style="width:100%" value="${task.title.replace(/"/g, '&quot;')}"></div>
                 <div class="msp-form-group"><label>Description</label><textarea id="kb-task-desc" class="stg-input" style="width:100%;min-height:60px">${task.description || ''}</textarea></div>
@@ -301,11 +304,14 @@ const MSPPortalViews = {
                 <div class="msp-form-group"><label>Tags (comma-separated)</label><input type="text" id="kb-task-tags" class="stg-input" style="width:100%" value="${(task.tags || []).join(', ')}"></div>
             </div>
             <div class="msp-modal-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--glass-border,rgba(255,255,255,0.05))">
-                <button class="msp-btn-secondary" onclick="document.getElementById('kb-task-modal')?.remove()">Cancel</button>
-                <button class="msp-btn-primary" onclick="MSPPortalViews._submitEditTask('${clientId}','${taskId}')">Save</button>
+                <button class="msp-btn-secondary" id="kb-edit-task-cancel">Cancel</button>
+                <button class="msp-btn-primary" id="kb-edit-task-submit">Save</button>
             </div>
         </div>`;
         document.body.appendChild(modal);
+        document.getElementById('kb-edit-task-close')?.addEventListener('click', () => document.getElementById('kb-task-modal')?.remove());
+        document.getElementById('kb-edit-task-cancel')?.addEventListener('click', () => document.getElementById('kb-task-modal')?.remove());
+        document.getElementById('kb-edit-task-submit')?.addEventListener('click', () => this._submitEditTask(clientId, taskId));
     },
 
     _submitEditTask: function(clientId, taskId) {
@@ -376,12 +382,12 @@ const MSPPortalViews = {
         return `
         <div class="msp-reports-view">
             <div class="reports-grid">
-                <div class="report-card" onclick="MSPPortal.generateReport('executive')"><div class="report-icon">${portal.getIcon('file-text')}</div><h4>Executive Summary</h4><p>High-level compliance status</p></div>
-                <div class="report-card" onclick="MSPPortal.generateReport('gap')"><div class="report-icon">${portal.getIcon('activity')}</div><h4>Gap Analysis</h4><p>Detailed findings & remediation</p></div>
-                <div class="report-card" onclick="MSPPortal.generateReport('c3pao')"><div class="report-icon">${portal.getIcon('check-circle')}</div><h4>C3PAO Readiness</h4><p>Pre-assessment checklist</p></div>
-                <div class="report-card" onclick="MSPPortal.generateReport('ssp')"><div class="report-icon">${portal.getIcon('book')}</div><h4>SSP Appendix</h4><p>Implementation statements</p></div>
-                <div class="report-card" onclick="MSPPortal.exportPortfolio()"><div class="report-icon">${portal.getIcon('users')}</div><h4>Portfolio Summary</h4><p>All clients overview</p></div>
-                <div class="report-card" onclick="MSPPortal.generateReport('poam')"><div class="report-icon">${portal.getIcon('list')}</div><h4>POA&M Report</h4><p>Plan of Action & Milestones</p></div>
+                <div class="report-card" data-action="generate-report" data-param="executive"><div class="report-icon">${portal.getIcon('file-text')}</div><h4>Executive Summary</h4><p>High-level compliance status</p></div>
+                <div class="report-card" data-action="generate-report" data-param="gap"><div class="report-icon">${portal.getIcon('activity')}</div><h4>Gap Analysis</h4><p>Detailed findings & remediation</p></div>
+                <div class="report-card" data-action="generate-report" data-param="c3pao"><div class="report-icon">${portal.getIcon('check-circle')}</div><h4>C3PAO Readiness</h4><p>Pre-assessment checklist</p></div>
+                <div class="report-card" data-action="generate-report" data-param="ssp"><div class="report-icon">${portal.getIcon('book')}</div><h4>SSP Appendix</h4><p>Implementation statements</p></div>
+                <div class="report-card" data-action="export-portfolio"><div class="report-icon">${portal.getIcon('users')}</div><h4>Portfolio Summary</h4><p>All clients overview</p></div>
+                <div class="report-card" data-action="generate-report" data-param="poam"><div class="report-icon">${portal.getIcon('list')}</div><h4>POA&M Report</h4><p>Plan of Action & Milestones</p></div>
             </div>
         </div>`;
     },
@@ -658,15 +664,15 @@ const MSPPortalViews = {
                 <p>Configure FedRAMP High-authorized cloud environments for CMMC Level 2/3 compliance. Each provider requires specific configurations for CUI handling.</p>
             </div>
             <div class="msp-env-tabs">
-                <button class="env-tab active" data-provider="azure" onclick="MSPPortalViews.switchEnvTab('azure')">
+                <button class="env-tab active" data-provider="azure" data-action="switch-env-tab" data-param="azure">
                     <svg class="env-tab-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
                     <span>Azure GCC High</span>
                 </button>
-                <button class="env-tab" data-provider="aws" onclick="MSPPortalViews.switchEnvTab('aws')">
+                <button class="env-tab" data-provider="aws" data-action="switch-env-tab" data-param="aws">
                     <svg class="env-tab-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                     <span>AWS GovCloud</span>
                 </button>
-                <button class="env-tab" data-provider="gcp" onclick="MSPPortalViews.switchEnvTab('gcp')">
+                <button class="env-tab" data-provider="gcp" data-action="switch-env-tab" data-param="gcp">
                     <svg class="env-tab-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                     <span>GCP Assured Workloads</span>
                 </button>
@@ -1356,7 +1362,7 @@ process where process.name == "powershell.exe" and
                 <div class="msp-card-header"><h3>Jira Integration Active</h3></div>
                 <div class="msp-card-body">
                     <p style="color:var(--text-secondary);font-size:0.78rem;">Your Jira instance is connected via the Integrations Hub. POA&M items can be pushed directly to Jira as tickets.</p>
-                    <button class="msp-btn-primary" onclick="if(typeof IntegrationsHub!=='undefined')IntegrationsHub.showHub()" style="margin-top:8px">View Jira Data</button>
+                    <button class="msp-btn-primary" data-action="open-hub" style="margin-top:8px">View Jira Data</button>
                 </div>
             </div>` : ''}
         </div>`;
@@ -1601,16 +1607,16 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
                 <div class="msp-card-header"><h3>📥 In-App Tools</h3></div>
                 <div class="msp-card-body">
                     <div class="in-app-tools-grid">
-                        <button class="msp-tool-btn" onclick="MSPPortal.closePortal(); window.app.switchView('sprs');">
+                        <button class="msp-tool-btn" data-action="close-and-navigate" data-param="sprs">
                             ${portal.getIcon('bar-chart')}<span>SPRS Calculator</span>
                         </button>
-                        <button class="msp-tool-btn" onclick="MSPPortal.closePortal(); window.app.switchView('crosswalk');">
+                        <button class="msp-tool-btn" data-action="close-and-navigate" data-param="crosswalk">
                             ${portal.getIcon('layers')}<span>Framework Crosswalk</span>
                         </button>
-                        <button class="msp-tool-btn" onclick="MSPPortal.closePortal(); window.app.switchView('impl-planner');">
+                        <button class="msp-tool-btn" data-action="close-and-navigate" data-param="impl-planner">
                             ${portal.getIcon('calendar')}<span>Implementation Planner</span>
                         </button>
-                        <button class="msp-tool-btn" onclick="MSPPortal.switchView('reports');">
+                        <button class="msp-tool-btn" data-action="switch-view" data-param="reports">
                             ${portal.getIcon('file-text')}<span>Generate Reports</span>
                         </button>
                     </div>
@@ -2214,13 +2220,13 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
                         <div class="ev-auto-cmd">
                             <div class="ev-auto-cmd-header">
                                 <span class="ev-auto-platform">${platform.toUpperCase()}</span>
-                                <button class="dp-copy-btn dp-copy-sm" onclick="navigator.clipboard.writeText(this.closest('.ev-auto-cmd').querySelector('code').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+                                <button class="dp-copy-btn dp-copy-sm" data-action="copy-code">Copy</button>
                             </div>
                             <pre class="ev-auto-code"><code>${this.escapeHtml(cmd)}</code></pre>
                         </div>
                     `).join('') : `
                         <div class="ev-auto-cmd">
-                            <button class="dp-copy-btn dp-copy-sm" onclick="navigator.clipboard.writeText(this.closest('.ev-auto-cmd').querySelector('code').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)" style="float:right">Copy</button>
+                            <button class="dp-copy-btn dp-copy-sm" data-action="copy-code" style="float:right">Copy</button>
                             <pre class="ev-auto-code"><code>${this.escapeHtml(autoCollection)}</code></pre>
                         </div>
                     `}
@@ -2296,11 +2302,11 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
     },
 
     _dpCopyBtn: function(text, label) {
-        return `<button class="dp-copy-btn" onclick="navigator.clipboard.writeText(this.dataset.copy);this.textContent='Copied!';setTimeout(()=>this.textContent='${label || 'Copy'}',1500)" data-copy="${this.escapeHtml(text)}">${label || 'Copy'}</button>`;
+        return `<button class="dp-copy-btn" data-action="copy-data" data-copy="${this.escapeHtml(text)}" data-label="${label || 'Copy'}">${label || 'Copy'}</button>`;
     },
 
     _dpCodeBlock: function(code, lang) {
-        return `<div class="dp-code-wrap"><div class="dp-code-header"><span class="dp-code-lang">${lang || 'PowerShell'}</span><button class="dp-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.dp-code-wrap').querySelector('code').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div><pre class="dp-code-block"><code>${this.escapeHtml(code)}</code></pre></div>`;
+        return `<div class="dp-code-wrap"><div class="dp-code-header"><span class="dp-code-lang">${lang || 'PowerShell'}</span><button class="dp-copy-btn" data-action="copy-code">Copy</button></div><pre class="dp-code-block"><code>${this.escapeHtml(code)}</code></pre></div>`;
     },
 
     renderSensitivityLabels: function(section) {
@@ -2409,7 +2415,7 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
                                 ${type.patterns.map(p => `
                                     <div class="dp-pattern-row">
                                         <code class="dp-pattern-regex">${this.escapeHtml(p.regex || p.pattern || '')}</code>
-                                        <button class="dp-copy-btn dp-copy-sm" onclick="navigator.clipboard.writeText('${this.escapeHtml((p.regex || p.pattern || '').replace(/'/g, "\\'"))}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+                                        <button class="dp-copy-btn dp-copy-sm" data-action="copy-data" data-copy="${this.escapeHtml(p.regex || p.pattern || '')}" data-label="Copy">Copy</button>
                                         <div class="dp-pattern-desc">${p.description || ''}</div>
                                     </div>
                                 `).join('')}
@@ -3148,14 +3154,14 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
                             ${p.iamPolicy ? `
                                 <details class="ops-code-detail">
                                     <summary>View IAM Policy</summary>
-                                    <div class="dp-code-wrap"><div class="dp-code-header"><span class="dp-code-lang">JSON</span><button class="dp-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.dp-code-wrap').querySelector('code').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div><pre class="dp-code-block"><code>${this.escapeHtml(p.iamPolicy)}</code></pre></div>
+                                    <div class="dp-code-wrap"><div class="dp-code-header"><span class="dp-code-lang">JSON</span><button class="dp-copy-btn" data-action="copy-code">Copy</button></div><pre class="dp-code-block"><code>${this.escapeHtml(p.iamPolicy)}</code></pre></div>
                                 </details>
                             ` : ''}
 
                             ${p.trustPolicy ? `
                                 <details class="ops-code-detail">
                                     <summary>View Trust Policy</summary>
-                                    <div class="dp-code-wrap"><div class="dp-code-header"><span class="dp-code-lang">JSON</span><button class="dp-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.dp-code-wrap').querySelector('code').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div><pre class="dp-code-block"><code>${this.escapeHtml(p.trustPolicy)}</code></pre></div>
+                                    <div class="dp-code-wrap"><div class="dp-code-header"><span class="dp-code-lang">JSON</span><button class="dp-copy-btn" data-action="copy-code">Copy</button></div><pre class="dp-code-block"><code>${this.escapeHtml(p.trustPolicy)}</code></pre></div>
                                 </details>
                             ` : ''}
 
@@ -3744,7 +3750,7 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
                 <div class="ts-code-wrap">
                     <div class="ts-code-header">
                         <span>${script.language || 'Script'} — ${script.platform || ''}</span>
-                        <button class="ts-copy-btn" onclick="MSPPortalViews._copyTechScript(this)" data-script-id="${scriptId}">Copy Script</button>
+                        <button class="ts-copy-btn" data-action="copy-code" data-script-id="${scriptId}">Copy Script</button>
                     </div>
                     <pre class="ts-code-block"><code>${this.escapeHtml(script.script || '# No script content')}</code></pre>
                 </div>

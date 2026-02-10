@@ -203,7 +203,7 @@ const SessionManager = {
                     <p><strong>Note:</strong> Your work has been automatically saved to local storage.</p>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-primary" onclick="window.location.reload()">
+                    <button class="btn-primary" data-action="reload-page">
                         Refresh Page
                     </button>
                 </div>

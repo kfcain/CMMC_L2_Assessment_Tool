@@ -51,7 +51,7 @@ const UserManagement = {
                         <h2>Team Management</h2>
                         <span class="modal-subtitle">${this.currentOrg?.name || 'Organization'}</span>
                     </div>
-                    <button class="modal-close" onclick="document.getElementById('user-management-modal').remove()">×</button>
+                    <button class="modal-close" data-action="close-modal" data-modal-id="user-management-modal">×</button>
                 </div>
                 <div class="modal-body">
                     ${this.renderUserManagementContent()}
@@ -163,7 +163,7 @@ const UserManagement = {
             <div class="invite-meta">
                 Invited ${this.formatDate(invite.invited_at)} by ${invite.invited_by_name}
             </div>
-            <button class="btn-icon btn-danger" onclick="UserManagement.cancelInvite('${invite.id}')">
+            <button class="btn-icon btn-danger" data-action="um-cancel-invite" data-param="${invite.id}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"/>
                     <line x1="6" y1="6" x2="18" y2="18"/>

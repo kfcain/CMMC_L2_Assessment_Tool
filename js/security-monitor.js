@@ -266,7 +266,7 @@ const SecurityMonitor = {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="window.location.reload()">
+                    <button class="btn-secondary" data-action="reload-page">
                         Refresh Page
                     </button>
                 </div>
