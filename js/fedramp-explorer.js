@@ -18,7 +18,7 @@ const FedRAMPExplorer = {
     page: 0,
     pageSize: 50,
     expandedId: null,
-    viewMode: 'status',       // 'all', 'alpha', 'status', 'impact'
+    viewMode: 'cards',        // 'cards', 'all', 'alpha', 'status', 'impact'
     expandedGroup: null,       // which group card is open
 
     // ── Render Entry Point ────────────────────────────────────────────
@@ -83,6 +83,7 @@ const FedRAMPExplorer = {
             website: p.CSP_Website || '',
             description: p.CSO_Description || '',
             logoUrl: p.CSP_URL || '',
+            faviconUrl: this._buildFaviconUrl(p.CSP_Website || p.CSP_URL || ''),
             atoLetters: (p.Leveraged_ATO_Letters || []).filter(l => l.Include_In_Marketplace === 'Y'),
             underlyingPackageIds: p.Underlying_CSP_Package_ID || [],
             marketplaceUrl: 'https://marketplace.fedramp.gov/products/' + (p.Package_ID || '')
@@ -193,18 +194,19 @@ const FedRAMPExplorer = {
 
         // View mode selector
         html += '<div class="fre-view-modes">';
+        html += '<button class="fre-view-mode-btn' + (vm === 'cards' ? ' fre-vm-active' : '') + '" data-mode="cards"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Cards</button>';
         html += '<button class="fre-view-mode-btn' + (vm === 'status' ? ' fre-vm-active' : '') + '" data-mode="status"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> By Status</button>';
         html += '<button class="fre-view-mode-btn' + (vm === 'impact' ? ' fre-vm-active' : '') + '" data-mode="impact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> By Impact</button>';
         html += '<button class="fre-view-mode-btn' + (vm === 'alpha' ? ' fre-vm-active' : '') + '" data-mode="alpha"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h12M3 18h6"/></svg> A &ndash; Z</button>';
-        html += '<button class="fre-view-mode-btn' + (vm === 'all' ? ' fre-vm-active' : '') + '" data-mode="all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> List View</button>';
+        html += '<button class="fre-view-mode-btn' + (vm === 'all' ? ' fre-vm-active' : '') + '" data-mode="all"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> List</button>';
         html += '</div>';
 
         // Search bar (always visible)
         html += '<div class="fre-toolbar">';
         html += '<div class="fre-search-wrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="fre-search" id="fre-search" placeholder="Search CSOs, vendors, assessors, agencies..." value="' + esc(this.searchTerm) + '" spellcheck="false" autocomplete="off"></div>';
 
-        // Filter dropdowns (only in list view)
-        if (vm === 'all') {
+        // Filter dropdowns (list & card view)
+        if (vm === 'all' || vm === 'cards') {
             html += '<select class="fre-filter" id="fre-filter-designation"><option value="all">All Designations</option><option value="Compliant"' + (this.filters.designation === 'Compliant' ? ' selected' : '') + '>Authorized</option><option value="In Process"' + (this.filters.designation === 'In Process' ? ' selected' : '') + '>In Process</option><option value="FedRAMP Ready"' + (this.filters.designation === 'FedRAMP Ready' ? ' selected' : '') + '>FedRAMP Ready</option></select>';
             html += '<select class="fre-filter" id="fre-filter-impact"><option value="all">All Impact Levels</option><option value="High"' + (this.filters.impact === 'High' ? ' selected' : '') + '>High</option><option value="Moderate"' + (this.filters.impact === 'Moderate' ? ' selected' : '') + '>Moderate</option><option value="Low"' + (this.filters.impact === 'Low' ? ' selected' : '') + '>Low / LI-SaaS</option></select>';
             html += '<select class="fre-filter" id="fre-filter-service"><option value="all">All Service Models</option><option value="IaaS"' + (this.filters.serviceModel === 'IaaS' ? ' selected' : '') + '>IaaS</option><option value="PaaS"' + (this.filters.serviceModel === 'PaaS' ? ' selected' : '') + '>PaaS</option><option value="SaaS"' + (this.filters.serviceModel === 'SaaS' ? ' selected' : '') + '>SaaS</option></select>';
@@ -212,8 +214,8 @@ const FedRAMPExplorer = {
         }
         html += '</div>';
 
-        // Result count + sort (list view only)
-        if (vm === 'all') {
+        // Result count + sort (list & card view)
+        if (vm === 'all' || vm === 'cards') {
             html += '<div class="fre-sort-bar">';
             html += '<span class="fre-result-count">' + this.filtered.length + ' result' + (this.filtered.length !== 1 ? 's' : '') + '</span>';
             html += '<div class="fre-sort-controls">';
@@ -234,13 +236,15 @@ const FedRAMPExplorer = {
         html += '<div id="fre-grid">';
         if (vm === 'all') {
             html += this._renderPage();
+        } else if (vm === 'cards') {
+            html += this._renderCardGrid();
         } else {
             html += this._renderGroupedView();
         }
         html += '</div>';
 
-        // Pagination (list view only)
-        if (vm === 'all') {
+        // Pagination (list & card view)
+        if (vm === 'all' || vm === 'cards') {
             html += this._renderPagination();
         }
 
@@ -262,6 +266,61 @@ const FedRAMPExplorer = {
         for (const p of pageItems) {
             html += this._renderProviderCard(p, esc);
         }
+        return html;
+    },
+
+    // ── Card Grid View ────────────────────────────────────────────────
+    _renderCardGrid() {
+        const start = this.page * this.pageSize;
+        const pageItems = this.filtered.slice(start, start + this.pageSize);
+        const esc = typeof Sanitize !== 'undefined' ? Sanitize.html.bind(Sanitize) : (s => s);
+
+        if (pageItems.length === 0) {
+            return '<div class="fre-empty">No CSOs match your filters.</div>';
+        }
+
+        let html = '<div class="fre-card-grid">';
+        for (const p of pageItems) {
+            const designCls = p.designation === 'Compliant' ? 'fre-tag-auth' :
+                              p.designation === 'In Process' ? 'fre-tag-ip' : 'fre-tag-ready';
+            const impactCls = p.impact === 'High' ? 'fre-impact-high' :
+                              p.impact === 'Moderate' ? 'fre-impact-mod' : 'fre-impact-low';
+            const svcModel = p.serviceModel.join(', ') || '—';
+            const atoCount = p.atoLetters.length;
+            const primaryLogo = p.faviconUrl || p.logoUrl || '';
+
+            html += '<div class="fre-tile" data-id="' + esc(p.id) + '">';
+
+            // Logo area
+            html += '<div class="fre-tile-logo">';
+            if (primaryLogo) {
+                html += '<img src="' + esc(primaryLogo) + '" alt="" class="fre-tile-logo-img" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">';
+            }
+            html += '<div class="fre-tile-logo-fallback"' + (primaryLogo ? ' style="display:none"' : '') + '>' + esc(p.name.substring(0, 2).toUpperCase()) + '</div>';
+            html += '</div>';
+
+            // Name & package
+            html += '<div class="fre-tile-name">' + esc(p.name) + '</div>';
+            html += '<div class="fre-tile-package">' + esc(p.package) + '</div>';
+
+            // Tags
+            html += '<div class="fre-tile-tags">';
+            html += '<span class="fre-tag ' + designCls + '">' + (p.designation === 'Compliant' ? 'Authorized' : esc(p.designation)) + '</span>';
+            html += '<span class="fre-tag ' + impactCls + '">' + esc(p.impact) + '</span>';
+            html += '</div>';
+
+            // Meta row
+            html += '<div class="fre-tile-meta">';
+            html += '<span title="Service Model">' + esc(svcModel) + '</span>';
+            if (atoCount > 0) html += '<span title="Agency ATOs">' + atoCount + ' ATO' + (atoCount !== 1 ? 's' : '') + '</span>';
+            html += '</div>';
+
+            // Action link
+            html += '<a href="' + esc(p.marketplaceUrl) + '" target="_blank" rel="noopener noreferrer" class="fre-tile-link" onclick="event.stopPropagation()">View on Marketplace <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>';
+
+            html += '</div>';
+        }
+        html += '</div>';
         return html;
     },
 
@@ -426,10 +485,11 @@ const FedRAMPExplorer = {
         // Card header
         html += '<div class="fre-card-header" data-id="' + esc(p.id) + '">';
         html += '<div class="fre-card-logo">';
-        if (p.logoUrl) {
-            html += '<img src="' + esc(p.logoUrl) + '" alt="" class="fre-logo-img" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">';
+        const primaryLogo = p.faviconUrl || p.logoUrl || '';
+        if (primaryLogo) {
+            html += '<img src="' + esc(primaryLogo) + '" alt="" class="fre-logo-img" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">';
         }
-        html += '<div class="fre-logo-fallback"' + (p.logoUrl ? ' style="display:none"' : '') + '>' + esc(p.name.charAt(0)) + '</div>';
+        html += '<div class="fre-logo-fallback"' + (primaryLogo ? ' style="display:none"' : '') + '>' + esc(p.name.charAt(0)) + '</div>';
         html += '</div>';
 
         html += '<div class="fre-card-info">';
@@ -672,9 +732,9 @@ const FedRAMPExplorer = {
         const grid = document.getElementById('fre-grid');
         if (!grid) return;
 
-        if (this.viewMode === 'all') {
-            // List view: update grid + pagination + count
-            grid.innerHTML = this._renderPage();
+        if (this.viewMode === 'all' || this.viewMode === 'cards') {
+            // List/card view: update grid + pagination + count
+            grid.innerHTML = this.viewMode === 'cards' ? this._renderCardGrid() : this._renderPage();
 
             const existingPag = this.container?.querySelector('.fre-pagination');
             const newPag = this._renderPagination();
@@ -720,6 +780,21 @@ const FedRAMPExplorer = {
         try {
             return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         } catch { return 'recently'; }
+    },
+
+    _buildFaviconUrl(urlOrDomain) {
+        if (!urlOrDomain) return '';
+        try {
+            let domain = urlOrDomain.trim();
+            // Strip protocol if present
+            domain = domain.replace(/^https?:\/\//i, '');
+            // Strip path
+            domain = domain.split('/')[0];
+            // Strip www.
+            domain = domain.replace(/^www\./i, '');
+            if (!domain || domain.includes(' ')) return '';
+            return 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(domain) + '&sz=64';
+        } catch { return ''; }
     },
 
     _resolvePackageIds(packageIds) {

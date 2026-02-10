@@ -201,7 +201,118 @@
     border-color: var(--accent-blue, #3b82f6);
 }
 
-/* ── Card Grid ─────────────────────────────────────────────────────── */
+/* ── Tile Card Grid ───────────────────────────────────────────────── */
+.fre-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+.fre-tile {
+    background: var(--bg-secondary, rgba(255,255,255,0.04));
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    cursor: default;
+}
+.fre-tile:hover {
+    border-color: rgba(99, 102, 241, 0.35);
+    box-shadow: 0 4px 18px rgba(99, 102, 241, 0.1);
+    transform: translateY(-2px);
+}
+.fre-tile-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-tertiary, rgba(255,255,255,0.06));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+}
+.fre-tile-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.fre-tile-logo-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(59,130,246,0.08));
+    letter-spacing: 0.5px;
+}
+.fre-tile-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.fre-tile-package {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    line-height: 1.2;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.fre-tile-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 4px;
+}
+.fre-tile-tags .fre-tag {
+    font-size: 0.62rem;
+    padding: 2px 7px;
+}
+.fre-tile-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+.fre-tile-meta span {
+    white-space: nowrap;
+}
+.fre-tile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.62rem;
+    color: var(--accent-blue, #6c8aff);
+    text-decoration: none;
+    margin-top: 6px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.fre-tile:hover .fre-tile-link {
+    opacity: 1;
+}
+.fre-tile-link:hover {
+    text-decoration: underline;
+}
+
+/* ── List Card Grid ───────────────────────────────────────────────── */
 .fre-grid {
     display: flex;
     flex-direction: column;
@@ -826,6 +937,17 @@ a.fre-svc-chip:hover {
         width: 100%;
         overflow-x: auto;
     }
+    .fre-card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 8px;
+    }
+    .fre-tile {
+        padding: 14px 10px 10px;
+    }
+    .fre-tile-logo {
+        width: 40px;
+        height: 40px;
+    }
     .fre-group-grid-alpha {
         grid-template-columns: 1fr 1fr;
     }
@@ -836,4 +958,21 @@ a.fre-svc-chip:hover {
     .fre-group-badges {
         display: none;
     }
+}
+
+/* ── Light Theme ──────────────────────────────────────────────────── */
+[data-theme="light"] .fre-tile {
+    background: #fff;
+    border-color: #e2e8f0;
+}
+[data-theme="light"] .fre-tile:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 18px rgba(99, 102, 241, 0.12);
+}
+[data-theme="light"] .fre-tile-logo {
+    background: #f1f5f9;
+}
+[data-theme="light"] .fre-tile-logo-fallback {
+    background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(59,130,246,0.06));
+    color: #64748b;
 }
