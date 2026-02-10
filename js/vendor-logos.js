@@ -64,7 +64,7 @@ VendorLogos.logos.fortinet = VendorLogos._pill('#DA291C', '#fff', 'F');
 
 // ── XDR / EDR ──
 VendorLogos.logos.sentinelone = '<svg width="16" height="16" viewBox="0 0 256 256"><rect width="256" height="256" rx="28" fill="#6C2EB9"/><path d="M128 40L72 72v56c0 37.3 25.6 72 56 80 30.4-8 56-42.7 56-80V72l-56-32zm0 24l36 20.6v41.4c0 26.1-17.9 50.4-36 56-18.1-5.6-36-29.9-36-56V84.6L128 64z" fill="#fff"/></svg>';
-VendorLogos.logos.crowdstrike = VendorLogos._pill('#FF0000', '#fff', 'CS');
+VendorLogos.logos.crowdstrike = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#FC0000"/><path d="M128 40c-28 12-52 36-64 72 16-12 36-20 56-20 8 0 16 2 24 4 24 8 44 28 52 52 4-20 0-44-16-64-16-24-36-40-52-44z" fill="#fff"/><path d="M80 152c12 20 32 36 56 40 28-8 48-32 52-60-12 16-32 28-56 28-20 0-38-4-52-8z" fill="#fff" opacity="0.8"/></svg>';
 VendorLogos.logos.carbon_black = VendorLogos._pill('#1A1A1A', '#fff', 'CB');
 VendorLogos.logos.huntress = VendorLogos._pill('#00B67A', '#fff', 'H');
 VendorLogos.logos.sophos = VendorLogos._pill('#003366', '#fff', 'S');
@@ -92,7 +92,7 @@ VendorLogos.logos.blumira = VendorLogos._pill('#2D5BFF', '#fff', 'B');
 
 // ── Vulnerability Management ──
 VendorLogos.logos.tenable = '<svg width="16" height="16" viewBox="0 0 256 256"><circle cx="128" cy="128" r="120" fill="#00B1E1"/><path d="M80 128l32 32 64-64" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
-VendorLogos.logos.qualys = VendorLogos._pill('#ED2E26', '#fff', 'Q');
+VendorLogos.logos.qualys = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#ED2E26"/><circle cx="120" cy="120" r="60" fill="none" stroke="#fff" stroke-width="20"/><line x1="160" y1="160" x2="208" y2="208" stroke="#fff" stroke-width="22" stroke-linecap="round"/></svg>';
 VendorLogos.logos.rapid7 = VendorLogos._pill('#E8542E', '#fff', 'R7');
 VendorLogos.logos.openvas = VendorLogos._pill('#66C430', '#fff', 'OV');
 
@@ -111,7 +111,7 @@ VendorLogos.logos.mimecast = VendorLogos._pill('#1D1D1D', '#fff', 'M');
 VendorLogos.logos.abnormal = VendorLogos._pill('#4F46E5', '#fff', 'AB');
 
 // ── Security Awareness ──
-VendorLogos.logos.knowbe4 = VendorLogos._pill('#C8102E', '#fff', 'K4');
+VendorLogos.logos.knowbe4 = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#C8102E"/><path d="M72 56v144M72 128l56-56M72 128l56 56M168 56v144" stroke="#fff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
 VendorLogos.logos.ninjio = VendorLogos._pill('#FF4500', '#fff', 'NJ');
 
 // ── DLP ──
@@ -167,14 +167,14 @@ VendorLogos.logos.genetec = VendorLogos._pill('#0066CC', '#fff', 'G');
 
 // ── ITSM ──
 VendorLogos.logos.servicenow = VendorLogos._pill('#81B5A1', '#fff', 'SN');
-VendorLogos.logos.jira = VendorLogos._pill('#0052CC', '#fff', 'J');
+VendorLogos.logos.jira = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#0052CC"/><path d="M210 123L133 46l-5-5-5 5-72 72a7 7 0 000 10l67 67 5 5 5-5 72-72a7 7 0 000-10zM128 160l-32-32 32-32 32 32-32 32z" fill="#fff"/></svg>';
 
 // ── Integrations Hub providers ──
-VendorLogos.logos.entra = VendorLogos._pill('#0078D4', '#fff', 'E');
+VendorLogos.logos.entra = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#0078D4"/><path d="M80 200H48L96 48h40l20 52-44 100z" fill="#fff"/><path d="M148 200h36L152 100h-36z" fill="#50E6FF"/></svg>';
 VendorLogos.logos.m365 = VendorLogos.logos.microsoft365;
-VendorLogos.logos.defender = VendorLogos._pill('#0078D4', '#fff', 'MD');
+VendorLogos.logos.defender = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#0078D4"/><path d="M128 40l72 32v56c0 48-30 88-72 104-42-16-72-56-72-104V72l72-32z" fill="none" stroke="#fff" stroke-width="14"/><path d="M108 132l20 20 40-40" fill="none" stroke="#50E6FF" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 VendorLogos.logos.s3 = '<svg width="16" height="16" viewBox="0 0 256 256"><rect width="256" height="256" rx="28" fill="#569A31"/><text x="128" y="156" text-anchor="middle" fill="#fff" font-size="80" font-weight="bold" font-family="Arial,sans-serif">S3</text></svg>';
-VendorLogos.logos.notion = VendorLogos._pill('#000000', '#fff', 'N');
+VendorLogos.logos.notion = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#000"/><path d="M56 48h96l48 40v120a8 8 0 01-8 8H56a8 8 0 01-8-8V56a8 8 0 018-8z" fill="#fff"/><path d="M80 80v96M80 80l64 96M144 80v96" stroke="#000" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
 
 // ── GRC & Compliance ──
 VendorLogos.logos.drata = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#1A1A2E"/><path d="M128 48c-44.2 0-80 35.8-80 80s35.8 80 80 80 80-35.8 80-80-35.8-80-80-80zm0 130c-27.6 0-50-22.4-50-50s22.4-50 50-50 50 22.4 50 50-22.4 50-50 50z" fill="#6C63FF"/><circle cx="128" cy="128" r="20" fill="#6C63FF"/></svg>';
@@ -193,6 +193,11 @@ VendorLogos.logos.brivo = VendorLogos._pill('#00B4D8', '#fff', 'BR');
 VendorLogos.logos.freshservice = VendorLogos._pill('#0CAA56', '#fff', 'FS');
 VendorLogos.logos.teams_gcc = VendorLogos._pill('#6264A7', '#fff', 'TG');
 VendorLogos.logos.slack_grid = VendorLogos._pill('#4A154B', '#fff', 'SG');
+
+// ── Integration Hub extras ──
+VendorLogos.logos.oscal = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#1A237E"/><path d="M96 40H64a16 16 0 00-16 16v144a16 16 0 0016 16h128a16 16 0 0016-16V104L144 40H96z" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><polyline points="144,40 144,104 208,104" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><text x="128" y="175" text-anchor="middle" fill="#7C4DFF" font-size="44" font-weight="bold" font-family="Arial,sans-serif">OSCAL</text></svg>';
+VendorLogos.logos.gdrive = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><path d="M88 24l-80 144h80l80-144z" fill="#0DA960"/><path d="M168 24l80 144H168L88 24z" fill="#FBBC04"/><path d="M8 168l40 72h160l40-72z" fill="#4285F4"/></svg>';
+VendorLogos.logos.granola = '<svg width="16" height="16" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><rect width="256" height="256" rx="28" fill="#7C3AED"/><path d="M128 48v160M80 80l96 96M176 80l-96 96" stroke="#fff" stroke-width="18" stroke-linecap="round"/><circle cx="128" cy="128" r="24" fill="#fff"/></svg>';
 
 // ── Generic categories (non-vendor, use icon fallbacks) ──
 VendorLogos.logos.firewall = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="12" y1="3" x2="12" y2="21"/></svg>';
