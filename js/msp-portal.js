@@ -27,6 +27,7 @@ const MSPPortal = {
         { id: 'automation', name: 'Automation & Compliance', icon: 'cpu', section: 'security' },
         { id: 'automation-platforms', name: 'RMM & Automation Tools', icon: 'settings', section: 'tools' },
         { id: 'cloud-templates', name: 'Cloud Templates', icon: 'database', section: 'tools' },
+        { id: 'aws-toolkit', name: 'AWS Compliance Toolkit', icon: 'server', section: 'tools' },
         { id: 'evidence-lists', name: 'Evidence Collection Lists', icon: 'list', section: 'tools' },
         { id: 'data-protection', name: 'Data Protection Guide', icon: 'shield', section: 'tools' },
         { id: 'tech-scripts', name: 'Technical Scripts', icon: 'terminal', section: 'tools' },
@@ -210,6 +211,9 @@ const MSPPortal = {
                     } else if (contentId === 'cloud-templates-content') {
                         const data = typeof MSP_CLOUD_TEMPLATES !== 'undefined' ? MSP_CLOUD_TEMPLATES : null;
                         if (data) contentEl.innerHTML = MSPPortalViews.renderCloudTemplatesSection(data, section);
+                    } else if (contentId === 'aws-toolkit-content') {
+                        const data = typeof MSP_AWS_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_AWS_COMPLIANCE_TOOLKIT : null;
+                        if (data) contentEl.innerHTML = MSPPortalViews.renderAWSToolkitSection(data, section);
                     } else if (contentId === 'data-protection-content') {
                         const data = typeof MSP_DATA_PROTECTION !== 'undefined' ? MSP_DATA_PROTECTION : null;
                         if (data) contentEl.innerHTML = MSPPortalViews.renderDataProtectionSection(data, section);

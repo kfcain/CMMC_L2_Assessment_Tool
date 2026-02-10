@@ -1765,6 +1765,214 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
         </div>`;
     },
 
+    // ==================== AWS COMPLIANCE TOOLKIT VIEW ====================
+    'aws-toolkit': function(portal) {
+        const data = typeof MSP_AWS_COMPLIANCE_TOOLKIT !== 'undefined' ? MSP_AWS_COMPLIANCE_TOOLKIT : null;
+        if (!data) return '<div class="msp-empty-state"><p>AWS Compliance Toolkit data not loaded</p></div>';
+
+        const sections = [
+            { id: 'cloudformation', label: 'CloudFormation', icon: '&#9729;' },
+            { id: 'lambda', label: 'Lambda Functions', icon: '&#955;' },
+            { id: 'ssm', label: 'Systems Manager', icon: '&#8862;' },
+            { id: 'orchestration', label: 'Orchestration', icon: '&#8644;' },
+            { id: 'athena', label: 'Athena Queries', icon: '&#8981;' },
+            { id: 'quickref', label: 'Service → Control Map', icon: '&#9776;' }
+        ];
+
+        return `
+        <div class="msp-data-view">
+            <div class="msp-intro-banner">
+                <div class="banner-content">
+                    <h2>${data.overview.title}</h2>
+                    <p>${data.overview.description}</p>
+                </div>
+            </div>
+            <div class="msp-data-tabs">
+                ${sections.map((s, i) => `<button class="msp-data-tab ${i === 0 ? 'active' : ''}" data-section="${s.id}"><span style="margin-right:4px">${s.icon}</span> ${s.label}</button>`).join('')}
+            </div>
+            <div class="msp-data-content" id="aws-toolkit-content">
+                ${this.renderAWSToolkitSection(data, 'cloudformation')}
+            </div>
+        </div>`;
+    },
+
+    renderAWSToolkitSection: function(data, sectionId) {
+        if (sectionId === 'cloudformation') return this._renderCFNSection(data.cloudformation);
+        if (sectionId === 'lambda') return this._renderLambdaSection(data.lambda);
+        if (sectionId === 'ssm') return this._renderSSMSection(data.systemsManager);
+        if (sectionId === 'orchestration') return this._renderOrchSection(data.orchestration);
+        if (sectionId === 'athena') return this._renderAthenaSection(data.athena);
+        if (sectionId === 'quickref') return this._renderQuickRefSection(data.quickReference);
+        return '<p>Section not found</p>';
+    },
+
+    _renderCFNSection: function(cfn) {
+        if (!cfn) return '<p>No CloudFormation data</p>';
+        return `<div class="data-section">
+            <h3>${cfn.title}</h3>
+            <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.85rem">${cfn.description}</p>
+            ${cfn.stacks.map(s => `
+                <div class="template-card">
+                    <div class="template-header">
+                        <h4>${s.name}</h4>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+                            <span class="msp-badge" style="background:rgba(108,138,255,0.12);color:#6c8aff;font-size:0.7rem">${s.category}</span>
+                            <span class="msp-badge" style="background:rgba(52,211,153,0.12);color:#34d399;font-size:0.7rem">${s.deployMethod}</span>
+                        </div>
+                    </div>
+                    <p class="template-desc">${s.description}</p>
+                    <div style="margin-bottom:10px">
+                        <strong style="font-size:0.8rem;color:var(--text-secondary)">CMMC Controls:</strong>
+                        <span style="font-size:0.75rem;color:var(--text-muted)"> ${s.controls.map(c => '<code>' + c + '</code>').join(' ')}</span>
+                    </div>
+                    <details class="aws-tk-code-details">
+                        <summary class="aws-tk-code-summary">View CloudFormation Template</summary>
+                        <pre class="code-block" style="max-height:400px;overflow:auto"><code>${this.escapeHtml(s.template)}</code></pre>
+                    </details>
+                </div>
+            `).join('')}
+        </div>`;
+    },
+
+    _renderLambdaSection: function(lam) {
+        if (!lam) return '<p>No Lambda data</p>';
+        return `<div class="data-section">
+            <h3>${lam.title}</h3>
+            <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.85rem">${lam.description}</p>
+            ${lam.functions.map(fn => `
+                <div class="template-card">
+                    <div class="template-header">
+                        <h4>${fn.name}</h4>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+                            <span class="msp-badge" style="background:rgba(108,138,255,0.12);color:#6c8aff;font-size:0.7rem">${fn.category}</span>
+                            <span class="msp-badge" style="background:rgba(251,191,36,0.12);color:#fbbf24;font-size:0.7rem">${fn.runtime}</span>
+                            <span class="msp-badge" style="background:rgba(139,162,255,0.12);color:#8ba2ff;font-size:0.7rem">${fn.trigger}</span>
+                        </div>
+                    </div>
+                    <p class="template-desc">${fn.description}</p>
+                    <div style="margin-bottom:10px">
+                        <strong style="font-size:0.8rem;color:var(--text-secondary)">CMMC Controls:</strong>
+                        <span style="font-size:0.75rem;color:var(--text-muted)"> ${fn.controls.map(c => '<code>' + c + '</code>').join(' ')}</span>
+                    </div>
+                    ${fn.envVars ? `<div style="margin-bottom:10px">
+                        <strong style="font-size:0.8rem;color:var(--text-secondary)">Environment Variables:</strong>
+                        <table class="msp-table" style="margin-top:6px;font-size:0.8rem">
+                            <thead><tr><th>Variable</th><th>Default</th></tr></thead>
+                            <tbody>${Object.entries(fn.envVars).map(([k,v]) => '<tr><td><code>' + k + '</code></td><td>' + this.escapeHtml(v) + '</td></tr>').join('')}</tbody>
+                        </table>
+                    </div>` : ''}
+                    <details class="aws-tk-code-details">
+                        <summary class="aws-tk-code-summary">View Lambda Code</summary>
+                        <pre class="code-block" style="max-height:400px;overflow:auto"><code>${this.escapeHtml(fn.code)}</code></pre>
+                    </details>
+                    ${fn.iamPolicy ? `<details class="aws-tk-code-details">
+                        <summary class="aws-tk-code-summary">View IAM Policy</summary>
+                        <pre class="code-block" style="max-height:250px;overflow:auto"><code>${this.escapeHtml(fn.iamPolicy)}</code></pre>
+                    </details>` : ''}
+                </div>
+            `).join('')}
+        </div>`;
+    },
+
+    _renderSSMSection: function(ssm) {
+        if (!ssm) return '<p>No Systems Manager data</p>';
+        return `<div class="data-section">
+            <h3>${ssm.title}</h3>
+            <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.85rem">${ssm.description}</p>
+            ${ssm.documents.map(doc => `
+                <div class="template-card">
+                    <div class="template-header">
+                        <h4>${doc.name}</h4>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+                            <span class="msp-badge" style="background:rgba(108,138,255,0.12);color:#6c8aff;font-size:0.7rem">${doc.category}</span>
+                            <span class="msp-badge" style="background:rgba(52,211,153,0.12);color:#34d399;font-size:0.7rem">${doc.type}</span>
+                        </div>
+                    </div>
+                    <p class="template-desc">${doc.description}</p>
+                    <div style="margin-bottom:10px">
+                        <strong style="font-size:0.8rem;color:var(--text-secondary)">CMMC Controls:</strong>
+                        <span style="font-size:0.75rem;color:var(--text-muted)"> ${doc.controls.map(c => '<code>' + c + '</code>').join(' ')}</span>
+                    </div>
+                    <details class="aws-tk-code-details">
+                        <summary class="aws-tk-code-summary">View Commands / Template</summary>
+                        <pre class="code-block" style="max-height:400px;overflow:auto"><code>${this.escapeHtml(doc.template)}</code></pre>
+                    </details>
+                </div>
+            `).join('')}
+        </div>`;
+    },
+
+    _renderOrchSection: function(orch) {
+        if (!orch) return '<p>No Orchestration data</p>';
+        return `<div class="data-section">
+            <h3>${orch.title}</h3>
+            <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.85rem">${orch.description}</p>
+            ${orch.patterns.map(p => `
+                <div class="template-card">
+                    <div class="template-header">
+                        <h4>${p.name}</h4>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+                            <span class="msp-badge" style="background:rgba(108,138,255,0.12);color:#6c8aff;font-size:0.7rem">${p.category}</span>
+                        </div>
+                    </div>
+                    <p class="template-desc">${p.description}</p>
+                    <div style="margin-bottom:10px">
+                        <strong style="font-size:0.8rem;color:var(--text-secondary)">CMMC Controls:</strong>
+                        <span style="font-size:0.75rem;color:var(--text-muted)"> ${p.controls.map(c => '<code>' + c + '</code>').join(' ')}</span>
+                    </div>
+                    <details class="aws-tk-code-details">
+                        <summary class="aws-tk-code-summary">View Template</summary>
+                        <pre class="code-block" style="max-height:400px;overflow:auto"><code>${this.escapeHtml(p.template)}</code></pre>
+                    </details>
+                </div>
+            `).join('')}
+        </div>`;
+    },
+
+    _renderAthenaSection: function(athena) {
+        if (!athena) return '<p>No Athena data</p>';
+        return `<div class="data-section">
+            <h3>${athena.title}</h3>
+            <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.85rem">${athena.description}</p>
+            ${athena.queries.map(q => `
+                <div class="template-card">
+                    <div class="template-header">
+                        <h4>${q.name}</h4>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+                            <span class="msp-badge" style="background:rgba(108,138,255,0.12);color:#6c8aff;font-size:0.7rem">${q.category}</span>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:10px">
+                        <strong style="font-size:0.8rem;color:var(--text-secondary)">CMMC Controls:</strong>
+                        <span style="font-size:0.75rem;color:var(--text-muted)"> ${q.controls.map(c => '<code>' + c + '</code>').join(' ')}</span>
+                    </div>
+                    <details class="aws-tk-code-details" open>
+                        <summary class="aws-tk-code-summary">SQL Query</summary>
+                        <pre class="code-block" style="max-height:300px;overflow:auto"><code>${this.escapeHtml(q.sql)}</code></pre>
+                    </details>
+                </div>
+            `).join('')}
+        </div>`;
+    },
+
+    _renderQuickRefSection: function(ref) {
+        if (!ref) return '<p>No quick reference data</p>';
+        return `<div class="data-section">
+            <h3>${ref.title}</h3>
+            <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.85rem">${ref.description}</p>
+            <table class="msp-table" style="font-size:0.82rem">
+                <thead><tr><th>AWS Service</th><th>Category</th><th>CMMC Controls</th></tr></thead>
+                <tbody>
+                    ${ref.mappings.map(m => `<tr>
+                        <td><strong>${m.service}</strong></td>
+                        <td><span class="msp-badge" style="background:rgba(108,138,255,0.08);color:#8ba2ff;font-size:0.72rem">${m.category}</span></td>
+                        <td>${m.controls.map(c => '<code style="font-size:0.75rem">' + c + '</code>').join(' ')}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>
+        </div>`;
+    },
+
     // ==================== EVIDENCE LISTS VIEW ====================
     'evidence-lists': function(portal) {
         const data = typeof MSP_EVIDENCE_LISTS !== 'undefined' ? MSP_EVIDENCE_LISTS : null;
