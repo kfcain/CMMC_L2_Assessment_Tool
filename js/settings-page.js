@@ -24,6 +24,10 @@ const SettingsPage = {
         container.innerHTML = `
         <div class="stg-page">
             <div class="stg-header">
+                <button class="view-back-btn" data-back-view="dashboard" title="Back to Dashboard">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    Back
+                </button>
                 <h1 class="stg-title">Settings</h1>
                 <p class="stg-subtitle">Manage your preferences, API connections, and platform configuration. Everything is stored locally in your browser.</p>
             </div>

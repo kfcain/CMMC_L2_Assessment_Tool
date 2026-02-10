@@ -207,6 +207,10 @@ const ExecDashboard = {
         <!-- Header -->
         <div class="ed-header">
             <div class="ed-header-top">
+                <button class="view-back-btn" data-back-view="dashboard" title="Back to Dashboard">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    Back
+                </button>
                 <div class="ed-title-block">
                     <h2>Executive Compliance Dashboard</h2>
                     <p class="ed-subtitle">${orgName} &mdash; CMMC ${a.org.assessmentLevel === '1' ? 'Level 1' : 'Level 2'}</p>

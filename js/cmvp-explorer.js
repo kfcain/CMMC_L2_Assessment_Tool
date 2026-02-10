@@ -32,6 +32,10 @@ const CMVPExplorer = {
         this.container.innerHTML = `
             <div class="cmvp-explorer">
                 <div class="cmvp-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+                    <button class="view-back-btn" data-back-view="dashboard" title="Back to Dashboard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back
+                    </button>
                     <div style="flex:1;min-width:250px;">
                         <h2>NIST CMVP Explorer</h2>
                         <p>Search FIPS 140-2/140-3 validated cryptographic modules from the NIST Cryptographic Module Validation Program. Relevant to <strong>SC.L2-3.13.11</strong> (CUI encryption) and CMMC cryptographic requirements.</p>

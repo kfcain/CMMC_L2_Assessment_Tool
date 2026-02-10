@@ -539,6 +539,10 @@ const DiagramHub = {
         container.innerHTML = `
             <div class="dh-header">
                 <div class="dh-header-left">
+                    <button class="view-back-btn" data-back-view="dashboard" title="Back to Dashboard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back
+                    </button>
                     <h1>
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue, #6c8aff)" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20"/><path d="M17 2v20"/><path d="M2 12h20"/><path d="M2 7h5"/><path d="M2 17h5"/><path d="M17 7h5"/><path d="M17 17h5"/></svg>
                         Diagram Hub

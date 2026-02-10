@@ -158,8 +158,9 @@ const SSPExportGenerator = {
                     <li>Federal Information Security Modernization Act (FISMA) of 2014</li>
                     <li>32 Code of Federal Regulations (CFR) Part 117 – National Industrial Security Program Operating Manual (NISPOM)</li>
                     <li>32 CFR Part 2002 – Controlled Unclassified Information (CUI)</li>
-                    <li>48 CFR §52.204-21 – Basic Safeguarding of Covered Contractor Information Systems</li>
+                    <li>48 CFR §52.240-93 (formerly §52.204-21) – Basic Safeguarding of Covered Contractor Information Systems</li>
                     <li>Defense Federal Acquisition Regulation Supplement (DFARS) 252.204-7012</li>
+                    <li>DFARS 252.240-7997 (formerly 252.204-7020) – NIST SP 800-171 DoD Assessment Requirements</li>
                     <li>NIST SP 800-53 Revision 5, Security and Privacy Controls for Information Systems and Organizations</li>
                     <li>NIST SP 800-171 Revision 2, Protecting Controlled Unclassified Information in Nonfederal Systems and Organizations</li>
                     <li>NIST SP 800-171A, Assessing Security Requirements for CUI</li>

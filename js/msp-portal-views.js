@@ -2077,34 +2077,59 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
     'evidence-lists': function(portal) {
         const data = typeof MSP_EVIDENCE_LISTS !== 'undefined' ? MSP_EVIDENCE_LISTS : null;
         if (!data) return '<div class="msp-empty-state"><p>Evidence lists data not loaded</p></div>';
-        
-        // Build families from actual data keys (must match keys in msp-evidence-lists.js)
+
         const familyMap = {
-            accessControl: { id: 'AC', name: 'Access Control' },
-            awarenessTraining: { id: 'AT', name: 'Awareness & Training' },
-            auditAccountability: { id: 'AU', name: 'Audit & Accountability' },
-            configurationManagement: { id: 'CM', name: 'Configuration Management' },
-            identificationAuthentication: { id: 'IA', name: 'Identification & Authentication' },
-            incidentResponse: { id: 'IR', name: 'Incident Response' },
-            maintenance: { id: 'MA', name: 'Maintenance' },
-            mediaProtection: { id: 'MP', name: 'Media Protection' },
-            personnelSecurity: { id: 'PS', name: 'Personnel Security' },
-            physicalProtection: { id: 'PE', name: 'Physical Protection' },
-            riskAssessment: { id: 'RA', name: 'Risk Assessment' },
-            securityAssessment: { id: 'CA', name: 'Security Assessment' },
-            systemCommunicationsProtection: { id: 'SC', name: 'System & Communications' },
-            systemInformationIntegrity: { id: 'SI', name: 'System & Information Integrity' }
+            accessControl: { id: 'AC', name: 'Access Control', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>' },
+            awarenessTraining: { id: 'AT', name: 'Awareness & Training', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>' },
+            auditAccountability: { id: 'AU', name: 'Audit & Accountability', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' },
+            configurationManagement: { id: 'CM', name: 'Configuration Management', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>' },
+            identificationAuthentication: { id: 'IA', name: 'Identification & Auth', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' },
+            incidentResponse: { id: 'IR', name: 'Incident Response', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' },
+            maintenance: { id: 'MA', name: 'Maintenance', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>' },
+            mediaProtection: { id: 'MP', name: 'Media Protection', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>' },
+            personnelSecurity: { id: 'PS', name: 'Personnel Security', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>' },
+            physicalProtection: { id: 'PE', name: 'Physical Protection', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' },
+            riskAssessment: { id: 'RA', name: 'Risk Assessment', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>' },
+            securityAssessment: { id: 'CA', name: 'Security Assessment', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>' },
+            systemCommunicationsProtection: { id: 'SC', name: 'System & Comms', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
+            systemInformationIntegrity: { id: 'SI', name: 'System & Info Integrity', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>' }
         };
-        
+
         const families = Object.entries(familyMap)
             .filter(([key]) => data[key])
             .map(([key, info]) => ({ key, ...info, data: data[key] }));
-        
+
+        // Count total controls and evidence items
+        let totalControls = 0, totalEvidence = 0, totalAutomated = 0;
+        families.forEach(f => {
+            const controls = f.data.controls || [];
+            totalControls += controls.length;
+            controls.forEach(c => {
+                totalEvidence += (c.evidenceItems || []).length;
+                if (c.automatedCollection) totalAutomated++;
+            });
+        });
+
         return `
         <div class="msp-data-view">
-            <div class="msp-intro-banner"><div class="banner-content"><h2>Evidence Collection Lists</h2><p>Comprehensive evidence requirements for all 14 CMMC control families</p></div></div>
-            <div class="evidence-family-nav">
-                ${families.map((f, i) => `<button class="family-nav-btn ${i === 0 ? 'active' : ''}" data-family="${f.key}">${f.id}</button>`).join('')}
+            <div class="msp-intro-banner">
+                <div class="banner-content">
+                    <h2>Evidence Collection Lists</h2>
+                    <p>Comprehensive evidence requirements for all 14 CMMC control families with automated collection commands</p>
+                </div>
+            </div>
+            <div class="dp-stats-strip ev-stats-strip">
+                <div class="dp-stat"><span class="dp-stat-num">${families.length}</span><span class="dp-stat-label">Families</span></div>
+                <div class="dp-stat"><span class="dp-stat-num">${totalControls}</span><span class="dp-stat-label">Controls</span></div>
+                <div class="dp-stat"><span class="dp-stat-num">${totalEvidence}</span><span class="dp-stat-label">Evidence Items</span></div>
+                <div class="dp-stat"><span class="dp-stat-num">${totalAutomated}</span><span class="dp-stat-label">Automated</span></div>
+            </div>
+            <div class="ev-search-bar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="ev-search-input" placeholder="Search evidence items across all families..." id="ev-search-input">
+            </div>
+            <div class="evidence-family-nav ev-family-nav-enhanced">
+                ${families.map((f, i) => `<button class="family-nav-btn ${i === 0 ? 'active' : ''}" data-family="${f.key}" title="${f.name}">${f.icon}<span class="ev-nav-label">${f.id}</span><span class="ev-nav-count">${(f.data.controls || []).length}</span></button>`).join('')}
             </div>
             <div class="msp-data-content" id="evidence-lists-content">
                 ${families.length > 0 ? this.renderEvidenceFamily(families[0]) : '<p>No evidence lists available</p>'}
@@ -2114,72 +2139,135 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
 
     renderEvidenceFamily: function(family) {
         if (!family || !family.data) return '<p>Family not found</p>';
-        
+
         const familyData = family.data;
         const controls = familyData.controls || [];
+        const totalItems = controls.reduce((sum, c) => sum + (c.evidenceItems || []).length, 0);
+        const autoCount = controls.filter(c => c.automatedCollection).length;
+
         return `
-        <div class="evidence-family">
-            <div class="family-header">
-                <h3>${family.id} - ${familyData.familyName || family.name}</h3>
-                <p>${familyData.description || ''}</p>
+        <div class="ev-family">
+            <div class="ev-family-header">
+                <div class="ev-family-title">
+                    <h3>${family.id} - ${familyData.familyName || family.name}</h3>
+                    <p>${familyData.description || ''}</p>
+                </div>
+                <div class="ev-family-stats">
+                    <span class="ev-fstat">${controls.length} controls</span>
+                    <span class="ev-fstat">${totalItems} evidence items</span>
+                    ${autoCount > 0 ? `<span class="ev-fstat ev-fstat-auto">${autoCount} automated</span>` : ''}
+                </div>
             </div>
-            <div class="evidence-controls">
-                ${controls.map(c => this.renderEvidenceControl(c)).join('')}
+            <div class="ev-controls-list">
+                ${controls.map((c, i) => this.renderEvidenceControl(c, i === 0)).join('')}
             </div>
         </div>`;
     },
 
-    renderEvidenceControl: function(control) {
+    renderEvidenceControl: function(control, expandFirst) {
         const evidenceItems = control.evidenceItems || control.evidence || [];
         const autoCollection = control.automatedCollection;
+        const hasAuto = !!autoCollection;
+
         return `
-        <div class="evidence-control-card">
-            <div class="control-header">
-                <span class="control-id">${control.controlId || control.id}</span>
-                <span class="control-name">${control.title || control.name || ''}</span>
-            </div>
-            <div class="evidence-items">
-                <strong>Required Evidence:</strong>
-                <ul class="evidence-list">
-                    ${evidenceItems.map(e => `
-                        <li class="evidence-item">
-                            <span class="evidence-name">${typeof e === 'string' ? e : e.name || e.item}</span>
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-            ${autoCollection ? `
-                <div class="auto-collection">
-                    <strong>Automated Collection:</strong>
-                    <pre class="code-block"><code>${this.escapeHtml(typeof autoCollection === 'object' ? 
-                        Object.entries(autoCollection).map(([k,v]) => `# ${k}\n${v}`).join('\n\n') : 
-                        autoCollection)}</code></pre>
+        <details class="ev-control-card" ${expandFirst ? 'open' : ''}>
+            <summary class="ev-control-summary">
+                <span class="ev-ctrl-id">${control.controlId || control.id}</span>
+                <span class="ev-ctrl-title">${control.title || control.name || ''}</span>
+                <span class="ev-ctrl-badges">
+                    <span class="ev-item-count">${evidenceItems.length} items</span>
+                    ${hasAuto ? '<span class="ev-auto-badge">Automated</span>' : ''}
+                </span>
+                <svg class="dp-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <div class="ev-control-body">
+                <div class="ev-howto-tip">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>Collect these artifacts and store them in a labeled folder: <code>${control.controlId || control.id}/</code></span>
+                </div>
+                <div class="ev-items-grid">
+                    ${evidenceItems.map((e, i) => {
+                        const name = typeof e === 'string' ? e : e.name || e.item;
+                        const isConfig = /config|setting|policy|GPO|Intune/i.test(name);
+                        const isLog = /log|record|audit|report/i.test(name);
+                        const isDoc = /document|procedure|policy|SOP|plan/i.test(name);
+                        const isScreenshot = /screenshot|evidence|proof/i.test(name);
+                        const typeClass = isConfig ? 'config' : isLog ? 'log' : isDoc ? 'doc' : isScreenshot ? 'screenshot' : 'general';
+                        const typeLabel = isConfig ? 'Config' : isLog ? 'Log/Report' : isDoc ? 'Document' : isScreenshot ? 'Screenshot' : 'Artifact';
+                        return `
+                        <div class="ev-item" data-search="${this.escapeHtml(name.toLowerCase())}">
+                            <div class="ev-item-header">
+                                <span class="ev-item-num">${i + 1}</span>
+                                <span class="ev-item-name">${name}</span>
+                                <span class="ev-item-type ${typeClass}">${typeLabel}</span>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+                ${hasAuto ? `
+                <div class="ev-auto-section">
+                    <div class="ev-auto-header">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                        <strong>Automated Collection Commands</strong>
+                    </div>
+                    ${typeof autoCollection === 'object' ? Object.entries(autoCollection).map(([platform, cmd]) => `
+                        <div class="ev-auto-cmd">
+                            <div class="ev-auto-cmd-header">
+                                <span class="ev-auto-platform">${platform.toUpperCase()}</span>
+                                <button class="dp-copy-btn dp-copy-sm" onclick="navigator.clipboard.writeText(this.closest('.ev-auto-cmd').querySelector('code').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+                            </div>
+                            <pre class="ev-auto-code"><code>${this.escapeHtml(cmd)}</code></pre>
+                        </div>
+                    `).join('') : `
+                        <div class="ev-auto-cmd">
+                            <button class="dp-copy-btn dp-copy-sm" onclick="navigator.clipboard.writeText(this.closest('.ev-auto-cmd').querySelector('code').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)" style="float:right">Copy</button>
+                            <pre class="ev-auto-code"><code>${this.escapeHtml(autoCollection)}</code></pre>
+                        </div>
+                    `}
                 </div>` : ''}
-        </div>`;
+            </div>
+        </details>`;
     },
 
     // ==================== DATA PROTECTION VIEW ====================
     'data-protection': function(portal) {
         const data = typeof MSP_DATA_PROTECTION !== 'undefined' ? MSP_DATA_PROTECTION : null;
         if (!data) return '<div class="msp-empty-state"><p>Data protection data not loaded</p></div>';
-        
-        // Data is nested under 'purview'
-        const purview = data.purview;
-        if (!purview) return '<div class="msp-empty-state"><p>Purview data not found</p></div>';
-        
-        // Build available tabs based on what exists
+
+        const purview = data.purview || {};
         const availableTabs = [];
-        if (purview.sensitivityLabels) availableTabs.push({ key: 'sensitivityLabels', label: 'Sensitivity Labels' });
-        if (purview.sensitiveInfoTypes) availableTabs.push({ key: 'sensitiveInfoTypes', label: 'Sensitive Info Types' });
-        if (purview.dlpPolicies) availableTabs.push({ key: 'dlpPolicies', label: 'DLP Policies' });
-        if (purview.aipScanner) availableTabs.push({ key: 'aipScanner', label: 'AIP Scanner' });
-        if (purview.endpointDLP) availableTabs.push({ key: 'endpointDLP', label: 'Endpoint DLP' });
-        
+        if (purview.sensitivityLabels) availableTabs.push({ key: 'sensitivityLabels', label: 'Sensitivity Labels', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>' });
+        if (purview.sensitiveInfoTypes) availableTabs.push({ key: 'sensitiveInfoTypes', label: 'Info Types', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' });
+        if (purview.dlpPolicies) availableTabs.push({ key: 'dlpPolicies', label: 'DLP Policies', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' });
+        if (purview.autoLabeling) availableTabs.push({ key: 'autoLabeling', label: 'Auto-Labeling', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>' });
+        if (data.aipScanner) availableTabs.push({ key: 'aipScanner', label: 'AIP Scanner', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' });
+        if (data.endpointDlp) availableTabs.push({ key: 'endpointDlp', label: 'Endpoint DLP', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/></svg>' });
+        if (data.defenderCloudApps) availableTabs.push({ key: 'defenderCloudApps', label: 'Cloud Apps', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>' });
+        if (data.cuiCategories) availableTabs.push({ key: 'cuiCategories', label: 'CUI Categories', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' });
+        if (data.implementationChecklist) availableTabs.push({ key: 'implementationChecklist', label: 'Checklist', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>' });
+
+        // CMMC control mapping summary
+        const controlMap = data.cmmcControlMapping || {};
+        const controlCount = Object.keys(controlMap).length;
+
         return `
         <div class="msp-data-view">
-            <div class="msp-intro-banner"><div class="banner-content"><h2>Data Protection Guide</h2><p>Microsoft Purview, sensitivity labels, and DLP configuration for CUI protection</p></div></div>
-            <div class="msp-data-tabs">
-                ${availableTabs.map((t, i) => `<button class="msp-data-tab ${i === 0 ? 'active' : ''}" data-section="${t.key}">${t.label}</button>`).join('')}
+            <div class="msp-intro-banner">
+                <div class="banner-content">
+                    <h2>Data Protection Guide</h2>
+                    <p>Microsoft Purview information protection, sensitivity labels, DLP, endpoint protection, and CUI classification for CMMC Level 2</p>
+                </div>
+            </div>
+            <div class="dp-stats-strip">
+                <div class="dp-stat"><span class="dp-stat-num">${availableTabs.length}</span><span class="dp-stat-label">Protection Areas</span></div>
+                <div class="dp-stat"><span class="dp-stat-num">${controlCount}</span><span class="dp-stat-label">CMMC Controls</span></div>
+                <div class="dp-stat"><span class="dp-stat-num">${(purview.sensitivityLabels?.labelHierarchy || []).length}</span><span class="dp-stat-label">Label Tiers</span></div>
+                <div class="dp-stat"><span class="dp-stat-num">${(purview.sensitiveInfoTypes?.customTypes || []).length}</span><span class="dp-stat-label">Info Types</span></div>
+                <div class="dp-stat"><span class="dp-stat-num">${(purview.dlpPolicies?.policies || []).length}</span><span class="dp-stat-label">DLP Policies</span></div>
+            </div>
+            ${controlCount > 0 ? `<div class="dp-control-strip"><strong>CMMC Controls Addressed:</strong> ${Object.keys(controlMap).map(c => '<span class="dp-ctrl-badge">' + c + '</span>').join('')}</div>` : ''}
+            <div class="msp-data-tabs dp-tabs-scrollable">
+                ${availableTabs.map((t, i) => `<button class="msp-data-tab ${i === 0 ? 'active' : ''}" data-section="${t.key}">${t.icon} ${t.label}</button>`).join('')}
             </div>
             <div class="msp-data-content" id="data-protection-content">
                 ${availableTabs.length > 0 ? this.renderDataProtectionSection(data, availableTabs[0].key) : '<p>No data protection content available</p>'}
@@ -2188,121 +2276,442 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
     },
 
     renderDataProtectionSection: function(data, sectionKey) {
-        const purview = data.purview;
-        if (!purview) return '<p>Purview data not found</p>';
-        
-        const section = purview[sectionKey];
+        const purview = data.purview || {};
+        // Some sections are on purview, some on root data
+        const section = purview[sectionKey] || data[sectionKey];
         if (!section) return '<p>Section not found: ' + sectionKey + '</p>';
-        
-        // Handle different section structures
-        if (sectionKey === 'sensitivityLabels') {
-            return this.renderSensitivityLabels(section);
-        } else if (sectionKey === 'sensitiveInfoTypes') {
-            return this.renderSensitiveInfoTypes(section);
-        } else if (sectionKey === 'dlpPolicies') {
-            return this.renderDLPPolicies(section);
-        } else {
-            return this.renderGenericDataSection(section);
+
+        switch (sectionKey) {
+            case 'sensitivityLabels': return this.renderSensitivityLabels(section);
+            case 'sensitiveInfoTypes': return this.renderSensitiveInfoTypes(section);
+            case 'dlpPolicies': return this.renderDLPPolicies(section);
+            case 'autoLabeling': return this.renderAutoLabeling(section);
+            case 'aipScanner': return this.renderAIPScanner(section);
+            case 'endpointDlp': return this.renderEndpointDLP(section);
+            case 'defenderCloudApps': return this.renderCloudApps(section);
+            case 'cuiCategories': return this.renderCUICategories(section);
+            case 'implementationChecklist': return this.renderDPChecklist(section);
+            default: return this.renderGenericDataSection(section);
         }
+    },
+
+    _dpCopyBtn: function(text, label) {
+        return `<button class="dp-copy-btn" onclick="navigator.clipboard.writeText(this.dataset.copy);this.textContent='Copied!';setTimeout(()=>this.textContent='${label || 'Copy'}',1500)" data-copy="${this.escapeHtml(text)}">${label || 'Copy'}</button>`;
+    },
+
+    _dpCodeBlock: function(code, lang) {
+        return `<div class="dp-code-wrap"><div class="dp-code-header"><span class="dp-code-lang">${lang || 'PowerShell'}</span><button class="dp-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.dp-code-wrap').querySelector('code').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div><pre class="dp-code-block"><code>${this.escapeHtml(code)}</code></pre></div>`;
     },
 
     renderSensitivityLabels: function(section) {
         const labels = section.labelHierarchy || [];
         return `
-        <div class="data-section">
-            <h3>${section.title || 'Sensitivity Labels'}</h3>
-            <p class="section-desc">${section.description || ''}</p>
-            ${section.deploymentScript ? `
-                <div class="code-section" style="margin-bottom:20px;">
-                    <strong>PowerShell Deployment Script:</strong>
-                    <pre class="code-block" style="max-height:300px;overflow:auto;"><code>${this.escapeHtml(section.deploymentScript.substring(0, 2000))}${section.deploymentScript.length > 2000 ? '\n... (truncated)' : ''}</code></pre>
-                </div>` : ''}
-            <div class="labels-hierarchy">
+        <div class="dp-section">
+            <div class="dp-section-intro">
+                <h3>${section.title || 'Sensitivity Labels'}</h3>
+                <p>${section.description || ''}</p>
+                <div class="dp-howto-box">
+                    <div class="dp-howto-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> How to Implement</div>
+                    <ol class="dp-howto-steps">
+                        <li><strong>Navigate to Purview:</strong> Go to <a href="https://compliance.microsoft.us" target="_blank" rel="noopener">compliance.microsoft.us</a> (GCC High) &rarr; Information Protection &rarr; Labels</li>
+                        <li><strong>Create label hierarchy:</strong> Start with Public, then Internal, Confidential, and CUI tiers below</li>
+                        <li><strong>Configure encryption:</strong> Enable Azure RMS encryption for Confidential and all CUI sub-labels</li>
+                        <li><strong>Set content markings:</strong> Add headers, footers, and watermarks per the CUI marking guide</li>
+                        <li><strong>Publish to users:</strong> Create a label policy targeting your CUI-authorized users first (pilot), then expand</li>
+                        <li><strong>Enable mandatory labeling:</strong> Require users to apply a label before saving or sending</li>
+                    </ol>
+                </div>
+            </div>
+            <h4 class="dp-sub-heading">Label Hierarchy</h4>
+            <div class="dp-labels-grid">
                 ${labels.map(label => `
-                    <div class="label-card" style="border-left: 4px solid ${label.color || '#666'}">
-                        <div class="label-header">
-                            <span class="label-name">${label.displayName || label.name}</span>
-                            <span class="label-priority">Priority: ${label.priority ?? 'N/A'}</span>
+                    <details class="dp-label-card" style="--label-color: ${label.color || '#666'}">
+                        <summary class="dp-label-summary">
+                            <span class="dp-label-color-dot" style="background:${label.color || '#666'}"></span>
+                            <span class="dp-label-name">${label.displayName || label.name}</span>
+                            <span class="dp-label-priority">P${label.priority ?? '?'}</span>
+                            ${label.settings?.encryption ? '<span class="dp-badge dp-badge-encrypt">Encrypted</span>' : '<span class="dp-badge dp-badge-open">Open</span>'}
+                            ${label.sublabels?.length ? '<span class="dp-badge dp-badge-sub">' + label.sublabels.length + ' sub-labels</span>' : ''}
+                            <svg class="dp-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <div class="dp-label-body">
+                            <p class="dp-label-tooltip">${label.tooltip || ''}</p>
+                            ${label.settings ? `
+                            <div class="dp-label-settings">
+                                <div class="dp-setting-row"><span class="dp-setting-key">Encryption</span><span class="dp-setting-val ${label.settings.encryption ? 'yes' : 'no'}">${label.settings.encryption ? 'Enabled' : 'Disabled'}</span></div>
+                                ${label.settings.contentMarking && typeof label.settings.contentMarking === 'object' ? `
+                                    <div class="dp-setting-row"><span class="dp-setting-key">Header</span><span class="dp-setting-val"><code>${label.settings.contentMarking.header || 'None'}</code></span></div>
+                                    <div class="dp-setting-row"><span class="dp-setting-key">Footer</span><span class="dp-setting-val"><code>${label.settings.contentMarking.footer || 'None'}</code></span></div>
+                                    ${label.settings.contentMarking.watermark ? `<div class="dp-setting-row"><span class="dp-setting-key">Watermark</span><span class="dp-setting-val"><code>${label.settings.contentMarking.watermark}</code></span></div>` : ''}
+                                ` : ''}
+                                ${label.settings.permissions ? `<div class="dp-setting-row"><span class="dp-setting-key">Permissions</span><span class="dp-setting-val">${label.settings.permissions}</span></div>` : ''}
+                                ${label.settings.dlpPolicy ? `<div class="dp-setting-row"><span class="dp-setting-key">DLP Action</span><span class="dp-setting-val">${label.settings.dlpPolicy}</span></div>` : ''}
+                                ${label.settings.protectionActions ? `<div class="dp-setting-row"><span class="dp-setting-key">Actions</span><span class="dp-setting-val">${label.settings.protectionActions}</span></div>` : ''}
+                                ${label.settings.auditLogging ? `<div class="dp-setting-row"><span class="dp-setting-key">Audit Logging</span><span class="dp-setting-val yes">Enabled</span></div>` : ''}
+                            </div>` : ''}
+                            ${label.sublabels?.length ? `
+                            <div class="dp-sublabels">
+                                <h5>Sub-Labels</h5>
+                                ${label.sublabels.map(sub => `
+                                    <div class="dp-sublabel-item">
+                                        <span class="dp-sublabel-name">${sub.displayName || sub.name}</span>
+                                        ${sub.settings ? `<div class="dp-sublabel-settings">
+                                            ${sub.settings.encryption ? '<span class="dp-badge dp-badge-encrypt">Encrypted</span>' : ''}
+                                            ${sub.settings.permissions ? '<span class="dp-badge dp-badge-perm">' + sub.settings.permissions + '</span>' : ''}
+                                        </div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>` : ''}
                         </div>
-                        <p class="label-desc">${label.tooltip || ''}</p>
-                        ${label.settings ? `
-                            <div class="label-protections">
-                                <strong>Settings:</strong>
-                                <ul>
-                                    <li>Encryption: ${label.settings.encryption ? 'Yes' : 'No'}</li>
-                                    ${label.settings.contentMarking && typeof label.settings.contentMarking === 'object' ? `<li>Header: ${label.settings.contentMarking.header || 'N/A'}</li>` : ''}
-                                    ${label.settings.protectionActions ? `<li>Actions: ${label.settings.protectionActions}</li>` : ''}
-                                </ul>
-                            </div>` : ''}
-                        ${label.sublabels && label.sublabels.length > 0 ? `
-                            <div class="sublabels">
-                                <strong>Sub-labels (${label.sublabels.length}):</strong>
-                                ${label.sublabels.map(sub => `<span class="sublabel">${sub.displayName || sub.name}</span>`).join('')}
-                            </div>` : ''}
-                    </div>
+                    </details>
                 `).join('')}
             </div>
+            ${section.deploymentScript ? `
+                <details class="dp-script-block">
+                    <summary class="dp-script-summary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg> PowerShell Deployment Script</summary>
+                    ${this._dpCodeBlock(section.deploymentScript, 'PowerShell')}
+                </details>` : ''}
         </div>`;
     },
 
     renderSensitiveInfoTypes: function(section) {
         const types = section.customTypes || [];
         return `
-        <div class="data-section">
-            <h3>${section.title || 'Sensitive Information Types'}</h3>
-            <p class="section-desc">${section.description || ''}</p>
-            <div class="info-types-grid">
+        <div class="dp-section">
+            <div class="dp-section-intro">
+                <h3>${section.title || 'Sensitive Information Types'}</h3>
+                <p>${section.description || ''}</p>
+                <div class="dp-howto-box">
+                    <div class="dp-howto-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> How to Implement</div>
+                    <ol class="dp-howto-steps">
+                        <li><strong>Go to Purview:</strong> compliance.microsoft.us &rarr; Data Classification &rarr; Sensitive Info Types</li>
+                        <li><strong>Create custom SITs:</strong> Click "Create sensitive info type" for each pattern below</li>
+                        <li><strong>Add regex patterns:</strong> Copy the regex from each card and paste into the pattern field</li>
+                        <li><strong>Add keywords:</strong> Add the corroborating keywords to increase detection confidence</li>
+                        <li><strong>Test with Content Explorer:</strong> Run Content Explorer to validate detection accuracy before enabling DLP</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="dp-sit-grid">
                 ${types.map(type => `
-                    <div class="info-type-card">
-                        <h4>${type.name}</h4>
-                        <p>${type.description || ''}</p>
-                        ${type.patterns && type.patterns.length > 0 ? `
-                            <div class="type-pattern">
-                                <strong>Patterns:</strong>
-                                ${type.patterns.map(p => `<div style="margin:4px 0;"><code style="font-size:0.75rem;word-break:break-all;">${this.escapeHtml(p.regex || p.pattern || '')}</code><br><small>${p.description || ''}</small></div>`).join('')}
+                    <details class="dp-sit-card">
+                        <summary class="dp-sit-summary">
+                            <span class="dp-sit-name">${type.name}</span>
+                            ${type.confidence ? `<span class="dp-confidence-bar"><span class="dp-conf-fill" style="width:${type.confidence.high}%"></span><span class="dp-conf-label">${type.confidence.high}%</span></span>` : ''}
+                            <svg class="dp-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <div class="dp-sit-body">
+                            <p>${type.description || ''}</p>
+                            ${type.note ? `<div class="dp-sit-note"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ${type.note}</div>` : ''}
+                            ${type.patterns?.length ? `
+                            <div class="dp-sit-patterns">
+                                <strong>Detection Patterns:</strong>
+                                ${type.patterns.map(p => `
+                                    <div class="dp-pattern-row">
+                                        <code class="dp-pattern-regex">${this.escapeHtml(p.regex || p.pattern || '')}</code>
+                                        <button class="dp-copy-btn dp-copy-sm" onclick="navigator.clipboard.writeText('${this.escapeHtml((p.regex || p.pattern || '').replace(/'/g, "\\'"))}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+                                        <div class="dp-pattern-desc">${p.description || ''}</div>
+                                    </div>
+                                `).join('')}
                             </div>` : ''}
-                        ${type.keywords ? `<div class="type-keywords"><strong>Keywords:</strong> ${type.keywords.slice(0,8).join(', ')}${type.keywords.length > 8 ? '...' : ''}</div>` : ''}
-                        ${type.confidence ? `<div class="type-confidence"><strong>Confidence:</strong> Low: ${type.confidence.low}%, Med: ${type.confidence.medium}%, High: ${type.confidence.high}%</div>` : ''}
-                    </div>
+                            ${type.keywords ? `
+                            <div class="dp-sit-keywords">
+                                <strong>Corroborating Keywords:</strong>
+                                <div class="dp-keyword-pills">${type.keywords.map(k => '<span class="dp-keyword-pill">' + k + '</span>').join('')}</div>
+                            </div>` : ''}
+                            ${type.confidence ? `
+                            <div class="dp-sit-confidence">
+                                <strong>Confidence Thresholds:</strong>
+                                <div class="dp-conf-bars">
+                                    <div class="dp-conf-item"><span class="dp-conf-label-sm">Low</span><div class="dp-conf-track"><div class="dp-conf-fill low" style="width:${type.confidence.low}%"></div></div><span>${type.confidence.low}%</span></div>
+                                    <div class="dp-conf-item"><span class="dp-conf-label-sm">Med</span><div class="dp-conf-track"><div class="dp-conf-fill med" style="width:${type.confidence.medium}%"></div></div><span>${type.confidence.medium}%</span></div>
+                                    <div class="dp-conf-item"><span class="dp-conf-label-sm">High</span><div class="dp-conf-track"><div class="dp-conf-fill high" style="width:${type.confidence.high}%"></div></div><span>${type.confidence.high}%</span></div>
+                                </div>
+                            </div>` : ''}
+                        </div>
+                    </details>
                 `).join('')}
             </div>
+            ${section.deploymentScript ? `
+                <details class="dp-script-block">
+                    <summary class="dp-script-summary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg> PowerShell: Create Custom SITs</summary>
+                    ${this._dpCodeBlock(section.deploymentScript, 'PowerShell')}
+                </details>` : ''}
         </div>`;
     },
 
     renderDLPPolicies: function(section) {
         const policies = section.recommendedPolicies || section.policies || [];
         return `
-        <div class="data-section">
-            <h3>${section.title || 'DLP Policies'}</h3>
-            <p class="section-desc">${section.description || ''}</p>
-            <div class="policies-grid">
-                ${policies.length > 0 ? policies.map(policy => `
-                    <div class="policy-card">
-                        <h4>${policy.name}</h4>
+        <div class="dp-section">
+            <div class="dp-section-intro">
+                <h3>${section.title || 'DLP Policies'}</h3>
+                <p>Data Loss Prevention policies to enforce CUI handling rules across Exchange, SharePoint, OneDrive, Teams, and endpoints.</p>
+                <div class="dp-howto-box">
+                    <div class="dp-howto-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> How to Implement</div>
+                    <ol class="dp-howto-steps">
+                        <li><strong>Start in test mode:</strong> Always deploy DLP policies in "Test with notifications" mode first</li>
+                        <li><strong>Run for 2 weeks:</strong> Monitor false positives in the DLP alerts dashboard</li>
+                        <li><strong>Tune conditions:</strong> Adjust sensitivity label matches and SIT confidence thresholds</li>
+                        <li><strong>Enable blocking:</strong> Switch to "Turn it on right away" only after tuning is complete</li>
+                        <li><strong>Set up alerts:</strong> Configure incident reports to go to your security team</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="dp-dlp-grid">
+                ${policies.map(policy => `
+                    <div class="dp-dlp-card">
+                        <div class="dp-dlp-header">
+                            <h4>${policy.name}</h4>
+                            ${policy.cmmcControl ? '<span class="dp-ctrl-badge">' + policy.cmmcControl + '</span>' : ''}
+                        </div>
                         <p>${policy.description || ''}</p>
-                        ${policy.locations ? `<div class="policy-meta"><strong>Locations:</strong> ${Array.isArray(policy.locations) ? policy.locations.join(', ') : policy.locations}</div>` : ''}
+                        ${policy.scope ? `<div class="dp-dlp-meta"><strong>Scope:</strong> <span class="dp-scope-pills">${(Array.isArray(policy.scope) ? policy.scope : [policy.scope]).map(s => '<span class="dp-scope-pill">' + s + '</span>').join('')}</span></div>` : ''}
+                        ${policy.conditions ? `<div class="dp-dlp-meta"><strong>Conditions:</strong><ul class="dp-dlp-list">${policy.conditions.map(c => '<li>' + c + '</li>').join('')}</ul></div>` : ''}
+                        ${policy.actions ? `<div class="dp-dlp-meta"><strong>Actions:</strong><ul class="dp-dlp-list dp-dlp-actions">${policy.actions.map(a => '<li>' + a + '</li>').join('')}</ul></div>` : ''}
                     </div>
-                `).join('') : '<p>No DLP policies defined yet</p>'}
+                `).join('')}
+            </div>
+            ${section.deploymentScript ? `
+                <details class="dp-script-block">
+                    <summary class="dp-script-summary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg> PowerShell: Create DLP Policies</summary>
+                    ${this._dpCodeBlock(section.deploymentScript, 'PowerShell')}
+                </details>` : ''}
+        </div>`;
+    },
+
+    renderAutoLabeling: function(section) {
+        const classifiers = section.trainableClassifiers || [];
+        const sim = section.simulationGuidance || {};
+        return `
+        <div class="dp-section">
+            <div class="dp-section-intro">
+                <h3>${section.title || 'Automatic Classification'}</h3>
+                <p>Use trainable classifiers and auto-labeling policies to automatically identify and label CUI without user intervention.</p>
+                <div class="dp-howto-box">
+                    <div class="dp-howto-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> How to Implement</div>
+                    <ol class="dp-howto-steps">
+                        ${(sim.steps || []).map((s, i) => '<li>' + s + '</li>').join('')}
+                    </ol>
+                </div>
+            </div>
+            <h4 class="dp-sub-heading">Trainable Classifiers</h4>
+            <div class="dp-classifier-grid">
+                ${classifiers.map(c => `
+                    <div class="dp-classifier-card">
+                        <h4>${c.name}</h4>
+                        <p>${c.description || ''}</p>
+                        <div class="dp-classifier-meta">
+                            <div class="dp-setting-row"><span class="dp-setting-key">Training Required</span><span class="dp-setting-val">${c.trainingRequirements || 'N/A'}</span></div>
+                            <div class="dp-setting-row"><span class="dp-setting-key">Recommended Label</span><span class="dp-badge dp-badge-encrypt">${c.recommendedLabel || 'N/A'}</span></div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+
+    renderAIPScanner: function(section) {
+        const deploy = section.deployment || {};
+        return `
+        <div class="dp-section">
+            <div class="dp-section-intro">
+                <h3>${section.title || 'AIP Scanner'}</h3>
+                <p>${section.description || 'Discover and classify CUI in on-premises file shares and SharePoint Server.'}</p>
+                <div class="dp-howto-box">
+                    <div class="dp-howto-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> How to Deploy</div>
+                    <ol class="dp-howto-steps">
+                        <li><strong>Provision scanner server:</strong> Windows Server 2016+ with SQL Server 2016+ (Express OK for &lt;10 repos)</li>
+                        <li><strong>Register Entra ID app:</strong> Create app registration with AIPScanner permissions</li>
+                        <li><strong>Install AIP client:</strong> Run <code>Install-Module AzureInformationProtection</code></li>
+                        <li><strong>Configure cluster:</strong> Run <code>Install-AIPScanner</code> with your SQL instance</li>
+                        <li><strong>Add repositories:</strong> Point scanner at file shares containing potential CUI</li>
+                        <li><strong>Run discovery scan first:</strong> Use reporting-only mode to baseline before enforcing labels</li>
+                    </ol>
+                </div>
+            </div>
+            ${deploy.prerequisites ? `
+            <div class="dp-prereq-box">
+                <h4>Prerequisites</h4>
+                <ul class="dp-prereq-list">${deploy.prerequisites.map(p => '<li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ' + p + '</li>').join('')}</ul>
+            </div>` : ''}
+            ${deploy.contentScanJobSettings ? `
+            <div class="dp-settings-grid">
+                <h4>Scan Job Settings</h4>
+                ${Object.entries(deploy.contentScanJobSettings).map(([k, v]) => `
+                    <div class="dp-setting-row"><span class="dp-setting-key">${k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}</span><span class="dp-setting-val">${Array.isArray(v) ? v.join(', ') : v}</span></div>
+                `).join('')}
+            </div>` : ''}
+            ${deploy.installationScript ? `
+                <details class="dp-script-block">
+                    <summary class="dp-script-summary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg> Installation Script</summary>
+                    ${this._dpCodeBlock(deploy.installationScript, 'PowerShell')}
+                </details>` : ''}
+        </div>`;
+    },
+
+    renderEndpointDLP: function(section) {
+        const activities = section.monitoredActivities || [];
+        const deploy = section.deployment || {};
+        return `
+        <div class="dp-section">
+            <div class="dp-section-intro">
+                <h3>${section.title || 'Endpoint DLP'}</h3>
+                <p>${section.description || ''}</p>
+                <div class="dp-howto-box">
+                    <div class="dp-howto-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> How to Enable</div>
+                    <ol class="dp-howto-steps">
+                        <li><strong>Onboard devices:</strong> Ensure devices are onboarded to Microsoft Defender for Endpoint</li>
+                        <li><strong>Enable Endpoint DLP:</strong> In Purview &rarr; Settings &rarr; Endpoint DLP settings &rarr; Turn on</li>
+                        <li><strong>Configure unallowed apps:</strong> Add apps that should not access CUI-labeled files</li>
+                        <li><strong>Set USB restrictions:</strong> Block or audit CUI copy to removable storage</li>
+                        <li><strong>Deploy via Intune:</strong> Push endpoint protection configuration profiles to managed devices</li>
+                    </ol>
+                </div>
+            </div>
+            ${deploy.prerequisites ? `
+            <div class="dp-prereq-box">
+                <h4>Prerequisites</h4>
+                <ul class="dp-prereq-list">${deploy.prerequisites.map(p => '<li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ' + p + '</li>').join('')}</ul>
+            </div>` : ''}
+            ${section.capabilities ? `
+            <div class="dp-capabilities">
+                <h4>Capabilities</h4>
+                <div class="dp-cap-grid">${section.capabilities.map(c => '<div class="dp-cap-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ' + c + '</div>').join('')}</div>
+            </div>` : ''}
+            ${activities.length ? `
+            <h4 class="dp-sub-heading">Monitored Activities</h4>
+            <table class="dp-activity-table">
+                <thead><tr><th>Activity</th><th>Recommended Action</th></tr></thead>
+                <tbody>${activities.map(a => '<tr><td>' + a.activity + '</td><td><span class="dp-action-badge ' + (a.action.toLowerCase().includes('block') ? 'block' : 'audit') + '">' + a.action + '</span></td></tr>').join('')}</tbody>
+            </table>` : ''}
+            ${deploy.intunePolicy ? `
+                <details class="dp-script-block">
+                    <summary class="dp-script-summary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg> Intune Configuration Profile (JSON)</summary>
+                    ${this._dpCodeBlock(deploy.intunePolicy, 'JSON')}
+                </details>` : ''}
+        </div>`;
+    },
+
+    renderCloudApps: function(section) {
+        const policies = section.sessionPolicies || [];
+        const appGov = section.appGovernance || {};
+        return `
+        <div class="dp-section">
+            <div class="dp-section-intro">
+                <h3>${section.title || 'Defender for Cloud Apps'}</h3>
+                <p>Session-level controls for CUI protection in cloud applications. Prevents data leakage through unmanaged devices and unsanctioned apps.</p>
+                <div class="dp-howto-box">
+                    <div class="dp-howto-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> How to Configure</div>
+                    <ol class="dp-howto-steps">
+                        <li><strong>Enable Conditional Access App Control:</strong> In Entra ID &rarr; Conditional Access, route sessions through Defender for Cloud Apps</li>
+                        <li><strong>Create session policies:</strong> In the Cloud Apps portal, create policies for each scenario below</li>
+                        <li><strong>Configure app discovery:</strong> Enable Cloud Discovery to identify shadow IT</li>
+                        <li><strong>Sanction/unsanction apps:</strong> Mark approved apps as "Sanctioned" and block uploads to others</li>
+                    </ol>
+                </div>
+            </div>
+            ${section.portalUrl ? `<div class="dp-portal-link"><a href="${section.portalUrl}" target="_blank" rel="noopener"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open Cloud Apps Portal</a></div>` : ''}
+            <h4 class="dp-sub-heading">Session Policies</h4>
+            <div class="dp-session-grid">
+                ${policies.map(p => `
+                    <div class="dp-session-card">
+                        <h4>${p.name}</h4>
+                        <div class="dp-session-conditions"><strong>Conditions:</strong><ul>${p.conditions.map(c => '<li>' + c + '</li>').join('')}</ul></div>
+                        <div class="dp-session-action"><strong>Action:</strong> <span class="dp-action-badge ${p.action.toLowerCase().includes('block') ? 'block' : 'audit'}">${p.action}</span></div>
+                    </div>
+                `).join('')}
+            </div>
+            ${appGov.policies ? `
+            <h4 class="dp-sub-heading">App Governance</h4>
+            <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px">${appGov.description || ''}</p>
+            <ul class="dp-gov-list">${appGov.policies.map(p => '<li>' + p + '</li>').join('')}</ul>` : ''}
+        </div>`;
+    },
+
+    renderCUICategories: function(section) {
+        const cats = section.commonCategories || [];
+        const dissem = section.limitedDisseminationControls || [];
+        const marking = section.markingFormat || {};
+        return `
+        <div class="dp-section">
+            <div class="dp-section-intro">
+                <h3>${section.title || 'CUI Categories'}</h3>
+                <p>Reference guide for CUI categories, marking formats, and dissemination controls per the <a href="${section.source || 'https://www.archives.gov/cui/registry/category-list'}" target="_blank" rel="noopener">CUI Registry</a>.</p>
+            </div>
+            <h4 class="dp-sub-heading">Common CUI Categories</h4>
+            <div class="dp-cui-grid">
+                ${cats.map(c => `
+                    <div class="dp-cui-card">
+                        <div class="dp-cui-header"><h4>${c.category}</h4><code class="dp-cui-marking">${c.marking}</code></div>
+                        <p>${c.description}</p>
+                        ${c.controls ? `<div class="dp-cui-meta"><strong>Governing Clause:</strong> ${c.controls}</div>` : ''}
+                        ${c.subcategories ? `<div class="dp-cui-meta"><strong>Sub-categories:</strong> ${c.subcategories.join(', ')}</div>` : ''}
+                        ${c.examples ? `<div class="dp-cui-meta"><strong>Examples:</strong> ${c.examples.join(', ')}</div>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+            ${dissem.length ? `
+            <h4 class="dp-sub-heading">Dissemination Controls</h4>
+            <table class="dp-activity-table">
+                <thead><tr><th>Code</th><th>Description</th></tr></thead>
+                <tbody>${dissem.map(d => '<tr><td><code class="dp-dissem-code">' + d.code + '</code></td><td>' + d.description + '</td></tr>').join('')}</tbody>
+            </table>` : ''}
+            ${marking.banner ? `
+            <h4 class="dp-sub-heading">Marking Format</h4>
+            <div class="dp-marking-format">
+                <div class="dp-marking-template"><strong>Banner Format:</strong> <code>${marking.banner}</code></div>
+                ${marking.portionMarking ? `<div class="dp-marking-template"><strong>Portion Marking:</strong> <code>${marking.portionMarking}</code></div>` : ''}
+                ${marking.examples ? `<div class="dp-marking-examples"><strong>Examples:</strong>${marking.examples.map(e => '<div class="dp-marking-example"><code>' + e + '</code></div>').join('')}</div>` : ''}
+            </div>` : ''}
+        </div>`;
+    },
+
+    renderDPChecklist: function(section) {
+        const phases = section.phases || [];
+        const statusIcons = { required: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>', recommended: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/></svg>', conditional: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12.01" y2="16"/><line x1="12" y1="8" x2="12" y2="12"/></svg>' };
+        return `
+        <div class="dp-section">
+            <div class="dp-section-intro">
+                <h3>${section.title || 'Implementation Checklist'}</h3>
+                <p>Phased implementation plan for deploying data protection controls. Follow phases sequentially.</p>
+            </div>
+            <div class="dp-checklist-legend">
+                <span class="dp-legend-item"><span class="dp-status-dot required"></span> Required</span>
+                <span class="dp-legend-item"><span class="dp-status-dot recommended"></span> Recommended</span>
+                <span class="dp-legend-item"><span class="dp-status-dot conditional"></span> Conditional</span>
+            </div>
+            <div class="dp-checklist-phases">
+                ${phases.map((phase, pi) => `
+                    <div class="dp-phase-card">
+                        <div class="dp-phase-header">
+                            <span class="dp-phase-num">${pi + 1}</span>
+                            <span class="dp-phase-name">${phase.phase}</span>
+                            <span class="dp-phase-count">${phase.tasks.length} tasks</span>
+                        </div>
+                        <div class="dp-phase-tasks">
+                            ${phase.tasks.map(t => `
+                                <label class="dp-task-item">
+                                    <input type="checkbox" class="dp-task-check">
+                                    <span class="dp-task-text">${t.task}</span>
+                                    <span class="dp-task-status ${t.status}">${t.status}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
             </div>
         </div>`;
     },
 
     renderGenericDataSection: function(section) {
         return `
-        <div class="data-section">
+        <div class="dp-section">
             <h3>${section.title || 'Configuration'}</h3>
             <p class="section-desc">${section.description || ''}</p>
-            ${section.configuration ? `<pre class="code-block"><code>${this.escapeHtml(JSON.stringify(section.configuration, null, 2))}</code></pre>` : ''}
-            ${section.steps ? `
-                <div class="steps-list">
-                    <strong>Setup Steps:</strong>
-                    <ol>${section.steps.map(s => `<li>${s}</li>`).join('')}</ol>
-                </div>` : ''}
-            ${section.bestPractices ? `
-                <div class="best-practices">
-                    <strong>Best Practices:</strong>
-                    <ul>${section.bestPractices.map(bp => `<li>${bp}</li>`).join('')}</ul>
-                </div>` : ''}
+            ${section.configuration ? this._dpCodeBlock(JSON.stringify(section.configuration, null, 2), 'JSON') : ''}
+            ${section.steps ? `<div class="dp-howto-box"><div class="dp-howto-title">Setup Steps</div><ol class="dp-howto-steps">${section.steps.map(s => '<li>' + s + '</li>').join('')}</ol></div>` : ''}
+            ${section.bestPractices ? `<div class="dp-howto-box"><div class="dp-howto-title">Best Practices</div><ul class="dp-howto-steps">${section.bestPractices.map(bp => '<li>' + bp + '</li>').join('')}</ul></div>` : ''}
         </div>`;
     },
 
@@ -2329,6 +2738,7 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
                 <button class="mssp-pb-tab active" data-pb-tab="scoping">Asset Scoping</button>
                 <button class="mssp-pb-tab" data-pb-tab="tools">Tool Matrix</button>
                 <button class="mssp-pb-tab" data-pb-tab="playbooks">SOC Playbooks</button>
+                <button class="mssp-pb-tab" data-pb-tab="operations">Operations Reference</button>
                 <button class="mssp-pb-tab" data-pb-tab="onboarding">Client Onboarding</button>
                 <button class="mssp-pb-tab" data-pb-tab="dfars">DFARS 7012</button>
             </div>
@@ -2487,6 +2897,419 @@ New-MgDeviceManagementIntentAssignment -DeviceManagementIntentId $baseline.Id \\
             <div class="dfars-important">
                 <strong>Important:</strong> Forensic images must be preserved for a minimum of 90 days. Report via <a href="https://dibnet.dod.mil" target="_blank" rel="noopener">DIBNet</a>. Failure to report within 72 hours may result in contract penalties.
             </div>
+        </div>`;
+    },
+
+    // ==================== MSSP OPERATIONS REFERENCE ====================
+    renderPlaybookOperations: function() {
+        const ops = typeof MSSP_OPERATIONS_REFERENCE !== 'undefined' ? MSSP_OPERATIONS_REFERENCE : null;
+        if (!ops) return '<div class="msp-empty-state"><h3>Operations Reference data not loaded</h3></div>';
+        return `
+        <div class="mssp-pb-section mssp-ops-ref">
+            <div class="ops-stats-strip">
+                <div class="ops-stat"><span class="ops-stat-num">4</span><span class="ops-stat-label">SOC Tiers</span></div>
+                <div class="ops-stat"><span class="ops-stat-num">5</span><span class="ops-stat-label">Pipeline Stages</span></div>
+                <div class="ops-stat"><span class="ops-stat-num">4</span><span class="ops-stat-label">Cloud Platforms</span></div>
+                <div class="ops-stat"><span class="ops-stat-num">5</span><span class="ops-stat-label">SOAR Playbooks</span></div>
+                <div class="ops-stat"><span class="ops-stat-num">10</span><span class="ops-stat-label">Key Metrics</span></div>
+            </div>
+            <div class="ops-sub-tabs">
+                <button class="ops-sub-tab active" data-ops-tab="soc">SOC Architecture</button>
+                <button class="ops-sub-tab" data-ops-tab="logs">Log Management</button>
+                <button class="ops-sub-tab" data-ops-tab="ticketing">Ticketing & Cases</button>
+                <button class="ops-sub-tab" data-ops-tab="cloud">Cloud Access</button>
+                <button class="ops-sub-tab" data-ops-tab="automation">Automation & SOAR</button>
+                <button class="ops-sub-tab" data-ops-tab="metrics">Metrics & SLAs</button>
+            </div>
+            <div class="ops-sub-content" id="ops-sub-content">
+                ${this._renderOpsSOC(ops)}
+            </div>
+        </div>`;
+    },
+
+    _renderOpsSection: function(tabKey) {
+        const ops = typeof MSSP_OPERATIONS_REFERENCE !== 'undefined' ? MSSP_OPERATIONS_REFERENCE : null;
+        if (!ops) return '';
+        switch (tabKey) {
+            case 'soc': return this._renderOpsSOC(ops);
+            case 'logs': return this._renderOpsLogs(ops);
+            case 'ticketing': return this._renderOpsTicketing(ops);
+            case 'cloud': return this._renderOpsCloud(ops);
+            case 'automation': return this._renderOpsAutomation(ops);
+            case 'metrics': return this._renderOpsMetrics(ops);
+            default: return '';
+        }
+    },
+
+    _renderOpsSOC: function(ops) {
+        const soc = ops.socArchitecture;
+        return `
+        <div class="ops-section">
+            <h3>${soc.title}</h3>
+            <p class="section-desc">${soc.description}</p>
+
+            <div class="ops-tiers">
+                ${soc.tiers.map(t => `
+                    <details class="ops-tier-card" ${t.tier.includes('Tier 1') ? 'open' : ''}>
+                        <summary class="ops-tier-header">
+                            <span class="ops-tier-name">${t.tier}</span>
+                            <span class="ops-tier-role">${t.role}</span>
+                            <span class="ops-tier-coverage">${t.coverage}</span>
+                            <svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <div class="ops-tier-body">
+                            <div class="ops-tier-col">
+                                <strong>Responsibilities</strong>
+                                <ul>${t.responsibilities.map(r => '<li>' + r + '</li>').join('')}</ul>
+                            </div>
+                            <div class="ops-tier-meta">
+                                <div class="ops-tier-tools"><strong>Tools:</strong> ${t.tools.join(', ')}</div>
+                                <div class="ops-tier-metrics"><strong>Key Metrics:</strong> ${t.metrics.join(' · ')}</div>
+                            </div>
+                        </div>
+                    </details>
+                `).join('')}
+            </div>
+
+            <h4 style="margin-top:24px">Shift Coverage Models</h4>
+            <div class="ops-shift-models">
+                ${soc.shiftModels.map(m => `
+                    <div class="ops-shift-card">
+                        <div class="ops-shift-name">${m.model}</div>
+                        <p class="ops-shift-desc">${m.description}</p>
+                        <div class="ops-shift-details">
+                            <div class="ops-shift-col"><strong>Pros</strong><ul>${m.pros.map(p => '<li>' + p + '</li>').join('')}</ul></div>
+                            <div class="ops-shift-col"><strong>Cons</strong><ul>${m.cons.map(c => '<li>' + c + '</li>').join('')}</ul></div>
+                        </div>
+                        <div class="ops-shift-best"><strong>Best For:</strong> ${m.bestFor}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+
+    _renderOpsLogs: function(ops) {
+        const log = ops.logManagement;
+        return `
+        <div class="ops-section">
+            <h3>${log.title}</h3>
+            <p class="section-desc">${log.description}</p>
+
+            ${log.pipeline.map(stage => `
+                <details class="ops-pipeline-stage" ${stage.stage.includes('1.') ? 'open' : ''}>
+                    <summary class="ops-stage-header">
+                        <span class="ops-stage-num">${stage.stage}</span>
+                        <span class="ops-stage-desc">${stage.description}</span>
+                        <svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </summary>
+                    <div class="ops-stage-body">
+                        ${stage.methods ? stage.methods.map(m => `
+                            <div class="ops-method-card">
+                                <div class="ops-method-name">${m.method}</div>
+                                <p>${m.description}</p>
+                                <div class="ops-method-examples"><strong>Examples:</strong> ${m.examples.join(', ')}</div>
+                                <div class="ops-method-proscons"><span class="ops-pro">✓ ${m.pros}</span> <span class="ops-con">✗ ${m.cons}</span></div>
+                            </div>
+                        `).join('') : ''}
+
+                        ${stage.details ? `<ul>${stage.details.map(d => '<li>' + d + '</li>').join('')}</ul>` : ''}
+
+                        ${stage.commonSchemas ? `
+                            <div class="ops-schemas">
+                                <strong>Common Data Schemas</strong>
+                                <div class="ops-schema-grid">
+                                    ${stage.commonSchemas.map(s => `<div class="ops-schema-chip"><strong>${s.name}</strong><span>${s.description}</span></div>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${stage.techniques ? `<ul>${stage.techniques.map(t => '<li>' + t + '</li>').join('')}</ul>` : ''}
+
+                        ${stage.costOptimization ? `
+                            <div class="ops-cost-tips">
+                                <strong>Cost Optimization Tips</strong>
+                                <ul>${stage.costOptimization.map(c => '<li>' + c + '</li>').join('')}</ul>
+                            </div>
+                        ` : ''}
+
+                        ${stage.approaches ? stage.approaches.map(a => `
+                            <div class="ops-method-card">
+                                <div class="ops-method-name">${a.approach}</div>
+                                <p>${a.description}</p>
+                                <div class="ops-method-examples"><strong>Examples:</strong> ${a.examples.join(', ')}</div>
+                            </div>
+                        `).join('') : ''}
+
+                        ${stage.retentionGuidelines ? `
+                            <div class="ops-retention-table-wrap">
+                                <table class="msp-comparison-table">
+                                    <thead><tr><th>Framework</th><th>Retention</th><th>Notes</th></tr></thead>
+                                    <tbody>${stage.retentionGuidelines.map(r => `<tr><td><strong>${r.requirement}</strong></td><td>${r.retention}</td><td>${r.notes}</td></tr>`).join('')}</tbody>
+                                </table>
+                            </div>
+                        ` : ''}
+
+                        ${stage.storageArchitecture ? `
+                            <div class="ops-storage-tiers">
+                                <strong>Storage Architecture</strong>
+                                <div class="ops-storage-grid">
+                                    ${stage.storageArchitecture.map(s => `
+                                        <div class="ops-storage-card">
+                                            <div class="ops-storage-tier-name">${s.tier}</div>
+                                            <div class="ops-storage-duration">${s.duration}</div>
+                                            <div class="ops-storage-tech">${s.technology}</div>
+                                            <div class="ops-storage-search">${s.searchable}</div>
+                                            <div class="ops-storage-cost">${s.cost}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </details>
+            `).join('')}
+        </div>`;
+    },
+
+    _renderOpsTicketing: function(ops) {
+        const tk = ops.ticketingWorkflow;
+        return `
+        <div class="ops-section">
+            <h3>${tk.title}</h3>
+            <p class="section-desc">${tk.description}</p>
+
+            <h4>Ticket Lifecycle</h4>
+            <div class="ops-ticket-lifecycle">
+                ${tk.ticketLifecycle.map((stage, i) => `
+                    <div class="ops-ticket-stage">
+                        <div class="ops-ticket-stage-num">${i + 1}</div>
+                        <div class="ops-ticket-stage-content">
+                            <div class="ops-ticket-stage-name">${stage.stage}</div>
+                            <p>${stage.description}</p>
+                            <div class="ops-ticket-sla"><strong>SLA:</strong> ${stage.sla}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 style="margin-top:24px">Priority Matrix</h4>
+            <div class="ops-priority-matrix">
+                ${tk.priorityMatrix.map(p => `
+                    <div class="ops-priority-card ops-priority-${p.priority.substring(0,2).toLowerCase()}">
+                        <div class="ops-priority-header">
+                            <span class="ops-priority-badge">${p.priority}</span>
+                            <span class="ops-priority-time">${p.responseTime}</span>
+                        </div>
+                        <p>${p.description}</p>
+                        <div class="ops-priority-examples">${p.examples.map(e => '<span class="ops-example-chip">' + e + '</span>').join('')}</div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 style="margin-top:24px">Client Communication Channels</h4>
+            <div class="ops-comm-channels">
+                ${tk.clientCommunication.map(ch => `
+                    <details class="ops-comm-card">
+                        <summary>
+                            <strong>${ch.channel}</strong> — ${ch.description.substring(0, 80)}...
+                            <svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <div class="ops-comm-body">
+                            <p>${ch.description}</p>
+                            <ul>${ch.features.map(f => '<li>' + f + '</li>').join('')}</ul>
+                        </div>
+                    </details>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+
+    _renderOpsCloud: function(ops) {
+        const ca = ops.cloudAccess;
+        return `
+        <div class="ops-section">
+            <h3>${ca.title}</h3>
+            <p class="section-desc">${ca.description}</p>
+
+            <div class="ops-cloud-platforms">
+                ${ca.platforms.map(p => `
+                    <details class="ops-cloud-card" ${p.cloud === 'AWS' ? 'open' : ''}>
+                        <summary class="ops-cloud-header">
+                            <span class="ops-cloud-name">${p.cloud}</span>
+                            <span class="ops-cloud-model">${p.accessModel}</span>
+                            <svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <div class="ops-cloud-body">
+                            <div class="ops-cloud-steps">
+                                <strong>Setup Steps</strong>
+                                <ol>${p.setupSteps.map(s => '<li>' + s + '</li>').join('')}</ol>
+                            </div>
+
+                            ${p.iamPolicy ? `
+                                <details class="ops-code-detail">
+                                    <summary>View IAM Policy</summary>
+                                    <div class="dp-code-wrap"><div class="dp-code-header"><span class="dp-code-lang">JSON</span><button class="dp-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.dp-code-wrap').querySelector('code').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div><pre class="dp-code-block"><code>${this.escapeHtml(p.iamPolicy)}</code></pre></div>
+                                </details>
+                            ` : ''}
+
+                            ${p.trustPolicy ? `
+                                <details class="ops-code-detail">
+                                    <summary>View Trust Policy</summary>
+                                    <div class="dp-code-wrap"><div class="dp-code-header"><span class="dp-code-lang">JSON</span><button class="dp-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.dp-code-wrap').querySelector('code').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)">Copy</button></div><pre class="dp-code-block"><code>${this.escapeHtml(p.trustPolicy)}</code></pre></div>
+                                </details>
+                            ` : ''}
+
+                            ${p.lighthouseRoles ? `
+                                <div class="ops-roles-table">
+                                    <strong>Azure Lighthouse Roles</strong>
+                                    <table class="msp-comparison-table">
+                                        <thead><tr><th>Role</th><th>Scope</th><th>Purpose</th></tr></thead>
+                                        <tbody>${p.lighthouseRoles.map(r => `<tr><td><strong>${r.role}</strong></td><td>${r.scope}</td><td>${r.purpose}</td></tr>`).join('')}</tbody>
+                                    </table>
+                                </div>
+                            ` : ''}
+
+                            ${p.roles ? `
+                                <div class="ops-roles-list">
+                                    <strong>Required Roles</strong>
+                                    <ul>${p.roles.map(r => '<li><code>' + r + '</code></li>').join('')}</ul>
+                                </div>
+                            ` : ''}
+
+                            ${p.recommendedRoles ? `
+                                <div class="ops-roles-list">
+                                    <strong>Recommended GDAP Roles</strong>
+                                    <ul>${p.recommendedRoles.map(r => '<li>' + r + '</li>').join('')}</ul>
+                                </div>
+                            ` : ''}
+
+                            <div class="ops-response-actions">
+                                <strong>Pre-Approved Response Actions</strong>
+                                <div class="ops-action-chips">${p.responseActions.map(a => '<span class="ops-action-chip">' + a + '</span>').join('')}</div>
+                            </div>
+
+                            ${p.automationTools ? `
+                                <div class="ops-auto-tools"><strong>Automation Tools:</strong> ${p.automationTools.join(', ')}</div>
+                            ` : ''}
+                        </div>
+                    </details>
+                `).join('')}
+            </div>
+
+            <h4 style="margin-top:24px">Multi-Tenant Management Patterns</h4>
+            <p class="section-desc">${ca.multiTenantManagement.description}</p>
+            <div class="ops-mt-approaches">
+                ${ca.multiTenantManagement.approaches.map(a => `
+                    <div class="ops-mt-card">
+                        <div class="ops-mt-name">${a.approach}</div>
+                        <p>${a.description}</p>
+                        <div class="ops-mt-platforms"><strong>Platforms:</strong> ${a.platforms.join(', ')}</div>
+                        <div class="ops-method-proscons"><span class="ops-pro">✓ ${a.pros}</span> <span class="ops-con">✗ ${a.cons}</span></div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+
+    _renderOpsAutomation: function(ops) {
+        const auto = ops.automationPatterns;
+        return `
+        <div class="ops-section">
+            <h3>${auto.title}</h3>
+            <p class="section-desc">${auto.description}</p>
+
+            <div class="ops-playbooks">
+                ${auto.commonPlaybooks.map(pb => `
+                    <details class="ops-playbook-card">
+                        <summary class="ops-playbook-header">
+                            <span class="ops-playbook-name">${pb.name}</span>
+                            <span class="ops-playbook-time"><span class="ops-time-manual">${pb.timeWithout}</span> → <span class="ops-time-auto">${pb.timeWith}</span></span>
+                            <svg class="cg-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <div class="ops-playbook-body">
+                            <div class="ops-playbook-trigger"><strong>Trigger:</strong> ${pb.trigger}</div>
+                            <div class="ops-playbook-steps">
+                                <strong>Automated Steps</strong>
+                                <ol>${pb.automatedSteps.map(s => '<li>' + s + '</li>').join('')}</ol>
+                            </div>
+                            <div class="ops-playbook-meta">
+                                <div class="ops-playbook-savings">
+                                    <span class="ops-savings-label">Time Savings:</span>
+                                    <span class="ops-time-manual">${pb.timeWithout}</span>
+                                    <span class="ops-arrow">→</span>
+                                    <span class="ops-time-auto">${pb.timeWith}</span>
+                                </div>
+                                <div class="ops-playbook-platforms"><strong>Platforms:</strong> ${pb.platforms}</div>
+                            </div>
+                        </div>
+                    </details>
+                `).join('')}
+            </div>
+
+            <h4 style="margin-top:24px">${auto.aiInOperations.title}</h4>
+            <div class="ops-ai-grid">
+                ${auto.aiInOperations.applications.map(app => `
+                    <div class="ops-ai-card">
+                        <div class="ops-ai-area">${app.area}</div>
+                        <p>${app.description}</p>
+                        <div class="ops-ai-impact"><strong>Impact:</strong> ${app.impact}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    },
+
+    _renderOpsMetrics: function(ops) {
+        const met = ops.metricsAndSLAs;
+        const ir = ops.incidentResponse;
+        return `
+        <div class="ops-section">
+            <h3>${met.title}</h3>
+            <p class="section-desc">${met.description}</p>
+
+            <div class="ops-metrics-table-wrap">
+                <table class="msp-comparison-table">
+                    <thead><tr><th>Metric</th><th>Full Name</th><th>Target</th><th>Description</th></tr></thead>
+                    <tbody>${met.coreMetrics.map(m => `
+                        <tr>
+                            <td><strong class="ops-metric-code">${m.metric}</strong></td>
+                            <td>${m.fullName}</td>
+                            <td><span class="ops-target-badge">${m.target}</span></td>
+                            <td>${m.description}</td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top:24px">Reporting Cadence</h4>
+            <div class="ops-reporting-grid">
+                ${met.reportingCadence.map(r => `
+                    <div class="ops-report-card">
+                        <div class="ops-report-name">${r.report}</div>
+                        <div class="ops-report-audience"><strong>Audience:</strong> ${r.audience}</div>
+                        <div class="ops-report-content">${r.content}</div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <h4 style="margin-top:24px">Incident Response — Pre-Approved Actions</h4>
+            <p class="section-desc">${ir.preApprovedActions.description}</p>
+            <div class="ops-preapproved-table-wrap">
+                <table class="msp-comparison-table">
+                    <thead><tr><th>Action</th><th>Approval</th><th>Notes</th></tr></thead>
+                    <tbody>${ir.preApprovedActions.typical.map(a => `
+                        <tr>
+                            <td>${a.action}</td>
+                            <td><span class="ops-approval-badge ${a.approval === 'Pre-approved' ? 'approved' : 'requires'}">${a.approval}</span></td>
+                            <td>${a.notes}</td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-top:24px">War Room Protocol (P1/P2 Incidents)</h4>
+            <p class="section-desc">${ir.warRoomProtocol.description}</p>
+            <ol class="ops-warroom-steps">${ir.warRoomProtocol.steps.map(s => '<li>' + s + '</li>').join('')}</ol>
         </div>`;
     },
 

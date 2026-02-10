@@ -343,6 +343,10 @@ const Rev3Crosswalk = {
             <!-- Sticky header: title + stats + filters -->
             <div class="xwu-header">
                 <div class="xwu-title-row">
+                    <button class="view-back-btn" data-back-view="dashboard" title="Back to Dashboard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back
+                    </button>
                     <div>
                         <h2>NIST 800-171 Rev 2 → Rev 3 Crosswalk</h2>
                         <p class="xwu-subtitle">Control mapping with DoD-Defined ODPs (2025)</p>

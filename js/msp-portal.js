@@ -182,6 +182,22 @@ const MSPPortal = {
         this.attachDataViewEvents();
     },
 
+    _bindOpsSubTabs: function() {
+        document.querySelectorAll('.ops-sub-tab').forEach(tab => {
+            const newTab = tab.cloneNode(true);
+            tab.parentNode.replaceChild(newTab, tab);
+            newTab.addEventListener('click', (e) => {
+                const tabBtn = e.target.closest('.ops-sub-tab');
+                if (!tabBtn) return;
+                const tabKey = tabBtn.dataset.opsTab;
+                document.querySelectorAll('.ops-sub-tab').forEach(t => t.classList.remove('active'));
+                tabBtn.classList.add('active');
+                const contentEl = document.getElementById('ops-sub-content');
+                if (contentEl) contentEl.innerHTML = MSPPortalViews._renderOpsSection(tabKey);
+            });
+        });
+    },
+
     _bindCloudToolkitSubTabs: function() {
         document.querySelectorAll('.ctk-sub-tab').forEach(tab => {
             const newTab = tab.cloneNode(true);
@@ -222,13 +238,15 @@ const MSPPortal = {
                 tab.parentNode.replaceChild(newTab, tab);
                 
                 newTab.addEventListener('click', (e) => {
-                    const section = e.target.dataset.section;
-                    const container = e.target.closest('.msp-data-view');
+                    const tabBtn = e.target.closest('.msp-data-tab');
+                    if (!tabBtn) return;
+                    const section = tabBtn.dataset.section;
+                    const container = tabBtn.closest('.msp-data-view');
                     if (!container) return;
                     
                     // Update active tab
                     container.querySelectorAll('.msp-data-tab').forEach(t => t.classList.remove('active'));
-                    e.target.classList.add('active');
+                    tabBtn.classList.add('active');
                     
                     // Render content based on view type - check by content ID
                     const contentEl = container.querySelector('.msp-data-content');
@@ -251,22 +269,21 @@ const MSPPortal = {
                 });
             });
 
-            // Evidence family navigation
+            // Evidence family navigation (use closest() for nested SVG/span children)
             document.querySelectorAll('.family-nav-btn').forEach(btn => {
-                // Remove existing listeners by cloning
                 const newBtn = btn.cloneNode(true);
                 btn.parentNode.replaceChild(newBtn, btn);
                 
                 newBtn.addEventListener('click', (e) => {
-                    const familyKey = e.target.dataset.family;
+                    const navBtn = e.target.closest('.family-nav-btn');
+                    if (!navBtn) return;
+                    const familyKey = navBtn.dataset.family;
                     const data = typeof MSP_EVIDENCE_LISTS !== 'undefined' ? MSP_EVIDENCE_LISTS : null;
                     if (!data) return;
                     
-                    // Update active button
                     document.querySelectorAll('.family-nav-btn').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
+                    navBtn.classList.add('active');
                     
-                    // Build family object from key (must match keys in msp-evidence-lists.js)
                     const familyMap = {
                         accessControl: { id: 'AC', name: 'Access Control' },
                         awarenessTraining: { id: 'AT', name: 'Awareness & Training' },
@@ -295,6 +312,38 @@ const MSPPortal = {
                 });
             });
 
+            // Evidence search input
+            const evSearchInput = document.getElementById('ev-search-input');
+            if (evSearchInput) {
+                evSearchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase().trim();
+                    const contentEl = document.getElementById('evidence-lists-content');
+                    if (!contentEl) return;
+                    const cards = contentEl.querySelectorAll('.ev-control-card');
+                    cards.forEach(card => {
+                        if (!query) {
+                            card.style.display = '';
+                            card.removeAttribute('open');
+                            return;
+                        }
+                        const items = card.querySelectorAll('.ev-item');
+                        let hasMatch = false;
+                        items.forEach(item => {
+                            const searchText = item.dataset.search || '';
+                            const match = searchText.includes(query);
+                            item.style.display = match ? '' : 'none';
+                            if (match) hasMatch = true;
+                        });
+                        // Also check control title/id
+                        const titleText = (card.querySelector('.ev-ctrl-title')?.textContent || '').toLowerCase();
+                        const idText = (card.querySelector('.ev-ctrl-id')?.textContent || '').toLowerCase();
+                        if (titleText.includes(query) || idText.includes(query)) hasMatch = true;
+                        card.style.display = hasMatch ? '' : 'none';
+                        if (hasMatch && query) card.setAttribute('open', '');
+                    });
+                });
+            }
+
             // Cloud Toolkit sub-tabs (provider-level)
             this._bindCloudToolkitSubTabs();
 
@@ -314,6 +363,7 @@ const MSPPortal = {
                         case 'scoping': contentEl.innerHTML = MSPPortalViews.renderPlaybookScoping(data); break;
                         case 'tools': contentEl.innerHTML = MSPPortalViews.renderPlaybookTools(data); break;
                         case 'playbooks': contentEl.innerHTML = MSPPortalViews.renderPlaybookSOC(data); break;
+                        case 'operations': contentEl.innerHTML = MSPPortalViews.renderPlaybookOperations(); MSPPortal._bindOpsSubTabs(); break;
                         case 'onboarding': contentEl.innerHTML = MSPPortalViews.renderPlaybookOnboarding(data); break;
                         case 'dfars': contentEl.innerHTML = MSPPortalViews.renderPlaybookDFARS(data); break;
                     }

@@ -6352,11 +6352,6 @@ body::after {
         padding-top: env(safe-area-inset-top, 0);
     }
 
-    /* Slide-out panel full width on small screens */
-    .hb-panel {
-        width: min(280px, 85vw);
-    }
-
     /* Command search modal mobile optimization */
     .command-search-container {
         width: 95vw;
@@ -7799,12 +7794,13 @@ body::after {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 14px;
-    height: 14px;
+    padding: 1px 5px;
     font-size: 0.5rem;
     font-weight: 700;
     border-radius: 3px;
-    margin-left: 4px;
+    margin-left: 3px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
 }
 
 .ksi-level-badge.ksi-low {
@@ -7815,6 +7811,48 @@ body::after {
 .ksi-level-badge.ksi-mod {
     background: rgba(245, 158, 11, 0.3);
     color: #f59e0b;
+}
+
+/* ── FedRAMP baseline tags (KSI reference cards) ── */
+.fedramp-bl-tags {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.fedramp-bl-tag {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.fedramp-bl-tag.fedramp-bl-low {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.fedramp-bl-tag.fedramp-bl-mod {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+[data-theme="light"] .fedramp-bl-tag.fedramp-bl-low {
+    background: rgba(5, 150, 105, 0.08);
+    color: #059669;
+    border-color: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .fedramp-bl-tag.fedramp-bl-mod {
+    background: rgba(217, 119, 6, 0.08);
+    color: #b45309;
+    border-color: rgba(217, 119, 6, 0.2);
 }
 
 .framework-na {
@@ -8410,7 +8448,6 @@ body::after {
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-left: auto;
     padding: 5px 12px;
     background: rgba(255,255,255,0.04);
     border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
@@ -8538,134 +8575,193 @@ body::after {
 }
 
 /* ═══════════════════════════════════════════════
-   GLASSMORPHISM OVERLAY
+   MEGA-MENU OVERLAY
    ═══════════════════════════════════════════════ */
-.hb-overlay {
+.mega-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s;
+    transition: opacity 0.25s ease, visibility 0.25s;
     z-index: 1001;
 }
 
-.hb-overlay.active {
+.mega-overlay.active {
     opacity: 1;
     visibility: visible;
 }
 
 /* ═══════════════════════════════════════════════
-   SLIDE-OUT NAVIGATION PANEL
+   PERSISTENT TOP-NAV (Apple / AWS style)
    ═══════════════════════════════════════════════ */
-.hb-panel {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 280px;
-    max-width: 85vw;
-    background: rgba(10, 10, 15, 0.95);
+
+/* Hide hamburger on desktop */
+.hb-toggle.mobile-only { display: none; }
+
+/* Top-nav container — sits inside header-bar, fills middle */
+.topnav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Each category wrapper */
+.topnav-cat {
+    position: relative;
+}
+
+/* Category trigger button in the header bar */
+.topnav-trigger {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: 0.76rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, background 0.15s;
+    font-family: inherit;
+    line-height: 1;
+}
+
+.topnav-trigger:hover,
+.topnav-cat.open > .topnav-trigger {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Active indicator — underline when a child view is active */
+.topnav-cat.has-active > .topnav-trigger {
+    color: var(--accent-blue);
+}
+.topnav-cat.has-active > .topnav-trigger::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: var(--accent-blue);
+    border-radius: 2px;
+}
+
+/* Dropdown panel */
+.topnav-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    min-width: 220px;
+    padding: 6px;
+    background: rgba(10, 10, 15, 0.96);
     backdrop-filter: saturate(180%) blur(32px);
     -webkit-backdrop-filter: saturate(180%) blur(32px);
-    border-right: 1px solid var(--glass-border);
-    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.4), 0 0 60px var(--glow-primary);
-    z-index: 1002;
-    display: flex;
-    flex-direction: column;
-    transform: translateX(-100%);
-    transition: transform 0.32s cubic-bezier(.32,.72,0,1);
-    will-change: transform;
-}
-
-.hb-panel.active {
-    transform: translateX(0);
-}
-
-/* Panel Header */
-.hb-panel-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--glass-border);
-    flex-shrink: 0;
-    background: linear-gradient(135deg, var(--glow-primary), transparent);
-}
-
-.hb-panel-badge {
-    display: inline-block;
-    padding: 3px 8px;
-    font-size: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-    background: var(--nav-active-bg);
-    color: var(--accent-blue);
-    border-radius: 5px;
-    border: 1px solid var(--card-hover-border);
-}
-
-.hb-panel-title {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
-}
-
-.hb-close {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--glass-border);
-    border-radius: 7px;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 30px var(--glow-primary);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s cubic-bezier(.4,0,.2,1),
+                visibility 0.18s,
+                transform 0.18s cubic-bezier(.4,0,.2,1);
+    z-index: 1100;
+    will-change: opacity, transform;
 }
 
-.hb-close:hover {
-    background: rgba(248, 113, 113, 0.08);
-    color: #f87171;
-    border-color: rgba(248, 113, 113, 0.2);
+.topnav-cat.open > .topnav-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
 }
 
-/* Scrollable Content Area */
-.hb-scroll {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 8px 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-color) transparent;
+/* Dropdown nav buttons — reuse .hamburger-nav-btn but remove left border */
+.topnav-dropdown .hamburger-nav-btn {
+    border-left: none;
+}
+.topnav-dropdown .hamburger-nav-btn.active {
+    border-left: 2px solid var(--accent-blue);
 }
 
-.hb-scroll::-webkit-scrollbar { width: 4px; }
-.hb-scroll::-webkit-scrollbar-track { background: transparent; }
-.hb-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-
-/* Navigation Groups */
-.hb-nav {
-    padding: 0 8px;
-}
-
-.hb-group {
-    padding: 2px 0;
-}
-
-.hb-group + .hb-group {
+/* Organization Cards Row (now in mobile panel) */
+.mega-org-row {
+    display: flex;
+    gap: 12px;
+    padding: 8px 16px 12px;
     border-top: 1px solid var(--glass-border);
-    margin-top: 2px;
-    padding-top: 6px;
+    align-items: flex-start;
 }
 
-/* Section Labels */
+.mega-org-row .hb-org-card {
+    flex: 1;
+    min-width: 0;
+    background: color-mix(in srgb, var(--bg-tertiary) 40%, transparent);
+    border: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.mega-auth-slot {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* Mobile nav panel (hidden on desktop, shown on mobile via hamburger) */
+.mobile-nav-panel {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    background: rgba(10, 10, 15, 0.96);
+    backdrop-filter: saturate(180%) blur(32px);
+    -webkit-backdrop-filter: saturate(180%) blur(32px);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+    z-index: 1002;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.22s cubic-bezier(.4,0,.2,1),
+                visibility 0.22s,
+                transform 0.22s cubic-bezier(.4,0,.2,1);
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    display: none;
+}
+
+.mobile-nav-panel.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════════
+   TOP-NAV RESPONSIVE
+   ═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* Show hamburger, hide desktop nav */
+    .hb-toggle.mobile-only { display: flex; }
+    .topnav { display: none; }
+    .mobile-nav-panel { display: block; }
+    .mega-org-row {
+        flex-direction: column;
+        padding: 8px;
+    }
+}
+
+/* Legacy section label (still used in org section) */
 .hb-section-label {
     padding: 6px 10px 3px;
     font-size: 0.6rem;
@@ -8902,16 +8998,7 @@ body::after {
     border-color: var(--accent-blue);
 }
 
-/* Panel Footer */
-.hb-panel-footer {
-    padding: 8px 12px;
-    border-top: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
-    flex-shrink: 0;
-}
-
-.hb-panel-footer:empty {
-    display: none;
-}
+/* (Legacy panel footer removed — mega-menu uses .mega-org-row) */
 
 /* No Sidebar Layout */
 .app-container.no-sidebar {
@@ -10367,52 +10454,33 @@ body::after {
     padding: 20px 24px;
 }
 
-/* Disclaimer Banner */
-.disclaimer-banner {
-    background: linear-gradient(135deg, #1e3a5f 0%, #0f2942 100%);
-    border-bottom: 2px solid #f59e0b;
-    padding: 8px 16px;
-}
 
-.disclaimer-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
+/* Universal View Back Button */
+.view-back-btn {
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
-    font-size: 0.75rem;
-    color: #e2e8f0;
-}
-
-.disclaimer-content svg {
-    flex-shrink: 0;
-    color: #f59e0b;
-}
-
-.disclaimer-content span {
-    flex: 1;
-    line-height: 1.4;
-}
-
-.disclaimer-content strong {
-    color: #fbbf24;
-}
-
-.disclaimer-close {
-    flex-shrink: 0;
-    background: transparent;
-    border: none;
-    color: #94a3b8;
-    font-size: 1.25rem;
+    gap: 6px;
+    padding: 6px 14px;
+    background: var(--bg-tertiary, rgba(255,255,255,0.06));
+    border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+    border-radius: 8px;
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.8rem;
+    font-weight: 500;
     cursor: pointer;
-    padding: 0 4px;
-    line-height: 1;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
-.disclaimer-close:hover {
-    color: #f59e0b;
+.view-back-btn:hover {
+    background: var(--accent-blue, #3b82f6);
+    color: #fff;
+    border-color: var(--accent-blue, #3b82f6);
 }
 
+.view-back-btn svg {
+    flex-shrink: 0;
+}
 
 /* Global Text Alignment Fixes */
 .impl-section p,
@@ -12167,8 +12235,7 @@ body:has(.site-footer-disclaimer.collapsed) .main-content {
 /* ═══════════════════════════════════════════════
    REV 3 ACTIVE — EMERALD GREEN EASTER EGG
    ═══════════════════════════════════════════════ */
-body.rev3-active .header-badge,
-body.rev3-active .hb-panel-badge {
+body.rev3-active .header-badge {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.2));
     color: #34d399;
     border-color: rgba(16, 185, 129, 0.15);
@@ -12180,13 +12247,17 @@ body.rev3-active .top-header-bar {
     border-bottom-color: rgba(16, 185, 129, 0.1);
 }
 
-body.rev3-active .hb-panel {
-    background: rgba(10, 10, 15, 0.96);
-    border-right-color: rgba(16, 185, 129, 0.08);
+body.rev3-active .topnav-dropdown {
+    border-color: rgba(16, 185, 129, 0.12);
 }
 
-body.rev3-active .hb-panel-header {
-    border-bottom-color: rgba(16, 185, 129, 0.15);
+body.rev3-active .topnav-trigger:hover,
+body.rev3-active .topnav-cat.open > .topnav-trigger {
+    background: rgba(16, 185, 129, 0.06);
+}
+
+body.rev3-active .topnav-cat.has-active > .topnav-trigger {
+    color: #34d399;
 }
 
 body.rev3-active .hb-toggle:hover {
@@ -13537,11 +13608,7 @@ body.rev3-active .hero-title {
     color: #a78bfa;
 }
 
-/* Hamburger panel badge default purple */
-.hb-panel-badge {
-    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
-    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.35);
-}
+/* (Legacy hb-panel-badge removed — badge is now only in header-badge) */
 
 /* ═══════════════════════════════════════════════
    TERMINAL UI COMPONENT
@@ -13900,15 +13967,22 @@ code, .impl-code {
     color: #1b1530;
 }
 
-/* --- Hamburger nav panel: frosted glass --- */
-.light-theme .hb-panel {
-    background: rgba(255, 255, 255, 0.85);
-    border-right-color: rgba(87, 70, 184, 0.10);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+/* --- Top-nav: light theme --- */
+.light-theme .topnav-trigger {
+    color: #44395e;
 }
-.light-theme .hb-panel-header {
-    border-bottom-color: rgba(87, 70, 184, 0.06);
+.light-theme .topnav-trigger:hover,
+.light-theme .topnav-cat.open > .topnav-trigger {
+    color: #1b1530;
+    background: rgba(87, 70, 184, 0.06);
+}
+.light-theme .topnav-cat.has-active > .topnav-trigger {
+    color: #5746b8;
+}
+.light-theme .topnav-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(87, 70, 184, 0.10);
+    box-shadow: 0 12px 48px rgba(87, 70, 184, 0.12), 0 0 0 1px rgba(87, 70, 184, 0.06);
 }
 .light-theme .hamburger-nav-btn {
     color: #44395e;
@@ -13921,8 +13995,15 @@ code, .impl-code {
     background: rgba(87, 70, 184, 0.08);
     color: #5746b8;
 }
-.light-theme .hb-overlay {
+.light-theme .mega-org-row {
+    border-top-color: rgba(87, 70, 184, 0.06);
+}
+.light-theme .mega-overlay {
     background: rgba(27, 21, 48, 0.12);
+}
+.light-theme .mobile-nav-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom-color: rgba(87, 70, 184, 0.10);
 }
 
 /* --- Cards & panels: frosted glass with violet tint --- */

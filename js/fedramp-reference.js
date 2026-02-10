@@ -16,6 +16,10 @@ const FedRAMPReference = {
         this.container.innerHTML = `
             <div class="fedramp-reference">
                 <div class="fedramp-ref-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+                    <button class="view-back-btn" data-back-view="dashboard" title="Back to Dashboard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        Back
+                    </button>
                     <div style="flex:1;min-width:250px;">
                         <h2>FedRAMP 20x Reference</h2>
                         <p>Browse FedRAMP 20x Key Security Indicators (KSIs), explore 800-53 control mappings, and access external compliance resources. The FedRAMP 20x framework modernizes cloud authorization with 11 KSI families and 61 indicators.</p>
@@ -129,9 +133,11 @@ const FedRAMPReference = {
             html += '<div class="fedramp-ksi-grid">';
 
             for (const ksi of filteredKSIs) {
-                const baselineTags = ksi.baselines.map(b =>
-                    `<span class="cmvp-tag ${b === 'moderate' ? 'fips2' : 'fips3'}">${b}</span>`
-                ).join('');
+                const baselineTags = ksi.baselines.map(b => {
+                    const cls = b === 'low' ? 'fedramp-bl-low' : 'fedramp-bl-mod';
+                    const label = b === 'low' ? 'Low' : 'Moderate';
+                    return `<span class="fedramp-bl-tag ${cls}">${label}</span>`;
+                }).join('');
 
                 const nist171Families = (FEDRAMP_KSI_REFERENCE.familyToNist171[family.id] || []).join(', ');
 
@@ -140,7 +146,7 @@ const FedRAMPReference = {
                         <span class="fedramp-ksi-id">${this.esc(ksi.id)}</span>
                         <div class="fedramp-ksi-title">${this.esc(ksi.title)}</div>
                         <div class="fedramp-ksi-desc">${this.esc(ksi.desc)}</div>
-                        <div class="cmvp-module-tags" style="margin-bottom:6px;">${baselineTags}</div>
+                        <div class="fedramp-bl-tags">${baselineTags}</div>
                         ${nist171Families ? `<div class="fedramp-ksi-controls"><strong>Related 800-171:</strong> ${this.esc(nist171Families)}</div>` : ''}
                     </div>
                 `;
