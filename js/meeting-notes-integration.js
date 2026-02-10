@@ -1,7 +1,7 @@
 // Meeting Notes Integration Module
-// Supports Granola API (primary) + manual paste from any AI notetaker
+// Supports manual paste from any AI notetaker (Granola, Otter, Fireflies, Fathom, etc.)
 // Allows linking meeting transcript quotes to assessment objectives as evidence
-// Data persisted in localStorage; API calls go direct to Granola public API
+// Data persisted in localStorage
 
 const MeetingNotesIntegration = {
     config: {
@@ -9,12 +9,8 @@ const MeetingNotesIntegration = {
         storageKey: "nist-meeting-notes",
         configKey: "nist-meeting-notes-config",
         quotesKey: "nist-meeting-quotes",
-        granola: {
-            baseUrl: "https://public-api.granola.ai/v1",
-            pageSize: 20
-        },
         providers: {
-            granola: { label: "Granola", icon: "granola", hasApi: true },
+            granola: { label: "Granola", icon: "granola", hasApi: false },
             otter: { label: "Otter.ai", icon: "otter", hasApi: false },
             fireflies: { label: "Fireflies.ai", icon: "fireflies", hasApi: false },
             fathom: { label: "Fathom", icon: "fathom", hasApi: false },
@@ -22,11 +18,9 @@ const MeetingNotesIntegration = {
         }
     },
 
-    // Cached meeting notes from API
-    meetingsCache: [],
     // Linked quotes per objective: { [objectiveId]: [{ quoteId, text, speaker, timestamp, meetingId, meetingTitle, ... }] }
     linkedQuotes: {},
-    // Manual meeting entries (for non-API providers)
+    // Manual meeting entries
     manualMeetings: [],
     // Provider config
     providerConfig: {},
@@ -98,16 +92,7 @@ const MeetingNotesIntegration = {
     },
 
     isConfigured() {
-        const provider = this.getProvider();
-        if (!provider) return false;
-        if (this.config.providers[provider]?.hasApi) {
-            return !!this.getApiKey();
-        }
-        return true; // Non-API providers are always "configured"
-    },
-
-    isGranolaConfigured() {
-        return this.getProvider() === 'granola' && !!this.getApiKey();
+        return !!this.getProvider();
     },
 
     setProvider(providerId, apiKey) {
@@ -119,75 +104,6 @@ const MeetingNotesIntegration = {
     clearProvider() {
         this.providerConfig = {};
         this.saveConfig();
-        this.meetingsCache = [];
-    },
-
-    // =========================================
-    // GRANOLA API CLIENT
-    // =========================================
-    async fetchMeetings(options = {}) {
-        if (!this.isGranolaConfigured()) {
-            throw new Error('Granola API not configured. Add your API key in Meeting Notes settings.');
-        }
-
-        const params = new URLSearchParams();
-        if (options.before) params.set('before', options.before);
-        if (options.after) params.set('after', options.after);
-        if (options.cursor) params.set('cursor', options.cursor);
-        params.set('limit', String(options.limit || this.config.granola.pageSize));
-
-        const url = `${this.config.granola.baseUrl}/notes?${params.toString()}`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${this.getApiKey()}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            if (response.status === 401) throw new Error('Invalid Granola API key. Check Settings > Workspaces > API.');
-            if (response.status === 429) throw new Error('Rate limited by Granola API. Please wait a moment.');
-            throw new Error(`Granola API error: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        this.meetingsCache = data.notes || [];
-        return {
-            notes: data.notes || [],
-            hasMore: data.hasMore || false,
-            cursor: data.cursor || null
-        };
-    },
-
-    async fetchMeetingDetail(noteId) {
-        if (!this.isGranolaConfigured()) {
-            throw new Error('Granola API not configured.');
-        }
-
-        const url = `${this.config.granola.baseUrl}/notes/${noteId}?transcript=transcript`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${this.getApiKey()}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to fetch meeting: ${response.status}`);
-        }
-
-        return await response.json();
-    },
-
-    async testConnection() {
-        try {
-            const result = await this.fetchMeetings({ limit: 1 });
-            return { success: true, noteCount: result.notes.length };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
     },
 
     // =========================================
@@ -231,17 +147,8 @@ const MeetingNotesIntegration = {
     },
 
     getAllMeetings() {
-        // Combine API cache + manual meetings, sorted by date desc
+        // Return manual meetings, sorted by date desc
         const all = [
-            ...this.meetingsCache.map(n => ({
-                id: n.id,
-                title: n.title,
-                date: n.created_at,
-                provider: 'granola',
-                source: 'api',
-                owner: n.owner?.name || '',
-                summary: n.summary_text || ''
-            })),
             ...this.manualMeetings.map(m => ({
                 id: m.id,
                 title: m.title,
@@ -355,10 +262,9 @@ const MeetingNotesIntegration = {
     // UI RENDERING
     // =========================================
 
-    // Settings panel for configuring provider + API key
+    // Settings panel for configuring provider
     renderSettingsPanel() {
         const provider = this.getProvider();
-        const apiKey = this.getApiKey();
         const isConfigured = this.isConfigured();
 
         return `
@@ -368,7 +274,7 @@ const MeetingNotesIntegration = {
                     <h3>Meeting Notes Integration</h3>
                     ${isConfigured ? '<span class="mn-status-badge connected">Connected</span>' : '<span class="mn-status-badge disconnected">Not Connected</span>'}
                 </div>
-                <p class="mn-settings-desc">Connect your AI meeting notetaker to link transcript quotes directly to assessment objectives as evidence of how controls are implemented.</p>
+                <p class="mn-settings-desc">Select your AI meeting notetaker, then paste or upload transcript text to link quotes directly to assessment objectives as evidence.</p>
                 
                 <div class="mn-provider-select">
                     <label>Meeting Notes Provider</label>
@@ -377,20 +283,13 @@ const MeetingNotesIntegration = {
                             <button class="mn-provider-btn ${provider === id ? 'active' : ''}" data-provider="${id}">
                                 <span class="mn-provider-icon">${this._getProviderIcon(id)}</span>
                                 <span>${p.label}</span>
-                                ${p.hasApi ? '<span class="mn-api-badge">API</span>' : ''}
                             </button>
                         `).join('')}
                     </div>
                 </div>
 
-                <div class="mn-api-config" style="display: ${provider === 'granola' ? 'block' : 'none'}">
-                    <label>Granola API Key</label>
-                    <div class="mn-api-key-row">
-                        <input type="password" class="mn-api-key-input" placeholder="Bearer token from Granola Settings > Workspaces > API" value="${apiKey || ''}" />
-                        <button class="mn-test-btn" title="Test Connection">Test</button>
-                    </div>
-                    <small class="mn-api-help">Get your API key: Granola app &rarr; Settings &rarr; Workspaces &rarr; API tab &rarr; Generate API Key</small>
-                    <div class="mn-test-result" style="display:none"></div>
+                <div class="mn-provider-help" style="display: ${provider === 'granola' ? 'block' : 'none'}">
+                    <small class="mn-api-help">Copy your meeting notes from Granola (select all &rarr; copy), then paste them when adding quotes to objectives.</small>
                 </div>
 
                 <div class="mn-settings-actions">
@@ -509,38 +408,12 @@ const MeetingNotesIntegration = {
     },
 
     _renderAddQuoteForm(objectiveId) {
-        const provider = this.getProvider();
-        const isGranola = provider === 'granola';
-
         return `
             <div class="mn-add-quote-form">
                 <h4>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Link Meeting Quote to Objective
                 </h4>
-
-                ${isGranola ? `
-                    <div class="mn-granola-browse">
-                        <div class="mn-browse-controls">
-                            <button class="mn-fetch-meetings-btn btn-secondary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                                Load Recent Meetings from Granola
-                            </button>
-                        </div>
-                        <div class="mn-meetings-list" id="mn-meetings-list-${objectiveId}"></div>
-                        <div class="mn-transcript-viewer" id="mn-transcript-${objectiveId}" style="display:none">
-                            <div class="mn-transcript-header">
-                                <h5 id="mn-transcript-title-${objectiveId}"></h5>
-                                <button class="mn-close-transcript-btn">&times;</button>
-                            </div>
-                            <div class="mn-transcript-search">
-                                <input type="text" class="mn-transcript-search-input" placeholder="Search transcript..." data-objective-id="${objectiveId}" />
-                            </div>
-                            <div class="mn-transcript-content" id="mn-transcript-content-${objectiveId}"></div>
-                        </div>
-                    </div>
-                    <div class="mn-divider"><span>or paste manually</span></div>
-                ` : ''}
 
                 <div class="mn-manual-quote">
                     <div class="mn-form-group">
@@ -583,48 +456,6 @@ const MeetingNotesIntegration = {
         `;
     },
 
-    _renderMeetingsList(meetings, objectiveId) {
-        if (meetings.length === 0) {
-            return '<p class="mn-no-meetings">No meetings found. Check your Granola API connection.</p>';
-        }
-        return meetings.map(m => `
-            <div class="mn-meeting-item" data-meeting-id="${m.id}" data-objective-id="${objectiveId}">
-                <div class="mn-meeting-info">
-                    <strong>${this._escapeHtml(m.title)}</strong>
-                    <span class="mn-meeting-date">${new Date(m.created_at).toLocaleDateString()} ${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                    ${m.owner ? `<span class="mn-meeting-owner">${this._escapeHtml(m.owner.name)}</span>` : ''}
-                </div>
-                <button class="mn-view-transcript-btn btn-secondary" data-meeting-id="${m.id}" data-objective-id="${objectiveId}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    View Transcript
-                </button>
-            </div>
-        `).join('');
-    },
-
-    _renderTranscript(transcript, objectiveId, meetingTitle) {
-        if (!transcript || transcript.length === 0) {
-            return '<p class="mn-no-transcript">No transcript available for this meeting.</p>';
-        }
-        return transcript.map((entry, idx) => {
-            const speaker = entry.speaker?.source === 'microphone' ? 'You' : (entry.speaker?.name || 'Other');
-            const time = entry.start_time ? new Date(entry.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
-            return `
-                <div class="mn-transcript-line" data-line-idx="${idx}">
-                    <div class="mn-transcript-line-meta">
-                        <span class="mn-transcript-speaker ${entry.speaker?.source === 'microphone' ? 'self' : ''}">${this._escapeHtml(speaker)}</span>
-                        ${time ? `<span class="mn-transcript-time">${time}</span>` : ''}
-                    </div>
-                    <div class="mn-transcript-line-text">${this._escapeHtml(entry.text)}</div>
-                    <button class="mn-select-quote-btn" data-line-idx="${idx}" data-objective-id="${objectiveId}" data-meeting-title="${this._escapeHtml(meetingTitle)}" title="Use this as a quote">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
-                        Quote
-                    </button>
-                </div>
-            `;
-        }).join('');
-    },
-
     // =========================================
     // EVENT BINDING
     // =========================================
@@ -634,42 +465,12 @@ const MeetingNotesIntegration = {
             btn.addEventListener('click', () => {
                 container.querySelectorAll('.mn-provider-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                const apiConfig = container.querySelector('.mn-api-config');
-                if (apiConfig) {
-                    apiConfig.style.display = btn.dataset.provider === 'granola' ? 'block' : 'none';
+                const providerHelp = container.querySelector('.mn-provider-help');
+                if (providerHelp) {
+                    providerHelp.style.display = btn.dataset.provider === 'granola' ? 'block' : 'none';
                 }
             });
         });
-
-        // Test connection
-        const testBtn = container.querySelector('.mn-test-btn');
-        if (testBtn) {
-            testBtn.addEventListener('click', async () => {
-                const keyInput = container.querySelector('.mn-api-key-input');
-                const resultDiv = container.querySelector('.mn-test-result');
-                if (!keyInput?.value.trim()) {
-                    resultDiv.style.display = 'block';
-                    resultDiv.innerHTML = '<span class="mn-test-error">Please enter an API key first.</span>';
-                    return;
-                }
-                testBtn.disabled = true;
-                testBtn.textContent = 'Testing...';
-                // Temporarily set key for test
-                const oldKey = this.providerConfig.apiKey;
-                this.providerConfig.apiKey = keyInput.value.trim();
-                this.providerConfig.provider = 'granola';
-                const result = await this.testConnection();
-                this.providerConfig.apiKey = oldKey; // Restore
-                resultDiv.style.display = 'block';
-                if (result.success) {
-                    resultDiv.innerHTML = '<span class="mn-test-success">Connected successfully! Granola API is reachable.</span>';
-                } else {
-                    resultDiv.innerHTML = `<span class="mn-test-error">Connection failed: ${this._escapeHtml(result.error)}</span>`;
-                }
-                testBtn.disabled = false;
-                testBtn.textContent = 'Test';
-            });
-        }
 
         // Save
         const saveBtn = container.querySelector('.mn-save-btn');
@@ -680,12 +481,7 @@ const MeetingNotesIntegration = {
                     this._showToast('Please select a provider', 'error');
                     return;
                 }
-                const apiKey = container.querySelector('.mn-api-key-input')?.value.trim() || null;
-                if (activeProvider === 'granola' && !apiKey) {
-                    this._showToast('Granola requires an API key', 'error');
-                    return;
-                }
-                this.setProvider(activeProvider, apiKey);
+                this.setProvider(activeProvider);
                 this._showToast(`${this.config.providers[activeProvider].label} connected successfully`, 'success');
                 // Re-render settings to show updated state
                 const parent = container.closest('.mn-settings-container');
@@ -789,110 +585,6 @@ const MeetingNotesIntegration = {
             });
         });
 
-        // Fetch meetings from Granola
-        container.querySelectorAll('.mn-fetch-meetings-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                btn.disabled = true;
-                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mn-spin"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Loading...';
-                try {
-                    const result = await this.fetchMeetings();
-                    const listEl = container.querySelector(`#mn-meetings-list-${objectiveId}`);
-                    if (listEl) {
-                        listEl.innerHTML = this._renderMeetingsList(result.notes, objectiveId);
-                        this._bindMeetingsListEvents(container, objectiveId);
-                    }
-                } catch (error) {
-                    this._showToast(error.message, 'error');
-                }
-                btn.disabled = false;
-                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> Load Recent Meetings from Granola';
-            });
-        });
-
-        // Close transcript viewer
-        container.querySelectorAll('.mn-close-transcript-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const viewer = container.querySelector(`#mn-transcript-${objectiveId}`);
-                if (viewer) viewer.style.display = 'none';
-            });
-        });
-
-        // Transcript search
-        container.querySelectorAll('.mn-transcript-search-input').forEach(input => {
-            let debounce;
-            input.addEventListener('input', () => {
-                clearTimeout(debounce);
-                debounce = setTimeout(() => {
-                    const query = input.value.toLowerCase();
-                    const lines = container.querySelectorAll(`#mn-transcript-content-${objectiveId} .mn-transcript-line`);
-                    lines.forEach(line => {
-                        const text = line.querySelector('.mn-transcript-line-text')?.textContent.toLowerCase() || '';
-                        line.style.display = !query || text.includes(query) ? '' : 'none';
-                        // Highlight matches
-                        if (query && text.includes(query)) {
-                            line.classList.add('mn-highlight');
-                        } else {
-                            line.classList.remove('mn-highlight');
-                        }
-                    });
-                }, 200);
-            });
-        });
-    },
-
-    _bindMeetingsListEvents(container, objectiveId) {
-        // View transcript buttons
-        container.querySelectorAll('.mn-view-transcript-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const meetingId = btn.dataset.meetingId;
-                btn.disabled = true;
-                btn.textContent = 'Loading...';
-                try {
-                    const detail = await this.fetchMeetingDetail(meetingId);
-                    const viewer = container.querySelector(`#mn-transcript-${objectiveId}`);
-                    const titleEl = container.querySelector(`#mn-transcript-title-${objectiveId}`);
-                    const contentEl = container.querySelector(`#mn-transcript-content-${objectiveId}`);
-                    if (viewer && titleEl && contentEl) {
-                        titleEl.textContent = detail.title || 'Meeting Transcript';
-                        contentEl.innerHTML = this._renderTranscript(detail.transcript || [], objectiveId, detail.title);
-                        viewer.style.display = 'block';
-                        this._bindTranscriptQuoteButtons(container, objectiveId, detail);
-                    }
-                } catch (error) {
-                    this._showToast('Failed to load transcript: ' + error.message, 'error');
-                }
-                btn.disabled = false;
-                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> View Transcript';
-            });
-        });
-    },
-
-    _bindTranscriptQuoteButtons(container, objectiveId, meetingDetail) {
-        container.querySelectorAll('.mn-select-quote-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const lineIdx = parseInt(btn.dataset.lineIdx);
-                const transcript = meetingDetail.transcript || [];
-                const entry = transcript[lineIdx];
-                if (!entry) return;
-
-                // Pre-fill the manual quote form with this transcript line
-                const textEl = document.getElementById(`mn-quote-text-${objectiveId}`);
-                const speakerEl = document.getElementById(`mn-quote-speaker-${objectiveId}`);
-                const meetingEl = document.getElementById(`mn-quote-meeting-${objectiveId}`);
-                const dateEl = document.getElementById(`mn-quote-date-${objectiveId}`);
-
-                if (textEl) textEl.value = entry.text;
-                if (speakerEl) speakerEl.value = entry.speaker?.source === 'microphone' ? 'Assessor (You)' : (entry.speaker?.name || 'OSC Representative');
-                if (meetingEl) meetingEl.value = meetingDetail.title || '';
-                if (dateEl && meetingDetail.created_at) dateEl.value = meetingDetail.created_at.split('T')[0];
-
-                // Scroll to form
-                const form = container.querySelector('.mn-manual-quote');
-                if (form) form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                this._showToast('Quote selected — edit details and click "Link Quote to Objective"', 'info');
-            });
-        });
     },
 
     _refreshQuotesUI(container, objectiveId) {

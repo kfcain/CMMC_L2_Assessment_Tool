@@ -169,7 +169,7 @@ const SettingsPage = {
             { id: 'knowbe4', name: 'KnowBe4', desc: 'Security awareness training campaigns & phishing tests', logo: this.logos.knowbe4, controls: 'AT' },
             { id: 'tenable', name: 'Tenable.io', desc: 'Vulnerability scanning, asset inventory, compliance', logo: this.logos.tenable, controls: 'RA, SI' },
             { id: 'jira', name: 'Jira', desc: 'POA&M tracking, project management, issue tracking', logo: this.logos.jira, controls: 'PM' },
-            { id: 'granola', name: 'Granola', desc: 'Meeting notes, transcripts, evidence collection', logo: this.logos.granola, controls: 'Evidence' }
+            { id: 'granola', name: 'Granola', desc: 'Paste meeting notes & transcripts as evidence (manual)', logo: this.logos.granola, controls: 'Evidence' }
         ];
 
         // Check connection status from IntegrationsHub
@@ -179,11 +179,11 @@ const SettingsPage = {
             return { connected: !!data[id]?.lastSync, lastSync: data[id]?.lastSync };
         };
 
-        // Check Granola separately
+        // Check Granola / Meeting Notes separately (provider selected = configured)
         const getGranolaStatus = () => {
             try {
                 const cfg = JSON.parse(localStorage.getItem('nist-meeting-notes-config') || '{}');
-                return { connected: !!cfg.apiKey, provider: cfg.provider };
+                return { connected: !!cfg.provider, provider: cfg.provider };
             } catch(e) { return { connected: false }; }
         };
 
