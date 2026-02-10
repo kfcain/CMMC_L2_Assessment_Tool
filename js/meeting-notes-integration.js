@@ -625,7 +625,7 @@ const MeetingNotesIntegration = {
             <div class="modal-content" style="max-width: 640px;">
                 <div class="modal-header">
                     <h2>Meeting Notes Integration</h2>
-                    <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">&times;</button>
+                    <button class="modal-close mn-modal-close-btn">&times;</button>
                 </div>
                 <div class="modal-body mn-settings-container">
                     ${this.renderSettingsPanel()}
@@ -635,10 +635,24 @@ const MeetingNotesIntegration = {
         document.body.appendChild(backdrop);
         this.bindSettingsEvents(backdrop.querySelector('.mn-settings-container'));
 
+        // Close on X button
+        backdrop.querySelector('.mn-modal-close-btn').addEventListener('click', () => {
+            backdrop.remove();
+        });
+
         // Close on backdrop click
         backdrop.addEventListener('click', (e) => {
             if (e.target === backdrop) backdrop.remove();
         });
+
+        // Close on Escape key
+        const escHandler = (e) => {
+            if (e.key === 'Escape') {
+                backdrop.remove();
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
     },
 
     // =========================================
