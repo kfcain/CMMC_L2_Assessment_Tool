@@ -385,7 +385,7 @@ const AssessmentEnhancements = {
                     <div class="impl-details-tabs">
                         <button class="impl-tab active" data-tab="implementation">Implementation</button>
                         <button class="impl-tab" data-tab="evidence">Evidence</button>
-                        <button class="impl-tab" data-tab="meeting-evidence">Meeting Evidence${typeof MeetingNotesIntegration !== 'undefined' ? (' <span class="mn-tab-count">' + MeetingNotesIntegration.getQuoteCount(objectiveId) + '</span>') : ''}</button>
+                        <button class="impl-tab" data-tab="meeting-evidence">Transcript Evidence${typeof MeetingNotesIntegration !== 'undefined' ? (' <span class="mn-tab-count">' + MeetingNotesIntegration.getQuoteCount(objectiveId) + '</span>') : ''}</button>
                         <button class="impl-tab" data-tab="assessor">Assessor Notes</button>
                     </div>
                     

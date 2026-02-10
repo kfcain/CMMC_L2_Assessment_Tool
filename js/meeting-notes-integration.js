@@ -1,59 +1,35 @@
-// Meeting Notes Integration Module
-// Supports manual paste from any AI notetaker (Granola, Otter, Fireflies, Fathom, etc.)
-// Allows linking meeting transcript quotes to assessment objectives as evidence
+// Transcript Analyzer Module
+// Paste meeting transcripts and use AI to map quotes to CMMC assessment objectives
 // Data persisted in localStorage
 
 const MeetingNotesIntegration = {
     config: {
-        version: "1.0.0",
+        version: "2.0.0",
         storageKey: "nist-meeting-notes",
-        configKey: "nist-meeting-notes-config",
-        quotesKey: "nist-meeting-quotes",
-        providers: {
-            granola: { label: "Granola", icon: "granola", hasApi: false },
-            otter: { label: "Otter.ai", icon: "otter", hasApi: false },
-            fireflies: { label: "Fireflies.ai", icon: "fireflies", hasApi: false },
-            fathom: { label: "Fathom", icon: "fathom", hasApi: false },
-            manual: { label: "Manual / Other", icon: "manual", hasApi: false }
-        }
+        quotesKey: "nist-meeting-quotes"
     },
 
-    // Linked quotes per objective: { [objectiveId]: [{ quoteId, text, speaker, timestamp, meetingId, meetingTitle, ... }] }
+    // Linked quotes per objective: { [objectiveId]: [{ quoteId, text, speaker, ... }] }
     linkedQuotes: {},
-    // Manual meeting entries
-    manualMeetings: [],
-    // Provider config
-    providerConfig: {},
+    // Stored transcripts
+    transcripts: [],
 
     // =========================================
     // INITIALIZATION
     // =========================================
     init() {
-        this.loadConfig();
         this.loadLinkedQuotes();
-        this.loadManualMeetings();
+        this.loadTranscripts();
         this.bindGlobalEvents();
-        console.log('[MeetingNotes] Initialized — provider:', this.getProvider(), 'quotes:', Object.keys(this.linkedQuotes).length, 'objectives with quotes');
+        console.log('[TranscriptAnalyzer] Initialized — quotes:', Object.keys(this.linkedQuotes).length, 'objectives with quotes');
     },
 
     bindGlobalEvents() {
         document.addEventListener('click', (e) => {
             if (e.target.closest('#open-meeting-notes-btn')) {
-                this.showSettingsModal();
+                this.showTranscriptAnalyzer();
             }
         });
-    },
-
-    loadConfig() {
-        try {
-            this.providerConfig = JSON.parse(localStorage.getItem(this.config.configKey) || '{}');
-        } catch (e) {
-            this.providerConfig = {};
-        }
-    },
-
-    saveConfig() {
-        localStorage.setItem(this.config.configKey, JSON.stringify(this.providerConfig));
     },
 
     loadLinkedQuotes() {
@@ -68,99 +44,38 @@ const MeetingNotesIntegration = {
         localStorage.setItem(this.config.quotesKey, JSON.stringify(this.linkedQuotes));
     },
 
-    loadManualMeetings() {
+    loadTranscripts() {
         try {
-            this.manualMeetings = JSON.parse(localStorage.getItem(this.config.storageKey) || '[]');
+            this.transcripts = JSON.parse(localStorage.getItem(this.config.storageKey) || '[]');
         } catch (e) {
-            this.manualMeetings = [];
+            this.transcripts = [];
         }
     },
 
-    saveManualMeetings() {
-        localStorage.setItem(this.config.storageKey, JSON.stringify(this.manualMeetings));
+    saveTranscripts() {
+        localStorage.setItem(this.config.storageKey, JSON.stringify(this.transcripts));
     },
+
+    // Backward-compat stubs for external callers
+    getProvider() { return 'transcript'; },
+    isConfigured() { return true; },
 
     // =========================================
-    // PROVIDER CONFIGURATION
+    // TRANSCRIPT STORAGE
     // =========================================
-    getProvider() {
-        return this.providerConfig.provider || null;
-    },
-
-    getApiKey() {
-        return this.providerConfig.apiKey || null;
-    },
-
-    isConfigured() {
-        return !!this.getProvider();
-    },
-
-    setProvider(providerId, apiKey) {
-        this.providerConfig.provider = providerId;
-        if (apiKey) this.providerConfig.apiKey = apiKey;
-        this.saveConfig();
-    },
-
-    clearProvider() {
-        this.providerConfig = {};
-        this.saveConfig();
-    },
-
-    // =========================================
-    // MANUAL MEETING MANAGEMENT (for non-API providers)
-    // =========================================
-    addManualMeeting(meeting) {
-        const entry = {
-            id: 'manual_' + Date.now(),
-            title: meeting.title || 'Untitled Meeting',
-            date: meeting.date || new Date().toISOString(),
-            provider: meeting.provider || this.getProvider() || 'manual',
-            attendees: meeting.attendees || '',
-            summary: meeting.summary || '',
-            transcript: meeting.transcript || '',
+    addTranscript(entry) {
+        const record = {
+            id: 'tx_' + Date.now(),
+            title: entry.title || 'Untitled Transcript',
+            date: entry.date || new Date().toISOString(),
+            speaker: entry.speaker || '',
+            summary: entry.summary || '',
+            transcript: entry.transcript || '',
             createdAt: Date.now()
         };
-        this.manualMeetings.unshift(entry);
-        this.saveManualMeetings();
-        return entry;
-    },
-
-    updateManualMeeting(meetingId, updates) {
-        const idx = this.manualMeetings.findIndex(m => m.id === meetingId);
-        if (idx >= 0) {
-            Object.assign(this.manualMeetings[idx], updates);
-            this.saveManualMeetings();
-            return this.manualMeetings[idx];
-        }
-        return null;
-    },
-
-    deleteManualMeeting(meetingId) {
-        this.manualMeetings = this.manualMeetings.filter(m => m.id !== meetingId);
-        this.saveManualMeetings();
-        // Also remove any linked quotes from this meeting
-        Object.keys(this.linkedQuotes).forEach(objId => {
-            this.linkedQuotes[objId] = this.linkedQuotes[objId].filter(q => q.meetingId !== meetingId);
-            if (this.linkedQuotes[objId].length === 0) delete this.linkedQuotes[objId];
-        });
-        this.saveLinkedQuotes();
-    },
-
-    getAllMeetings() {
-        // Return manual meetings, sorted by date desc
-        const all = [
-            ...this.manualMeetings.map(m => ({
-                id: m.id,
-                title: m.title,
-                date: m.date,
-                provider: m.provider,
-                source: 'manual',
-                owner: '',
-                summary: m.summary || ''
-            }))
-        ];
-        all.sort((a, b) => new Date(b.date) - new Date(a.date));
-        return all;
+        this.transcripts.unshift(record);
+        this.saveTranscripts();
+        return record;
     },
 
     // =========================================
@@ -228,131 +143,34 @@ const MeetingNotesIntegration = {
     },
 
     // =========================================
-    // TRANSCRIPT SEARCH (for manual meetings)
-    // =========================================
-    searchTranscripts(query) {
-        if (!query || query.length < 2) return [];
-        const lower = query.toLowerCase();
-        const results = [];
-
-        // Search manual meetings
-        this.manualMeetings.forEach(meeting => {
-            if (meeting.transcript) {
-                const lines = meeting.transcript.split('\n');
-                lines.forEach((line, idx) => {
-                    if (line.toLowerCase().includes(lower)) {
-                        results.push({
-                            meetingId: meeting.id,
-                            meetingTitle: meeting.title,
-                            meetingDate: meeting.date,
-                            provider: meeting.provider,
-                            lineIndex: idx,
-                            text: line.trim(),
-                            context: lines.slice(Math.max(0, idx - 1), idx + 2).join('\n')
-                        });
-                    }
-                });
-            }
-        });
-
-        return results;
-    },
-
-    // =========================================
     // UI RENDERING
     // =========================================
 
-    // Settings panel for configuring provider
-    renderSettingsPanel() {
-        const provider = this.getProvider();
-        const isConfigured = this.isConfigured();
-
-        return `
-            <div class="meeting-notes-settings">
-                <div class="mn-settings-header">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                    <h3>Meeting Notes Integration</h3>
-                    ${isConfigured ? '<span class="mn-status-badge connected">Connected</span>' : '<span class="mn-status-badge disconnected">Not Connected</span>'}
-                </div>
-                <p class="mn-settings-desc">Select your AI meeting notetaker, then paste or upload transcript text to link quotes directly to assessment objectives as evidence.</p>
-                
-                <div class="mn-provider-select">
-                    <label>Meeting Notes Provider</label>
-                    <div class="mn-provider-grid">
-                        ${Object.entries(this.config.providers).map(([id, p]) => `
-                            <button class="mn-provider-btn ${provider === id ? 'active' : ''}" data-provider="${id}">
-                                <span class="mn-provider-icon">${this._getProviderIcon(id)}</span>
-                                <span>${p.label}</span>
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <div class="mn-provider-help" style="display: ${provider === 'granola' ? 'block' : 'none'}">
-                    <small class="mn-api-help">Copy your meeting notes from Granola (select all &rarr; copy), then paste them when adding quotes to objectives.</small>
-                </div>
-
-                <div class="mn-settings-actions">
-                    <button class="mn-save-btn btn-primary">Save Configuration</button>
-                    ${isConfigured ? '<button class="mn-disconnect-btn btn-secondary">Disconnect</button>' : ''}
-                </div>
-
-                <div class="mn-ai-analyzer-section" style="display: ${isConfigured ? 'block' : 'none'}; margin-bottom: 16px; padding: 14px; background: linear-gradient(135deg, rgba(79,70,229,0.08), rgba(79,70,229,0.02)); border: 1px solid rgba(79,70,229,0.2); border-radius: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/><circle cx="12" cy="15" r="2"/></svg>
-                        <strong style="font-size: 0.88rem;">AI Transcript Analyzer</strong>
-                    </div>
-                    <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0 0 10px; line-height: 1.5;">Paste a full meeting transcript and let the AI assessor automatically identify which assessment objectives it covers, extract relevant quotes, and link them as evidence.</p>
-                    <button class="btn-primary mn-open-analyzer-btn" style="font-size: 0.82rem; width: 100%;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/><circle cx="12" cy="15" r="2"/></svg>
-                        Analyze Transcript with AI
-                    </button>
-                </div>
-
-                <div class="mn-stats" style="display: ${isConfigured ? 'block' : 'none'}">
-                    <div class="mn-stats-grid">
-                        <div class="mn-stat"><span class="mn-stat-value">${this.getTotalQuoteCount()}</span><span class="mn-stat-label">Linked Quotes</span></div>
-                        <div class="mn-stat"><span class="mn-stat-value">${this.getObjectivesWithQuotes().length}</span><span class="mn-stat-label">Objectives with Evidence</span></div>
-                        <div class="mn-stat"><span class="mn-stat-value">${this.manualMeetings.length}</span><span class="mn-stat-label">Stored Meetings</span></div>
-                    </div>
-                </div>
-            </div>
-        `;
-    },
-
-    // Meeting Evidence tab content for an assessment objective
+    // Transcript Evidence tab content for an assessment objective
     renderObjectivePanel(objectiveId) {
         const quotes = this.getQuotesForObjective(objectiveId);
-        const isConfigured = this.isConfigured();
-        const provider = this.getProvider();
 
         return `
             <div class="mn-objective-panel" data-objective-id="${objectiveId}">
-                ${!isConfigured ? this._renderSetupPrompt() : ''}
-                
-                ${isConfigured ? `
-                    <!-- Linked Quotes Section -->
-                    <div class="mn-quotes-section">
-                        <div class="mn-section-header">
-                            <h4>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
-                                Linked Meeting Quotes <span class="mn-quote-count">(${quotes.length})</span>
-                            </h4>
-                            <button class="mn-add-quote-btn" data-objective-id="${objectiveId}" title="Add Quote">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                Add Quote
-                            </button>
-                        </div>
-                        <div class="mn-quotes-list" id="mn-quotes-${objectiveId}">
-                            ${quotes.length > 0 ? this._renderQuotesList(objectiveId, quotes) : this._renderEmptyQuotes()}
-                        </div>
+                <div class="mn-quotes-section">
+                    <div class="mn-section-header">
+                        <h4>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+                            Linked Transcript Quotes <span class="mn-quote-count">(${quotes.length})</span>
+                        </h4>
+                        <button class="mn-add-quote-btn" data-objective-id="${objectiveId}" title="Add Quote">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Quote
+                        </button>
                     </div>
+                    <div class="mn-quotes-list" id="mn-quotes-${objectiveId}">
+                        ${quotes.length > 0 ? this._renderQuotesList(objectiveId, quotes) : this._renderEmptyQuotes()}
+                    </div>
+                </div>
 
-                    <!-- Browse Meetings / Add Quote Section -->
-                    <div class="mn-browse-section" id="mn-browse-${objectiveId}" style="display:none">
-                        ${this._renderAddQuoteForm(objectiveId)}
-                    </div>
-                ` : ''}
+                <div class="mn-browse-section" id="mn-browse-${objectiveId}" style="display:none">
+                    ${this._renderAddQuoteForm(objectiveId)}
+                </div>
             </div>
         `;
     },
@@ -361,28 +179,17 @@ const MeetingNotesIntegration = {
     renderQuoteBadge(objectiveId) {
         const count = this.getQuoteCount(objectiveId);
         if (count === 0) return '';
-        return `<span class="mn-badge" title="${count} meeting quote(s) linked"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg> ${count}</span>`;
+        return `<span class="mn-badge" title="${count} transcript quote(s) linked"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg> ${count}</span>`;
     },
 
     // =========================================
     // PRIVATE RENDER HELPERS
     // =========================================
-    _renderSetupPrompt() {
-        return `
-            <div class="mn-setup-prompt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                <h4>Meeting Notes Not Connected</h4>
-                <p>Connect Granola or another AI notetaker to link meeting transcript quotes to this assessment objective.</p>
-                <button class="mn-open-settings-btn btn-secondary">Configure Meeting Notes</button>
-            </div>
-        `;
-    },
-
     _renderEmptyQuotes() {
         return `
             <div class="mn-empty-quotes">
-                <p>No meeting quotes linked to this objective yet.</p>
-                <p class="mn-empty-hint">Click <strong>Add Quote</strong> to link a transcript excerpt showing how this control is implemented.</p>
+                <p>No transcript quotes linked to this objective yet.</p>
+                <p class="mn-empty-hint">Click <strong>Add Quote</strong> to manually link a transcript excerpt, or use the <strong>Transcript Analyzer</strong> from the hamburger menu to have AI map an entire transcript to objectives.</p>
             </div>
         `;
     },
@@ -402,7 +209,6 @@ const MeetingNotesIntegration = {
                             ${this._escapeHtml(q.meetingTitle)}
                         </span>
                         ${q.meetingDate ? `<span class="mn-quote-date">${new Date(q.meetingDate).toLocaleDateString()}</span>` : ''}
-                        <span class="mn-quote-provider">${this._getProviderIcon(q.provider)} ${this.config.providers[q.provider]?.label || q.provider}</span>
                     </div>
                     ${q.assessorNote ? `<div class="mn-quote-assessor-note"><strong>Assessor Note:</strong> ${this._escapeHtml(q.assessorNote)}</div>` : ''}
                     <div class="mn-quote-linked-meta">Linked by ${this._escapeHtml(q.linkedBy)} on ${new Date(q.linkedAt).toLocaleDateString()}</div>
@@ -424,13 +230,13 @@ const MeetingNotesIntegration = {
             <div class="mn-add-quote-form">
                 <h4>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    Link Meeting Quote to Objective
+                    Link Transcript Quote to Objective
                 </h4>
 
                 <div class="mn-manual-quote">
                     <div class="mn-form-group">
                         <label>Quote Text <span class="required">*</span></label>
-                        <textarea class="mn-quote-input" id="mn-quote-text-${objectiveId}" rows="4" placeholder="Paste the exact quote from the meeting transcript that demonstrates how this control is implemented..."></textarea>
+                        <textarea class="mn-quote-input" id="mn-quote-text-${objectiveId}" rows="4" placeholder="Paste the exact quote from the transcript that demonstrates how this control is implemented..."></textarea>
                     </div>
                     <div class="mn-form-row">
                         <div class="mn-form-group">
@@ -471,74 +277,7 @@ const MeetingNotesIntegration = {
     // =========================================
     // EVENT BINDING
     // =========================================
-    bindSettingsEvents(container) {
-        // Provider selection
-        container.querySelectorAll('.mn-provider-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                container.querySelectorAll('.mn-provider-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const providerHelp = container.querySelector('.mn-provider-help');
-                if (providerHelp) {
-                    providerHelp.style.display = btn.dataset.provider === 'granola' ? 'block' : 'none';
-                }
-            });
-        });
-
-        // Save
-        const saveBtn = container.querySelector('.mn-save-btn');
-        if (saveBtn) {
-            saveBtn.addEventListener('click', () => {
-                const activeProvider = container.querySelector('.mn-provider-btn.active')?.dataset.provider;
-                if (!activeProvider) {
-                    this._showToast('Please select a provider', 'error');
-                    return;
-                }
-                this.setProvider(activeProvider);
-                this._showToast(`${this.config.providers[activeProvider].label} connected successfully`, 'success');
-                // Re-render settings to show updated state
-                const parent = container.closest('.mn-settings-container');
-                if (parent) {
-                    parent.innerHTML = this.renderSettingsPanel();
-                    this.bindSettingsEvents(parent);
-                }
-            });
-        }
-
-        // AI Transcript Analyzer
-        const analyzerBtn = container.querySelector('.mn-open-analyzer-btn');
-        if (analyzerBtn) {
-            analyzerBtn.addEventListener('click', () => {
-                // Close settings modal first
-                document.querySelector('.mn-settings-modal-backdrop')?.remove();
-                this.showTranscriptAnalyzer();
-            });
-        }
-
-        // Disconnect
-        const disconnectBtn = container.querySelector('.mn-disconnect-btn');
-        if (disconnectBtn) {
-            disconnectBtn.addEventListener('click', () => {
-                if (confirm('Disconnect meeting notes provider? Your linked quotes will be preserved.')) {
-                    this.clearProvider();
-                    this._showToast('Provider disconnected', 'success');
-                    const parent = container.closest('.mn-settings-container');
-                    if (parent) {
-                        parent.innerHTML = this.renderSettingsPanel();
-                        this.bindSettingsEvents(parent);
-                    }
-                }
-            });
-        }
-    },
-
     bindObjectivePanelEvents(container, objectiveId) {
-        // Open settings
-        container.querySelectorAll('.mn-open-settings-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.showSettingsModal();
-            });
-        });
-
         // Add Quote button — toggle browse section
         container.querySelectorAll('.mn-add-quote-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -557,7 +296,7 @@ const MeetingNotesIntegration = {
             });
         });
 
-        // Save manual quote
+        // Save quote
         container.querySelectorAll('.mn-save-quote-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const text = document.getElementById(`mn-quote-text-${objectiveId}`)?.value.trim();
@@ -571,8 +310,7 @@ const MeetingNotesIntegration = {
                     speakerRole: document.getElementById(`mn-quote-role-${objectiveId}`)?.value.trim() || '',
                     meetingTitle: document.getElementById(`mn-quote-meeting-${objectiveId}`)?.value.trim() || 'Manual Entry',
                     meetingDate: document.getElementById(`mn-quote-date-${objectiveId}`)?.value || null,
-                    assessorNote: document.getElementById(`mn-quote-note-${objectiveId}`)?.value.trim() || '',
-                    provider: this.getProvider() || 'manual'
+                    assessorNote: document.getElementById(`mn-quote-note-${objectiveId}`)?.value.trim() || ''
                 };
                 this.linkQuote(objectiveId, quote);
                 this._showToast('Quote linked to objective', 'success');
@@ -606,7 +344,6 @@ const MeetingNotesIntegration = {
                 }
             });
         });
-
     },
 
     _refreshQuotesUI(container, objectiveId) {
@@ -956,11 +693,11 @@ Return up to 30 mappings, prioritizing the strongest evidence. If a quote maps t
                 return;
             }
 
-            // Save as manual meeting first
-            const meeting = this.addManualMeeting({
+            // Save transcript record
+            const txRecord = this.addTranscript({
                 title: title,
                 date: date,
-                provider: this.getProvider() || 'manual',
+                speaker: speaker,
                 summary: `AI-analyzed transcript — ${selected.length} quotes extracted`,
                 transcript: this._analyzerState.transcript
             });
@@ -972,11 +709,10 @@ Return up to 30 mappings, prioritizing the strongest evidence. If a quote maps t
                     text: m.quote,
                     speaker: m.speaker || speaker || 'Unknown',
                     speakerRole: m.speakerRole || '',
-                    meetingId: meeting.id,
+                    meetingId: txRecord.id,
                     meetingTitle: title,
                     meetingDate: date,
-                    assessorNote: `[AI-analyzed: ${m.strength}] ${m.assessorNote}`,
-                    provider: this.getProvider() || 'manual'
+                    assessorNote: `[AI-analyzed: ${m.strength}] ${m.assessorNote}`
                 });
                 linked++;
             });
@@ -992,49 +728,6 @@ Return up to 30 mappings, prioritizing the strongest evidence. If a quote maps t
         const count = resultsDiv.querySelectorAll('.mn-analyzer-cb:checked').length;
         const btn = resultsDiv.querySelector('.mn-analyzer-link-all-btn');
         if (btn) btn.textContent = `Link All Selected (${count})`;
-    },
-
-    // =========================================
-    // SETTINGS MODAL (standalone)
-    // =========================================
-    showSettingsModal() {
-        // Remove existing
-        document.querySelector('.mn-settings-modal-backdrop')?.remove();
-
-        const backdrop = document.createElement('div');
-        backdrop.className = 'modal-backdrop active mn-settings-modal-backdrop';
-        backdrop.innerHTML = `
-            <div class="modal-content" style="max-width: 640px;">
-                <div class="modal-header">
-                    <h2>Meeting Notes Integration</h2>
-                    <button class="modal-close mn-modal-close-btn">&times;</button>
-                </div>
-                <div class="modal-body mn-settings-container">
-                    ${this.renderSettingsPanel()}
-                </div>
-            </div>
-        `;
-        document.body.appendChild(backdrop);
-        this.bindSettingsEvents(backdrop.querySelector('.mn-settings-container'));
-
-        // Close on X button
-        backdrop.querySelector('.mn-modal-close-btn').addEventListener('click', () => {
-            backdrop.remove();
-        });
-
-        // Close on backdrop click
-        backdrop.addEventListener('click', (e) => {
-            if (e.target === backdrop) backdrop.remove();
-        });
-
-        // Close on Escape key
-        const escHandler = (e) => {
-            if (e.key === 'Escape') {
-                backdrop.remove();
-                document.removeEventListener('keydown', escHandler);
-            }
-        };
-        document.addEventListener('keydown', escHandler);
     },
 
     // =========================================
@@ -1060,17 +753,6 @@ Return up to 30 mappings, prioritizing the strongest evidence. If a quote maps t
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
-    },
-
-    _getProviderIcon(providerId) {
-        const icons = {
-            granola: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>',
-            otter: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>',
-            fireflies: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/></svg>',
-            fathom: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
-            manual: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'
-        };
-        return icons[providerId] || icons.manual;
     }
 };
 

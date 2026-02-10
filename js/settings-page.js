@@ -169,7 +169,7 @@ const SettingsPage = {
             { id: 'knowbe4', name: 'KnowBe4', desc: 'Security awareness training campaigns & phishing tests', logo: this.logos.knowbe4, controls: 'AT' },
             { id: 'tenable', name: 'Tenable.io', desc: 'Vulnerability scanning, asset inventory, compliance', logo: this.logos.tenable, controls: 'RA, SI' },
             { id: 'jira', name: 'Jira', desc: 'POA&M tracking, project management, issue tracking', logo: this.logos.jira, controls: 'PM' },
-            { id: 'granola', name: 'Granola', desc: 'Paste meeting notes & transcripts as evidence (manual)', logo: this.logos.granola, controls: 'Evidence' }
+            { id: 'transcript', name: 'Transcript Analyzer', desc: 'Paste meeting transcripts and use AI to map quotes to assessment objectives', logo: this.logos.granola, controls: 'Evidence' }
         ];
 
         // Check connection status from IntegrationsHub
@@ -179,12 +179,11 @@ const SettingsPage = {
             return { connected: !!data[id]?.lastSync, lastSync: data[id]?.lastSync };
         };
 
-        // Check Granola / Meeting Notes separately (provider selected = configured)
-        const getGranolaStatus = () => {
-            try {
-                const cfg = JSON.parse(localStorage.getItem('nist-meeting-notes-config') || '{}');
-                return { connected: !!cfg.provider, provider: cfg.provider };
-            } catch(e) { return { connected: false }; }
+        // Check Transcript Analyzer status (has linked quotes = active)
+        const getTranscriptStatus = () => {
+            if (typeof MeetingNotesIntegration === 'undefined') return { connected: false };
+            const count = MeetingNotesIntegration.getTotalQuoteCount();
+            return { connected: count > 0 };
         };
 
         return `
@@ -195,7 +194,7 @@ const SettingsPage = {
             </div>
             <div class="stg-integration-grid">
                 ${integrations.map(int => {
-                    const status = int.id === 'granola' ? getGranolaStatus() : getStatus(int.id);
+                    const status = int.id === 'transcript' ? getTranscriptStatus() : getStatus(int.id);
                     return `
                     <div class="stg-integration-card ${status.connected ? 'connected' : ''}">
                         <div class="stg-int-logo">${int.logo}</div>
@@ -737,10 +736,11 @@ const SettingsPage = {
 
     // ==================== INTEGRATION ACTIONS ====================
     configureIntegration: function(integrationId) {
-        if (integrationId === 'granola') {
-            // Open meeting notes settings
-            const btn = document.getElementById('open-meeting-notes-btn');
-            if (btn) btn.click();
+        if (integrationId === 'transcript') {
+            // Open Transcript Analyzer
+            if (typeof MeetingNotesIntegration !== 'undefined') {
+                MeetingNotesIntegration.showTranscriptAnalyzer();
+            }
             return;
         }
         // Open Integrations Hub for the specific provider
