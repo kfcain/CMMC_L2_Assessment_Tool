@@ -11,36 +11,36 @@ const ThemePicker = {
             category: 'premium',
             hasPurpleBg: true,
             colors: {
-                '--bg-primary': '#0a0a0f',
-                '--bg-secondary': '#0f1117',
-                '--bg-tertiary': '#161822',
-                '--bg-elevated': '#1a1d2b',
-                '--text-primary': '#e4e5ea',
-                '--text-secondary': '#8b8fa3',
-                '--text-muted': '#4e5263',
-                '--border-color': '#1e2030',
-                '--border-subtle': 'rgba(255, 255, 255, 0.04)',
+                '--bg-primary': '#141419',
+                '--bg-secondary': '#191b22',
+                '--bg-tertiary': '#1f222d',
+                '--bg-elevated': '#252838',
+                '--text-primary': '#e8e9ee',
+                '--text-secondary': '#9599ad',
+                '--text-muted': '#636778',
+                '--border-color': '#2a2d3e',
+                '--border-subtle': 'rgba(255, 255, 255, 0.06)',
                 '--accent-blue': '#6c8aff',
                 '--accent-blue-hover': '#5470e0',
                 '--accent-glow': 'rgba(108, 138, 255, 0.15)',
-                '--input-bg': '#0d0e14',
-                '--card-bg': '#0f1117',
-                '--modal-bg': '#0f1117',
-                '--shadow-color': 'rgba(0, 0, 0, 0.6)',
-                '--glass-bg': 'rgba(15, 17, 23, 0.72)',
-                '--glass-border': 'rgba(255, 255, 255, 0.05)',
+                '--input-bg': '#16171e',
+                '--card-bg': '#191b22',
+                '--modal-bg': '#191b22',
+                '--shadow-color': 'rgba(0, 0, 0, 0.5)',
+                '--glass-bg': 'rgba(25, 27, 34, 0.78)',
+                '--glass-border': 'rgba(255, 255, 255, 0.07)',
                 '--glow-primary': 'rgba(108, 138, 255, 0.08)',
                 '--glow-accent': 'rgba(139, 92, 246, 0.06)',
-                '--hover-bg': 'rgba(108, 138, 255, 0.06)',
-                '--hover-border': 'rgba(108, 138, 255, 0.15)',
-                '--hover-glow': 'rgba(108, 138, 255, 0.08)',
-                '--focus-border': 'rgba(108, 138, 255, 0.3)',
-                '--focus-glow': 'rgba(108, 138, 255, 0.08)',
-                '--card-hover-border': 'rgba(108, 138, 255, 0.1)',
-                '--card-hover-shadow': '0 4px 24px rgba(0, 0, 0, 0.2), 0 0 20px rgba(108, 138, 255, 0.04)',
-                '--table-hover-bg': 'rgba(108, 138, 255, 0.03)',
-                '--table-border': 'rgba(255, 255, 255, 0.03)',
-                '--table-header-bg': 'rgba(255, 255, 255, 0.02)',
+                '--hover-bg': 'rgba(108, 138, 255, 0.07)',
+                '--hover-border': 'rgba(108, 138, 255, 0.18)',
+                '--hover-glow': 'rgba(108, 138, 255, 0.10)',
+                '--focus-border': 'rgba(108, 138, 255, 0.35)',
+                '--focus-glow': 'rgba(108, 138, 255, 0.10)',
+                '--card-hover-border': 'rgba(108, 138, 255, 0.12)',
+                '--card-hover-shadow': '0 4px 24px rgba(0, 0, 0, 0.18), 0 0 20px rgba(108, 138, 255, 0.05)',
+                '--table-hover-bg': 'rgba(108, 138, 255, 0.04)',
+                '--table-border': 'rgba(255, 255, 255, 0.05)',
+                '--table-header-bg': 'rgba(255, 255, 255, 0.03)',
                 '--accent-line': 'linear-gradient(90deg, transparent, rgba(108, 138, 255, 0.15), transparent)',
                 '--nav-active-bg': 'linear-gradient(135deg, rgba(108, 138, 255, 0.15), rgba(139, 92, 246, 0.1))',
                 '--nav-active-border': 'rgba(108, 138, 255, 0.2)',
@@ -596,7 +596,7 @@ const ThemePicker = {
             // Parse accent color hex to RGB for rgba() generation
             const accent = c['--accent-blue'] || '#6c8aff';
             const accentHover = c['--accent-blue-hover'] || accent;
-            const bgSec = c['--bg-secondary'] || '#0f1117';
+            const bgSec = c['--bg-secondary'] || '#191b22';
             const isLight = theme.name === 'GitHub Light' || theme.isLight === true;
 
             // Helper: hex to r,g,b string
@@ -680,7 +680,7 @@ const ThemePicker = {
 
         // Set html background color to match theme
         document.documentElement.style.backgroundColor = theme.hasPurpleBg
-            ? (theme.isLight ? '#f8f7fc' : '#08070f')
+            ? (theme.isLight ? '#f8f7fc' : '#0f0e16')
             : theme.colors['--bg-primary'];
 
         this.currentTheme = themeName;

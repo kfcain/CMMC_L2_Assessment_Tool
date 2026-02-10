@@ -153,7 +153,7 @@ const PurpleBackground = {
         ctx.clearRect(0, 0, w, h);
 
         // Background fill — dark or light base
-        ctx.fillStyle = this._lightMode ? '#f8f7fc' : '#08070f';
+        ctx.fillStyle = this._lightMode ? '#f8f7fc' : '#0f0e16';
         ctx.fillRect(0, 0, w, h);
 
         // Draw blobs — lower alpha in light mode for readability
