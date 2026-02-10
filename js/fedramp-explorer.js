@@ -82,6 +82,7 @@ const FedRAMPExplorer = {
             description: p.CSO_Description || '',
             logoUrl: p.CSP_URL || '',
             atoLetters: (p.Leveraged_ATO_Letters || []).filter(l => l.Include_In_Marketplace === 'Y'),
+            underlyingPackageIds: p.Underlying_CSP_Package_ID || [],
             marketplaceUrl: 'https://marketplace.fedramp.gov/products/' + (p.Package_ID || '')
         }));
 
@@ -101,7 +102,9 @@ const FedRAMPExplorer = {
                 p.package.toLowerCase().includes(q) ||
                 p.description.toLowerCase().includes(q) ||
                 p.assessor.toLowerCase().includes(q) ||
-                p.sponsorAgency.toLowerCase().includes(q)
+                p.sponsorAgency.toLowerCase().includes(q) ||
+                p.authAgency.toLowerCase().includes(q) ||
+                (p.website || '').toLowerCase().includes(q)
             );
         }
 
@@ -308,15 +311,33 @@ const FedRAMPExplorer = {
                 }
                 html += '</div>';
 
+                // Leveraged / Underlying Authorized Services
+                if (p.underlyingPackageIds && p.underlyingPackageIds.length > 0) {
+                    const resolved = this._resolvePackageIds(p.underlyingPackageIds);
+                    if (resolved.length > 0) {
+                        html += '<div class="fre-ato-section">';
+                        html += '<h4 class="fre-ato-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>Leveraged Authorized Services (' + resolved.length + ')</h4>';
+                        html += '<div class="fre-svc-grid">';
+                        for (const svc of resolved) {
+                            const tip = (svc.designation === 'Compliant' ? 'Authorized' : svc.designation) + ' — ' + svc.impact;
+                            html += '<a href="' + esc(svc.url) + '" target="_blank" rel="noopener noreferrer" class="fre-svc-chip" title="' + esc(tip) + '">';
+                            html += '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' + (svc.designation === 'Compliant' ? '<path d="M9 12l2 2 4-4"/>' : '') + '</svg> ';
+                            html += esc(svc.name) + '</a>';
+                        }
+                        html += '</div>';
+                        html += '</div>';
+                    }
+                }
+
                 // ATO Letters table
                 if (atoCount > 0) {
                     html += '<div class="fre-ato-section">';
                     html += '<h4 class="fre-ato-title">Agency ATO Letters (' + atoCount + ')</h4>';
-                    html += '<div class="fre-ato-table-wrap"><table class="fre-ato-table"><thead><tr><th>Agency</th><th>Sub-Agency</th><th>Date</th></tr></thead><tbody>';
+                    html += '<div class="fre-ato-table-wrap"><table class="fre-ato-table"><thead><tr><th>Agency</th><th>Letter Date</th><th>Last Signed</th></tr></thead><tbody>';
                     for (const ato of p.atoLetters) {
-                        const atoDate = ato.Authorizing_Letter_Last_Sign_Date || ato.Letter_Date || '';
-                        const dateStr = atoDate ? new Date(atoDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '—';
-                        html += '<tr><td>' + esc(ato.Authorizing_Agency || '—') + '</td><td>' + esc(ato.Authorizing_Subagency || '—') + '</td><td>' + dateStr + '</td></tr>';
+                        const letterDate = ato.Letter_Date ? new Date(ato.Letter_Date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '—';
+                        const signDate = ato.Authorizing_Letter_Last_Sign_Date ? new Date(ato.Authorizing_Letter_Last_Sign_Date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : '—';
+                        html += '<tr><td>' + esc(ato.Authorizing_Agency || '—') + '</td><td>' + letterDate + '</td><td>' + signDate + '</td></tr>';
                     }
                     html += '</tbody></table></div>';
                     html += '</div>';
@@ -504,6 +525,26 @@ const FedRAMPExplorer = {
         try {
             return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         } catch { return 'recently'; }
+    },
+
+    _resolvePackageIds(packageIds) {
+        if (!packageIds || !packageIds.length || !FedRAMPMarketplace.providers) return [];
+        // Build a quick lookup from Package_ID → provider info
+        const results = [];
+        for (const pid of packageIds) {
+            const match = FedRAMPMarketplace.providers.find(p => p.Package_ID === pid);
+            if (match) {
+                results.push({
+                    name: match.Cloud_Service_Provider_Package || match.Cloud_Service_Provider_Name || pid,
+                    designation: match.Designation || '',
+                    impact: match.Impact_Level || '',
+                    url: 'https://marketplace.fedramp.gov/products/' + pid
+                });
+            } else {
+                results.push({ name: pid, designation: '', impact: '', url: 'https://marketplace.fedramp.gov/products/' + pid });
+            }
+        }
+        return results;
     },
 
     // ── Docs Hub Widget ───────────────────────────────────────────────

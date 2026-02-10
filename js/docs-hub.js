@@ -189,7 +189,7 @@ const DocsHub = {
                 `).join('')}
             </div>
 
-            ${typeof FedRAMPExplorer !== 'undefined' && typeof FedRAMPMarketplace !== 'undefined' && FedRAMPMarketplace.loaded ? FedRAMPExplorer.renderDocsHubWidget() : ''}
+            <div id="dh-fedramp-widget-slot">${typeof FedRAMPExplorer !== 'undefined' && typeof FedRAMPMarketplace !== 'undefined' && FedRAMPMarketplace.loaded ? FedRAMPExplorer.renderDocsHubWidget() : '<div class="fre-widget fre-widget-loading"><div class="fre-widget-header"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span class="fre-widget-title">FedRAMP Marketplace — Live Data</span></div><div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:0.75rem"><div class="fre-spinner" style="display:inline-block;margin-bottom:8px"></div><br>Loading marketplace data...</div></div>'}</div>
 
             <div class="dh-categories" id="docs-hub-results">
                 ${this.renderCategories()}
@@ -197,6 +197,7 @@ const DocsHub = {
         </div>`;
 
         this.bindEvents();
+        this._initFedRAMPWidget();
     },
 
     renderCategories(query) {
@@ -250,6 +251,44 @@ const DocsHub = {
                 results.innerHTML = this.renderCategories(search.value);
             });
         }
+    },
+
+    _initFedRAMPWidget() {
+        const slot = document.getElementById('dh-fedramp-widget-slot');
+        if (!slot) return;
+
+        const updateWidget = () => {
+            if (typeof FedRAMPExplorer === 'undefined' || typeof FedRAMPMarketplace === 'undefined') return;
+            if (!FedRAMPMarketplace.loaded) return;
+            slot.innerHTML = FedRAMPExplorer.renderDocsHubWidget();
+            // Bind the "Open FedRAMP Explorer" button to navigate
+            const btn = slot.querySelector('.fre-widget-btn');
+            if (btn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (window.app && typeof window.app.switchView === 'function') {
+                        window.app.switchView('fedramp-explorer');
+                    }
+                });
+            }
+        };
+
+        // If already loaded, update immediately
+        if (typeof FedRAMPMarketplace !== 'undefined' && FedRAMPMarketplace.loaded) {
+            updateWidget();
+            return;
+        }
+
+        // Otherwise wait for data
+        if (typeof FedRAMPMarketplace !== 'undefined') {
+            FedRAMPMarketplace.onReady(() => updateWidget());
+            if (!FedRAMPMarketplace.loading && !FedRAMPMarketplace.loaded) {
+                FedRAMPMarketplace.init();
+            }
+        }
+
+        // Also listen for the DOM event as a fallback
+        document.addEventListener('fedramp-marketplace-ready', () => updateWidget(), { once: true });
     }
 };
 
