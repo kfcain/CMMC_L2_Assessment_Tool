@@ -67,27 +67,39 @@ const FedRAMPExplorer = {
     },
 
     _onDataReady() {
-        this.allProviders = (FedRAMPMarketplace.providers || []).map(p => ({
-            id: p.Package_ID || '',
-            name: p.Cloud_Service_Provider_Name || '',
-            package: p.Cloud_Service_Provider_Package || '',
-            designation: p.Designation || '',
-            impact: p.Impact_Level || '',
-            path: p.Path || '',
-            serviceModel: p.Service_Model || [],
-            deploymentModel: p.Deployment_Model || '',
-            authDate: p.Original_Authorization_Date || '',
-            sponsorAgency: p.Sponsoring_Agency || '',
-            authAgency: p.Authorizing_Agency || '',
-            assessor: p.Independent_Assessor || '',
-            website: p.CSP_Website || '',
-            description: p.CSO_Description || '',
-            logoUrl: p.CSP_URL || '',
-            faviconUrl: this._buildFaviconUrl(p.CSP_Website || p.CSP_URL || ''),
-            atoLetters: (p.Leveraged_ATO_Letters || []).filter(l => l.Include_In_Marketplace === 'Y'),
-            underlyingPackageIds: p.Underlying_CSP_Package_ID || [],
-            marketplaceUrl: 'https://marketplace.fedramp.gov/products/' + (p.Package_ID || '')
-        }));
+        this.allProviders = (FedRAMPMarketplace.providers || []).map(p => {
+            const impact = p.Impact_Level || '';
+            const path = p.Path || '';
+            // FedRAMP 20x: identified by path containing '20x' or LI-SaaS impact
+            const is20x = /20x/i.test(path) || impact === 'LI-SaaS' || impact === 'Li-SaaS';
+            return {
+                id: p.Package_ID || '',
+                name: p.Cloud_Service_Provider_Name || '',
+                package: p.Cloud_Service_Provider_Package || '',
+                designation: p.Designation || '',
+                impact: impact,
+                is20x: is20x,
+                path: path,
+                serviceModel: p.Service_Model || [],
+                deploymentModel: p.Deployment_Model || '',
+                authDate: p.Original_Authorization_Date || '',
+                sponsorAgency: p.Sponsoring_Agency || '',
+                authAgency: p.Authorizing_Agency || '',
+                assessor: p.Independent_Assessor || '',
+                website: p.CSP_Website || '',
+                description: p.CSO_Description || '',
+                logoUrl: p.CSP_URL || '',
+                faviconUrl: this._buildFaviconUrl(p.CSP_Website || p.CSP_URL || ''),
+                atoLetters: (p.Leveraged_ATO_Letters || []).filter(l => l.Include_In_Marketplace === 'Y'),
+                underlyingPackageIds: p.Underlying_CSP_Package_ID || [],
+                marketplaceUrl: 'https://marketplace.fedramp.gov/products/' + (p.Package_ID || '')
+            };
+        });
+
+        // Pre-resolve underlying services for card tiles
+        for (const p of this.allProviders) {
+            p.underlying = this._resolvePackageIds(p.underlyingPackageIds);
+        }
 
         this._applyFilters();
         this._renderFull();
@@ -118,10 +130,12 @@ const FedRAMPExplorer = {
 
         // Impact filter
         if (this.filters.impact !== 'all') {
-            if (this.filters.impact === 'Low') {
-                list = list.filter(p => p.impact === 'Low' || p.impact === 'LI-SaaS');
+            if (this.filters.impact === '20x') {
+                list = list.filter(p => p.is20x);
+            } else if (this.filters.impact === 'Low') {
+                list = list.filter(p => (p.impact === 'Low' || p.impact === 'LI-SaaS') && !p.is20x);
             } else {
-                list = list.filter(p => p.impact === this.filters.impact);
+                list = list.filter(p => p.impact === this.filters.impact && !p.is20x);
             }
         }
 
@@ -142,8 +156,14 @@ const FedRAMPExplorer = {
             if (this.sortField === 'name') {
                 va = a.name.toLowerCase(); vb = b.name.toLowerCase();
             } else if (this.sortField === 'impact') {
-                const pri = { 'High': 3, 'Moderate': 2, 'Low': 1, 'LI-SaaS': 0 };
-                va = pri[a.impact] || 0; vb = pri[b.impact] || 0;
+                const pri = { 'High': 4, 'Moderate': 3, 'Low': 2, 'LI-SaaS': 1 };
+                // 20x gets its own tier
+                if (a.is20x) va = 5; else va = pri[a.impact] || 0;
+                if (b.is20x) vb = 5; else vb = pri[b.impact] || 0;
+                // skip the normal assignment below
+                if (va < vb) return -1 * dir;
+                if (va > vb) return 1 * dir;
+                return 0;
             } else if (this.sortField === 'authDate') {
                 va = a.authDate || ''; vb = b.authDate || '';
             } else if (this.sortField === 'atos') {
@@ -189,7 +209,8 @@ const FedRAMPExplorer = {
         html += '<span class="fre-stats-sep"></span>';
         html += this._statPill('High', stats.high, '#ef4444');
         html += this._statPill('Moderate', stats.moderate, '#f59e0b');
-        html += this._statPill('Low / LI-SaaS', stats.low, '#3b82f6');
+        html += this._statPill('Low', stats.low, '#3b82f6');
+        html += this._statPill('20x', stats.twentyx, '#a855f7');
         html += '</div>';
 
         // View mode selector
@@ -208,7 +229,7 @@ const FedRAMPExplorer = {
         // Filter dropdowns (list & card view)
         if (vm === 'all' || vm === 'cards') {
             html += '<select class="fre-filter" id="fre-filter-designation"><option value="all">All Designations</option><option value="Compliant"' + (this.filters.designation === 'Compliant' ? ' selected' : '') + '>Authorized</option><option value="In Process"' + (this.filters.designation === 'In Process' ? ' selected' : '') + '>In Process</option><option value="FedRAMP Ready"' + (this.filters.designation === 'FedRAMP Ready' ? ' selected' : '') + '>FedRAMP Ready</option></select>';
-            html += '<select class="fre-filter" id="fre-filter-impact"><option value="all">All Impact Levels</option><option value="High"' + (this.filters.impact === 'High' ? ' selected' : '') + '>High</option><option value="Moderate"' + (this.filters.impact === 'Moderate' ? ' selected' : '') + '>Moderate</option><option value="Low"' + (this.filters.impact === 'Low' ? ' selected' : '') + '>Low / LI-SaaS</option></select>';
+            html += '<select class="fre-filter" id="fre-filter-impact"><option value="all">All Impact Levels</option><option value="High"' + (this.filters.impact === 'High' ? ' selected' : '') + '>High</option><option value="Moderate"' + (this.filters.impact === 'Moderate' ? ' selected' : '') + '>Moderate</option><option value="Low"' + (this.filters.impact === 'Low' ? ' selected' : '') + '>Low</option><option value="20x"' + (this.filters.impact === '20x' ? ' selected' : '') + '>20x</option></select>';
             html += '<select class="fre-filter" id="fre-filter-service"><option value="all">All Service Models</option><option value="IaaS"' + (this.filters.serviceModel === 'IaaS' ? ' selected' : '') + '>IaaS</option><option value="PaaS"' + (this.filters.serviceModel === 'PaaS' ? ' selected' : '') + '>PaaS</option><option value="SaaS"' + (this.filters.serviceModel === 'SaaS' ? ' selected' : '') + '>SaaS</option></select>';
             html += '<select class="fre-filter" id="fre-filter-path"><option value="all">All Paths</option><option value="JAB"' + (this.filters.path === 'JAB' ? ' selected' : '') + '>JAB</option><option value="Agency"' + (this.filters.path === 'Agency' ? ' selected' : '') + '>Agency</option><option value="CSP"' + (this.filters.path === 'CSP' ? ' selected' : '') + '>CSP</option></select>';
         }
@@ -307,6 +328,7 @@ const FedRAMPExplorer = {
             html += '<div class="fre-tile-tags">';
             html += '<span class="fre-tag ' + designCls + '">' + (p.designation === 'Compliant' ? 'Authorized' : esc(p.designation)) + '</span>';
             html += '<span class="fre-tag ' + impactCls + '">' + esc(p.impact) + '</span>';
+            if (p.is20x) html += '<span class="fre-tag fre-tag-20x">20x</span>';
             html += '</div>';
 
             // Meta row
@@ -314,6 +336,17 @@ const FedRAMPExplorer = {
             html += '<span title="Service Model">' + esc(svcModel) + '</span>';
             if (atoCount > 0) html += '<span title="Agency ATOs">' + atoCount + ' ATO' + (atoCount !== 1 ? 's' : '') + '</span>';
             html += '</div>';
+
+            // Underlying authorized services
+            if (p.underlying && p.underlying.length > 0) {
+                html += '<div class="fre-tile-services">';
+                html += '<span class="fre-tile-services-label">Built on:</span>';
+                for (const u of p.underlying.slice(0, 3)) {
+                    html += '<a href="' + esc(u.url) + '" target="_blank" rel="noopener noreferrer" class="fre-tile-svc-chip" onclick="event.stopPropagation()" title="' + esc(u.name) + '">' + esc(u.name.length > 22 ? u.name.substring(0, 20) + '...' : u.name) + '</a>';
+                }
+                if (p.underlying.length > 3) html += '<span class="fre-tile-svc-more">+' + (p.underlying.length - 3) + ' more</span>';
+                html += '</div>';
+            }
 
             // Action link
             html += '<a href="' + esc(p.marketplaceUrl) + '" target="_blank" rel="noopener noreferrer" class="fre-tile-link" onclick="event.stopPropagation()">View on Marketplace <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>';
@@ -449,14 +482,13 @@ const FedRAMPExplorer = {
 
     _buildImpactGroups(list) {
         const defs = [
-            { key: 'high', impact: 'High', label: 'High Impact', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>', cls: 'fre-group-high' },
-            { key: 'moderate', impact: 'Moderate', label: 'Moderate Impact', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', cls: 'fre-group-moderate' },
-            { key: 'low', impacts: ['Low', 'LI-SaaS', 'Li-SaaS'], label: 'Low / LI-SaaS', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', cls: 'fre-group-low' }
+            { key: 'high', filter: p => p.impact === 'High' && !p.is20x, label: 'High Impact', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>', cls: 'fre-group-high' },
+            { key: 'moderate', filter: p => p.impact === 'Moderate' && !p.is20x, label: 'Moderate Impact', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', cls: 'fre-group-moderate' },
+            { key: 'low', filter: p => (p.impact === 'Low') && !p.is20x, label: 'Low Impact', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', cls: 'fre-group-low' },
+            { key: '20x', filter: p => p.is20x, label: 'FedRAMP 20x', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>', cls: 'fre-group-20x' }
         ];
         return defs.map(d => {
-            const items = d.impacts
-                ? list.filter(p => d.impacts.includes(p.impact))
-                : list.filter(p => p.impact === d.impact);
+            const items = list.filter(d.filter);
             if (items.length === 0) return null;
             // Build status breakdown badges
             const auth = items.filter(p => p.designation === 'Compliant').length;
@@ -760,9 +792,10 @@ const FedRAMPExplorer = {
             authorized: all.filter(p => p.designation === 'Compliant').length,
             inProcess: all.filter(p => p.designation === 'In Process').length,
             ready: all.filter(p => p.designation === 'FedRAMP Ready').length,
-            high: all.filter(p => p.impact === 'High').length,
-            moderate: all.filter(p => p.impact === 'Moderate').length,
-            low: all.filter(p => p.impact === 'Low' || p.impact === 'LI-SaaS').length
+            high: all.filter(p => p.impact === 'High' && !p.is20x).length,
+            moderate: all.filter(p => p.impact === 'Moderate' && !p.is20x).length,
+            low: all.filter(p => (p.impact === 'Low') && !p.is20x).length,
+            twentyx: all.filter(p => p.is20x).length
         };
     },
 
@@ -834,6 +867,7 @@ const FedRAMPExplorer = {
         html += '<div class="fre-widget-stat"><span class="fre-widget-stat-val" style="color:#ef4444">' + stats.high + '</span><span class="fre-widget-stat-label">High</span></div>';
         html += '<div class="fre-widget-stat"><span class="fre-widget-stat-val" style="color:#f59e0b">' + stats.moderate + '</span><span class="fre-widget-stat-label">Moderate</span></div>';
         html += '<div class="fre-widget-stat"><span class="fre-widget-stat-val" style="color:#3b82f6">' + stats.low + '</span><span class="fre-widget-stat-label">Low</span></div>';
+        html += '<div class="fre-widget-stat"><span class="fre-widget-stat-val" style="color:#a855f7">' + stats.twentyx + '</span><span class="fre-widget-stat-label">20x</span></div>';
         html += '</div>';
 
         html += '<button class="fre-widget-btn hamburger-nav-btn" data-view="fedramp-explorer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open FedRAMP Explorer</button>';
