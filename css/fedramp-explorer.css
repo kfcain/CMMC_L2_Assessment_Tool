@@ -618,6 +618,178 @@ a.fre-svc-chip:hover {
     background: rgba(16, 185, 129, 0.18);
 }
 
+/* ── View Mode Selector ───────────────────────────────────────────── */
+.fre-view-modes {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    padding: 4px;
+    background: var(--bg-secondary, rgba(255,255,255,0.03));
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    width: fit-content;
+}
+.fre-view-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+.fre-view-mode-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.04);
+}
+.fre-view-mode-btn svg {
+    flex-shrink: 0;
+}
+.fre-vm-active {
+    background: var(--accent-blue, #3b82f6) !important;
+    color: #fff !important;
+    border-color: var(--accent-blue, #3b82f6);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+.fre-vm-active svg {
+    stroke: #fff;
+}
+
+/* ── Group Cards ──────────────────────────────────────────────────── */
+.fre-group-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.fre-group-grid-alpha {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 8px;
+}
+.fre-group-grid-alpha .fre-group-open {
+    grid-column: 1 / -1;
+}
+.fre-group-card {
+    background: var(--bg-secondary, rgba(255,255,255,0.04));
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.fre-group-card:hover {
+    border-color: rgba(99, 102, 241, 0.25);
+}
+.fre-group-open {
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+}
+.fre-group-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+}
+.fre-group-header:hover {
+    background: rgba(255,255,255,0.02);
+}
+.fre-group-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fre-group-letter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    color: #6366f1;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.fre-group-info {
+    flex: 1;
+    min-width: 0;
+}
+.fre-group-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.fre-group-count {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+.fre-group-badges {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+.fre-group-chevron {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+}
+.fre-group-open .fre-group-chevron {
+    transform: rotate(180deg);
+}
+.fre-group-body {
+    border-top: 1px solid var(--border-color);
+    padding: 12px 16px 16px;
+    animation: fre-slide-down 0.2s ease;
+}
+.fre-group-body-count {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+/* Group color accents */
+.fre-group-authorized {
+    border-left: 3px solid #10b981;
+}
+.fre-group-authorized .fre-group-name { color: #10b981; }
+.fre-group-inprocess {
+    border-left: 3px solid #f59e0b;
+}
+.fre-group-inprocess .fre-group-name { color: #f59e0b; }
+.fre-group-ready {
+    border-left: 3px solid #6366f1;
+}
+.fre-group-ready .fre-group-name { color: #6366f1; }
+.fre-group-high {
+    border-left: 3px solid #ef4444;
+}
+.fre-group-high .fre-group-name { color: #ef4444; }
+.fre-group-moderate {
+    border-left: 3px solid #f59e0b;
+}
+.fre-group-moderate .fre-group-name { color: #f59e0b; }
+.fre-group-low {
+    border-left: 3px solid #3b82f6;
+}
+.fre-group-low .fre-group-name { color: #3b82f6; }
+.fre-group-alpha {
+    border-left: 3px solid #6366f1;
+}
+
 /* ── Responsive ────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
     .fre-card-header {
@@ -649,5 +821,19 @@ a.fre-svc-chip:hover {
     .fre-stats {
         gap: 10px;
         justify-content: center;
+    }
+    .fre-view-modes {
+        width: 100%;
+        overflow-x: auto;
+    }
+    .fre-group-grid-alpha {
+        grid-template-columns: 1fr 1fr;
+    }
+    .fre-group-header {
+        padding: 12px 14px;
+        gap: 10px;
+    }
+    .fre-group-badges {
+        display: none;
     }
 }
