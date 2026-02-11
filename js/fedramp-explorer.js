@@ -67,17 +67,19 @@ const FedRAMPExplorer = {
     },
 
     _onDataReady() {
+        this._pkgIndex = null; // Clear package lookup cache on data refresh
         this.allProviders = (FedRAMPMarketplace.providers || []).map(p => {
             const impact = p.Impact_Level || '';
+            const rawImpact = p.Impact_Level_Raw || impact;
             const path = p.Path || '';
-            // FedRAMP 20x: identified by path containing '20x' or LI-SaaS impact
-            const is20x = /20x/i.test(path) || impact === 'LI-SaaS' || impact === 'Li-SaaS';
+            const is20x = p.Is_20x || /20x/i.test(rawImpact) || path === 'Program';
             return {
                 id: p.Package_ID || '',
                 name: p.Cloud_Service_Provider_Name || '',
                 package: p.Cloud_Service_Provider_Package || '',
                 designation: p.Designation || '',
                 impact: impact,
+                impactRaw: rawImpact,
                 is20x: is20x,
                 path: path,
                 serviceModel: p.Service_Model || [],
@@ -91,6 +93,7 @@ const FedRAMPExplorer = {
                 logoUrl: p.CSP_URL || '',
                 faviconUrl: this._buildFaviconUrl(p.CSP_Website || p.CSP_URL || ''),
                 atoLetters: (p.Leveraged_ATO_Letters || []).filter(l => l.Include_In_Marketplace === 'Y'),
+                agencyReuseCount: p.Agency_Reuse_Count || 0,
                 underlyingPackageIds: p.Underlying_CSP_Package_ID || [],
                 marketplaceUrl: 'https://marketplace.fedramp.gov/products/' + (p.Package_ID || '')
             };
@@ -232,7 +235,7 @@ const FedRAMPExplorer = {
             html += '<select class="fre-filter" id="fre-filter-designation"><option value="all">All Designations</option><option value="Compliant"' + (this.filters.designation === 'Compliant' ? ' selected' : '') + '>Authorized</option><option value="In Process"' + (this.filters.designation === 'In Process' ? ' selected' : '') + '>In Process</option><option value="FedRAMP Ready"' + (this.filters.designation === 'FedRAMP Ready' ? ' selected' : '') + '>FedRAMP Ready</option></select>';
             html += '<select class="fre-filter" id="fre-filter-impact"><option value="all">All Impact Levels</option><option value="High"' + (this.filters.impact === 'High' ? ' selected' : '') + '>High</option><option value="Moderate"' + (this.filters.impact === 'Moderate' ? ' selected' : '') + '>Moderate</option><option value="Low"' + (this.filters.impact === 'Low' ? ' selected' : '') + '>Low</option><option value="LI-SaaS"' + (this.filters.impact === 'LI-SaaS' ? ' selected' : '') + '>LI-SaaS</option><option value="20x"' + (this.filters.impact === '20x' ? ' selected' : '') + '>20x</option></select>';
             html += '<select class="fre-filter" id="fre-filter-service"><option value="all">All Service Models</option><option value="IaaS"' + (this.filters.serviceModel === 'IaaS' ? ' selected' : '') + '>IaaS</option><option value="PaaS"' + (this.filters.serviceModel === 'PaaS' ? ' selected' : '') + '>PaaS</option><option value="SaaS"' + (this.filters.serviceModel === 'SaaS' ? ' selected' : '') + '>SaaS</option></select>';
-            html += '<select class="fre-filter" id="fre-filter-path"><option value="all">All Paths</option><option value="JAB"' + (this.filters.path === 'JAB' ? ' selected' : '') + '>JAB</option><option value="Agency"' + (this.filters.path === 'Agency' ? ' selected' : '') + '>Agency</option><option value="CSP"' + (this.filters.path === 'CSP' ? ' selected' : '') + '>CSP</option></select>';
+            html += '<select class="fre-filter" id="fre-filter-path"><option value="all">All Paths</option><option value="JAB"' + (this.filters.path === 'JAB' ? ' selected' : '') + '>JAB</option><option value="Agency"' + (this.filters.path === 'Agency' ? ' selected' : '') + '>Agency</option><option value="Program"' + (this.filters.path === 'Program' ? ' selected' : '') + '>Program (20x)</option><option value="CSP"' + (this.filters.path === 'CSP' ? ' selected' : '') + '>CSP</option></select>';
         }
         html += '</div>';
 
@@ -850,9 +853,15 @@ const FedRAMPExplorer = {
     _resolvePackageIds(packageIds) {
         if (!packageIds || !packageIds.length || !FedRAMPMarketplace.providers) return [];
         // Build a quick lookup from Package_ID → provider info
+        if (!this._pkgIndex) {
+            this._pkgIndex = new Map();
+            for (const p of FedRAMPMarketplace.providers) {
+                if (p.Package_ID) this._pkgIndex.set(p.Package_ID, p);
+            }
+        }
         const results = [];
         for (const pid of packageIds) {
-            const match = FedRAMPMarketplace.providers.find(p => p.Package_ID === pid);
+            const match = this._pkgIndex.get(pid);
             if (match) {
                 results.push({
                     name: match.Cloud_Service_Provider_Package || match.Cloud_Service_Provider_Name || pid,

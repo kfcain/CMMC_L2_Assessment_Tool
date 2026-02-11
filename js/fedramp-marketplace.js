@@ -1,13 +1,13 @@
 // FedRAMP Marketplace Client
-// Fetches live authorization data from the 18F/fedramp-data public JSON feed
+// Fetches live authorization data from the GSA marketplace-fedramp-gov-data feed
 // and provides FedRAMP badges for vendor cards throughout the UI.
 //
-// Data source: https://github.com/18F/fedramp-data (GSA, public domain)
-// Updated daily by GSA via Google Sheets → JSON export
+// Data source: https://github.com/GSA/marketplace-fedramp-gov-data (GSA, public domain)
+// This is the same feed used by marketplace.fedramp.gov — includes 20x authorizations
 
 const FedRAMPMarketplace = {
     // ── Configuration ────────────────────────────────────────────────
-    DATA_URL: 'https://raw.githubusercontent.com/18F/fedramp-data/master/data/data.json',
+    DATA_URL: 'https://raw.githubusercontent.com/GSA/marketplace-fedramp-gov-data/main/data.json',
     CACHE_KEY: 'fedramp_marketplace_cache',
     CACHE_TTL: 12 * 60 * 60 * 1000, // 12 hours
 
@@ -163,8 +163,9 @@ const FedRAMPMarketplace = {
 
         try {
             // Try cache first — instant load
+            // Invalidate old 18F-format caches (they lack Is_20x field)
             const cached = this._loadCache();
-            if (cached) {
+            if (cached && cached.length > 0 && cached[0].Cloud_Service_Provider_Name !== undefined) {
                 this.providers = cached;
                 this._buildIndex();
                 this.loaded = true;
@@ -194,7 +195,9 @@ const FedRAMPMarketplace = {
             clearTimeout(timeout);
             if (!resp.ok) throw new Error('HTTP ' + resp.status);
             const json = await resp.json();
-            this.providers = json?.data?.Providers || [];
+            // New GSA feed uses 'Products' array with different field names
+            const rawProducts = json?.data?.Products || json?.data?.Providers || [];
+            this.providers = rawProducts.map(p => this._normalizeProduct(p));
             this._buildIndex();
             this._saveCache();
             this.loaded = true;
@@ -215,6 +218,81 @@ const FedRAMPMarketplace = {
             if (!this.index.has(name)) this.index.set(name, []);
             this.index.get(name).push(p);
         }
+    },
+
+    // ── Normalize new GSA feed format to legacy field names ────────
+    // The new GSA/marketplace-fedramp-gov-data feed uses different field names
+    // than the old 18F/fedramp-data feed. This maps new → old so the rest of
+    // the codebase (explorer, badges, stats) works unchanged.
+    _normalizeProduct(p) {
+        // If already in legacy format (has Cloud_Service_Provider_Name), pass through
+        if (p.Cloud_Service_Provider_Name) return p;
+
+        // Map new GSA status values to legacy Designation values
+        const statusMap = {
+            'FedRAMP Authorized': 'Compliant',
+            'FedRAMP In Process': 'In Process',
+            'FedRAMP Ready': 'FedRAMP Ready'
+        };
+
+        // Map auth_type to Path
+        const pathMap = {
+            'JAB': 'JAB',
+            'Agency': 'Agency',
+            'Program': 'Program',   // 20x path
+            'CSP': 'CSP'
+        };
+
+        // Determine impact level — new feed uses '20x Low', '20x Moderate', etc.
+        const rawImpact = p.impact_level || '';
+        const is20x = rawImpact.toLowerCase().startsWith('20x') || (p.auth_type || '').toLowerCase() === 'program';
+        let impactLevel = rawImpact;
+        // Normalize '20x Low' → 'Low' for the Impact_Level field, track 20x separately
+        if (is20x) {
+            impactLevel = rawImpact.replace(/^20x\s*/i, '') || 'Low';
+        }
+
+        // agency_authorizations is a flat array of agency name strings (may contain '')
+        const rawAgencies = (p.agency_authorizations || []).filter(a => a && a.trim());
+        const atoLetters = rawAgencies.map(agencyName => ({
+            Letter_Date: '',
+            Authorizing_Letter_Last_Sign_Date: '',
+            Authorizing_Agency: agencyName,
+            Authorizing_Subagency: '',
+            Agency_Logo: '',
+            Include_In_Marketplace: 'Y'
+        }));
+
+        // leveraged_systems is an array of objects with {id, csp, cso, status, impact_level, ...}
+        const underlyingIds = (p.leveraged_systems || [])
+            .map(s => (typeof s === 'object' ? s.id : s) || '')
+            .filter(Boolean);
+
+        return {
+            Cloud_Service_Provider_Name: p.csp || p.name || '',
+            Cloud_Service_Provider_Package: p.cso || p.service_offering || '',
+            Path: pathMap[p.auth_type] || p.auth_type || '',
+            Designation: statusMap[p.status] || p.status || '',
+            Package_ID: p.id || '',
+            Service_Model: Array.isArray(p.service_model) ? p.service_model : (p.service_model ? [p.service_model] : []),
+            Deployment_Model: p.deployment_model || '',
+            Impact_Level: impactLevel,
+            Impact_Level_Raw: rawImpact,
+            Is_20x: is20x,
+            Original_Authorization_Date: p.auth_date && p.auth_date !== 'Not Active' ? p.auth_date : '',
+            Sponsoring_Agency: p.partnering_agency || '',
+            Authorizing_Agency: p.partnering_agency || '',
+            CSP_URL: p.logo || '',
+            Independent_Assessor: p.independent_assessor || '',
+            Underlying_CSP_Package_ID: underlyingIds,
+            CSP_Website: p.website || '',
+            CSO_Description: p.service_desc || '',
+            Leveraged_ATO_Letters: atoLetters,
+            Agency_Reuse_Count: rawAgencies.length,
+            FedRAMP_Ready_Date: p.ready_date && p.ready_date !== 'No FRR Date' ? p.ready_date : '',
+            Small_Business: p.small_business || '',
+            Business_Function: p.business_function || ''
+        };
     },
 
     // ── Cache Management ─────────────────────────────────────────────
@@ -313,6 +391,8 @@ const FedRAMPMarketplace = {
             package: p.Cloud_Service_Provider_Package || '',
             designation: p.Designation || '',
             impactLevel: p.Impact_Level || '',
+            impactLevelRaw: p.Impact_Level_Raw || p.Impact_Level || '',
+            is20x: !!p.Is_20x,
             path: p.Path || '',
             serviceModel: p.Service_Model || [],
             authDate: p.Original_Authorization_Date || '',
@@ -320,6 +400,7 @@ const FedRAMPMarketplace = {
             description: p.CSO_Description || '',
             website: p.CSP_Website || '',
             atoCount: (p.Leveraged_ATO_Letters || []).filter(l => l.Include_In_Marketplace === 'Y').length,
+            agencyReuseCount: p.Agency_Reuse_Count || 0,
             marketplaceUrl: 'https://marketplace.fedramp.gov/products/' + (p.Package_ID || '')
         };
     },
@@ -410,11 +491,12 @@ const FedRAMPMarketplace = {
         const authorized = this.providers.filter(p => p.Designation === 'Compliant').length;
         const inProcess = this.providers.filter(p => p.Designation === 'In Process').length;
         const ready = this.providers.filter(p => p.Designation === 'FedRAMP Ready').length;
-        const high = this.providers.filter(p => p.Impact_Level === 'High').length;
-        const moderate = this.providers.filter(p => p.Impact_Level === 'Moderate').length;
-        const low = this.providers.filter(p => p.Impact_Level === 'Low').length;
+        const twentyx = this.providers.filter(p => p.Is_20x).length;
+        const high = this.providers.filter(p => p.Impact_Level === 'High' && !p.Is_20x).length;
+        const moderate = this.providers.filter(p => p.Impact_Level === 'Moderate' && !p.Is_20x).length;
+        const low = this.providers.filter(p => p.Impact_Level === 'Low' && !p.Is_20x).length;
         const lisaas = this.providers.filter(p => p.Impact_Level === 'LI-SaaS' || p.Impact_Level === 'Li-SaaS').length;
-        return { total: this.providers.length, authorized, inProcess, ready, high, moderate, low, lisaas };
+        return { total: this.providers.length, authorized, inProcess, ready, high, moderate, low, lisaas, twentyx };
     },
 
     async forceRefresh() {
