@@ -790,13 +790,8 @@ const MSPPortal = {
     },
 
     showAddClientModal: function() {
-        // Try PortfolioDashboard first, otherwise show our own modal
-        if (typeof PortfolioDashboard !== 'undefined' && PortfolioDashboard.showAddClientModal) {
-            PortfolioDashboard.showAddClientModal();
-            return;
-        }
-        
-        // Show MSP Portal's own add client modal
+        // Always use MSP Portal's own modal (PortfolioDashboard modal uses
+        // data-pd-action events that don't work inside the MSP portal overlay)
         const modalHtml = `
         <div class="msp-modal-overlay" id="msp-add-client-modal">
             <div class="msp-modal">
@@ -902,6 +897,11 @@ const MSPPortal = {
         const client = { id: 'client_' + Date.now(), ...data, createdAt: new Date().toISOString() };
         this.state.clients.push(client);
         this.saveState();
+        // Sync to PortfolioDashboard if available
+        if (typeof PortfolioDashboard !== 'undefined') {
+            PortfolioDashboard.portfolioData.clients = this.state.clients;
+            PortfolioDashboard.savePortfolioData();
+        }
         return client;
     },
 
@@ -1007,6 +1007,11 @@ const MSPPortal = {
             updatedAt: new Date().toISOString()
         };
         this.saveState();
+        // Sync to PortfolioDashboard if available
+        if (typeof PortfolioDashboard !== 'undefined') {
+            PortfolioDashboard.portfolioData.clients = this.state.clients;
+            PortfolioDashboard.savePortfolioData();
+        }
         this.closeEditClientModal();
         this.switchView('clients');
     },
@@ -1026,6 +1031,11 @@ const MSPPortal = {
         delete this.state.projectPlans[clientId];
         if (this.state.activeClient === clientId) this.state.activeClient = null;
         this.saveState();
+        // Sync to PortfolioDashboard if available
+        if (typeof PortfolioDashboard !== 'undefined') {
+            PortfolioDashboard.portfolioData.clients = this.state.clients;
+            PortfolioDashboard.savePortfolioData();
+        }
     },
 
     filterClients: function(searchTerm) {
