@@ -496,6 +496,11 @@ const ComprehensiveGuidanceUI = {
             html += '<div class="cg-unified-doclink"><a href="' + gccGuidance.docLink + '" target="_blank" rel="noopener noreferrer"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Microsoft Learn Documentation</a></div>';
         }
 
+        // Mobile Profiles (MDM/MAM)
+        if (guidance.mobile_profiles && typeof guidance.mobile_profiles === 'object') {
+            html += this.renderMobileProfiles(guidance.mobile_profiles);
+        }
+
         // Small business guidance
         if (guidance.small_business && typeof guidance.small_business === 'object' && guidance.small_business.approach) {
             html += '<div class="cg-unified-section cg-unified-smallbiz">';
@@ -800,6 +805,8 @@ const ComprehensiveGuidanceUI = {
             typeof COMPREHENSIVE_GUIDANCE_GRC !== 'undefined' ? COMPREHENSIVE_GUIDANCE_GRC : null,
             typeof COMPREHENSIVE_GUIDANCE_SPA !== 'undefined' ? COMPREHENSIVE_GUIDANCE_SPA : null,
             typeof COMPREHENSIVE_GUIDANCE_SOC !== 'undefined' ? COMPREHENSIVE_GUIDANCE_SOC : null,
+            typeof COMPREHENSIVE_GUIDANCE_NUTANIX !== 'undefined' ? COMPREHENSIVE_GUIDANCE_NUTANIX : null,
+            typeof COMPREHENSIVE_GUIDANCE_MDM_MAM !== 'undefined' ? COMPREHENSIVE_GUIDANCE_MDM_MAM : null,
             typeof ACCESS_REVIEW_GUIDE !== 'undefined' ? ACCESS_REVIEW_GUIDE : null
         ];
 
@@ -1071,6 +1078,86 @@ const ComprehensiveGuidanceUI = {
         );
 
         return inlineCode;
+    },
+
+    // Render MDM/MAM mobile configuration profiles section
+    renderMobileProfiles: function(profiles) {
+        var self = this;
+        var html = '<div class="cg-unified-section cg-mobile-profiles">';
+        html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Mobile Device Profiles (MDM / MAM)</div>';
+        if (profiles.description) {
+            html += '<p class="cg-mobile-desc">' + profiles.description + '</p>';
+        }
+
+        // MDM Corporate section
+        if (profiles.mdm_corporate) {
+            html += '<details class="cg-mobile-detail" open>';
+            html += '<summary class="cg-mobile-summary"><span class="cg-badge cg-badge-mdm">MDM</span> Corporate Device Policy</summary>';
+            if (profiles.mdm_corporate.description) {
+                html += '<p class="cg-mobile-subdesc">' + profiles.mdm_corporate.description + '</p>';
+            }
+            html += self._renderMobilePlatforms(profiles.mdm_corporate.platforms);
+            html += '</details>';
+        }
+
+        // MAM BYOD section
+        if (profiles.mam_byod) {
+            html += '<details class="cg-mobile-detail">';
+            html += '<summary class="cg-mobile-summary"><span class="cg-badge cg-badge-mam">MAM</span> BYOD App Protection</summary>';
+            if (profiles.mam_byod.description) {
+                html += '<p class="cg-mobile-subdesc">' + profiles.mam_byod.description + '</p>';
+            }
+            html += self._renderMobilePlatforms(profiles.mam_byod.platforms);
+            html += '</details>';
+        }
+
+        html += '</div>';
+        return html;
+    },
+
+    // Render platform-specific mobile profile cards
+    _renderMobilePlatforms: function(platforms) {
+        if (!platforms) return '';
+        var self = this;
+        var platformOrder = ['ios', 'android', 'windows', 'linux'];
+        var platformLabels = { ios: 'iOS / iPadOS', android: 'Android', windows: 'Windows', linux: 'Linux' };
+        var platformIcons = {
+            ios: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.81-1.31.05-2.3-1.32-3.14-2.53C4.25 16.76 3 12.55 4.78 9.75a4.69 4.69 0 013.95-2.4c1.3-.03 2.52.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83z" fill="currentColor"/></svg>',
+            android: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8C2.67 8 2 8.67 2 9.5v7c0 .83.67 1.5 1.5 1.5S5 17.33 5 16.5v-7C5 8.67 4.33 8 3.5 8zm17 0c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5zm-4.97-5.84l1.3-1.3c.2-.2.2-.51 0-.71-.2-.2-.51-.2-.71 0l-1.48 1.48A5.84 5.84 0 0012 1c-.96 0-1.86.23-2.66.63L7.85.15c-.2-.2-.51-.2-.71 0-.2.2-.2.51 0 .71l1.31 1.31A5.98 5.98 0 006 7h12c0-2.21-1.2-4.15-2.97-5.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z" fill="#3DDC84"/></svg>',
+            windows: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M2 4.5l8.5-1.2v8.2H2V4.5z" fill="#00ADEF"/><path d="M11.5 3.2L22 1.5v10H11.5V3.2z" fill="#00ADEF"/><path d="M2 12.5h8.5v8.2L2 19.5v-7z" fill="#00ADEF"/><path d="M11.5 12.5H22v10l-10.5-1.7v-8.3z" fill="#00ADEF"/></svg>',
+            linux: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C9.5 2 8 4.5 8 7.5c0 1.5.5 3 1 4.5-.5 1-1.5 2-3 3-.5.5-1 1.5-.5 2.5s1.5 1.5 2.5 1.5h8c1 0 2-.5 2.5-1.5s0-2-.5-2.5c-1.5-1-2.5-2-3-3 .5-1.5 1-3 1-4.5C16 4.5 14.5 2 12 2z" fill="#333"/></svg>'
+        };
+        var html = '<div class="cg-mobile-platforms">';
+        for (var i = 0; i < platformOrder.length; i++) {
+            var pk = platformOrder[i];
+            var pdata = platforms[pk];
+            if (!pdata) continue;
+            var label = platformLabels[pk] || pk;
+            var icon = platformIcons[pk] || '';
+            html += '<details class="cg-mobile-platform">';
+            html += '<summary class="cg-mobile-platform-summary">' + icon + ' <strong>' + label + '</strong>';
+            if (pdata.profile_name) html += ' <code class="cg-mobile-profile-name">' + pdata.profile_name + '</code>';
+            if (pdata.cis_benchmark) html += ' <span class="cg-badge cg-badge-cis">CIS</span>';
+            html += '</summary>';
+            html += '<div class="cg-mobile-platform-body">';
+
+            if (pdata.cis_benchmark) {
+                html += '<div class="cg-mobile-cis"><strong>CIS Benchmark:</strong> ' + pdata.cis_benchmark + '</div>';
+            }
+            if (pdata.cmmc_alignment) {
+                html += '<div class="cg-mobile-cmmc"><strong>CMMC Alignment:</strong> ' + pdata.cmmc_alignment + '</div>';
+            }
+
+            // Render JSON payload
+            if (pdata.payload) {
+                html += '<details class="cg-code" open><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Configuration Profile JSON</summary>';
+                html += '<pre><code>' + self.escapeHtml(JSON.stringify(pdata.payload, null, 2)) + '</code></pre></details>';
+            }
+
+            html += '</div></details>';
+        }
+        html += '</div>';
+        return html;
     },
 
     // Escape HTML to prevent XSS

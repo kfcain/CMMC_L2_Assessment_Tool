@@ -412,8 +412,18 @@ const FedRAMPMarketplace = {
         const ready = this.providers.filter(p => p.Designation === 'FedRAMP Ready').length;
         const high = this.providers.filter(p => p.Impact_Level === 'High').length;
         const moderate = this.providers.filter(p => p.Impact_Level === 'Moderate').length;
-        const low = this.providers.filter(p => p.Impact_Level === 'Low' || p.Impact_Level === 'LI-SaaS').length;
-        return { total: this.providers.length, authorized, inProcess, ready, high, moderate, low };
+        const low = this.providers.filter(p => p.Impact_Level === 'Low').length;
+        const lisaas = this.providers.filter(p => p.Impact_Level === 'LI-SaaS' || p.Impact_Level === 'Li-SaaS').length;
+        return { total: this.providers.length, authorized, inProcess, ready, high, moderate, low, lisaas };
+    },
+
+    async forceRefresh() {
+        this.loaded = false;
+        this.loading = false;
+        this.error = null;
+        localStorage.removeItem(this.CACHE_KEY);
+        localStorage.removeItem(this.CACHE_KEY + '_ts');
+        await this._fetchFresh();
     },
 
     /**

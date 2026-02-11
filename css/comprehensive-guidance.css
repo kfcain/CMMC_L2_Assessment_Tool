@@ -1129,3 +1129,138 @@
     color: var(--accent-blue);
     border-color: rgba(87, 70, 184, 0.25);
 }
+
+/* ── Mobile Profiles (MDM / MAM) ── */
+.cg-mobile-profiles {
+    margin-top: 12px;
+}
+.cg-mobile-desc {
+    font-size: 0.82rem;
+    color: var(--text-secondary, #8b8fa3);
+    margin: 6px 0 10px;
+    line-height: 1.5;
+}
+.cg-mobile-subdesc {
+    font-size: 0.78rem;
+    color: var(--text-muted, #6b7280);
+    margin: 4px 0 8px;
+    font-style: italic;
+}
+.cg-mobile-detail {
+    margin: 8px 0;
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.06));
+    border-radius: 8px;
+    overflow: hidden;
+}
+.cg-mobile-summary {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.02);
+    user-select: none;
+}
+.cg-mobile-summary:hover {
+    background: rgba(255,255,255,0.04);
+}
+.cg-badge-mdm {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    font-size: 0.68rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+.cg-badge-mam {
+    background: rgba(167, 139, 250, 0.15);
+    color: #a78bfa;
+    font-size: 0.68rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+.cg-badge-cis {
+    background: rgba(52, 211, 153, 0.15);
+    color: #34d399;
+    font-size: 0.62rem;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+.cg-mobile-platforms {
+    padding: 4px 8px 8px;
+}
+.cg-mobile-platform {
+    margin: 4px 0;
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.04));
+    border-radius: 6px;
+}
+.cg-mobile-platform-summary {
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+}
+.cg-mobile-platform-summary:hover {
+    background: rgba(255,255,255,0.03);
+}
+.cg-mobile-profile-name {
+    font-size: 0.68rem;
+    color: var(--text-muted, #6b7280);
+    background: rgba(255,255,255,0.04);
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+.cg-mobile-platform-body {
+    padding: 6px 12px 10px;
+}
+.cg-mobile-cis,
+.cg-mobile-cmmc {
+    font-size: 0.76rem;
+    line-height: 1.5;
+    margin: 4px 0;
+    color: var(--text-secondary, #8b8fa3);
+}
+.cg-mobile-cis strong,
+.cg-mobile-cmmc strong {
+    color: var(--text-primary, #e2e4e9);
+}
+
+/* Light theme overrides for mobile profiles */
+.light-theme .cg-mobile-detail {
+    border-color: rgba(0,0,0,0.08);
+}
+.light-theme .cg-mobile-summary:hover {
+    background: rgba(0,0,0,0.03);
+}
+.light-theme .cg-badge-mdm {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+.light-theme .cg-badge-mam {
+    background: rgba(139, 92, 246, 0.1);
+    color: #7c3aed;
+}
+.light-theme .cg-badge-cis {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+.light-theme .cg-mobile-platform {
+    border-color: rgba(0,0,0,0.06);
+}
+.light-theme .cg-mobile-platform-summary:hover {
+    background: rgba(0,0,0,0.02);
+}
+.light-theme .cg-mobile-profile-name {
+    background: rgba(0,0,0,0.04);
+    color: var(--text-secondary);
+}

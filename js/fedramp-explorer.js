@@ -132,8 +132,8 @@ const FedRAMPExplorer = {
         if (this.filters.impact !== 'all') {
             if (this.filters.impact === '20x') {
                 list = list.filter(p => p.is20x);
-            } else if (this.filters.impact === 'Low') {
-                list = list.filter(p => (p.impact === 'Low' || p.impact === 'LI-SaaS') && !p.is20x);
+            } else if (this.filters.impact === 'LI-SaaS') {
+                list = list.filter(p => p.impact === 'LI-SaaS' || p.impact === 'Li-SaaS');
             } else {
                 list = list.filter(p => p.impact === this.filters.impact && !p.is20x);
             }
@@ -196,7 +196,7 @@ const FedRAMPExplorer = {
         html += '<div class="fre-header">';
         html += '<div class="fre-title-row">';
         html += '<h1 class="fre-title"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> FedRAMP Marketplace Explorer</h1>';
-        html += '<div class="fre-title-meta">Live data from <a href="https://marketplace.fedramp.gov" target="_blank" rel="noopener noreferrer">marketplace.fedramp.gov</a> &middot; ' + stats.total + ' Cloud Service Offerings</div>';
+        html += '<div class="fre-title-meta">Live data from <a href="https://marketplace.fedramp.gov" target="_blank" rel="noopener noreferrer">marketplace.fedramp.gov</a> &middot; ' + stats.total + ' Cloud Service Offerings &middot; <button class="fre-refresh-link" id="fre-refresh-data">&#x21bb; Refresh</button></div>';
         html += '</div>';
         html += '</div>';
 
@@ -210,6 +210,7 @@ const FedRAMPExplorer = {
         html += this._statPill('High', stats.high, '#ef4444');
         html += this._statPill('Moderate', stats.moderate, '#f59e0b');
         html += this._statPill('Low', stats.low, '#3b82f6');
+        html += this._statPill('LI-SaaS', stats.lisaas, '#06b6d4');
         html += this._statPill('20x', stats.twentyx, '#a855f7');
         html += '</div>';
 
@@ -229,7 +230,7 @@ const FedRAMPExplorer = {
         // Filter dropdowns (list & card view)
         if (vm === 'all' || vm === 'cards') {
             html += '<select class="fre-filter" id="fre-filter-designation"><option value="all">All Designations</option><option value="Compliant"' + (this.filters.designation === 'Compliant' ? ' selected' : '') + '>Authorized</option><option value="In Process"' + (this.filters.designation === 'In Process' ? ' selected' : '') + '>In Process</option><option value="FedRAMP Ready"' + (this.filters.designation === 'FedRAMP Ready' ? ' selected' : '') + '>FedRAMP Ready</option></select>';
-            html += '<select class="fre-filter" id="fre-filter-impact"><option value="all">All Impact Levels</option><option value="High"' + (this.filters.impact === 'High' ? ' selected' : '') + '>High</option><option value="Moderate"' + (this.filters.impact === 'Moderate' ? ' selected' : '') + '>Moderate</option><option value="Low"' + (this.filters.impact === 'Low' ? ' selected' : '') + '>Low</option><option value="20x"' + (this.filters.impact === '20x' ? ' selected' : '') + '>20x</option></select>';
+            html += '<select class="fre-filter" id="fre-filter-impact"><option value="all">All Impact Levels</option><option value="High"' + (this.filters.impact === 'High' ? ' selected' : '') + '>High</option><option value="Moderate"' + (this.filters.impact === 'Moderate' ? ' selected' : '') + '>Moderate</option><option value="Low"' + (this.filters.impact === 'Low' ? ' selected' : '') + '>Low</option><option value="LI-SaaS"' + (this.filters.impact === 'LI-SaaS' ? ' selected' : '') + '>LI-SaaS</option><option value="20x"' + (this.filters.impact === '20x' ? ' selected' : '') + '>20x</option></select>';
             html += '<select class="fre-filter" id="fre-filter-service"><option value="all">All Service Models</option><option value="IaaS"' + (this.filters.serviceModel === 'IaaS' ? ' selected' : '') + '>IaaS</option><option value="PaaS"' + (this.filters.serviceModel === 'PaaS' ? ' selected' : '') + '>PaaS</option><option value="SaaS"' + (this.filters.serviceModel === 'SaaS' ? ' selected' : '') + '>SaaS</option></select>';
             html += '<select class="fre-filter" id="fre-filter-path"><option value="all">All Paths</option><option value="JAB"' + (this.filters.path === 'JAB' ? ' selected' : '') + '>JAB</option><option value="Agency"' + (this.filters.path === 'Agency' ? ' selected' : '') + '>Agency</option><option value="CSP"' + (this.filters.path === 'CSP' ? ' selected' : '') + '>CSP</option></select>';
         }
@@ -471,11 +472,13 @@ const FedRAMPExplorer = {
             // Build impact breakdown badges
             const high = items.filter(p => p.impact === 'High').length;
             const mod = items.filter(p => p.impact === 'Moderate').length;
-            const low = items.filter(p => p.impact === 'Low' || p.impact === 'LI-SaaS' || p.impact === 'Li-SaaS').length;
+            const low = items.filter(p => p.impact === 'Low' && !p.is20x).length;
+            const lisaas = items.filter(p => p.impact === 'LI-SaaS' || p.impact === 'Li-SaaS').length;
             let badges = '';
             if (high) badges += '<span class="fre-tag fre-impact-high">' + high + ' High</span>';
             if (mod) badges += '<span class="fre-tag fre-impact-mod">' + mod + ' Moderate</span>';
-            if (low) badges += '<span class="fre-tag fre-impact-low">' + low + ' Low/LI-SaaS</span>';
+            if (low) badges += '<span class="fre-tag fre-impact-low">' + low + ' Low</span>';
+            if (lisaas) badges += '<span class="fre-tag fre-impact-lisaas">' + lisaas + ' LI-SaaS</span>';
             return { key: d.key, label: d.label, icon: d.icon, items, colorClass: d.cls, badges };
         }).filter(Boolean);
     },
@@ -484,7 +487,8 @@ const FedRAMPExplorer = {
         const defs = [
             { key: 'high', filter: p => p.impact === 'High' && !p.is20x, label: 'High Impact', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>', cls: 'fre-group-high' },
             { key: 'moderate', filter: p => p.impact === 'Moderate' && !p.is20x, label: 'Moderate Impact', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', cls: 'fre-group-moderate' },
-            { key: 'low', filter: p => (p.impact === 'Low') && !p.is20x, label: 'Low Impact', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', cls: 'fre-group-low' },
+            { key: 'low', filter: p => p.impact === 'Low' && !p.is20x, label: 'Low Impact', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', cls: 'fre-group-low' },
+            { key: 'lisaas', filter: p => (p.impact === 'LI-SaaS' || p.impact === 'Li-SaaS') && !p.is20x, label: 'LI-SaaS', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', cls: 'fre-group-lisaas' },
             { key: '20x', filter: p => p.is20x, label: 'FedRAMP 20x', icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>', cls: 'fre-group-20x' }
         ];
         return defs.map(d => {
@@ -669,6 +673,18 @@ const FedRAMPExplorer = {
             });
         });
 
+        // Refresh data button
+        document.getElementById('fre-refresh-data')?.addEventListener('click', async function() {
+            this.textContent = 'Refreshing...';
+            this.disabled = true;
+            try {
+                await FedRAMPMarketplace.forceRefresh();
+                self._onDataReady();
+            } catch (e) {
+                self._showError('Refresh failed: ' + e.message);
+            }
+        });
+
         // Search
         const searchInput = document.getElementById('fre-search');
         let searchTimer = null;
@@ -794,7 +810,8 @@ const FedRAMPExplorer = {
             ready: all.filter(p => p.designation === 'FedRAMP Ready').length,
             high: all.filter(p => p.impact === 'High' && !p.is20x).length,
             moderate: all.filter(p => p.impact === 'Moderate' && !p.is20x).length,
-            low: all.filter(p => (p.impact === 'Low') && !p.is20x).length,
+            low: all.filter(p => p.impact === 'Low' && !p.is20x).length,
+            lisaas: all.filter(p => (p.impact === 'LI-SaaS' || p.impact === 'Li-SaaS') && !p.is20x).length,
             twentyx: all.filter(p => p.is20x).length
         };
     },

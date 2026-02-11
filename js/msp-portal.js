@@ -93,17 +93,26 @@ const MSPPortal = {
             .catch(() => { self._ntpSynced = false; });
     },
 
+    _tickClock: function() {
+        const now = new Date(Date.now() + this._ntpOffset);
+        const timeEl = document.querySelector('.soc-time');
+        const dateEl = document.querySelector('.soc-date');
+        if (timeEl) {
+            const h = String(now.getUTCHours()).padStart(2, '0');
+            const m = String(now.getUTCMinutes()).padStart(2, '0');
+            const s = String(now.getUTCSeconds()).padStart(2, '0');
+            timeEl.textContent = h + ':' + m + ':' + s + ' UTC';
+        }
+        if (dateEl) dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
+    },
+
     _startClock: function() {
         this._stopClock();
         this._syncNTPTime();
+        // Tick immediately, then every second
+        this._tickClock();
         const self = this;
-        this._clockInterval = setInterval(function() {
-            const now = new Date(Date.now() + self._ntpOffset);
-            const timeEl = document.querySelector('.soc-time');
-            const dateEl = document.querySelector('.soc-date');
-            if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'UTC' }) + ' UTC';
-            if (dateEl) dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
-        }, 1000);
+        this._clockInterval = setInterval(function() { self._tickClock(); }, 1000);
     },
 
     _stopClock: function() {

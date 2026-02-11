@@ -16,6 +16,7 @@ const LazyLoader = {
             'data/gcp-guidance.js',
             'data/itar-guidance.js',
             'data/impl-notes.js',
+            'data/impl-notes-expanded.js',
             'data/framework-mappings.js'
         ],
         'impl-guide': [
@@ -27,6 +28,7 @@ const LazyLoader = {
             'data/gcp-impl-guide.js',
             'data/enclave-guidance.js',
             'data/impl-notes.js',
+            'data/impl-notes-expanded.js',
             'data/itar-guidance.js'
         ],
         'crosswalk': [

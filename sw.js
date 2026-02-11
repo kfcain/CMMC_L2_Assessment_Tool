@@ -1,7 +1,7 @@
 // Service Worker for CMMC Assessment Tool
 // Provides offline caching and faster repeat visits
 
-const CACHE_NAME = 'cmmc-tool-v66';
+const CACHE_NAME = 'cmmc-tool-v67';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Core files that should always be cached
@@ -61,6 +61,9 @@ const CORE_ASSETS = [
     '/data/comprehensive-guidance-r3-new.js',
     '/data/comprehensive-guidance-r3-new2.js',
     '/data/comprehensive-guidance-grc.js',
+    '/data/comprehensive-guidance-nutanix.js',
+    '/data/comprehensive-guidance-mdm-mam.js',
+    '/data/impl-notes-expanded.js',
     '/js/vendor-logos.js',
     '/js/fedramp-marketplace.js',
     '/css/fedramp-marketplace.css',
