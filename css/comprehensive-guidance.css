@@ -1264,3 +1264,93 @@
     background: rgba(0,0,0,0.04);
     color: var(--text-secondary);
 }
+
+/* Mobile profile section title row with export-all button */
+.cg-unified-section-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+.cg-mobile-export-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    border-radius: 5px;
+    background: rgba(167, 139, 250, 0.08);
+    color: #a78bfa;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+.cg-mobile-export-all-btn:hover {
+    background: rgba(167, 139, 250, 0.18);
+    border-color: rgba(167, 139, 250, 0.4);
+}
+.light-theme .cg-mobile-export-all-btn {
+    background: rgba(139, 92, 246, 0.06);
+    border-color: rgba(139, 92, 246, 0.2);
+    color: #7c3aed;
+}
+.light-theme .cg-mobile-export-all-btn:hover {
+    background: rgba(139, 92, 246, 0.12);
+}
+
+/* Mobile profile export/copy buttons */
+.cg-mobile-export-row {
+    display: flex;
+    gap: 6px;
+    margin: 8px 0 4px;
+}
+.cg-mobile-export-btn,
+.cg-mobile-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+    border-radius: 5px;
+    background: rgba(255,255,255,0.03);
+    color: var(--text-secondary, #8b8fa3);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.cg-mobile-export-btn:hover {
+    background: rgba(59, 130, 246, 0.12);
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.3);
+}
+.cg-mobile-copy-btn:hover {
+    background: rgba(167, 139, 250, 0.12);
+    color: #a78bfa;
+    border-color: rgba(167, 139, 250, 0.3);
+}
+.cg-mobile-btn-success {
+    background: rgba(52, 211, 153, 0.15) !important;
+    color: #34d399 !important;
+    border-color: rgba(52, 211, 153, 0.3) !important;
+}
+.light-theme .cg-mobile-export-btn,
+.light-theme .cg-mobile-copy-btn {
+    background: rgba(0,0,0,0.02);
+    border-color: rgba(0,0,0,0.1);
+}
+.light-theme .cg-mobile-export-btn:hover {
+    background: rgba(59, 130, 246, 0.08);
+    color: #2563eb;
+}
+.light-theme .cg-mobile-copy-btn:hover {
+    background: rgba(139, 92, 246, 0.08);
+    color: #7c3aed;
+}
+.light-theme .cg-mobile-btn-success {
+    background: rgba(16, 185, 129, 0.1) !important;
+    color: #059669 !important;
+}

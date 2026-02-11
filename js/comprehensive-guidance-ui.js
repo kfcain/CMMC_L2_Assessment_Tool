@@ -367,6 +367,8 @@ const ComprehensiveGuidanceUI = {
             this.bindTabEvents(guidanceDiv, uid);
             // Bind platform filter/search
             this.bindPlatformFilters(guidanceDiv);
+            // Bind mobile profile export/copy buttons
+            this.bindMobileExportButtons(guidanceDiv);
         } catch (error) {
             console.error('[ComprehensiveGuidanceUI] Error rendering guidance for', objectiveId, error);
         }
@@ -1084,7 +1086,14 @@ const ComprehensiveGuidanceUI = {
     renderMobileProfiles: function(profiles) {
         var self = this;
         var html = '<div class="cg-unified-section cg-mobile-profiles">';
+        html += '<div class="cg-unified-section-title-row">';
         html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Mobile Device Profiles (MDM / MAM)</div>';
+        // Bulk export button — collect all payloads
+        var allPayloads = self._collectAllPayloads(profiles);
+        if (allPayloads.length > 0) {
+            html += '<button class="cg-mobile-export-all-btn" data-all-payloads="' + self.escapeHtml(JSON.stringify(allPayloads)).replace(/"/g, '&quot;') + '" title="Export all profiles as a single JSON bundle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export All Profiles</button>';
+        }
+        html += '</div>';
         if (profiles.description) {
             html += '<p class="cg-mobile-desc">' + profiles.description + '</p>';
         }
@@ -1113,6 +1122,36 @@ const ComprehensiveGuidanceUI = {
 
         html += '</div>';
         return html;
+    },
+
+    // Collect all payloads from MDM/MAM profiles for bulk export
+    _collectAllPayloads: function(profiles) {
+        var results = [];
+        var sections = [
+            { key: 'mdm_corporate', label: 'MDM Corporate' },
+            { key: 'mam_byod', label: 'MAM BYOD' }
+        ];
+        for (var s = 0; s < sections.length; s++) {
+            var section = profiles[sections[s].key];
+            if (!section || !section.platforms) continue;
+            var platforms = section.platforms;
+            var pkeys = Object.keys(platforms);
+            for (var p = 0; p < pkeys.length; p++) {
+                var pdata = platforms[pkeys[p]];
+                if (pdata && pdata.payload) {
+                    results.push({
+                        type: sections[s].label,
+                        platform: pkeys[p],
+                        profile_name: pdata.profile_name || pkeys[p],
+                        profile_type: pdata.profile_type || '',
+                        cis_benchmark: pdata.cis_benchmark || '',
+                        cmmc_alignment: pdata.cmmc_alignment || '',
+                        payload: pdata.payload
+                    });
+                }
+            }
+        }
+        return results;
     },
 
     // Render platform-specific mobile profile cards
@@ -1148,16 +1187,110 @@ const ComprehensiveGuidanceUI = {
                 html += '<div class="cg-mobile-cmmc"><strong>CMMC Alignment:</strong> ' + pdata.cmmc_alignment + '</div>';
             }
 
-            // Render JSON payload
+            // Render JSON payload with export button
             if (pdata.payload) {
-                html += '<details class="cg-code" open><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Configuration Profile JSON</summary>';
-                html += '<pre><code>' + self.escapeHtml(JSON.stringify(pdata.payload, null, 2)) + '</code></pre></details>';
+                var jsonStr = JSON.stringify(pdata.payload, null, 2);
+                var fileName = (pdata.profile_name || 'profile-' + pk) + '.json';
+                html += '<div class="cg-mobile-export-row">';
+                html += '<button class="cg-mobile-export-btn" data-filename="' + self.escapeHtml(fileName) + '" data-payload="' + self.escapeHtml(jsonStr).replace(/"/g, '&quot;') + '" title="Download JSON for Intune import"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export .json</button>';
+                html += '<button class="cg-mobile-copy-btn" data-payload="' + self.escapeHtml(jsonStr).replace(/"/g, '&quot;') + '" title="Copy JSON to clipboard"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copy</button>';
+                html += '</div>';
+                html += '<details class="cg-code"><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Configuration Profile JSON</summary>';
+                html += '<pre><code>' + self.escapeHtml(jsonStr) + '</code></pre></details>';
             }
 
             html += '</div></details>';
         }
         html += '</div>';
         return html;
+    },
+
+    // Bind export/copy buttons for mobile profile JSON payloads
+    bindMobileExportButtons: function(root) {
+        // Export All Profiles button
+        root.querySelectorAll('.cg-mobile-export-all-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var raw = btn.getAttribute('data-all-payloads');
+                if (!raw) return;
+                try {
+                    var allProfiles = JSON.parse(raw);
+                    var bundle = {
+                        exportedAt: new Date().toISOString(),
+                        source: 'CMMC Assessment Tool - MDM/MAM Profiles',
+                        profileCount: allProfiles.length,
+                        profiles: allProfiles
+                    };
+                    var jsonStr = JSON.stringify(bundle, null, 2);
+                    var blob = new Blob([jsonStr], { type: 'application/json' });
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'CMMC-Mobile-Profiles-Bundle.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    var orig = btn.innerHTML;
+                    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Downloaded ' + allProfiles.length + ' profiles';
+                    btn.classList.add('cg-mobile-btn-success');
+                    setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('cg-mobile-btn-success'); }, 2000);
+                } catch (err) {
+                    console.error('[MDM/MAM Export] Failed to export all profiles:', err);
+                }
+            });
+        });
+        // Export .json buttons
+        root.querySelectorAll('.cg-mobile-export-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var payload = btn.getAttribute('data-payload');
+                var filename = btn.getAttribute('data-filename') || 'profile.json';
+                if (!payload) return;
+                var blob = new Blob([payload], { type: 'application/json' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                // Flash feedback
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Downloaded';
+                btn.classList.add('cg-mobile-btn-success');
+                setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('cg-mobile-btn-success'); }, 1500);
+            });
+        });
+        // Copy to clipboard buttons
+        root.querySelectorAll('.cg-mobile-copy-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var payload = btn.getAttribute('data-payload');
+                if (!payload) return;
+                navigator.clipboard.writeText(payload).then(function() {
+                    var orig = btn.innerHTML;
+                    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied';
+                    btn.classList.add('cg-mobile-btn-success');
+                    setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('cg-mobile-btn-success'); }, 1500);
+                }).catch(function() {
+                    // Fallback for older browsers
+                    var ta = document.createElement('textarea');
+                    ta.value = payload;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    var orig = btn.innerHTML;
+                    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied';
+                    btn.classList.add('cg-mobile-btn-success');
+                    setTimeout(function() { btn.innerHTML = orig; btn.classList.remove('cg-mobile-btn-success'); }, 1500);
+                });
+            });
+        });
     },
 
     // Escape HTML to prevent XSS

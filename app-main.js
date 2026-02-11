@@ -29,14 +29,14 @@ class AssessmentApp {
         // Ensure dashboard renders on initial load
         console.log('[App] Current view:', this.currentView);
         
-        // Always show dashboard view by default on page load
-        const dashboardView = document.getElementById('dashboard-view');
-        const assessmentView = document.getElementById('assessment-view');
+        // Ensure only the correct view is active on page load
+        // Deactivate ALL views first, then activate only the target
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         
         if (this.currentView === 'dashboard') {
             console.log('[App] Setting dashboard as active view...');
+            const dashboardView = document.getElementById('dashboard-view');
             if (dashboardView) dashboardView.classList.add('active');
-            if (assessmentView) assessmentView.classList.remove('active');
             
             // Render dashboard immediately
             setTimeout(() => {
@@ -2702,12 +2702,69 @@ class AssessmentApp {
                           (typeof window.NIST_800_172A_FAMILIES !== 'undefined' ? window.NIST_800_172A_FAMILIES : null);
         
         if (!l3Families || !Array.isArray(l3Families) || l3Families.length === 0) {
+            // Show loading state while we attempt to load the script dynamically
             container.innerHTML = `
                 <div class="empty-state">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <h3>CMMC Level 3 Data Not Available</h3>
-                    <p>The NIST SP 800-172A data file could not be loaded. Ensure <code>data/nist-800-172a.js</code> is included in the page.</p>
+                    <h3>Loading CMMC Level 3 Data…</h3>
+                    <p>Please wait while the NIST SP 800-172A data loads.</p>
                 </div>`;
+            // Dynamically load the L3 data script if not yet available
+            const scriptSrc = 'data/nist-800-172a.js';
+            const existingScript = document.querySelector('script[src^="' + scriptSrc + '"]');
+            if (existingScript) {
+                // Script tag exists but may not have executed yet (defer) — poll for data
+                const pollInterval = setInterval(() => {
+                    const data = typeof NIST_800_172A_FAMILIES !== 'undefined' ? NIST_800_172A_FAMILIES :
+                                 (typeof window.NIST_800_172A_FAMILIES !== 'undefined' ? window.NIST_800_172A_FAMILIES : null);
+                    if (data && Array.isArray(data) && data.length > 0) {
+                        clearInterval(pollInterval);
+                        // Only re-render if still on L3
+                        if (this.assessmentLevel === '3') {
+                            container.innerHTML = '';
+                            this.renderL3Controls(container);
+                            this.updateProgress();
+                            this.filterControls();
+                            this.populateFamilyFilter();
+                        }
+                    }
+                }, 100);
+                // Stop polling after 10 seconds
+                setTimeout(() => {
+                    clearInterval(pollInterval);
+                    const data = typeof NIST_800_172A_FAMILIES !== 'undefined' ? NIST_800_172A_FAMILIES : null;
+                    if (!data || !Array.isArray(data) || data.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <h3>CMMC Level 3 Data Not Available</h3>
+                                <p>The NIST SP 800-172A data file could not be loaded. Ensure <code>data/nist-800-172a.js</code> is included in the page.</p>
+                            </div>`;
+                    }
+                }, 10000);
+            } else {
+                // Script tag doesn't exist — inject it dynamically
+                const script = document.createElement('script');
+                script.src = scriptSrc + '?v=' + Date.now();
+                script.onload = () => {
+                    if (this.assessmentLevel === '3') {
+                        container.innerHTML = '';
+                        this.renderL3Controls(container);
+                        this.updateProgress();
+                        this.filterControls();
+                        this.populateFamilyFilter();
+                    }
+                };
+                script.onerror = () => {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <h3>CMMC Level 3 Data Not Available</h3>
+                            <p>The NIST SP 800-172A data file could not be loaded. Ensure <code>data/nist-800-172a.js</code> is included in the page.</p>
+                        </div>`;
+                };
+                document.body.appendChild(script);
+            }
             return;
         }
 
@@ -4392,6 +4449,9 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
     }
 
     filterControls() {
+        // L3 controls use lazy-loaded objectives — skip filtering to avoid hiding them
+        if (this.assessmentLevel === '3') return;
+
         const searchTerm = document.getElementById('search-input').value.toLowerCase();
         const statusFilter = document.getElementById('filter-status').value;
         const familyFilter = document.getElementById('filter-family').value;
