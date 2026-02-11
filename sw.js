@@ -1,7 +1,7 @@
 // Service Worker for CMMC Assessment Tool
 // Provides offline caching and faster repeat visits
 
-const CACHE_NAME = 'cmmc-tool-v69';
+const CACHE_NAME = 'cmmc-tool-v70';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Core files that should always be cached
@@ -110,7 +110,8 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network-first with cache fallback
+// Always serve fresh content when online; fall back to cache when offline
 self.addEventListener('fetch', event => {
     // Skip non-GET requests
     if (event.request.method !== 'GET') return;
@@ -122,38 +123,26 @@ self.addEventListener('fetch', event => {
     }
     
     event.respondWith(
-        caches.match(event.request)
-            .then(cachedResponse => {
-                // Return cached version if available
-                if (cachedResponse) {
-                    // Fetch updated version in background (stale-while-revalidate)
-                    fetch(event.request)
-                        .then(networkResponse => {
-                            if (networkResponse && networkResponse.status === 200) {
-                                caches.open(CACHE_NAME)
-                                    .then(cache => cache.put(event.request, networkResponse));
-                            }
-                        })
-                        .catch(() => {}); // Ignore network errors for background update
-                    
-                    return cachedResponse;
+        fetch(event.request)
+            .then(networkResponse => {
+                // Cache successful responses for offline fallback
+                if (networkResponse && networkResponse.status === 200) {
+                    const responseClone = networkResponse.clone();
+                    caches.open(CACHE_NAME)
+                        .then(cache => cache.put(event.request, responseClone));
                 }
-                
-                // Not in cache, fetch from network
-                return fetch(event.request)
-                    .then(networkResponse => {
-                        // Cache successful responses
-                        if (networkResponse && networkResponse.status === 200) {
-                            const responseClone = networkResponse.clone();
-                            caches.open(CACHE_NAME)
-                                .then(cache => cache.put(event.request, responseClone));
+                return networkResponse;
+            })
+            .catch(() => {
+                // Network failed — serve from cache (offline support)
+                return caches.match(event.request)
+                    .then(cachedResponse => {
+                        if (cachedResponse) return cachedResponse;
+                        // Last resort: serve index.html for navigation requests
+                        if (event.request.mode === 'navigate') {
+                            return caches.match('/index.html');
                         }
-                        return networkResponse;
-                    })
-                    .catch(err => {
-                        console.error('[SW] Fetch failed:', err);
-                        // Return offline page if available
-                        return caches.match('/index.html');
+                        return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
                     });
             })
     );
