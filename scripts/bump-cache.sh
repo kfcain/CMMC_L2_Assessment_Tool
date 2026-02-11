@@ -1,32 +1,28 @@
-#!/usr/bin/env bash
-# bump-cache.sh — Update all ?v= cache-buster strings in index.html
-# Run before committing to ensure browsers fetch fresh assets.
-# Usage: bash scripts/bump-cache.sh
+#!/usr/bin/env node
+// bump-cache.js — Update all ?v= cache-buster strings in index.html
+// Run before committing to ensure browsers fetch fresh assets.
+// Usage: node scripts/bump-cache.sh
 
-set -euo pipefail
+const fs = require('fs');
+const path = require('path');
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-INDEX="$ROOT_DIR/index.html"
+const indexPath = path.join(__dirname, '..', 'index.html');
 
-if [ ! -f "$INDEX" ]; then
-    echo "Error: index.html not found at $INDEX"
-    exit 1
-fi
+if (!fs.existsSync(indexPath)) {
+    console.error('Error: index.html not found at', indexPath);
+    process.exit(1);
+}
 
-# Generate version string: YYYYMMDD + a-z suffix based on hour
-VERSION="$(date +%Y%m%d)a"
+const now = new Date();
+const version = now.getFullYear().toString() +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    String(now.getDate()).padStart(2, '0') + 'a';
 
-echo "Bumping cache busters in index.html to v=$VERSION ..."
+console.log(`Bumping cache busters in index.html to v=${version} ...`);
 
-# Replace all ?v=XXXXXXXXX patterns (alphanumeric version strings)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS sed requires '' after -i
-    sed -i '' "s/\?v=[a-zA-Z0-9_.-]\{1,\}/?v=$VERSION/g" "$INDEX"
-else
-    sed -i "s/\?v=[a-zA-Z0-9_.-]\{1,\}/?v=$VERSION/g" "$INDEX"
-fi
+let html = fs.readFileSync(indexPath, 'utf8');
+const matches = html.match(/\?v=[a-zA-Z0-9_.-]+/g) || [];
+html = html.replace(/\?v=[a-zA-Z0-9_.-]+/g, `?v=${version}`);
+fs.writeFileSync(indexPath, html, 'utf8');
 
-# Count how many were updated
-COUNT=$(grep -c "?v=$VERSION" "$INDEX" || true)
-echo "Updated $COUNT cache-buster strings to ?v=$VERSION"
+console.log(`Updated ${matches.length} cache-buster strings to ?v=${version}`);
