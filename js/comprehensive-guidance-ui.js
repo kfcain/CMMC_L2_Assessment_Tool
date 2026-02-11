@@ -462,7 +462,9 @@ const ComprehensiveGuidanceUI = {
                 html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Technical Implementation Steps</div>';
                 html += '<ol class="cg-unified-steps">';
                 for (var i = 0; i < implNotes.steps.length; i++) {
-                    html += '<li>' + implNotes.steps[i] + '</li>';
+                    var qsStep = implNotes.steps[i];
+                    if (typeof qsStep === 'object' && qsStep !== null) qsStep = qsStep.description || qsStep.text || qsStep.name || JSON.stringify(qsStep);
+                    html += '<li>' + qsStep + '</li>';
                 }
                 html += '</ol>';
                 if (implNotes.quickWin) {
@@ -476,7 +478,9 @@ const ComprehensiveGuidanceUI = {
                 html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Human-in-the-Loop Requirements</div>';
                 html += '<ul>';
                 for (var h = 0; h < implNotes.humanInTheLoop.length; h++) {
-                    html += '<li>' + implNotes.humanInTheLoop[h] + '</li>';
+                    var hitl = implNotes.humanInTheLoop[h];
+                    if (typeof hitl === 'object' && hitl !== null) hitl = hitl.description || hitl.text || hitl.name || JSON.stringify(hitl);
+                    html += '<li>' + hitl + '</li>';
                 }
                 html += '</ul></div>';
             }
@@ -537,7 +541,9 @@ const ComprehensiveGuidanceUI = {
                 html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Policy &amp; Procedural Evidence</div>';
                 html += '<ul>';
                 for (var p = 0; p < implNotes.policyEvidence.length; p++) {
-                    html += '<li>' + implNotes.policyEvidence[p] + '</li>';
+                    var pe = implNotes.policyEvidence[p];
+                    if (typeof pe === 'object' && pe !== null) pe = pe.description || pe.text || pe.name || JSON.stringify(pe);
+                    html += '<li>' + pe + '</li>';
                 }
                 html += '</ul></div>';
             }
@@ -547,7 +553,9 @@ const ComprehensiveGuidanceUI = {
                 html += '<div class="cg-unified-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Manual Evidence Collection</div>';
                 html += '<ul>';
                 for (var m = 0; m < implNotes.manualEvidence.length; m++) {
-                    html += '<li>' + implNotes.manualEvidence[m] + '</li>';
+                    var me = implNotes.manualEvidence[m];
+                    if (typeof me === 'object' && me !== null) me = me.description || me.text || me.name || JSON.stringify(me);
+                    html += '<li>' + me + '</li>';
                 }
                 html += '</ul></div>';
             }
@@ -590,7 +598,8 @@ const ComprehensiveGuidanceUI = {
                 if (impl.verification && impl.verification.length > 0) {
                     for (var vi = 0; vi < impl.verification.length; vi++) {
                         var vItem = impl.verification[vi];
-                        var vKey = vItem.toLowerCase().replace(/\s+/g, ' ').trim();
+                        if (typeof vItem === 'object' && vItem !== null) vItem = vItem.description || vItem.text || vItem.name || JSON.stringify(vItem);
+                        var vKey = String(vItem).toLowerCase().replace(/\s+/g, ' ').trim();
                         if (!seenVerify[vKey]) {
                             seenVerify[vKey] = true;
                             catGroups[cat].verification.push({ text: vItem, platform: name });
@@ -602,7 +611,8 @@ const ComprehensiveGuidanceUI = {
                 if (data.evidenceArtifacts && data.evidenceArtifacts.length > 0) {
                     for (var ei = 0; ei < data.evidenceArtifacts.length; ei++) {
                         var eItem = data.evidenceArtifacts[ei];
-                        var eKey = eItem.toLowerCase().replace(/\s+/g, ' ').trim();
+                        if (typeof eItem === 'object' && eItem !== null) eItem = eItem.description || eItem.text || eItem.name || JSON.stringify(eItem);
+                        var eKey = String(eItem).toLowerCase().replace(/\s+/g, ' ').trim();
                         if (!seenEvidence[eKey]) {
                             seenEvidence[eKey] = true;
                             catGroups[cat].evidence.push({ text: eItem, platform: name });
@@ -614,7 +624,8 @@ const ComprehensiveGuidanceUI = {
                 if (data.pitfalls && data.pitfalls.length > 0) {
                     for (var pi = 0; pi < data.pitfalls.length; pi++) {
                         var pItem = data.pitfalls[pi];
-                        var pKey = pItem.toLowerCase().replace(/\s+/g, ' ').trim();
+                        if (typeof pItem === 'object' && pItem !== null) pItem = pItem.description || pItem.text || pItem.name || JSON.stringify(pItem);
+                        var pKey = String(pItem).toLowerCase().replace(/\s+/g, ' ').trim();
                         if (!seenPitfalls[pKey]) {
                             seenPitfalls[pKey] = true;
                             catGroups[cat].pitfalls.push({ text: pItem, platform: name });
@@ -815,28 +826,47 @@ const ComprehensiveGuidanceUI = {
         // Merge guidance from all sources (SPA data supplements existing guidance)
         var merged = null;
         for (const source of dataSources) {
-            if (!source || !source.objectives) continue;
+            if (!source) continue;
             for (const key of guidanceKeys) {
-                if (source.objectives[key]) {
-                    if (!merged) {
-                        merged = Object.assign({}, source.objectives[key]);
-                    } else {
-                        // Merge section-level keys (cloud, firewalls, iam_pam, siem, etc.)
-                        var extra = source.objectives[key];
-                        for (var sk in extra) {
-                            if (sk === 'objective') continue;
-                            if (!merged[sk]) {
-                                merged[sk] = extra[sk];
-                            } else if (typeof merged[sk] === 'object' && typeof extra[sk] === 'object') {
-                                // Merge tech keys within section
-                                for (var tk in extra[sk]) {
-                                    if (!merged[sk][tk]) merged[sk][tk] = extra[sk][tk];
-                                }
+                // Support both source.objectives[key] and source[key] (flat format)
+                var entry = (source.objectives && source.objectives[key]) || source[key];
+                if (!entry) continue;
+
+                // Handle GRC-style data where tech entries are nested under an 'objectives' sub-key
+                // Convert { objectives: { drata: {...}, vanta: {...} }, fedrampBaseline: [...] }
+                // into { grc: { drata: {...}, vanta: {...} } }
+                if (entry.objectives && typeof entry.objectives === 'object' && !Array.isArray(entry.objectives)) {
+                    var hasNestedTechs = false;
+                    for (var ek in entry.objectives) {
+                        if (typeof entry.objectives[ek] === 'object' && entry.objectives[ek] !== null &&
+                            (entry.objectives[ek].implementation || entry.objectives[ek].services || entry.objectives[ek].steps)) {
+                            hasNestedTechs = true;
+                            break;
+                        }
+                    }
+                    if (hasNestedTechs) {
+                        entry = { grc: entry.objectives };
+                    }
+                }
+
+                if (!merged) {
+                    merged = Object.assign({}, entry);
+                } else {
+                    // Merge section-level keys (cloud, firewalls, iam_pam, siem, etc.)
+                    var extra = entry;
+                    for (var sk in extra) {
+                        if (sk === 'objective') continue;
+                        if (!merged[sk]) {
+                            merged[sk] = extra[sk];
+                        } else if (typeof merged[sk] === 'object' && typeof extra[sk] === 'object' && !Array.isArray(merged[sk])) {
+                            // Merge tech keys within section
+                            for (var tk in extra[sk]) {
+                                if (!merged[sk][tk]) merged[sk][tk] = extra[sk][tk];
                             }
                         }
                     }
-                    break; // only one key per source
                 }
+                break; // only one key per source
             }
         }
         return merged;
@@ -938,7 +968,8 @@ const ComprehensiveGuidanceUI = {
             html += '<span class="cg-badge ' + ac + '">' + label + '</span>';
         }
         if (impl.cost_estimate) {
-            html += '<span class="cg-badge cg-badge-cost">' + impl.cost_estimate + '</span>';
+            var badgeCost = typeof impl.cost_estimate === 'object' ? JSON.stringify(impl.cost_estimate) : impl.cost_estimate;
+            html += '<span class="cg-badge cg-badge-cost">' + badgeCost + '</span>';
         }
         if (impl.effort_hours) {
             html += '<span class="cg-badge cg-badge-effort">' + impl.effort_hours + 'h</span>';
@@ -955,17 +986,17 @@ const ComprehensiveGuidanceUI = {
 
         // Services / Features tags
         if (data.services && data.services.length) {
-            html += '<div class="cg-tags">' + data.services.map(function(s) { return '<span class="cg-tag">' + s + '</span>'; }).join('') + '</div>';
+            html += '<div class="cg-tags">' + data.services.map(function(s) { return '<span class="cg-tag">' + (typeof s === 'object' ? (s.name || JSON.stringify(s)) : s) + '</span>'; }).join('') + '</div>';
         }
         if (data.features && data.features.length) {
-            html += '<div class="cg-tags">' + data.features.map(function(s) { return '<span class="cg-tag">' + s + '</span>'; }).join('') + '</div>';
+            html += '<div class="cg-tags">' + data.features.map(function(s) { return '<span class="cg-tag">' + (typeof s === 'object' ? (s.name || JSON.stringify(s)) : s) + '</span>'; }).join('') + '</div>';
         }
 
         // Summary / approach
-        if (data.recommended_approach) {
+        if (data.recommended_approach && typeof data.recommended_approach === 'string') {
             html += '<p class="cg-approach">' + data.recommended_approach + '</p>';
         }
-        if (data.approach) {
+        if (data.approach && typeof data.approach === 'string') {
             html += '<p class="cg-approach">' + data.approach + '</p>';
         }
         if (data.budget_tier) {
@@ -976,7 +1007,11 @@ const ComprehensiveGuidanceUI = {
         if (impl.steps && impl.steps.length > 0) {
             html += '<div class="cg-steps"><div class="cg-steps-title">Implementation Steps</div><ol>';
             for (var i = 0; i < impl.steps.length; i++) {
-                html += '<li>' + impl.steps[i] + '</li>';
+                var step = impl.steps[i];
+                if (typeof step === 'object' && step !== null) {
+                    step = step.description || step.text || step.name || JSON.stringify(step);
+                }
+                html += '<li>' + step + '</li>';
             }
             html += '</ol></div>';
         }
@@ -1040,16 +1075,19 @@ const ComprehensiveGuidanceUI = {
             var key = codeExamples[c][0], label = codeExamples[c][1];
             var val = impl[key];
             if (!val) continue;
-            if (Array.isArray(val)) val = val.join('\n');
-            html += '<details class="cg-code"><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> ' + label + '</summary><pre><code>' + this.escapeHtml(val) + '</code></pre></details>';
+            if (typeof val === 'object' && !Array.isArray(val)) val = JSON.stringify(val, null, 2);
+            if (Array.isArray(val)) val = val.map(function(v) { return typeof v === 'object' ? JSON.stringify(v, null, 2) : v; }).join('\n');
+            html += '<details class="cg-code"><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> ' + label + '</summary><pre><code>' + this.escapeHtml(String(val)) + '</code></pre></details>';
         }
 
         // Verification, Evidence Artifacts, and Pitfalls are consolidated
         // in the Evidence & Policy tab — not repeated per-platform dropdown.
 
         // Cost & Effort (detailed, inside body)
-        if (impl.cost_estimate || data.total_cost_estimate || data.cost_estimate) {
-            html += '<div class="cg-meta-row"><span class="cg-meta cg-meta-cost">Cost: ' + (impl.cost_estimate || data.total_cost_estimate || data.cost_estimate) + '</span></div>';
+        var costVal = impl.cost_estimate || data.total_cost_estimate || data.cost_estimate;
+        if (costVal) {
+            if (typeof costVal === 'object') costVal = JSON.stringify(costVal);
+            html += '<div class="cg-meta-row"><span class="cg-meta cg-meta-cost">Cost: ' + costVal + '</span></div>';
         }
 
         return html;
