@@ -1,7 +1,7 @@
 /* FedRAMP Marketplace Explorer */
 
 /* ── Fill available viewport height ───────────────────────────────── */
-#fedramp-explorer-view {
+#fedramp-explorer-view.active {
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 60px);
