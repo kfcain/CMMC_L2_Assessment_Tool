@@ -890,7 +890,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
                     .then(reg => {
                         console.log('[App] Service Worker registered');
                         // Check for updates immediately and every 5 minutes
@@ -916,10 +916,8 @@
                                             toast.style.transform = 'translateY(0)';
                                         });
                                     }
-                                    // Auto-activate after 3 seconds if user doesn't click
-                                    setTimeout(() => {
-                                        nw.postMessage('skipWaiting');
-                                    }, 3000);
+                                    // Auto-activate immediately
+                                    nw.postMessage('skipWaiting');
                                 }
                             });
                         });
@@ -928,6 +926,18 @@
                         navigator.serviceWorker.addEventListener('controllerchange', () => {
                             window.location.reload();
                         });
+
+                        // Version check: fetch sw.js bypassing cache to detect updates
+                        fetch('/sw.js', { cache: 'no-store' })
+                            .then(r => r.text())
+                            .then(text => {
+                                const m = text.match(/CACHE_NAME\s*=\s*['"]([^'"]+)['"]/);
+                                if (m && m[1] !== 'cmmc-tool-v72') {
+                                    console.log('[App] SW version mismatch, forcing update');
+                                    reg.update();
+                                }
+                            })
+                            .catch(() => {});
                     })
                     .catch(err => console.log('[App] Service Worker registration failed:', err));
             });
