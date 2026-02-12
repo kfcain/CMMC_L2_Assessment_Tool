@@ -232,9 +232,14 @@ const MSPPortal = {
     },
 
     _handlePortalClick: function(e) {
+        try {
         // Nav buttons
         const navBtn = e.target.closest('.msp-nav-btn');
-        if (navBtn) { this.switchView(navBtn.dataset.view); return; }
+        if (navBtn) {
+            console.log('[MSP] Nav click → view:', navBtn.dataset.view);
+            this.switchView(navBtn.dataset.view);
+            return;
+        }
         // Close button
         if (e.target.closest('.msp-close-btn')) { this.closePortal(); return; }
 
@@ -288,6 +293,7 @@ const MSPPortal = {
             }
             return;
         }
+        } catch(err) { console.error('[MSP] _handlePortalClick error:', err); }
     },
 
     attachPortalEvents: function(portalRef) {
@@ -297,8 +303,10 @@ const MSPPortal = {
         // This is the most reliable approach — it works regardless of
         // Cloudflare Rocket Loader, script rewriting, or other document-level
         // interference that can break document-delegated listeners.
+        console.log('[MSPPortal] attachPortalEvents called, portalRef:', !!portalRef, portalRef?.id);
         if (portalRef) {
             portalRef.addEventListener('click', function(e) {
+                console.log('[MSPPortal] PORTAL CLICK:', e.target.tagName, e.target.className?.toString().substring(0, 60));
                 e._mspHandled = true;
                 self._handlePortalClick(e);
             });
@@ -615,6 +623,7 @@ const MSPPortal = {
     },
 
     switchView: function(viewId) {
+        console.log('[MSP] switchView called:', viewId);
         this.state.activeView = viewId;
         document.querySelectorAll('.msp-nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewId));
         const nav = this.navigation.find(n => n.id === viewId);
