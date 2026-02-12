@@ -352,7 +352,7 @@ const CMMC_L2_GUIDE_DATA = {
                 { id: '3.1.17', name: 'Wireless Access Protection', l1: false },
                 { id: '3.1.18', name: 'Mobile Device Connection', l1: false },
                 { id: '3.1.19', name: 'Encrypt CUI on Mobile Devices', l1: false },
-                { id: '3.1.20', name: 'External System Connections', l1: false },
+                { id: '3.1.20', name: 'External System Connections', l1: true },
                 { id: '3.1.21', name: 'Portable Storage Use', l1: false },
                 { id: '3.1.22', name: 'Publicly Accessible Content', l1: true }
             ]
@@ -445,7 +445,7 @@ const CMMC_L2_GUIDE_DATA = {
             description: 'Protect, control, sanitize, and destroy media containing CUI. Mark media with CUI designations.',
             topPractices: ['3.8.1 — Media Protection', '3.8.3 — Media Sanitization', '3.8.6 — Portable Storage Encryption', '3.8.9 — Backup CUI Protection'],
             allControls: [
-                { id: '3.8.1', name: 'Media Protection', l1: true },
+                { id: '3.8.1', name: 'Media Protection', l1: false },
                 { id: '3.8.2', name: 'Media Access Limitation', l1: false },
                 { id: '3.8.3', name: 'Media Sanitization', l1: true },
                 { id: '3.8.4', name: 'Media Marking', l1: false },
@@ -473,7 +473,7 @@ const CMMC_L2_GUIDE_DATA = {
                 { id: '3.10.1', name: 'Physical Access Authorizations', l1: true },
                 { id: '3.10.2', name: 'Physical Access Controls', l1: false },
                 { id: '3.10.3', name: 'Visitor Management', l1: true },
-                { id: '3.10.4', name: 'Physical Access Logs', l1: false },
+                { id: '3.10.4', name: 'Physical Access Logs', l1: true },
                 { id: '3.10.5', name: 'Physical Access Devices', l1: true },
                 { id: '3.10.6', name: 'Alternate Work Sites', l1: false }
             ]
@@ -508,7 +508,7 @@ const CMMC_L2_GUIDE_DATA = {
                 { id: '3.13.2', name: 'Security Function Isolation', l1: false },
                 { id: '3.13.3', name: 'User/System Functionality Separation', l1: false },
                 { id: '3.13.4', name: 'Shared Resource Control', l1: false },
-                { id: '3.13.5', name: 'Publicly Accessible Subnetworks', l1: false },
+                { id: '3.13.5', name: 'Publicly Accessible Subnetworks', l1: true },
                 { id: '3.13.6', name: 'Network Communication by Exception', l1: false },
                 { id: '3.13.7', name: 'Split Tunneling Prevention', l1: false },
                 { id: '3.13.8', name: 'Data in Transit Encryption', l1: false },
@@ -578,11 +578,11 @@ const CMMC_L2_GUIDE_DATA = {
                 icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
                 content: 'Level 1 practices span 6 of the 14 NIST SP 800-171 control families. The remaining 8 families (AT, AU, CM, IR, MA, PS, RA, CA) are only required at Level 2.',
                 keyPoints: [
-                    'AC — Access Control: 3.1.1, 3.1.2, 3.1.22 (3 practices)',
+                    'AC — Access Control: 3.1.1, 3.1.2, 3.1.20, 3.1.22 (4 practices)',
                     'IA — Identification & Authentication: 3.5.1, 3.5.2 (2 practices)',
-                    'MP — Media Protection: 3.8.1, 3.8.3 (2 practices)',
-                    'PE — Physical Protection: 3.10.1, 3.10.3, 3.10.5 (3 practices)',
-                    'SC — System & Communications Protection: 3.13.1 (1 practice)',
+                    'MP — Media Protection: 3.8.3 (1 practice)',
+                    'PE — Physical Protection: 3.10.1, 3.10.3, 3.10.4, 3.10.5 (4 practices)',
+                    'SC — System & Communications Protection: 3.13.1, 3.13.5 (2 practices)',
                     'SI — System & Information Integrity: 3.14.1, 3.14.2, 3.14.4, 3.14.5 (4 practices)'
                 ]
             }

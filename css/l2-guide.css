@@ -362,18 +362,22 @@
    ═══════════════════════════════════════════════════════════════ */
 .l2g-families-summary {
     display: flex;
-    gap: 16px;
+    flex-wrap: nowrap;
+    gap: 10px;
     justify-content: center;
     margin-bottom: 20px;
+    overflow: hidden;
 }
 .l2g-fam-kpi {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 12px 24px;
+    padding: 10px 16px;
     background: rgba(255,255,255,0.02);
     border: 1px solid color-mix(in srgb, var(--border-color, #2a2e3a) 50%, transparent);
     border-radius: 10px;
+    flex: 1 1 0;
+    min-width: 0;
 }
 .l2g-fam-kpi-val {
     font-size: 1.4rem;
@@ -805,8 +809,8 @@
     .l2g-tab svg { width: 11px; height: 11px; }
     .l2g-two-col { grid-template-columns: 1fr; gap: 14px; }
     .l2g-glossary-list { grid-template-columns: 1fr; }
-    .l2g-families-summary { gap: 6px; flex-wrap: wrap; }
-    .l2g-fam-kpi { padding: 10px 14px; flex: 1; min-width: 70px; }
+    .l2g-families-summary { gap: 6px; }
+    .l2g-fam-kpi { padding: 8px 10px; }
     .l2g-fam-kpi-val { font-size: 1.1rem; }
     .l2g-source-links { gap: 5px; }
     .l2g-source-link { font-size: 0.65rem; padding: 3px 6px; gap: 3px; }
@@ -836,8 +840,8 @@
     .l2g-tab { padding: 5px 4px; font-size: 0.62rem; }
     .l2g-tab svg { display: none; }
     .l2g-search-input { font-size: 0.82rem; padding: 9px 32px; }
-    .l2g-families-summary { gap: 4px; }
-    .l2g-fam-kpi { padding: 8px 10px; }
+    .l2g-families-summary { gap: 3px; }
+    .l2g-fam-kpi { padding: 6px 6px; }
     .l2g-fam-kpi-val { font-size: 1rem; }
     .l2g-fam-kpi-label { font-size: 0.62rem; }
     .l2g-section-text { font-size: 0.8rem; }
