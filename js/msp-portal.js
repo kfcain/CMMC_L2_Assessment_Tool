@@ -610,13 +610,19 @@ const MSPPortal = {
     },
 
     switchView: function(viewId) {
+        console.log('[MSP] switchView called:', viewId);
         this.state.activeView = viewId;
         document.querySelectorAll('.msp-nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewId));
         const nav = this.navigation.find(n => n.id === viewId);
         document.getElementById('msp-view-title').textContent = nav?.name || viewId;
         const contentEl = document.getElementById('msp-portal-content');
+        console.log('[MSP] contentEl:', contentEl ? 'FOUND' : 'NULL');
+        console.log('[MSP] MSPPortalViews defined:', typeof MSPPortalViews !== 'undefined');
+        console.log('[MSP] MSPPortalViews[' + viewId + ']:', typeof MSPPortalViews !== 'undefined' ? typeof MSPPortalViews[viewId] : 'N/A');
         try {
-            if (contentEl) contentEl.innerHTML = this.renderView(viewId);
+            var html = this.renderView(viewId);
+            console.log('[MSP] renderView returned:', typeof html, html ? html.length + ' chars' : 'EMPTY');
+            if (contentEl) contentEl.innerHTML = html;
         } catch (err) {
             console.error('[MSPPortal] renderView error for', viewId, err);
             if (contentEl) contentEl.innerHTML = '<div class="soc-empty"><p>View "' + viewId + '" failed to render. Check console.</p></div>';
