@@ -151,6 +151,9 @@ const MSPPortal = {
     getIcon: function(name) { return this.icons[name] || this.icons['file-text']; },
 
     openPortal: function() {
+        // Remove any existing portal to prevent duplicate DOM elements
+        this.closePortal();
+
         // Close hamburger menu if open
         document.getElementById('hamburger-dropdown')?.classList.remove('active');
         document.getElementById('hamburger-overlay')?.classList.remove('active');
@@ -282,31 +285,20 @@ const MSPPortal = {
     attachPortalEvents: function(portalRef) {
         const portal = this;
 
-        function handleClick(e) {
-            if (e._mspHandled) return;
-            e._mspHandled = true;
-            try {
-                // data-action delegation handles nav buttons, close, and all other actions
-                var actionBtn = e.target.closest('[data-action]');
-                if (actionBtn) {
-                    portal._handleAction(actionBtn);
-                    return;
-                }
-            } catch (err) {
-                console.error('[MSPPortal] Click handler error:', err);
-            }
-        }
-
-        // Bind on portal element directly
+        // Single click handler on portal element — no document-level safety net needed
         if (portalRef) {
-            portalRef.addEventListener('click', handleClick);
+            portalRef.addEventListener('click', function(e) {
+                try {
+                    var actionBtn = e.target.closest('[data-action]');
+                    if (actionBtn) {
+                        e.stopPropagation();
+                        portal._handleAction(actionBtn);
+                    }
+                } catch (err) {
+                    console.error('[MSPPortal] Click handler error:', err);
+                }
+            });
         }
-        // Document-level safety net
-        this._portalClickHandler = function(e) {
-            if (!e.target.closest('#msp-portal')) return;
-            handleClick(e);
-        };
-        document.addEventListener('click', this._portalClickHandler);
         this.attachDataViewEvents();
     },
 
@@ -610,19 +602,13 @@ const MSPPortal = {
     },
 
     switchView: function(viewId) {
-        console.log('[MSP] switchView called:', viewId);
         this.state.activeView = viewId;
         document.querySelectorAll('.msp-nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewId));
         const nav = this.navigation.find(n => n.id === viewId);
         document.getElementById('msp-view-title').textContent = nav?.name || viewId;
         const contentEl = document.getElementById('msp-portal-content');
-        console.log('[MSP] contentEl:', contentEl ? 'FOUND' : 'NULL');
-        console.log('[MSP] MSPPortalViews defined:', typeof MSPPortalViews !== 'undefined');
-        console.log('[MSP] MSPPortalViews[' + viewId + ']:', typeof MSPPortalViews !== 'undefined' ? typeof MSPPortalViews[viewId] : 'N/A');
         try {
-            var html = this.renderView(viewId);
-            console.log('[MSP] renderView returned:', typeof html, html ? html.length + ' chars' : 'EMPTY');
-            if (contentEl) contentEl.innerHTML = html;
+            if (contentEl) contentEl.innerHTML = this.renderView(viewId);
         } catch (err) {
             console.error('[MSPPortal] renderView error for', viewId, err);
             if (contentEl) contentEl.innerHTML = '<div class="soc-empty"><p>View "' + viewId + '" failed to render. Check console.</p></div>';
