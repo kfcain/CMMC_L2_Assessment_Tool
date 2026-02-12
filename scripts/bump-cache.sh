@@ -16,7 +16,9 @@ if (!fs.existsSync(indexPath)) {
 const now = new Date();
 const version = now.getFullYear().toString() +
     String(now.getMonth() + 1).padStart(2, '0') +
-    String(now.getDate()).padStart(2, '0') + 'a';
+    String(now.getDate()).padStart(2, '0') +
+    String(now.getHours()).padStart(2, '0') +
+    String(now.getMinutes()).padStart(2, '0');
 
 console.log(`Bumping cache busters in index.html to v=${version} ...`);
 
