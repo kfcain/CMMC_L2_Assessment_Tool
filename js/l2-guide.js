@@ -393,7 +393,7 @@ const L2Guide = {
         headers.forEach(h => {
             h.addEventListener('click', () => {
                 const sectionId = h.dataset.section;
-                const parent = h.closest('[data-section]');
+                const parent = h.parentElement.closest('[data-section]');
                 if (!parent) return;
                 const isOpen = parent.classList.contains('open');
                 if (isOpen) {

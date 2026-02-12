@@ -25,7 +25,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'ag-purpose',
                 title: 'Purpose',
-                icon: '🎯',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
                 content: 'The CMMC Level 2 Assessment Guide provides the methodology and procedures for assessing an Organization Seeking Certification (OSC) against the 110 security requirements derived from NIST SP 800-171 Rev 2. It defines how a CMMC Third-Party Assessment Organization (C3PAO) or the OSC (for self-assessment) evaluates whether each of the 320 assessment objectives is MET, NOT MET, or NOT APPLICABLE.',
                 keyPoints: [
                     'Level 2 maps directly to the 110 security requirements in NIST SP 800-171 Rev 2',
@@ -37,7 +37,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'ag-assessment-types',
                 title: 'Assessment Types',
-                icon: '📋',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
                 content: 'CMMC Level 2 supports two assessment types depending on the sensitivity of CUI involved in the contract.',
                 keyPoints: [
                     'Self-Assessment: For contracts involving CUI that is not critical or high-value. The OSC conducts its own assessment and submits results to SPRS.',
@@ -49,7 +49,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'ag-scoring',
                 title: 'Scoring Methodology',
-                icon: '📊',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
                 content: 'Each of the 320 assessment objectives is evaluated individually. An objective is scored as MET if the assessor determines the OSC has implemented the requirement. The overall assessment result depends on how many objectives are met and whether POA&Ms are permitted.',
                 keyPoints: [
                     'Each objective: MET, NOT MET, or NOT APPLICABLE (N/A)',
@@ -63,7 +63,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'ag-poam-rules',
                 title: 'POA&M Eligibility Rules',
-                icon: '⚠️',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
                 content: 'Not all practices are eligible for Plan of Action & Milestones (POA&M). The CMMC Final Rule (32 CFR Part 170) specifies which practices cannot have POA&Ms.',
                 keyPoints: [
                     'POA&Ms are only allowed for Conditional Level 2 certification',
@@ -77,7 +77,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'ag-evidence',
                 title: 'Evidence & Artifacts',
-                icon: '📁',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
                 content: 'Assessors evaluate evidence to determine whether each objective is met. Evidence can take multiple forms and should demonstrate both implementation and effectiveness.',
                 keyPoints: [
                     'Examine: Review documents, policies, procedures, system configurations, logs',
@@ -91,7 +91,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'ag-process',
                 title: 'Assessment Process',
-                icon: '🔄',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>',
                 content: 'The CMMC Level 2 assessment follows a structured process from pre-assessment through final determination.',
                 keyPoints: [
                     'Phase 1 — Pre-Assessment: OSC prepares SSP, gathers evidence, defines scope, conducts readiness review',
@@ -114,7 +114,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'sg-purpose',
                 title: 'Scoping Purpose',
-                icon: '🔍',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
                 content: 'The CMMC Scoping Guide defines how an OSC determines which assets, systems, and network segments are in scope for a CMMC Level 2 assessment. Proper scoping is critical — it determines what must be assessed and protected.',
                 keyPoints: [
                     'Scoping defines the CMMC Assessment Scope — the set of assets that process, store, or transmit CUI',
@@ -127,7 +127,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'sg-cui',
                 title: 'Understanding CUI',
-                icon: '🔒',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
                 content: 'Controlled Unclassified Information (CUI) is information the Government creates or possesses, or that an entity creates or possesses for or on behalf of the Government, that a law, regulation, or Government-wide policy requires or permits an agency to handle using safeguarding or dissemination controls.',
                 keyPoints: [
                     'CUI is defined by the CUI Registry maintained by NARA (National Archives)',
@@ -148,7 +148,7 @@ const CMMC_L2_GUIDE_DATA = {
             id: 'cui-assets',
             name: 'CUI Assets',
             color: '#7aa2f7',
-            icon: '🔐',
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>',
             inScope: true,
             allControlsApply: true,
             description: 'Assets that process, store, or transmit CUI. These are the primary assets that must be protected and are subject to ALL 110 CMMC Level 2 practices.',
@@ -174,7 +174,7 @@ const CMMC_L2_GUIDE_DATA = {
             id: 'security-protection',
             name: 'Security Protection Assets (SPA)',
             color: '#bb9af7',
-            icon: '🛡️',
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
             inScope: true,
             allControlsApply: true,
             description: 'Assets that provide security functions or capabilities to the CMMC Assessment Scope, even if they do not directly process, store, or transmit CUI. Because they protect CUI assets, they are subject to ALL 110 practices.',
@@ -202,7 +202,7 @@ const CMMC_L2_GUIDE_DATA = {
             id: 'contractor-risk-managed',
             name: 'Contractor Risk Managed Assets (CRMA)',
             color: '#e0af68',
-            icon: '⚠️',
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
             inScope: true,
             allControlsApply: false,
             description: 'Assets that can, but are not intended to, process, store, or transmit CUI. The contractor determines the risk and applies a subset of security requirements based on that risk assessment. These are NOT subject to all 110 practices — only those the contractor deems necessary based on risk.',
@@ -225,7 +225,7 @@ const CMMC_L2_GUIDE_DATA = {
             id: 'specialized',
             name: 'Specialized Assets',
             color: '#73daca',
-            icon: '⚙️',
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
             inScope: true,
             allControlsApply: false,
             description: 'Assets that may have constraints that prevent full implementation of all CMMC practices. These include IoT devices, OT systems, Government Furnished Equipment (GFE), and test equipment. The contractor documents limitations and compensating controls.',
@@ -249,7 +249,7 @@ const CMMC_L2_GUIDE_DATA = {
             id: 'out-of-scope',
             name: 'Out-of-Scope Assets',
             color: '#565f89',
-            icon: '❌',
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
             inScope: false,
             allControlsApply: false,
             description: 'Assets that cannot access, process, store, or transmit CUI and are completely separated from the CMMC Assessment Scope. These assets are NOT assessed.',
@@ -279,7 +279,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'boundary-definition',
                 title: 'What is the CUI Boundary?',
-                icon: '🏗️',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="16" rx="2" ry="2"/><path d="M1 10h22"/></svg>',
                 content: 'The CUI boundary (also called the CMMC Assessment Scope boundary) is the logical and physical perimeter that encompasses all assets that process, store, transmit, or protect CUI. Everything inside this boundary is in scope for assessment.',
                 keyPoints: [
                     'The boundary must be clearly defined and documented in the SSP',
@@ -292,7 +292,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'boundary-strategies',
                 title: 'Boundary Reduction Strategies',
-                icon: '📐',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>',
                 content: 'Organizations can reduce the size and complexity of their CMMC Assessment Scope through architectural strategies. A smaller scope means fewer assets to assess and protect.',
                 keyPoints: [
                     'Network Segmentation: Use VLANs, firewalls, and access controls to isolate CUI assets from general IT',
@@ -306,7 +306,7 @@ const CMMC_L2_GUIDE_DATA = {
             {
                 id: 'boundary-documentation',
                 title: 'Documentation Requirements',
-                icon: '📝',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
                 content: 'The CUI boundary must be thoroughly documented. Assessors will review this documentation as part of the assessment.',
                 keyPoints: [
                     'System Security Plan (SSP): Describes the system, boundary, and how each practice is implemented',

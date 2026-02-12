@@ -197,7 +197,8 @@
     cursor: pointer;
     text-align: left;
 }
-.l2g-accordion-icon { font-size: 1.15rem; flex-shrink: 0; }
+.l2g-accordion-icon { flex-shrink: 0; display: flex; align-items: center; }
+.l2g-accordion-icon svg { stroke: var(--text-muted, #8b95a5); opacity: 0.7; }
 .l2g-accordion-title { flex: 1; }
 .l2g-accordion-chevron {
     flex-shrink: 0;
@@ -282,7 +283,8 @@
     cursor: pointer;
     text-align: left;
 }
-.l2g-asset-icon { font-size: 1.3rem; flex-shrink: 0; }
+.l2g-asset-icon { flex-shrink: 0; display: flex; align-items: center; }
+.l2g-asset-icon svg { stroke: var(--cat-color, #565f89); opacity: 0.8; }
 .l2g-asset-meta { flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .l2g-asset-name { font-size: 0.9rem; font-weight: 500; }
 .l2g-asset-badges { display: flex; gap: 6px; flex-wrap: wrap; }
