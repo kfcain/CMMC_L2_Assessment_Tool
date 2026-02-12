@@ -49,6 +49,23 @@ class AssessmentApp {
         }
         
         this.initDataStorageNotice();
+
+        // ── Browser History Management ──────────────────────────────────
+        // Replace initial state so the first Back press navigates within the app
+        const initialView = this.currentView || 'dashboard';
+        history.replaceState({ view: initialView }, '', '#' + initialView);
+
+        // Handle Back/Forward button navigation
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.view) {
+                this.switchView(e.state.view, true);
+            } else {
+                // No state means user hit Back past the first page — stay on dashboard
+                history.pushState({ view: 'dashboard' }, '', '#dashboard');
+                this.switchView('dashboard', true);
+            }
+        });
+
         console.log('[App] Initialization complete');
     }
 
@@ -1151,10 +1168,15 @@ class AssessmentApp {
         }
     }
 
-    async switchView(view) {
+    async switchView(view, fromPopState) {
         console.log('[App] Switching to view:', view);
         this.currentView = view;
         localStorage.setItem('nist-current-view', view);
+
+        // Push browser history state so Back navigates between views, not off the site
+        if (!fromPopState) {
+            history.pushState({ view: view }, '', '#' + view);
+        }
         
         // Update nav buttons
         document.querySelectorAll('.nav-btn').forEach(btn => {

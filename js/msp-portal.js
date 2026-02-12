@@ -162,18 +162,19 @@ const MSPPortal = {
         try { headerHtml = this.renderHeader(); } catch (e) { console.error('[MSPPortal] Header render error:', e); }
         try { contentHtml = this.renderView('dashboard'); } catch (e) { console.error('[MSPPortal] Dashboard render error:', e); contentHtml = '<div class="soc-empty"><p>Dashboard failed to load. Check console for errors.</p></div>'; }
 
-        const html = `
-        <div class="msp-portal-overlay" id="msp-portal">
+        const portalEl = document.createElement('div');
+        portalEl.className = 'msp-portal-overlay';
+        portalEl.id = 'msp-portal';
+        portalEl.innerHTML = `
             <div class="msp-portal-container">
                 <div class="msp-portal-sidebar">${sidebarHtml}</div>
                 <div class="msp-portal-main">
                     <div class="msp-portal-header">${headerHtml}</div>
                     <div class="msp-portal-content" id="msp-portal-content">${contentHtml}</div>
                 </div>
-            </div>
-        </div>`;
-        document.body.insertAdjacentHTML('beforeend', html);
-        this.attachPortalEvents();
+            </div>`;
+        document.body.appendChild(portalEl);
+        this.attachPortalEvents(portalEl);
         // Start live clock on dashboard
         if (this.state.activeView === 'dashboard') this._startClock();
 
@@ -188,6 +189,11 @@ const MSPPortal = {
         if (this._escHandler) {
             document.removeEventListener('keydown', this._escHandler);
             this._escHandler = null;
+        }
+        // Remove portal click handler
+        if (this._portalClickHandler) {
+            document.removeEventListener('click', this._portalClickHandler);
+            this._portalClickHandler = null;
         }
         document.getElementById('msp-portal')?.remove();
     },
@@ -224,68 +230,87 @@ const MSPPortal = {
         </div>`;
     },
 
-    attachPortalEvents: function() {
-        // Use single delegated listener on the portal container for ALL actions
-        const portal = document.getElementById('msp-portal');
-        if (!portal) return;
-        portal.addEventListener('click', (e) => {
-            // Nav buttons
-            const navBtn = e.target.closest('.msp-nav-btn');
-            if (navBtn) { this.switchView(navBtn.dataset.view); return; }
-            // Close button
-            if (e.target.closest('.msp-close-btn')) { this.closePortal(); return; }
+    _handlePortalClick: function(e) {
+        // Nav buttons
+        const navBtn = e.target.closest('.msp-nav-btn');
+        if (navBtn) { this.switchView(navBtn.dataset.view); return; }
+        // Close button
+        if (e.target.closest('.msp-close-btn')) { this.closePortal(); return; }
 
-            // data-action delegation for all portal buttons
-            const actionBtn = e.target.closest('[data-action]');
-            if (actionBtn) {
-                const action = actionBtn.dataset.action;
-                const param = actionBtn.dataset.param || '';
-                switch (action) {
-                    case 'switch-view': this.switchView(param); break;
-                    case 'add-client': this.showAddClientModal(); break;
-                    case 'edit-client': this.editClient(param); break;
-                    case 'remove-client': this.confirmRemoveClient(param); break;
-                    case 'open-client-project': MSPPortalViews._switchKanbanClient(param); this.switchView('projects'); break;
-                    case 'open-hub': if (typeof IntegrationsHub !== 'undefined') IntegrationsHub.showHub(); break;
-                    case 'refresh': this.refresh(); break;
-                    case 'export-portfolio': this.exportPortfolio(); break;
-                    case 'generate-report': this.generateReport(param); break;
-                    case 'filter-clients': this.filterClients(param); break;
-                    case 'switch-env-tab': MSPPortalViews.switchEnvTab(param); break;
-                    case 'env-tab': MSPPortalViews.switchEnvTab(param); break;
-                    case 'add-task': MSPPortalViews._showAddTaskModal(param); break;
-                    case 'edit-task': MSPPortalViews._editTask(param); break;
-                    case 'seed-tasks': MSPPortalViews._seedDefaultTasks(param); break;
-                    case 'close-portal': this.closePortal(); break;
-                    case 'close-and-navigate':
-                        this.closePortal();
-                        if (window.app && typeof window.app.switchView === 'function') window.app.switchView(param);
-                        break;
-                    case 'copy-code': {
-                        const codeEl = actionBtn.closest('.dp-code-wrap, .ev-auto-cmd, .ts-code-wrap');
-                        const code = codeEl ? codeEl.querySelector('code') : null;
-                        if (code) {
-                            navigator.clipboard.writeText(code.textContent).then(() => {
-                                const orig = actionBtn.textContent;
-                                actionBtn.textContent = 'Copied!';
-                                setTimeout(() => { actionBtn.textContent = orig; }, 1500);
-                            });
-                        }
-                        break;
-                    }
-                    case 'copy-data': {
-                        const copyText = actionBtn.dataset.copy || '';
-                        const lbl = actionBtn.dataset.label || 'Copy';
-                        navigator.clipboard.writeText(copyText).then(() => {
+        // data-action delegation for all portal buttons
+        const actionBtn = e.target.closest('[data-action]');
+        if (actionBtn) {
+            const action = actionBtn.dataset.action;
+            const param = actionBtn.dataset.param || '';
+            switch (action) {
+                case 'switch-view': this.switchView(param); break;
+                case 'add-client': this.showAddClientModal(); break;
+                case 'edit-client': this.editClient(param); break;
+                case 'remove-client': this.confirmRemoveClient(param); break;
+                case 'open-client-project': MSPPortalViews._switchKanbanClient(param); this.switchView('projects'); break;
+                case 'open-hub': if (typeof IntegrationsHub !== 'undefined') IntegrationsHub.showHub(); break;
+                case 'refresh': this.refresh(); break;
+                case 'export-portfolio': this.exportPortfolio(); break;
+                case 'generate-report': this.generateReport(param); break;
+                case 'filter-clients': this.filterClients(param); break;
+                case 'switch-env-tab': MSPPortalViews.switchEnvTab(param); break;
+                case 'env-tab': MSPPortalViews.switchEnvTab(param); break;
+                case 'add-task': MSPPortalViews._showAddTaskModal(param); break;
+                case 'edit-task': MSPPortalViews._editTask(param); break;
+                case 'seed-tasks': MSPPortalViews._seedDefaultTasks(param); break;
+                case 'close-portal': this.closePortal(); break;
+                case 'close-and-navigate':
+                    this.closePortal();
+                    if (window.app && typeof window.app.switchView === 'function') window.app.switchView(param);
+                    break;
+                case 'copy-code': {
+                    const codeEl = actionBtn.closest('.dp-code-wrap, .ev-auto-cmd, .ts-code-wrap');
+                    const code = codeEl ? codeEl.querySelector('code') : null;
+                    if (code) {
+                        navigator.clipboard.writeText(code.textContent).then(() => {
+                            const orig = actionBtn.textContent;
                             actionBtn.textContent = 'Copied!';
-                            setTimeout(() => { actionBtn.textContent = lbl; }, 1500);
+                            setTimeout(() => { actionBtn.textContent = orig; }, 1500);
                         });
-                        break;
                     }
+                    break;
                 }
-                return;
+                case 'copy-data': {
+                    const copyText = actionBtn.dataset.copy || '';
+                    const lbl = actionBtn.dataset.label || 'Copy';
+                    navigator.clipboard.writeText(copyText).then(() => {
+                        actionBtn.textContent = 'Copied!';
+                        setTimeout(() => { actionBtn.textContent = lbl; }, 1500);
+                    });
+                    break;
+                }
             }
-        });
+            return;
+        }
+    },
+
+    attachPortalEvents: function(portalRef) {
+        const self = this;
+
+        // PRIMARY: Bind directly on the portal element.
+        // This is the most reliable approach — it works regardless of
+        // Cloudflare Rocket Loader, script rewriting, or other document-level
+        // interference that can break document-delegated listeners.
+        if (portalRef) {
+            portalRef.addEventListener('click', function(e) {
+                e._mspHandled = true;
+                self._handlePortalClick(e);
+            });
+        }
+
+        // SECONDARY: Also keep document-level delegation as a safety net
+        // (e.g. for modals appended to <body> outside #msp-portal)
+        this._portalClickHandler = function(e) {
+            if (e._mspHandled) return; // Already handled by direct listener
+            if (!e.target.closest('#msp-portal')) return;
+            self._handlePortalClick(e);
+        };
+        document.addEventListener('click', this._portalClickHandler);
         this.attachDataViewEvents();
     },
 
