@@ -5067,12 +5067,6 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
                     </div>
                 </div>
             </div>
-            <div class="dash-quick-actions" style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px;">
-                <button class="dash-l2-guide-btn" id="dash-l2-guide-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-                    <span>L2 Assessment &amp; Scoping Guide</span>
-                </button>
-            </div>
         `;
 
         // Family cards
@@ -5139,12 +5133,6 @@ gcloud assured workloads describe WORKLOAD_NAME --location=us-central1`;
         });
 
         container.innerHTML = html;
-
-        // L2 Guide quick-access button
-        const l2Btn = document.getElementById('dash-l2-guide-btn');
-        if (l2Btn) {
-            l2Btn.addEventListener('click', () => this.switchView('l2-guide'));
-        }
 
         // Bind family link clicks
         container.querySelectorAll('.dashboard-family-link').forEach(link => {

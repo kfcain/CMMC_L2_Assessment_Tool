@@ -55,14 +55,21 @@
 /* ── Tabs ────────────────────────────────────────────────────── */
 .l2g-tabs {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 4px;
     margin-bottom: 16px;
     padding: 4px;
     background: rgba(255,255,255,0.02);
     border-radius: 10px;
     border: 1px solid color-mix(in srgb, var(--border-color, #2a2e3a) 50%, transparent);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(79,70,229,0.3) transparent;
 }
+.l2g-tabs::-webkit-scrollbar { height: 4px; }
+.l2g-tabs::-webkit-scrollbar-track { background: transparent; }
+.l2g-tabs::-webkit-scrollbar-thumb { background: rgba(79,70,229,0.3); border-radius: 2px; }
 .l2g-tab {
     display: inline-flex;
     align-items: center;
@@ -479,6 +486,102 @@
 .l2g-assess-link:hover { background: rgba(79,70,229,0.15); border-color: rgba(79,70,229,0.35); }
 
 /* ═══════════════════════════════════════════════════════════════
+   ALL CONTROLS LIST & L1 ELEMENTS
+   ═══════════════════════════════════════════════════════════════ */
+.l2g-all-controls-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 14px;
+    background: rgba(0,0,0,0.12);
+    border-radius: 8px;
+    padding: 6px;
+}
+.l2g-control-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    transition: background 0.12s;
+}
+.l2g-control-row:hover { background: rgba(255,255,255,0.03); }
+.l2g-control-row.l2g-control-l1 {
+    background: rgba(79,70,229,0.05);
+    border-left: 2px solid rgba(165,180,252,0.35);
+}
+.l2g-control-row.l2g-control-l1:hover { background: rgba(79,70,229,0.1); }
+.l2g-control-id {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #a5b4fc;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    min-width: 48px;
+    flex-shrink: 0;
+}
+.l2g-control-name {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #c0c8d4);
+    flex: 1;
+}
+.l2g-l1-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #a5b4fc;
+    background: rgba(79,70,229,0.15);
+    padding: 2px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+.l2g-control-family-tag {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted, #8b95a5);
+    background: rgba(255,255,255,0.04);
+    padding: 2px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+/* L1 Banner */
+.l2g-l1-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(79,70,229,0.1), rgba(124,58,237,0.06));
+    border: 1px solid rgba(79,70,229,0.2);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+.l2g-l1-banner-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(79,70,229,0.15);
+    border-radius: 10px;
+}
+.l2g-l1-banner-icon svg { stroke: #a5b4fc; }
+.l2g-l1-banner-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.l2g-l1-banner-text strong {
+    font-size: 0.92rem;
+    color: var(--text-primary, #e2e8f0);
+}
+.l2g-l1-banner-text span {
+    font-size: 0.78rem;
+    color: var(--text-muted, #8b95a5);
+}
+
+/* ═══════════════════════════════════════════════════════════════
    GLOSSARY
    ═══════════════════════════════════════════════════════════════ */
 .l2g-glossary-list {
@@ -687,52 +790,63 @@
 }
 .l2g-source-link:hover { background: rgba(79,70,229,0.12); border-color: rgba(79,70,229,0.3); }
 .l2g-source-link svg { stroke: #a5b4fc; opacity: 0.6; pointer-events: none; }
-
-/* ═══════════════════════════════════════════════════════════════
-   DASHBOARD QUICK-ACCESS BUTTON
-   ═══════════════════════════════════════════════════════════════ */
-.dash-l2-guide-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    background: linear-gradient(135deg, rgba(79,70,229,0.12), rgba(124,58,237,0.08));
-    border: 1px solid rgba(79,70,229,0.2);
-    border-radius: 10px;
-    color: #a5b4fc;
-    font-size: 0.82rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, transform 0.1s;
-    margin-top: 4px;
-}
-.dash-l2-guide-btn:hover {
-    background: linear-gradient(135deg, rgba(79,70,229,0.2), rgba(124,58,237,0.14));
-    border-color: rgba(79,70,229,0.35);
-    transform: translateY(-1px);
-}
-.dash-l2-guide-btn svg { stroke: #a5b4fc; opacity: 0.7; pointer-events: none; }
-.dash-l2-guide-btn span { pointer-events: none; }
-
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
     .l2g-wrap { padding: 16px 10px 36px; }
     .l2g-header-title { font-size: 1.25rem; }
+    .l2g-header-sub { font-size: 0.82rem; }
     .l2g-tabs { gap: 2px; }
-    .l2g-tab { padding: 7px 10px; font-size: 0.72rem; }
-    .l2g-tab svg { display: none; }
+    .l2g-tab { padding: 7px 10px; font-size: 0.72rem; flex-shrink: 0; }
+    .l2g-tab svg { width: 12px; height: 12px; }
     .l2g-two-col { grid-template-columns: 1fr; gap: 14px; }
     .l2g-glossary-list { grid-template-columns: 1fr; }
-    .l2g-families-summary { gap: 8px; }
-    .l2g-fam-kpi { padding: 10px 16px; }
+    .l2g-families-summary { gap: 6px; flex-wrap: wrap; }
+    .l2g-fam-kpi { padding: 10px 14px; flex: 1; min-width: 70px; }
     .l2g-fam-kpi-val { font-size: 1.1rem; }
     .l2g-source-links { flex-direction: column; align-items: flex-start; }
+    .l2g-accordion-header { padding: 12px 14px; gap: 8px; }
+    .l2g-accordion-body,
+    .l2g-asset-body,
+    .l2g-family-body,
+    .l2g-faq-a { padding: 0 14px 14px; }
+    .l2g-family-header { padding: 10px 14px; gap: 8px; }
+    .l2g-family-bar-wrap { display: none; }
+    .l2g-control-row { padding: 6px 8px; gap: 8px; }
+    .l2g-control-id { min-width: 42px; font-size: 0.7rem; }
+    .l2g-control-name { font-size: 0.76rem; }
+    .l2g-l1-banner { padding: 12px 14px; gap: 10px; }
+    .l2g-l1-banner-icon { width: 34px; height: 34px; }
+    .l2g-l1-banner-text strong { font-size: 0.85rem; }
+    .l2g-l1-banner-text span { font-size: 0.74rem; }
 }
 
 @media (max-width: 480px) {
-    .l2g-tabs { flex-direction: column; }
-    .l2g-tab { justify-content: center; }
-    .l2g-families-summary { flex-direction: column; align-items: stretch; }
+    .l2g-wrap { padding: 12px 8px 32px; }
+    .l2g-header { margin-bottom: 20px; }
+    .l2g-header-title { font-size: 1.1rem; }
+    .l2g-header-badge { font-size: 0.7rem; padding: 5px 10px; }
+    .l2g-disclaimer { font-size: 0.66rem; }
+    .l2g-tab { padding: 6px 8px; font-size: 0.68rem; }
+    .l2g-tab svg { display: none; }
+    .l2g-search-input { font-size: 0.82rem; padding: 9px 32px; }
+    .l2g-families-summary { gap: 4px; }
+    .l2g-fam-kpi { padding: 8px 10px; }
+    .l2g-fam-kpi-val { font-size: 1rem; }
+    .l2g-fam-kpi-label { font-size: 0.62rem; }
+    .l2g-section-text { font-size: 0.8rem; }
+    .l2g-key-points li { font-size: 0.78rem; }
+    .l2g-accordion-header { font-size: 0.84rem; }
+    .l2g-family-id { font-size: 0.7rem; padding: 3px 6px; }
+    .l2g-family-name { font-size: 0.82rem; }
+    .l2g-family-counts { font-size: 0.68rem; }
+    .l2g-checklist-item { padding: 8px 10px; gap: 8px; }
+    .l2g-ck-text { font-size: 0.78rem; }
+    .l2g-source-link { font-size: 0.7rem; padding: 3px 8px; }
+    .l2g-all-controls-list { padding: 4px; }
+    .l2g-control-row { padding: 5px 6px; gap: 6px; }
+    .l2g-control-id { min-width: 38px; font-size: 0.68rem; }
+    .l2g-control-name { font-size: 0.73rem; }
+    .l2g-l1-badge { font-size: 0.55rem; padding: 1px 4px; }
 }

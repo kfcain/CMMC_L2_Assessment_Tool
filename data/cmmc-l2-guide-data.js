@@ -9,8 +9,10 @@ const CMMC_L2_GUIDE_DATA = {
     meta: {
         assessmentGuideTitle: 'CMMC Assessment Guide — Level 2 v2.0',
         assessmentGuideUrl: 'https://dodcio.defense.gov/Portals/0/Documents/CMMC/AssessmentGuideL2v2.pdf',
+        assessmentGuideL1Url: 'https://dodcio.defense.gov/Portals/0/Documents/CMMC/AssessmentGuideL1v2.pdf',
         scopingGuideTitle: 'CMMC Scoping Guide — Level 2 v2.0',
         scopingGuideUrl: 'https://dodcio.defense.gov/Portals/0/Documents/CMMC/ScopingGuideL2v2.pdf',
+        scopingGuideL1Url: 'https://dodcio.defense.gov/Portals/0/Documents/CMMC/ScopingGuideL1v2.pdf',
         cmmcModelUrl: 'https://dodcio.defense.gov/CMMC/Model/',
         finalRuleUrl: 'https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-D/part-170',
         disclaimer: 'This interactive guide is a curated summary for quick reference. It does not replace the official DoD documents. Always consult the original PDFs for authoritative guidance.'
@@ -321,24 +323,271 @@ const CMMC_L2_GUIDE_DATA = {
     },
 
     // ═══════════════════════════════════════════════════════════════
-    //  PART 5: CONTROL FAMILIES QUICK REFERENCE
+    //  PART 5: CONTROL FAMILIES — Full Reference (L1 + L2)
+    //  l1 = true means the practice is also required for CMMC Level 1
+    //  (17 practices from FAR 52.204-21 / NIST SP 800-171 Rev 2)
     // ═══════════════════════════════════════════════════════════════
     controlFamilies: [
-        { id: 'AC', name: 'Access Control', practiceCount: 22, objectiveCount: 80, description: 'Limit system access to authorized users, processes, and devices. Control CUI flow, enforce separation of duties, least privilege, session management, and remote access.', topPractices: ['3.1.1 — Authorized Access', '3.1.2 — Transaction Control', '3.1.3 — CUI Flow Control', '3.1.12 — Remote Access Control', '3.1.22 — Publicly Accessible Content'] },
-        { id: 'AT', name: 'Awareness & Training', practiceCount: 3, objectiveCount: 9, description: 'Ensure personnel are aware of security risks and trained in their responsibilities for protecting CUI.', topPractices: ['3.2.1 — Security Awareness', '3.2.2 — Role-Based Training', '3.2.3 — Insider Threat Awareness'] },
-        { id: 'AU', name: 'Audit & Accountability', practiceCount: 9, objectiveCount: 30, description: 'Create, protect, and review audit logs. Ensure actions can be traced to individual users. Alert on audit failures.', topPractices: ['3.3.1 — System Auditing', '3.3.2 — User Accountability', '3.3.5 — Audit Review & Analysis', '3.3.8 — Audit Protection'] },
-        { id: 'CM', name: 'Configuration Management', practiceCount: 9, objectiveCount: 28, description: 'Establish and maintain baseline configurations. Control changes, restrict unnecessary software, and enforce security settings.', topPractices: ['3.4.1 — Baseline Configurations', '3.4.2 — Security Config Settings', '3.4.5 — Access Restrictions for Change', '3.4.6 — Least Functionality'] },
-        { id: 'IA', name: 'Identification & Authentication', practiceCount: 11, objectiveCount: 30, description: 'Identify and authenticate users, devices, and processes. Enforce password complexity, multi-factor authentication, and replay-resistant mechanisms.', topPractices: ['3.5.1 — User Identification', '3.5.2 — Device Authentication', '3.5.3 — Multi-Factor Authentication', '3.5.10 — Cryptographic Authentication'] },
-        { id: 'IR', name: 'Incident Response', practiceCount: 3, objectiveCount: 9, description: 'Establish incident handling capabilities. Detect, report, and respond to security incidents. Test incident response plans.', topPractices: ['3.6.1 — Incident Handling', '3.6.2 — Incident Tracking & Reporting', '3.6.3 — Incident Response Testing'] },
-        { id: 'MA', name: 'Maintenance', practiceCount: 6, objectiveCount: 18, description: 'Perform timely maintenance. Control maintenance tools and personnel. Sanitize equipment removed for off-site maintenance.', topPractices: ['3.7.1 — System Maintenance', '3.7.2 — Maintenance Controls', '3.7.5 — Nonlocal Maintenance'] },
-        { id: 'MP', name: 'Media Protection', practiceCount: 9, objectiveCount: 26, description: 'Protect, control, sanitize, and destroy media containing CUI. Mark media with CUI designations.', topPractices: ['3.8.1 — Media Protection', '3.8.3 — Media Sanitization', '3.8.6 — Portable Storage Encryption', '3.8.9 — Backup CUI Protection'] },
-        { id: 'PS', name: 'Personnel Security', practiceCount: 2, objectiveCount: 6, description: 'Screen individuals before granting access. Protect CUI during personnel actions like termination or transfer.', topPractices: ['3.9.1 — Personnel Screening', '3.9.2 — Personnel Actions'] },
-        { id: 'PE', name: 'Physical Protection', practiceCount: 6, objectiveCount: 20, description: 'Limit physical access to systems and facilities. Escort visitors, maintain audit logs of physical access, control physical access devices.', topPractices: ['3.10.1 — Physical Access Authorizations', '3.10.2 — Physical Access Control', '3.10.5 — Physical Access Monitoring'] },
-        { id: 'RA', name: 'Risk Assessment', practiceCount: 3, objectiveCount: 11, description: 'Assess risk to operations, assets, and individuals. Scan for vulnerabilities and remediate them.', topPractices: ['3.11.1 — Risk Assessments', '3.11.2 — Vulnerability Scanning', '3.11.3 — Vulnerability Remediation'] },
-        { id: 'CA', name: 'Security Assessment', practiceCount: 4, objectiveCount: 12, description: 'Assess security controls periodically. Develop and implement plans of action. Monitor controls on an ongoing basis.', topPractices: ['3.12.1 — Security Assessments', '3.12.2 — Plans of Action', '3.12.3 — Continuous Monitoring', '3.12.4 — System Security Plans'] },
-        { id: 'SC', name: 'System & Comm. Protection', practiceCount: 16, objectiveCount: 46, description: 'Monitor and protect communications at system boundaries. Implement cryptographic protections, network segmentation, and CUI confidentiality.', topPractices: ['3.13.1 — Boundary Protection', '3.13.2 — Architectural Designs', '3.13.8 — CUI in Transit Encryption', '3.13.11 — FIPS-Validated Cryptography'] },
-        { id: 'SI', name: 'System & Info. Integrity', practiceCount: 7, objectiveCount: 25, description: 'Identify and correct system flaws. Protect against malicious code. Monitor system security alerts and advisories.', topPractices: ['3.14.1 — Flaw Remediation', '3.14.2 — Malicious Code Protection', '3.14.6 — Monitor Communications', '3.14.7 — Detect Unauthorized Use'] }
+        {
+            id: 'AC', name: 'Access Control', practiceCount: 22, objectiveCount: 70,
+            description: 'Limit system access to authorized users, processes, and devices. Control CUI flow, enforce separation of duties, least privilege, session management, and remote access.',
+            topPractices: ['3.1.1 — Authorized Access', '3.1.2 — Transaction Control', '3.1.3 — CUI Flow Control', '3.1.12 — Remote Access Control', '3.1.22 — Publicly Accessible Content'],
+            allControls: [
+                { id: '3.1.1', name: 'Authorized Access Control', l1: true },
+                { id: '3.1.2', name: 'Transaction & Function Access Control', l1: true },
+                { id: '3.1.3', name: 'CUI Flow Control', l1: false },
+                { id: '3.1.4', name: 'Separation of Duties', l1: false },
+                { id: '3.1.5', name: 'Least Privilege', l1: false },
+                { id: '3.1.6', name: 'Non-Privileged Account Use', l1: false },
+                { id: '3.1.7', name: 'Privileged Function Control', l1: false },
+                { id: '3.1.8', name: 'Unsuccessful Logon Attempts', l1: false },
+                { id: '3.1.9', name: 'Privacy & Security Notices', l1: false },
+                { id: '3.1.10', name: 'Session Lock', l1: false },
+                { id: '3.1.11', name: 'Session Termination', l1: false },
+                { id: '3.1.12', name: 'Remote Access Control', l1: false },
+                { id: '3.1.13', name: 'Remote Access Cryptography', l1: false },
+                { id: '3.1.14', name: 'Remote Access Routing', l1: false },
+                { id: '3.1.15', name: 'Privileged Remote Access', l1: false },
+                { id: '3.1.16', name: 'Wireless Access Authorization', l1: false },
+                { id: '3.1.17', name: 'Wireless Access Protection', l1: false },
+                { id: '3.1.18', name: 'Mobile Device Connection', l1: false },
+                { id: '3.1.19', name: 'Encrypt CUI on Mobile Devices', l1: false },
+                { id: '3.1.20', name: 'External System Connections', l1: false },
+                { id: '3.1.21', name: 'Portable Storage Use', l1: false },
+                { id: '3.1.22', name: 'Publicly Accessible Content', l1: true }
+            ]
+        },
+        {
+            id: 'AT', name: 'Awareness & Training', practiceCount: 3, objectiveCount: 9,
+            description: 'Ensure personnel are aware of security risks and trained in their responsibilities for protecting CUI.',
+            topPractices: ['3.2.1 — Security Awareness', '3.2.2 — Role-Based Training', '3.2.3 — Insider Threat Awareness'],
+            allControls: [
+                { id: '3.2.1', name: 'Security Awareness', l1: false },
+                { id: '3.2.2', name: 'Role-Based Training', l1: false },
+                { id: '3.2.3', name: 'Insider Threat Awareness', l1: false }
+            ]
+        },
+        {
+            id: 'AU', name: 'Audit & Accountability', practiceCount: 9, objectiveCount: 29,
+            description: 'Create, protect, and review audit logs. Ensure actions can be traced to individual users. Alert on audit failures.',
+            topPractices: ['3.3.1 — System Auditing', '3.3.2 — User Accountability', '3.3.5 — Audit Review & Analysis', '3.3.8 — Audit Protection'],
+            allControls: [
+                { id: '3.3.1', name: 'System Auditing', l1: false },
+                { id: '3.3.2', name: 'User Accountability', l1: false },
+                { id: '3.3.3', name: 'Event Review', l1: false },
+                { id: '3.3.4', name: 'Audit Failure Alerting', l1: false },
+                { id: '3.3.5', name: 'Audit Review & Analysis', l1: false },
+                { id: '3.3.6', name: 'Audit Reduction & Reporting', l1: false },
+                { id: '3.3.7', name: 'Authoritative Time Source', l1: false },
+                { id: '3.3.8', name: 'Audit Protection', l1: false },
+                { id: '3.3.9', name: 'Audit Management Restriction', l1: false }
+            ]
+        },
+        {
+            id: 'CM', name: 'Configuration Management', practiceCount: 9, objectiveCount: 44,
+            description: 'Establish and maintain baseline configurations. Control changes, restrict unnecessary software, and enforce security settings.',
+            topPractices: ['3.4.1 — Baseline Configurations', '3.4.2 — Security Config Settings', '3.4.5 — Access Restrictions for Change', '3.4.6 — Least Functionality'],
+            allControls: [
+                { id: '3.4.1', name: 'Baseline Configurations', l1: false },
+                { id: '3.4.2', name: 'Security Configuration Settings', l1: false },
+                { id: '3.4.3', name: 'System Change Management', l1: false },
+                { id: '3.4.4', name: 'Impact Analysis', l1: false },
+                { id: '3.4.5', name: 'Access Restrictions for Change', l1: false },
+                { id: '3.4.6', name: 'Least Functionality', l1: false },
+                { id: '3.4.7', name: 'Nonessential Software Restriction', l1: false },
+                { id: '3.4.8', name: 'Application Execution Policy', l1: false },
+                { id: '3.4.9', name: 'User-Installed Software', l1: false }
+            ]
+        },
+        {
+            id: 'IA', name: 'Identification & Authentication', practiceCount: 11, objectiveCount: 25,
+            description: 'Identify and authenticate users, devices, and processes. Enforce password complexity, multi-factor authentication, and replay-resistant mechanisms.',
+            topPractices: ['3.5.1 — User Identification', '3.5.2 — Device Authentication', '3.5.3 — Multi-Factor Authentication', '3.5.10 — Cryptographic Authentication'],
+            allControls: [
+                { id: '3.5.1', name: 'User Identification', l1: true },
+                { id: '3.5.2', name: 'Device & Process Authentication', l1: true },
+                { id: '3.5.3', name: 'Multi-Factor Authentication', l1: false },
+                { id: '3.5.4', name: 'Replay-Resistant Authentication', l1: false },
+                { id: '3.5.5', name: 'Identifier Reuse Prevention', l1: false },
+                { id: '3.5.6', name: 'Identifier Disabling', l1: false },
+                { id: '3.5.7', name: 'Password Complexity', l1: false },
+                { id: '3.5.8', name: 'Password Reuse Limitation', l1: false },
+                { id: '3.5.9', name: 'Temporary Password Use', l1: false },
+                { id: '3.5.10', name: 'Cryptographic Authentication', l1: false },
+                { id: '3.5.11', name: 'Obscured Authentication Feedback', l1: false }
+            ]
+        },
+        {
+            id: 'IR', name: 'Incident Response', practiceCount: 3, objectiveCount: 14,
+            description: 'Establish incident handling capabilities. Detect, report, and respond to security incidents. Test incident response plans.',
+            topPractices: ['3.6.1 — Incident Handling', '3.6.2 — Incident Tracking & Reporting', '3.6.3 — Incident Response Testing'],
+            allControls: [
+                { id: '3.6.1', name: 'Incident Handling', l1: false },
+                { id: '3.6.2', name: 'Incident Tracking & Reporting', l1: false },
+                { id: '3.6.3', name: 'Incident Response Testing', l1: false }
+            ]
+        },
+        {
+            id: 'MA', name: 'Maintenance', practiceCount: 6, objectiveCount: 10,
+            description: 'Perform timely maintenance. Control maintenance tools and personnel. Sanitize equipment removed for off-site maintenance.',
+            topPractices: ['3.7.1 — System Maintenance', '3.7.2 — Maintenance Controls', '3.7.5 — Nonlocal Maintenance'],
+            allControls: [
+                { id: '3.7.1', name: 'System Maintenance', l1: false },
+                { id: '3.7.2', name: 'System Maintenance Controls', l1: false },
+                { id: '3.7.3', name: 'Equipment Sanitization', l1: false },
+                { id: '3.7.4', name: 'Media Inspection', l1: false },
+                { id: '3.7.5', name: 'Nonlocal Maintenance Authentication', l1: false },
+                { id: '3.7.6', name: 'Maintenance Personnel Supervision', l1: false }
+            ]
+        },
+        {
+            id: 'MP', name: 'Media Protection', practiceCount: 9, objectiveCount: 15,
+            description: 'Protect, control, sanitize, and destroy media containing CUI. Mark media with CUI designations.',
+            topPractices: ['3.8.1 — Media Protection', '3.8.3 — Media Sanitization', '3.8.6 — Portable Storage Encryption', '3.8.9 — Backup CUI Protection'],
+            allControls: [
+                { id: '3.8.1', name: 'Media Protection', l1: true },
+                { id: '3.8.2', name: 'Media Access Limitation', l1: false },
+                { id: '3.8.3', name: 'Media Sanitization', l1: true },
+                { id: '3.8.4', name: 'Media Marking', l1: false },
+                { id: '3.8.5', name: 'Media Accountability', l1: false },
+                { id: '3.8.6', name: 'Portable Storage Encryption', l1: false },
+                { id: '3.8.7', name: 'Removable Media Use', l1: false },
+                { id: '3.8.8', name: 'Shared Media Prohibition', l1: false },
+                { id: '3.8.9', name: 'Backup Storage Protection', l1: false }
+            ]
+        },
+        {
+            id: 'PS', name: 'Personnel Security', practiceCount: 2, objectiveCount: 4,
+            description: 'Screen individuals before granting access. Protect CUI during personnel actions like termination or transfer.',
+            topPractices: ['3.9.1 — Personnel Screening', '3.9.2 — Personnel Actions'],
+            allControls: [
+                { id: '3.9.1', name: 'Personnel Screening', l1: false },
+                { id: '3.9.2', name: 'Personnel Actions', l1: false }
+            ]
+        },
+        {
+            id: 'PE', name: 'Physical Protection', practiceCount: 6, objectiveCount: 16,
+            description: 'Limit physical access to systems and facilities. Escort visitors, maintain audit logs of physical access, control physical access devices.',
+            topPractices: ['3.10.1 — Physical Access Authorizations', '3.10.2 — Physical Access Control', '3.10.5 — Physical Access Monitoring'],
+            allControls: [
+                { id: '3.10.1', name: 'Physical Access Authorizations', l1: true },
+                { id: '3.10.2', name: 'Physical Access Controls', l1: false },
+                { id: '3.10.3', name: 'Visitor Management', l1: true },
+                { id: '3.10.4', name: 'Physical Access Logs', l1: false },
+                { id: '3.10.5', name: 'Physical Access Devices', l1: true },
+                { id: '3.10.6', name: 'Alternate Work Sites', l1: false }
+            ]
+        },
+        {
+            id: 'RA', name: 'Risk Assessment', practiceCount: 3, objectiveCount: 9,
+            description: 'Assess risk to operations, assets, and individuals. Scan for vulnerabilities and remediate them.',
+            topPractices: ['3.11.1 — Risk Assessments', '3.11.2 — Vulnerability Scanning', '3.11.3 — Vulnerability Remediation'],
+            allControls: [
+                { id: '3.11.1', name: 'Risk Assessment', l1: false },
+                { id: '3.11.2', name: 'Vulnerability Scanning', l1: false },
+                { id: '3.11.3', name: 'Vulnerability Remediation', l1: false }
+            ]
+        },
+        {
+            id: 'CA', name: 'Security Assessment', practiceCount: 4, objectiveCount: 14,
+            description: 'Assess security controls periodically. Develop and implement plans of action. Monitor controls on an ongoing basis.',
+            topPractices: ['3.12.1 — Security Assessments', '3.12.2 — Plans of Action', '3.12.3 — Continuous Monitoring', '3.12.4 — System Security Plans'],
+            allControls: [
+                { id: '3.12.1', name: 'Security Control Assessment', l1: false },
+                { id: '3.12.2', name: 'Plan of Action', l1: false },
+                { id: '3.12.3', name: 'Continuous Monitoring', l1: false },
+                { id: '3.12.4', name: 'System Security Plan', l1: false }
+            ]
+        },
+        {
+            id: 'SC', name: 'System & Comm. Protection', practiceCount: 16, objectiveCount: 41,
+            description: 'Monitor and protect communications at system boundaries. Implement cryptographic protections, network segmentation, and CUI confidentiality.',
+            topPractices: ['3.13.1 — Boundary Protection', '3.13.2 — Architectural Designs', '3.13.8 — CUI in Transit Encryption', '3.13.11 — FIPS-Validated Cryptography'],
+            allControls: [
+                { id: '3.13.1', name: 'Boundary Protection', l1: true },
+                { id: '3.13.2', name: 'Security Function Isolation', l1: false },
+                { id: '3.13.3', name: 'User/System Functionality Separation', l1: false },
+                { id: '3.13.4', name: 'Shared Resource Control', l1: false },
+                { id: '3.13.5', name: 'Publicly Accessible Subnetworks', l1: false },
+                { id: '3.13.6', name: 'Network Communication by Exception', l1: false },
+                { id: '3.13.7', name: 'Split Tunneling Prevention', l1: false },
+                { id: '3.13.8', name: 'Data in Transit Encryption', l1: false },
+                { id: '3.13.9', name: 'Network Connection Termination', l1: false },
+                { id: '3.13.10', name: 'Cryptographic Key Management', l1: false },
+                { id: '3.13.11', name: 'FIPS-Validated Cryptography', l1: false },
+                { id: '3.13.12', name: 'Collaborative Device Control', l1: false },
+                { id: '3.13.13', name: 'Mobile Code Control', l1: false },
+                { id: '3.13.14', name: 'Voice over Internet Protocol', l1: false },
+                { id: '3.13.15', name: 'Communications Authenticity', l1: false },
+                { id: '3.13.16', name: 'Data at Rest Encryption', l1: false }
+            ]
+        },
+        {
+            id: 'SI', name: 'System & Info. Integrity', practiceCount: 7, objectiveCount: 20,
+            description: 'Identify and correct system flaws. Protect against malicious code. Monitor system security alerts and advisories.',
+            topPractices: ['3.14.1 — Flaw Remediation', '3.14.2 — Malicious Code Protection', '3.14.6 — Monitor Communications', '3.14.7 — Detect Unauthorized Use'],
+            allControls: [
+                { id: '3.14.1', name: 'Flaw Remediation', l1: true },
+                { id: '3.14.2', name: 'Malicious Code Protection', l1: true },
+                { id: '3.14.3', name: 'Security Alerts and Advisories', l1: false },
+                { id: '3.14.4', name: 'Malicious Code Updates', l1: true },
+                { id: '3.14.5', name: 'System and File Scanning', l1: true },
+                { id: '3.14.6', name: 'Inbound and Outbound Traffic Monitoring', l1: false },
+                { id: '3.14.7', name: 'Unauthorized Use Detection', l1: false }
+            ]
+        }
     ],
+
+    // ═══════════════════════════════════════════════════════════════
+    //  PART 5b: CMMC LEVEL 1 OVERVIEW
+    //  17 practices from FAR 52.204-21 — self-assessment only
+    // ═══════════════════════════════════════════════════════════════
+    l1Overview: {
+        title: 'CMMC Level 1 — Foundational (FCI Protection)',
+        sections: [
+            {
+                id: 'l1-purpose',
+                title: 'Level 1 Purpose',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+                content: 'CMMC Level 1 protects Federal Contract Information (FCI) — information not intended for public release that is provided by or generated for the Government under contract. Level 1 requires implementation of 17 basic safeguarding practices derived from FAR 52.204-21.',
+                keyPoints: [
+                    '17 practices across 6 control families (AC, IA, MP, PE, SC, SI)',
+                    'Self-assessment only — no third-party certification required',
+                    'Results submitted to SPRS annually',
+                    'Applies to all DoD contractors handling FCI',
+                    'Practices are a subset of the 110 Level 2 requirements'
+                ]
+            },
+            {
+                id: 'l1-vs-l2',
+                title: 'Level 1 vs. Level 2',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+                content: 'Level 1 and Level 2 differ in scope, rigor, and the type of information they protect. Understanding the distinction is critical for determining which level applies to your contracts.',
+                keyPoints: [
+                    'Level 1: Protects FCI (17 practices, self-assessment, annual)',
+                    'Level 2: Protects CUI (110 practices, self or C3PAO assessment, triennial)',
+                    'All 17 Level 1 practices are included in Level 2',
+                    'Level 1 has no POA&M provisions — all 17 must be MET',
+                    'Level 1 does not require an SSP (though documentation is recommended)',
+                    'The contract specifies which level is required via DFARS 252.204-7021'
+                ]
+            },
+            {
+                id: 'l1-families',
+                title: 'Level 1 Control Families',
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+                content: 'Level 1 practices span 6 of the 14 NIST SP 800-171 control families. The remaining 8 families (AT, AU, CM, IR, MA, PS, RA, CA) are only required at Level 2.',
+                keyPoints: [
+                    'AC — Access Control: 3.1.1, 3.1.2, 3.1.22 (3 practices)',
+                    'IA — Identification & Authentication: 3.5.1, 3.5.2 (2 practices)',
+                    'MP — Media Protection: 3.8.1, 3.8.3 (2 practices)',
+                    'PE — Physical Protection: 3.10.1, 3.10.3, 3.10.5 (3 practices)',
+                    'SC — System & Communications Protection: 3.13.1 (1 practice)',
+                    'SI — System & Information Integrity: 3.14.1, 3.14.2, 3.14.4, 3.14.5 (4 practices)'
+                ]
+            }
+        ]
+    },
 
     // ═══════════════════════════════════════════════════════════════
     //  PART 6: KEY DEFINITIONS & GLOSSARY

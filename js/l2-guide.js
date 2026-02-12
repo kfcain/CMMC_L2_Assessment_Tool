@@ -45,10 +45,10 @@ const L2Guide = {
             <div class="l2g-header">
                 <div class="l2g-header-badge">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    <span>CMMC 2.0 — Level 2</span>
+                    <span>CMMC 2.0 — Level 1 &amp; Level 2</span>
                 </div>
                 <h1 class="l2g-header-title">Interactive Assessment &amp; Scoping Guide</h1>
-                <p class="l2g-header-sub">Quick-reference viewer for the official DoD CMMC Level 2 guides. <strong>110 practices &middot; 320 objectives &middot; 14 families</strong></p>
+                <p class="l2g-header-sub">Pocket reference for the official DoD CMMC guides. <strong>L1: 17 practices &middot; L2: 110 practices &middot; 320 objectives &middot; 14 families</strong></p>
                 <div class="l2g-disclaimer">${this._esc(data.meta.disclaimer)}</div>
             </div>
         `;
@@ -57,7 +57,8 @@ const L2Guide = {
     // ── Tabs ─────────────────────────────────────────────────────────
     _renderTabs() {
         const tabs = [
-            { id: 'overview', label: 'Assessment Overview', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' },
+            { id: 'l1', label: 'Level 1', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
+            { id: 'overview', label: 'L2 Assessment', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>' },
             { id: 'scoping', label: 'Scoping Guide', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>' },
             { id: 'assets', label: 'Asset Categories', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20"/><path d="M17 2v20"/><path d="M2 12h20"/></svg>' },
             { id: 'families', label: 'Control Families', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>' },
@@ -76,6 +77,7 @@ const L2Guide = {
     _renderActiveTab(data) {
         const s = this._searchTerm.toLowerCase().trim();
         switch (this._activeTab) {
+            case 'l1': return this._renderL1Overview(data, s);
             case 'overview': return this._renderSections(data.assessmentOverview.sections, s);
             case 'scoping': return this._renderScopingSections(data, s);
             case 'assets': return this._renderAssetCategories(data.assetCategories, s);
@@ -177,6 +179,49 @@ const L2Guide = {
         `;
     },
 
+    // ── Level 1 Overview ──────────────────────────────────────────────
+    _renderL1Overview(data, search) {
+        if (!data.l1Overview) return this._emptyState('Level 1 data not available.');
+        const sections = data.l1Overview.sections;
+        const filtered = search ? sections.filter(s => this._matchSection(s, search)) : sections;
+        if (!filtered.length) return this._emptyState('No matching Level 1 sections found.');
+
+        const l1Controls = [];
+        (data.controlFamilies || []).forEach(f => {
+            (f.allControls || []).forEach(c => { if (c.l1) l1Controls.push({ ...c, family: f.id, familyName: f.name }); });
+        });
+
+        let html = `
+            <div class="l2g-l1-banner">
+                <div class="l2g-l1-banner-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="l2g-l1-banner-text">
+                    <strong>CMMC Level 1 — Foundational</strong>
+                    <span>17 practices &middot; Self-assessment &middot; FCI protection &middot; Annual submission to SPRS</span>
+                </div>
+            </div>
+            <div class="l2g-sections">${filtered.map(s => this._renderAccordion(s, search)).join('')}</div>
+        `;
+
+        if (l1Controls.length) {
+            html += `
+                <h3 class="l2g-group-title" style="margin-top:24px">All 17 Level 1 Practices</h3>
+                <div class="l2g-all-controls-list">
+                    ${l1Controls.map(c => `
+                        <div class="l2g-control-row l2g-control-l1">
+                            <span class="l2g-control-id">${this._esc(c.id)}</span>
+                            <span class="l2g-control-name">${search ? this._highlight(c.name, search) : this._esc(c.name)}</span>
+                            <span class="l2g-control-family-tag">${this._esc(c.family)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        return html;
+    },
+
     // ── Control Families ─────────────────────────────────────────────
     _renderFamilies(families, search) {
         const filtered = search ? families.filter(f => this._matchFamily(f, search)) : families;
@@ -184,24 +229,27 @@ const L2Guide = {
 
         const totalPractices = families.reduce((s, f) => s + f.practiceCount, 0);
         const totalObj = families.reduce((s, f) => s + f.objectiveCount, 0);
+        const totalL1 = families.reduce((s, f) => s + (f.allControls || []).filter(c => c.l1).length, 0);
 
         return `
             <div class="l2g-families-summary">
                 <div class="l2g-fam-kpi"><span class="l2g-fam-kpi-val">${families.length}</span><span class="l2g-fam-kpi-label">Families</span></div>
-                <div class="l2g-fam-kpi"><span class="l2g-fam-kpi-val">${totalPractices}</span><span class="l2g-fam-kpi-label">Practices</span></div>
+                <div class="l2g-fam-kpi"><span class="l2g-fam-kpi-val">${totalPractices}</span><span class="l2g-fam-kpi-label">L2 Practices</span></div>
+                <div class="l2g-fam-kpi"><span class="l2g-fam-kpi-val">${totalL1}</span><span class="l2g-fam-kpi-label">L1 Practices</span></div>
                 <div class="l2g-fam-kpi"><span class="l2g-fam-kpi-val">${totalObj}</span><span class="l2g-fam-kpi-label">Objectives</span></div>
             </div>
             <div class="l2g-families-grid">
                 ${filtered.map(f => {
                     const open = this._expandedSections.has('fam-' + f.id) || !!search;
                     const pctOfTotal = Math.round((f.practiceCount / totalPractices) * 100);
+                    const l1Count = (f.allControls || []).filter(c => c.l1).length;
                     return `
                         <div class="l2g-family-card ${open ? 'open' : ''}" data-section="fam-${f.id}">
                             <button class="l2g-family-header" data-section="fam-${f.id}">
                                 <span class="l2g-family-id">${f.id}</span>
                                 <div class="l2g-family-info">
                                     <span class="l2g-family-name">${search ? this._highlight(f.name, search) : this._esc(f.name)}</span>
-                                    <span class="l2g-family-counts">${f.practiceCount} practices &middot; ${f.objectiveCount} objectives</span>
+                                    <span class="l2g-family-counts">${f.practiceCount} practices &middot; ${f.objectiveCount} obj${l1Count ? ' &middot; ' + l1Count + ' L1' : ''}</span>
                                 </div>
                                 <div class="l2g-family-bar-wrap">
                                     <div class="l2g-family-bar" style="width:${pctOfTotal}%"></div>
@@ -212,6 +260,18 @@ const L2Guide = {
                                 <p class="l2g-section-text">${search ? this._highlight(f.description, search) : this._esc(f.description)}</p>
                                 <h4 class="l2g-col-title">Key Practices</h4>
                                 <ul class="l2g-top-practices">${f.topPractices.map(p => `<li>${search ? this._highlight(p, search) : this._esc(p)}</li>`).join('')}</ul>
+                                ${f.allControls && f.allControls.length ? `
+                                    <h4 class="l2g-col-title" style="margin-top:16px">All ${f.allControls.length} Controls</h4>
+                                    <div class="l2g-all-controls-list">
+                                        ${f.allControls.map(c => `
+                                            <div class="l2g-control-row ${c.l1 ? 'l2g-control-l1' : ''}">
+                                                <span class="l2g-control-id">${this._esc(c.id)}</span>
+                                                <span class="l2g-control-name">${search ? this._highlight(c.name, search) : this._esc(c.name)}</span>
+                                                ${c.l1 ? '<span class="l2g-l1-badge">L1</span>' : ''}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
                                 <button class="l2g-assess-link" data-family="${f.id}">Open in Assessment Tool &rarr;</button>
                             </div>
                         </div>
@@ -310,11 +370,15 @@ const L2Guide = {
                 <span class="l2g-source-label">Official Sources:</span>
                 <a href="${this._esc(data.meta.assessmentGuideUrl)}" target="_blank" rel="noopener noreferrer" class="l2g-source-link">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    Assessment Guide (PDF)
+                    L2 Assessment Guide
+                </a>
+                <a href="${this._esc(data.meta.assessmentGuideL1Url)}" target="_blank" rel="noopener noreferrer" class="l2g-source-link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    L1 Assessment Guide
                 </a>
                 <a href="${this._esc(data.meta.scopingGuideUrl)}" target="_blank" rel="noopener noreferrer" class="l2g-source-link">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    Scoping Guide (PDF)
+                    L2 Scoping Guide
                 </a>
                 <a href="${this._esc(data.meta.cmmcModelUrl)}" target="_blank" rel="noopener noreferrer" class="l2g-source-link">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -454,7 +518,8 @@ const L2Guide = {
         return f.id.toLowerCase().includes(search) ||
                f.name.toLowerCase().includes(search) ||
                f.description.toLowerCase().includes(search) ||
-               f.topPractices.some(p => p.toLowerCase().includes(search));
+               f.topPractices.some(p => p.toLowerCase().includes(search)) ||
+               (f.allControls && f.allControls.some(c => c.id.toLowerCase().includes(search) || c.name.toLowerCase().includes(search)));
     },
 
     // ── Utilities ────────────────────────────────────────────────────
