@@ -10,7 +10,7 @@
     background: var(--bg-primary);
     z-index: 100000;
     display: flex;
-    animation: mspFadeIn 0.2s ease;
+    animation: mspFadeIn 0.2s ease forwards;
 }
 
 @keyframes mspFadeIn {

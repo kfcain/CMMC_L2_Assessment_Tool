@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://graph.microsoft.com https://graph.microsoft.us https://dod-graph.microsoft.us https://login.microsoftonline.com https://login.microsoftonline.us https://*.securitycenter.microsoft.us https://*.api.knowbe4.com https://cloud.tenable.com https://fedcloud.tenable.com https://*.atlassian.net https://api.notion.com https://www.googleapis.com https://*.crowdstrike.com https://*.gcw.crowdstrike.com https://*.qualys.com https://*.sentinelone.net https://raw.githubusercontent.com https://worldtimeapi.org; frame-src 'self' https://www.figma.com https://lucid.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.sheetjs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://applesocial.s3.amazonaws.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://ethanolivertroy.github.io https://cdn.sheetjs.com https://cdn.jsdelivr.net https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://graph.microsoft.com https://graph.microsoft.us https://dod-graph.microsoft.us https://login.microsoftonline.com https://login.microsoftonline.us https://*.securitycenter.microsoft.us https://*.api.knowbe4.com https://cloud.tenable.com https://fedcloud.tenable.com https://*.atlassian.net https://api.notion.com https://www.googleapis.com https://*.crowdstrike.com https://*.gcw.crowdstrike.com https://*.qualys.com https://*.sentinelone.net https://raw.githubusercontent.com https://worldtimeapi.org; frame-src 'self' https://www.figma.com https://lucid.app; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;">
     <title>CMMC 2.0 Assessment Tool</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css?v=20260211a">
@@ -923,7 +922,12 @@
                         });
 
                         // When a new SW takes control, reload to get fresh assets
+                        // Guard: only reload once per page load to prevent infinite loop
+                        // (e.g. when DevTools "Update on reload" is checked)
+                        let swReloading = false;
                         navigator.serviceWorker.addEventListener('controllerchange', () => {
+                            if (swReloading) return;
+                            swReloading = true;
                             window.location.reload();
                         });
 
@@ -932,7 +936,7 @@
                             .then(r => r.text())
                             .then(text => {
                                 const m = text.match(/CACHE_NAME\s*=\s*['"]([^'"]+)['"]/);
-                                if (m && m[1] !== 'cmmc-tool-v77') {
+                                if (m && m[1] !== 'cmmc-tool-v78') {
                                     console.log('[App] SW version mismatch, forcing update');
                                     reg.update();
                                 }
