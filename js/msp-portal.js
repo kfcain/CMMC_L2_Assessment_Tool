@@ -156,13 +156,19 @@ const MSPPortal = {
         document.getElementById('hamburger-overlay')?.classList.remove('active');
         document.getElementById('hamburger-menu-toggle')?.classList.remove('open');
 
+        // Build content with error resilience — if any view throws, portal still opens
+        let sidebarHtml = '', headerHtml = '', contentHtml = '';
+        try { sidebarHtml = this.renderSidebar(); } catch (e) { console.error('[MSPPortal] Sidebar render error:', e); }
+        try { headerHtml = this.renderHeader(); } catch (e) { console.error('[MSPPortal] Header render error:', e); }
+        try { contentHtml = this.renderView('dashboard'); } catch (e) { console.error('[MSPPortal] Dashboard render error:', e); contentHtml = '<div class="soc-empty"><p>Dashboard failed to load. Check console for errors.</p></div>'; }
+
         const html = `
         <div class="msp-portal-overlay" id="msp-portal">
             <div class="msp-portal-container">
-                <div class="msp-portal-sidebar">${this.renderSidebar()}</div>
+                <div class="msp-portal-sidebar">${sidebarHtml}</div>
                 <div class="msp-portal-main">
-                    <div class="msp-portal-header">${this.renderHeader()}</div>
-                    <div class="msp-portal-content" id="msp-portal-content">${this.renderView('dashboard')}</div>
+                    <div class="msp-portal-header">${headerHtml}</div>
+                    <div class="msp-portal-content" id="msp-portal-content">${contentHtml}</div>
                 </div>
             </div>
         </div>`;
@@ -221,7 +227,15 @@ const MSPPortal = {
     attachPortalEvents: function() {
         // Use single delegated listener on the portal container for ALL actions
         const portal = document.getElementById('msp-portal');
-        if (!portal) return;
+        if (!portal) { console.error('[MSP] Portal element not found'); return; }
+        // Debug: check for elements blocking the portal
+        const portalRect = portal.getBoundingClientRect();
+        const topEl = document.elementFromPoint(portalRect.left + 100, portalRect.top + 100);
+        if (topEl && !portal.contains(topEl)) {
+            console.warn('[MSP] Portal blocked by:', topEl.tagName, topEl.id, topEl.className, 'z-index:', getComputedStyle(topEl).zIndex);
+        } else {
+            console.log('[MSP] Portal is top element — clicks should work');
+        }
         portal.addEventListener('click', (e) => {
             // Nav buttons
             const navBtn = e.target.closest('.msp-nav-btn');
