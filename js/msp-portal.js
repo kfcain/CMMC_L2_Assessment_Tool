@@ -175,6 +175,47 @@ const MSPPortal = {
             </div>`;
         document.body.appendChild(portalEl);
         this.attachPortalEvents(portalEl);
+
+        // Diagnostic: identify what element is blocking clicks on the portal
+        setTimeout(() => {
+            const p = document.getElementById('msp-portal');
+            if (!p) { console.error('[MSPPortal] Portal not in DOM!'); return; }
+            const r = p.getBoundingClientRect();
+            const cx = Math.round(r.left + r.width / 2);
+            const cy = Math.round(r.top + r.height / 2);
+            const topEl = document.elementFromPoint(cx, cy);
+            const cs = getComputedStyle(p);
+            console.log('[MSPPortal] Diag — z-index:', cs.zIndex,
+                '| pointer-events:', cs.pointerEvents,
+                '| display:', cs.display,
+                '| visibility:', cs.visibility,
+                '| opacity:', cs.opacity,
+                '| position:', cs.position);
+            console.log('[MSPPortal] Diag — portal rect:', JSON.stringify({w: r.width, h: r.height, t: r.top, l: r.left}));
+            if (topEl) {
+                const isPortal = topEl.closest('#msp-portal');
+                console.log('[MSPPortal] Diag — elementFromPoint(' + cx + ',' + cy + '):',
+                    topEl.tagName, '#' + topEl.id, '.' + topEl.className.toString().substring(0, 80),
+                    isPortal ? '✓ inside portal' : '✗ BLOCKING portal');
+                if (!isPortal) {
+                    const bcs = getComputedStyle(topEl);
+                    console.error('[MSPPortal] BLOCKER CSS — z-index:', bcs.zIndex,
+                        '| position:', bcs.position,
+                        '| display:', bcs.display,
+                        '| pointer-events:', bcs.pointerEvents);
+                    // Walk up to find the positioned ancestor
+                    let el = topEl;
+                    while (el && el !== document.body) {
+                        const s = getComputedStyle(el);
+                        if (s.position !== 'static' && s.zIndex !== 'auto') {
+                            console.error('[MSPPortal] Positioned ancestor:', el.tagName, '#' + el.id, '.' + (el.className || '').toString().substring(0, 60), 'z-index:', s.zIndex);
+                        }
+                        el = el.parentElement;
+                    }
+                }
+            }
+        }, 300);
+
         // Start live clock on dashboard
         if (this.state.activeView === 'dashboard') this._startClock();
 
@@ -311,6 +352,19 @@ const MSPPortal = {
             self._handlePortalClick(e);
         };
         document.addEventListener('click', this._portalClickHandler);
+
+        // DIAGNOSTIC: capture-phase listener on document to detect if clicks
+        // reach the document at all when portal is open
+        if (!this._diagClickBound) {
+            this._diagClickBound = true;
+            document.addEventListener('click', function(e) {
+                if (!document.getElementById('msp-portal')) return;
+                const inPortal = e.target.closest('#msp-portal');
+                console.log('[MSPPortal] DOC click — target:', e.target.tagName,
+                    e.target.className?.toString().substring(0, 40),
+                    inPortal ? '(inside portal)' : '(outside portal)');
+            }, true); // capture phase
+        }
         this.attachDataViewEvents();
     },
 

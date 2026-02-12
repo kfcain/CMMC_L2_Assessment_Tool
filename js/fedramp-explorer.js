@@ -737,78 +737,64 @@ const FedRAMPExplorer = {
         });
 
         // Delegated click handler for cards, groups, pagination.
-        // Bind directly on the container element (primary) AND on document (fallback).
-        // Direct binding is more reliable against Cloudflare Rocket Loader and
-        // other script rewriters that can break document-level delegation.
-        if (this._docClickHandler) document.removeEventListener('click', this._docClickHandler);
-        if (this._containerClickHandler && this.container) {
-            this.container.removeEventListener('click', this._containerClickHandler);
+        // Bind once on the container element. The container (#fedramp-explorer-content)
+        // is a static DOM node so direct binding is reliable. We only bind once —
+        // subsequent _bindEvents calls skip if the handler is already attached.
+        if (this._docClickHandler) {
+            document.removeEventListener('click', this._docClickHandler);
+            this._docClickHandler = null;
         }
-
-        this._containerClickHandler = function(e) {
-            // Group card expand/collapse
-            const groupHeader = e.target.closest('.fre-group-header');
-            if (groupHeader) {
-                const key = groupHeader.dataset.group;
-                self.expandedGroup = self.expandedGroup === key ? null : key;
-                self.expandedId = null;
-                self._updateResults();
-                // Scroll to the group
-                if (self.expandedGroup) {
-                    setTimeout(() => {
-                        const card = self.container?.querySelector('.fre-group-card[data-group="' + key + '"]');
-                        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 50);
-                }
-                return;
-            }
-
-            // Provider card expand/collapse
-            const header = e.target.closest('.fre-card-header');
-            if (header) {
-                const id = header.dataset.id;
-                self.expandedId = self.expandedId === id ? null : id;
-                self._updateResults();
-                return;
-            }
-
-            // Tile click (card grid view) — expand to detail
-            const tile = e.target.closest('.fre-tile');
-            if (tile && !e.target.closest('a')) {
-                const id = tile.dataset.id;
-                self.expandedId = self.expandedId === id ? null : id;
-                self._updateResults();
-                return;
-            }
-
-            // Pagination (list view)
-            const pageBtn = e.target.closest('.fre-page-btn');
-            if (pageBtn && !pageBtn.disabled) {
-                const val = pageBtn.dataset.page;
-                const totalPages = Math.ceil(self.filtered.length / self.pageSize);
-                if (val === 'prev') self.page = Math.max(0, self.page - 1);
-                else if (val === 'next') self.page = Math.min(totalPages - 1, self.page + 1);
-                else self.page = parseInt(val);
-                self._updateResults();
-                document.getElementById('fre-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        };
-
-        // PRIMARY: direct binding on container
-        if (this.container) {
+        if (!this._freClickBound && this.container) {
+            this._freClickBound = true;
             this.container.addEventListener('click', function(e) {
-                e._freHandled = true;
-                self._containerClickHandler(e);
+                // Group card expand/collapse
+                const groupHeader = e.target.closest('.fre-group-header');
+                if (groupHeader) {
+                    const key = groupHeader.dataset.group;
+                    self.expandedGroup = self.expandedGroup === key ? null : key;
+                    self.expandedId = null;
+                    self._updateResults();
+                    // Scroll to the group
+                    if (self.expandedGroup) {
+                        setTimeout(() => {
+                            const card = self.container?.querySelector('.fre-group-card[data-group="' + key + '"]');
+                            if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 50);
+                    }
+                    return;
+                }
+
+                // Provider card expand/collapse
+                const header = e.target.closest('.fre-card-header');
+                if (header) {
+                    const id = header.dataset.id;
+                    self.expandedId = self.expandedId === id ? null : id;
+                    self._updateResults();
+                    return;
+                }
+
+                // Tile click (card grid view) — expand to detail
+                const tile = e.target.closest('.fre-tile');
+                if (tile && !e.target.closest('a')) {
+                    const id = tile.dataset.id;
+                    self.expandedId = self.expandedId === id ? null : id;
+                    self._updateResults();
+                    return;
+                }
+
+                // Pagination (list view)
+                const pageBtn = e.target.closest('.fre-page-btn');
+                if (pageBtn && !pageBtn.disabled) {
+                    const val = pageBtn.dataset.page;
+                    const totalPages = Math.ceil(self.filtered.length / self.pageSize);
+                    if (val === 'prev') self.page = Math.max(0, self.page - 1);
+                    else if (val === 'next') self.page = Math.min(totalPages - 1, self.page + 1);
+                    else self.page = parseInt(val);
+                    self._updateResults();
+                    document.getElementById('fre-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             });
         }
-
-        // SECONDARY: document-level fallback
-        this._docClickHandler = function(e) {
-            if (e._freHandled) return; // Already handled by direct listener
-            if (!e.target.closest('#fedramp-explorer-content')) return;
-            self._containerClickHandler(e);
-        };
-        document.addEventListener('click', this._docClickHandler);
     },
 
     // ── Partial re-render (grid + pagination + count) ─────────────────

@@ -932,7 +932,7 @@
                             .then(r => r.text())
                             .then(text => {
                                 const m = text.match(/CACHE_NAME\s*=\s*['"]([^'"]+)['"]/);
-                                if (m && m[1] !== 'cmmc-tool-v75') {
+                                if (m && m[1] !== 'cmmc-tool-v76') {
                                     console.log('[App] SW version mismatch, forcing update');
                                     reg.update();
                                 }
