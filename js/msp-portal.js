@@ -211,7 +211,7 @@ const MSPPortal = {
             ${Object.entries(sections).map(([k, s]) => `
                 <div class="msp-nav-section">
                     <div class="msp-nav-section-label">${s.label}</div>
-                    ${s.items.map(i => `<button class="msp-nav-btn ${i.id === this.state.activeView ? 'active' : ''}" data-view="${i.id}">${this.getIcon(i.icon)}<span>${i.name}</span></button>`).join('')}
+                    ${s.items.map(i => `<button class="msp-nav-btn ${i.id === this.state.activeView ? 'active' : ''}" data-view="${i.id}" data-action="switch-view" data-param="${i.id}">${this.getIcon(i.icon)}<span>${i.name}</span></button>`).join('')}
                 </div>
             `).join('')}
         </nav>
@@ -286,19 +286,7 @@ const MSPPortal = {
             if (e._mspHandled) return;
             e._mspHandled = true;
             try {
-                // Nav buttons
-                var navBtn = e.target.closest('.msp-nav-btn');
-                if (navBtn) {
-                    var viewId = navBtn.dataset.view;
-                    if (viewId) portal.switchView(viewId);
-                    return;
-                }
-                // Close button
-                if (e.target.closest('.msp-close-btn')) {
-                    portal.closePortal();
-                    return;
-                }
-                // data-action delegation
+                // data-action delegation handles nav buttons, close, and all other actions
                 var actionBtn = e.target.closest('[data-action]');
                 if (actionBtn) {
                     portal._handleAction(actionBtn);
