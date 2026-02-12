@@ -283,14 +283,14 @@ const MSPPortal = {
         const portal = this;
 
         function handleClick(e) {
+            if (e._mspHandled) return;
+            e._mspHandled = true;
             try {
-                // Nav buttons — handle first, inline
+                // Nav buttons
                 var navBtn = e.target.closest('.msp-nav-btn');
                 if (navBtn) {
                     var viewId = navBtn.dataset.view;
-                    if (viewId) {
-                        portal.switchView(viewId);
-                    }
+                    if (viewId) portal.switchView(viewId);
                     return;
                 }
                 // Close button
@@ -313,7 +313,7 @@ const MSPPortal = {
         if (portalRef) {
             portalRef.addEventListener('click', handleClick);
         }
-        // Also bind on document as safety net
+        // Document-level safety net
         this._portalClickHandler = function(e) {
             if (!e.target.closest('#msp-portal')) return;
             handleClick(e);
@@ -622,7 +622,6 @@ const MSPPortal = {
     },
 
     switchView: function(viewId) {
-        console.log('[MSP] switchView called:', viewId);
         this.state.activeView = viewId;
         document.querySelectorAll('.msp-nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewId));
         const nav = this.navigation.find(n => n.id === viewId);
