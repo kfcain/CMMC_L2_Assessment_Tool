@@ -160,6 +160,10 @@ const MSPPortal = {
             </div>`;
         document.body.appendChild(portalEl);
         this.attachPortalEvents(portalEl);
+        this.attachDataViewEvents();
+
+        // Start live clock since we open on dashboard
+        this._startClock();
 
         // Escape key handler
         this._escHandler = (e) => { if (e.key === 'Escape') this.closePortal(); };
