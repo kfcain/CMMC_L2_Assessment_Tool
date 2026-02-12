@@ -227,15 +227,7 @@ const MSPPortal = {
     attachPortalEvents: function() {
         // Use single delegated listener on the portal container for ALL actions
         const portal = document.getElementById('msp-portal');
-        if (!portal) { console.error('[MSP] Portal element not found'); return; }
-        // Debug: check for elements blocking the portal
-        const portalRect = portal.getBoundingClientRect();
-        const topEl = document.elementFromPoint(portalRect.left + 100, portalRect.top + 100);
-        if (topEl && !portal.contains(topEl)) {
-            console.warn('[MSP] Portal blocked by:', topEl.tagName, topEl.id, topEl.className, 'z-index:', getComputedStyle(topEl).zIndex);
-        } else {
-            console.log('[MSP] Portal is top element — clicks should work');
-        }
+        if (!portal) return;
         portal.addEventListener('click', (e) => {
             // Nav buttons
             const navBtn = e.target.closest('.msp-nav-btn');
