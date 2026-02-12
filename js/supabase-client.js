@@ -65,7 +65,14 @@ class SupabaseClient {
         if (this.initialized) return;
         
         if (typeof supabase === 'undefined') {
-            console.error('Supabase JS library not loaded');
+            console.warn('[Supabase] JS library not loaded — skipping init');
+            return;
+        }
+
+        // Skip initialization if credentials are still placeholders
+        if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL' || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
+            console.warn('[Supabase] Credentials not configured — running in local-only mode');
+            this.initialized = true;
             return;
         }
 

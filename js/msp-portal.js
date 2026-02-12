@@ -61,7 +61,8 @@ const MSPPortal = {
         'bar-chart': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
         'list': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
         'database': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',
-        'settings': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>'
+        'settings': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>',
+        'menu': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>'
     },
 
     init: function() {
@@ -72,29 +73,11 @@ const MSPPortal = {
 
     _escHandler: null,
 
-    // ── Live SOC Clock (synced via NTP → WorldTimeAPI) ──────────────
+    // ── Live SOC Clock (local UTC, ticks every second) ──────────────
     _clockInterval: null,
-    _ntpOffset: 0,
-    _ntpSynced: false,
-
-    _syncNTPTime: function() {
-        const self = this;
-        fetch('https://worldtimeapi.org/api/timezone/Etc/UTC', { cache: 'no-store' })
-            .then(r => r.json())
-            .then(data => {
-                if (data && data.utc_datetime) {
-                    const serverTime = new Date(data.utc_datetime).getTime();
-                    self._ntpOffset = serverTime - Date.now();
-                    self._ntpSynced = true;
-                    const badge = document.querySelector('.soc-sync-source');
-                    if (badge) badge.textContent = 'NTP Synced';
-                }
-            })
-            .catch(() => { self._ntpSynced = false; });
-    },
 
     _tickClock: function() {
-        const now = new Date(Date.now() + this._ntpOffset);
+        const now = new Date();
         const timeEl = document.querySelector('.soc-time');
         const dateEl = document.querySelector('.soc-date');
         if (timeEl) {
@@ -108,8 +91,6 @@ const MSPPortal = {
 
     _startClock: function() {
         this._stopClock();
-        this._syncNTPTime();
-        // Tick immediately, then every second
         this._tickClock();
         const self = this;
         this._clockInterval = setInterval(function() { self._tickClock(); }, 1000);
@@ -170,6 +151,7 @@ const MSPPortal = {
         portalEl.id = 'msp-portal';
         portalEl.innerHTML = `
             <div class="msp-portal-container">
+                <div class="msp-sidebar-backdrop" data-action="toggle-sidebar"></div>
                 <div class="msp-portal-sidebar">${sidebarHtml}</div>
                 <div class="msp-portal-main">
                     <div class="msp-portal-header">${headerHtml}</div>
@@ -178,9 +160,6 @@ const MSPPortal = {
             </div>`;
         document.body.appendChild(portalEl);
         this.attachPortalEvents(portalEl);
-
-        // Start live clock on dashboard
-        if (this.state.activeView === 'dashboard') this._startClock();
 
         // Escape key handler
         this._escHandler = (e) => { if (e.key === 'Escape') this.closePortal(); };
@@ -224,7 +203,10 @@ const MSPPortal = {
     renderHeader: function() {
         const stats = this.getStats();
         return `
-        <div class="msp-header-left"><h1 class="msp-header-title" id="msp-view-title">Dashboard</h1></div>
+        <div class="msp-header-left">
+            <button class="msp-mobile-menu-btn" data-action="toggle-sidebar" title="Menu">${this.getIcon('menu')}</button>
+            <h1 class="msp-header-title" id="msp-view-title">Dashboard</h1>
+        </div>
         <div class="msp-header-right">
             <div class="msp-header-stats">
                 <div class="msp-stat-mini"><span class="stat-value">${stats.totalClients}</span><span class="stat-label">Clients</span></div>
@@ -238,7 +220,12 @@ const MSPPortal = {
         const action = actionBtn.dataset.action;
         const param = actionBtn.dataset.param || '';
         switch (action) {
-            case 'switch-view': this.switchView(param); break;
+            case 'switch-view':
+                this.switchView(param);
+                // Auto-close sidebar on mobile after nav click
+                document.querySelector('.msp-portal-sidebar')?.classList.remove('open');
+                document.querySelector('.msp-sidebar-backdrop')?.classList.remove('open');
+                break;
             case 'add-client': this.showAddClientModal(); break;
             case 'edit-client': this.editClient(param); break;
             case 'remove-client': this.confirmRemoveClient(param); break;
@@ -253,6 +240,13 @@ const MSPPortal = {
             case 'add-task': MSPPortalViews._showAddTaskModal(param); break;
             case 'edit-task': MSPPortalViews._editTask(param); break;
             case 'seed-tasks': MSPPortalViews._seedDefaultTasks(param); break;
+            case 'toggle-sidebar': {
+                const sidebar = document.querySelector('.msp-portal-sidebar');
+                const backdrop = document.querySelector('.msp-sidebar-backdrop');
+                if (sidebar) sidebar.classList.toggle('open');
+                if (backdrop) backdrop.classList.toggle('open');
+                break;
+            }
             case 'close-portal': this.closePortal(); break;
             case 'close-and-navigate':
                 this.closePortal();
@@ -680,7 +674,7 @@ const MSPPortal = {
                     <span class="soc-status-text">SOC OPERATIONAL</span>
                     <span class="soc-time">${timeStr} UTC</span>
                     <span class="soc-date">${dateStr}</span>
-                    <span class="soc-sync-source" title="Clock synced via NTP (worldtimeapi.org)">Syncing...</span>
+                    <span class="soc-sync-source" title="Local UTC clock">Local UTC</span>
                 </div>
                 <div class="soc-status-right">
                     <span class="soc-integrations-badge">${connectedCount} Integrations Active</span>

@@ -14,7 +14,7 @@ class EvidenceUI {
      * Initialize evidence UI
      */
     async init() {
-        await supabaseClient.init();
+        try { await supabaseClient.init(); } catch (e) { console.warn('[EvidenceUI] Supabase init skipped:', e.message); }
         this.bindGlobalEvents();
         this.renderAuthUI();
         this.checkLoginRequired();

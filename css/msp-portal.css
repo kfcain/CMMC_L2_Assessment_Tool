@@ -2248,6 +2248,45 @@
     font-style: italic;
 }
 
+/* ==================== Mobile Menu Button (hidden on desktop) ==================== */
+.msp-mobile-menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+.msp-mobile-menu-btn:hover {
+    background: var(--accent-blue);
+    color: white;
+}
+.msp-mobile-menu-btn svg,
+.msp-mobile-menu-btn span {
+    pointer-events: none;
+}
+
+/* ==================== Sidebar Backdrop (mobile only) ==================== */
+.msp-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.msp-sidebar-backdrop.open {
+    opacity: 1;
+}
+
 /* ==================== Responsive ==================== */
 @media (max-width: 1200px) {
     .msp-dashboard-stats { grid-template-columns: repeat(2, 1fr); }
@@ -2268,8 +2307,110 @@
 }
 
 @media (max-width: 768px) {
-    .msp-portal-sidebar { display: none; }
-    .msp-dashboard-stats { grid-template-columns: 1fr; }
+    /* Sidebar → slide-out drawer */
+    .msp-portal-sidebar {
+        position: fixed;
+        top: 0;
+        left: -260px;
+        bottom: 0;
+        width: 250px;
+        z-index: 100;
+        transition: left 0.25s ease;
+    }
+    .msp-portal-sidebar.open {
+        left: 0;
+    }
+
+    /* Show backdrop when sidebar is open */
+    .msp-sidebar-backdrop {
+        display: block;
+        pointer-events: none;
+    }
+    .msp-sidebar-backdrop.open {
+        pointer-events: auto;
+    }
+
+    /* Show mobile menu button */
+    .msp-mobile-menu-btn {
+        display: flex;
+    }
+
+    /* Header: compact */
+    .msp-portal-header {
+        padding: 10px 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .msp-header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .msp-header-title {
+        font-size: 1rem;
+    }
+    .msp-header-stats {
+        gap: 12px;
+    }
+    .msp-stat-mini .stat-value {
+        font-size: 16px;
+    }
+
+    /* Content: tighter padding */
+    .msp-portal-content {
+        padding: 12px;
+    }
+
+    /* Dashboard stats: single column */
+    .msp-dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+
+    /* SOC status bar: wrap */
+    .soc-status-bar {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+    .soc-status-left {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .soc-status-right {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    /* SOC ticker: wrap */
+    .soc-ticker {
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 8px 12px;
+    }
+
+    /* Touch targets: minimum 44px */
+    .msp-nav-btn {
+        min-height: 44px;
+        padding: 10px 16px;
+    }
+    .msp-close-btn {
+        min-height: 44px;
+    }
+    .msp-header-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    .soc-refresh-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Tables: horizontal scroll */
+    .msp-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 /* ==================== Add Client Modal ==================== */

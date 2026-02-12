@@ -30,9 +30,11 @@ const IntegrityValidator = {
     async catalogScripts() {
         const scripts = document.querySelectorAll('script[src]');
         
+        const origin = location.origin;
         for (const script of scripts) {
             const src = script.src;
-            if (src && !src.startsWith('data:')) {
+            // Only catalog same-origin scripts to avoid CSP violations on CDN scripts
+            if (src && !src.startsWith('data:') && src.startsWith(origin)) {
                 try {
                     const response = await fetch(src);
                     const content = await response.text();
