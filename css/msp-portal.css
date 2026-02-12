@@ -111,6 +111,12 @@
     transition: background 0.15s, color 0.15s;
     text-align: left;
 }
+.msp-nav-btn svg,
+.msp-nav-btn span,
+.msp-close-btn svg,
+.msp-close-btn span {
+    pointer-events: none;
+}
 
 .env-tab {
     flex: 1;

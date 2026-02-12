@@ -8943,6 +8943,8 @@ function selectSearchResult(item) {
 // Replaces inline onclick handlers blocked by CSP script-src 'self'
 // ============================================================
 document.addEventListener('click', function(e) {
+    // Skip clicks inside MSP Portal — handled by its own delegation
+    if (e.target.closest('#msp-portal')) return;
     var btn = e.target.closest('[data-action]');
     if (!btn) return;
     var action = btn.dataset.action;
