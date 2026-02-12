@@ -6,6 +6,84 @@
 // Aligned with CIS Benchmarks + CMMC L2 requirements
 
 const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
+
+    // ═══════════════════════════════════════════════════════════════
+    // GCC HIGH / DOD SOVEREIGN CLOUD CONFIGURATION
+    // CRITICAL: CMMC L2 requires GCC High — these endpoints MUST be
+    // used instead of commercial equivalents in all app configs.
+    // ═══════════════════════════════════════════════════════════════
+    gccHighConfig: {
+        _important: "CMMC L2 assessments require Microsoft 365 GCC High (or DoD). All managed app configurations, Conditional Access policies, and endpoint references MUST use GCC High sovereign cloud URLs — NOT commercial (.com) endpoints.",
+        endpoints: {
+            authAuthority: "https://login.microsoftonline.us",
+            graphApi: "https://graph.microsoft.us",
+            exchangeOnline: "https://outlook.office365.us",
+            sharePoint: "https://{tenant}.sharepoint.us",
+            oneDrive: "https://{tenant}-my.sharepoint.us",
+            teams: "https://gov.teams.microsoft.us",
+            entraPortal: "https://entra.microsoft.us",
+            intunePortal: "https://intune.microsoft.us",
+            compliancePortal: "https://compliance.microsoft.us",
+            defenderPortal: "https://security.microsoft.us"
+        },
+        appConfigKeys: {
+            _note: "These Intune managed app configuration keys MUST be deployed to ensure apps connect to GCC High cloud, not commercial.",
+            outlook: {
+                "com.microsoft.outlook.EmailProfile.AccountType": "ModernAuth",
+                "com.microsoft.outlook.EmailProfile.ServerAuthentication": "ModernAuth",
+                "com.microsoft.outlook.EmailProfile.ServerAddress": "outlook.office365.us",
+                "com.microsoft.intune.mam.AllowedAccountUPNs": "{{userprincipalname}}",
+                "IntuneMAMAllowedAccountsOnly": "Enabled",
+                "IntuneMAMUPN": "{{userprincipalname}}"
+            },
+            teams: {
+                "com.microsoft.intune.mam.AllowedAccountUPNs": "{{userprincipalname}}",
+                "IntuneMAMAllowedAccountsOnly": "Enabled",
+                "IntuneMAMUPN": "{{userprincipalname}}"
+            },
+            edge: {
+                "com.microsoft.intune.mam.AllowedAccountUPNs": "{{userprincipalname}}",
+                "IntuneMAMAllowedAccountsOnly": "Enabled",
+                "com.microsoft.intune.mam.managedbrowser.NewTabPage.CustomURL": "https://portal.office365.us"
+            }
+        },
+        targetApps: {
+            _note: "iOS and Android use the SAME bundle IDs / package names for both commercial and GCC High. The app binary auto-detects the sovereign cloud based on the tenant. No separate GCC High app exists.",
+            ios: [
+                { bundleId: "com.microsoft.Office.Outlook", displayName: "Microsoft Outlook" },
+                { bundleId: "com.microsoft.skype.teams", displayName: "Microsoft Teams" },
+                { bundleId: "com.microsoft.sharepoint", displayName: "Microsoft SharePoint" },
+                { bundleId: "com.microsoft.Office", displayName: "Microsoft 365 (Office)" },
+                { bundleId: "com.microsoft.msedge", displayName: "Microsoft Edge" },
+                { bundleId: "com.microsoft.officemobile", displayName: "Microsoft 365 Mobile" },
+                { bundleId: "com.microsoft.skydrive", displayName: "Microsoft OneDrive" },
+                { bundleId: "com.microsoft.oneauth", displayName: "Microsoft Authenticator" }
+            ],
+            android: [
+                { packageName: "com.microsoft.office.outlook", displayName: "Microsoft Outlook" },
+                { packageName: "com.microsoft.teams", displayName: "Microsoft Teams" },
+                { packageName: "com.microsoft.sharepoint", displayName: "Microsoft SharePoint" },
+                { packageName: "com.microsoft.office.officehubrow", displayName: "Microsoft 365 (Office)" },
+                { packageName: "com.microsoft.emmx", displayName: "Microsoft Edge" },
+                { packageName: "com.microsoft.skydrive", displayName: "Microsoft OneDrive" },
+                { packageName: "com.azure.authenticator", displayName: "Microsoft Authenticator" },
+                { packageName: "com.microsoft.windowsintune.companyportal", displayName: "Intune Company Portal" }
+            ]
+        },
+        cloudStorage: {
+            _note: "When configuring allowed cloud storage locations in MAM policies, use GCC High SharePoint/OneDrive endpoints.",
+            allowedLocations: ["onedrive_business", "sharepoint"],
+            gccHighUrls: {
+                sharepoint: "https://{tenant}.sharepoint.us",
+                onedrive: "https://{tenant}-my.sharepoint.us"
+            },
+            commercialUrls_DO_NOT_USE: {
+                sharepoint: "https://{tenant}.sharepoint.com",
+                onedrive: "https://{tenant}-my.sharepoint.com"
+            }
+        }
+    },
+
     objectives: {
 
         // ═══════════════════════════════════════════════════════════════
@@ -121,13 +199,20 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                             payload: {
                                 policyName: "CMMC BYOD App Protection - iOS",
                                 policyType: "app_protection_policy",
-                                targetApps: ["com.microsoft.outlook", "com.microsoft.teams", "com.microsoft.sharepoint"],
+                                targetApps: ["com.microsoft.Office.Outlook", "com.microsoft.skype.teams", "com.microsoft.sharepoint", "com.microsoft.msedge", "com.microsoft.skydrive", "com.microsoft.Office"],
+                                _gccHighNote: "iOS bundle IDs are identical for commercial and GCC High. The app auto-detects the sovereign cloud from the tenant. Deploy managed app configuration (appConfig) keys from gccHighConfig.appConfigKeys to ensure apps connect to GCC High endpoints.",
+                                appConfig: {
+                                    _note: "Deploy as Intune Managed Apps App Configuration Policy targeting these apps",
+                                    "IntuneMAMAllowedAccountsOnly": "Enabled",
+                                    "IntuneMAMUPN": "{{userprincipalname}}"
+                                },
                                 dataProtection: {
                                     allowBackup: false,
                                     allowCutCopyPaste: "managedAppsOnly",
                                     allowSaveAs: "managedLocationsOnly",
                                     allowScreenCapture: false,
                                     allowCloudStorage: ["onedrive_business", "sharepoint"],
+                                    _cloudStorageNote: "In GCC High, OneDrive/SharePoint resolve to {tenant}.sharepoint.us and {tenant}-my.sharepoint.us — NOT .com",
                                     encryptAppData: true,
                                     disableContactSync: true,
                                     disablePrinting: true
@@ -160,13 +245,21 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                             payload: {
                                 policyName: "CMMC BYOD App Protection - Android",
                                 policyType: "app_protection_policy",
-                                targetApps: ["com.microsoft.outlook", "com.microsoft.teams", "com.microsoft.sharepoint"],
+                                targetApps: ["com.microsoft.office.outlook", "com.microsoft.teams", "com.microsoft.sharepoint", "com.microsoft.emmx", "com.microsoft.skydrive", "com.microsoft.office.officehubrow"],
+                                _gccHighNote: "Android package names are identical for commercial and GCC High. The app auto-detects the sovereign cloud from the tenant. Deploy managed app configuration (appConfig) keys from gccHighConfig.appConfigKeys to ensure apps connect to GCC High endpoints.",
+                                appConfig: {
+                                    _note: "Deploy as Intune Managed Apps App Configuration Policy targeting these apps",
+                                    "com.microsoft.intune.mam.AllowedAccountUPNs": "{{userprincipalname}}",
+                                    "IntuneMAMAllowedAccountsOnly": "Enabled",
+                                    "IntuneMAMUPN": "{{userprincipalname}}"
+                                },
                                 dataProtection: {
                                     allowBackup: false,
                                     allowCutCopyPaste: "managedAppsOnly",
                                     allowSaveAs: "managedLocationsOnly",
                                     allowScreenCapture: false,
                                     allowCloudStorage: ["onedrive_business", "sharepoint"],
+                                    _cloudStorageNote: "In GCC High, OneDrive/SharePoint resolve to {tenant}.sharepoint.us and {tenant}-my.sharepoint.us — NOT .com",
                                     encryptAppData: true,
                                     disableContactSync: true,
                                     disablePrinting: true,
@@ -251,13 +344,14 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                                 dataProtection: {
                                     allowCutCopyPaste: "managedAppsOnly",
                                     allowSaveAs: "managedLocationsOnly",
-                                    allowCloudStorage: ["onedrive_business"],
+                                    allowCloudStorage: ["onedrive_business", "sharepoint"],
+                                    _cloudStorageNote: "In GCC High, OneDrive/SharePoint resolve to {tenant}-my.sharepoint.us and {tenant}.sharepoint.us",
                                     receiveDataFromOtherApps: "managedApps",
                                     sendDataToOtherApps: "managedApps",
                                     allowThirdPartyKeyboard: false
                                 }
                             },
-                            cmmc_alignment: "App-level data flow control: CUI can only move between managed apps and approved cloud locations"
+                            cmmc_alignment: "App-level data flow control: CUI can only move between managed apps and approved GCC High cloud locations"
                         }
                     }
                 }
@@ -484,8 +578,9 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                                     passwordMinLength: 12
                                 },
                                 conditionalAccess: {
+                                    _gccHighNote: "In GCC High, Hybrid Entra Join replaces Hybrid Azure AD Join. Configure via entra.microsoft.us. Auth authority is login.microsoftonline.us.",
                                     requireCompliantDevice: true,
-                                    requireHybridAzureADJoin: true,
+                                    requireHybridEntraJoin: true,
                                     requireMFA: true,
                                     blockNonCompliant: true
                                 }
@@ -637,12 +732,13 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                                     },
                                     SystemDrivesRecoveryOptions: {
                                         RecoveryKeyRotation: true,
-                                        BackupToAAD: true
+                                        BackupToEntraID: true,
+                                        _gccHighNote: "Recovery keys back up to Entra ID (formerly Azure AD). In GCC High, the Entra portal is entra.microsoft.us."
                                     }
                                 }
                             },
                             cis_benchmark: "CIS Windows 11 - 18.10.9 BitLocker Drive Encryption",
-                            cmmc_alignment: "BitLocker XTS-AES-256 for OS and fixed drives; AES-CBC-256 for removable; recovery keys backed to Azure AD"
+                            cmmc_alignment: "BitLocker XTS-AES-256 for OS and fixed drives; AES-CBC-256 for removable; recovery keys backed to Entra ID (entra.microsoft.us in GCC High)"
                         },
                         linux: {
                             profile_name: "CMMC-Corp-Linux-Encryption",
@@ -718,11 +814,15 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                                     {
                                         PayloadType: "com.apple.applicationaccess",
                                         allowListedAppBundleIDs: [
-                                            "com.microsoft.outlook",
-                                            "com.microsoft.teams",
+                                            "com.microsoft.Office.Outlook",
+                                            "com.microsoft.skype.teams",
                                             "com.microsoft.sharepoint",
-                                            "com.microsoft.authenticator"
-                                        ]
+                                            "com.microsoft.oneauth",
+                                            "com.microsoft.msedge",
+                                            "com.microsoft.skydrive",
+                                            "com.microsoft.Office"
+                                        ],
+                                        _gccHighNote: "These are the correct iOS bundle IDs from the App Store. Same binary serves commercial and GCC High — the app detects the sovereign cloud from the Entra ID tenant."
                                     }
                                 ]
                             },
@@ -737,10 +837,14 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                                     installType: "BLOCKED",
                                     defaultPermissionPolicy: "DENY",
                                     allowedApplications: [
-                                        { packageName: "com.microsoft.outlook", installType: "FORCE_INSTALLED" },
+                                        { packageName: "com.microsoft.office.outlook", installType: "FORCE_INSTALLED" },
                                         { packageName: "com.microsoft.teams", installType: "FORCE_INSTALLED" },
-                                        { packageName: "com.microsoft.authenticator", installType: "FORCE_INSTALLED" }
-                                    ]
+                                        { packageName: "com.azure.authenticator", installType: "FORCE_INSTALLED" },
+                                        { packageName: "com.microsoft.emmx", installType: "FORCE_INSTALLED" },
+                                        { packageName: "com.microsoft.skydrive", installType: "FORCE_INSTALLED" },
+                                        { packageName: "com.microsoft.windowsintune.companyportal", installType: "FORCE_INSTALLED" }
+                                    ],
+                                    _gccHighNote: "These are the correct Android package names from Managed Google Play. Same APK serves commercial and GCC High — the app detects the sovereign cloud from the Entra ID tenant. Company Portal is required for MAM on unenrolled Android devices."
                                 },
                                 systemUpdate: { type: "WINDOWED", startMinutes: 120, endMinutes: 300 },
                                 factoryResetDisabled: true,
@@ -955,6 +1059,7 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                                     _note: "Device passcode + biometric (Face ID/Touch ID) = two factors. Conditional Access enforces MFA for cloud app access."
                                 }],
                                 conditionalAccessPolicy: {
+                                    _gccHighNote: "Conditional Access policies in GCC High use login.microsoftonline.us as the auth authority. Configure in Entra ID at entra.microsoft.us, NOT entra.microsoft.com.",
                                     grantControls: {
                                         requireMFA: true,
                                         requireCompliantDevice: true,
@@ -973,6 +1078,7 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                                     requirePasswordUnlock: "REQUIRE_EVERY_DAY"
                                 },
                                 conditionalAccessPolicy: {
+                                    _gccHighNote: "Conditional Access policies in GCC High use login.microsoftonline.us as the auth authority. Configure in Entra ID at entra.microsoft.us, NOT entra.microsoft.com.",
                                     grantControls: {
                                         requireMFA: true,
                                         requireCompliantDevice: true,
@@ -1063,6 +1169,7 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                                 },
                                 mobileThreatDefense: {
                                     provider: "Microsoft Defender for Endpoint",
+                                    _gccHighNote: "In GCC High, Defender for Endpoint uses security.microsoft.us portal. Ensure MTD connector in Intune (intune.microsoft.us) points to GCC High Defender instance.",
                                     maxAllowedThreatLevel: "low",
                                     blockOnHighThreat: true
                                 }
@@ -1078,6 +1185,7 @@ const COMPREHENSIVE_GUIDANCE_MDM_MAM = {
                                 },
                                 mobileThreatDefense: {
                                     provider: "Microsoft Defender for Endpoint",
+                                    _gccHighNote: "In GCC High, Defender for Endpoint uses security.microsoft.us portal. Ensure MTD connector in Intune (intune.microsoft.us) points to GCC High Defender instance.",
                                     maxAllowedThreatLevel: "low",
                                     blockOnHighThreat: true
                                 }
