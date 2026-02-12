@@ -1,7 +1,7 @@
 // Service Worker for CMMC Assessment Tool
 // Provides offline caching and faster repeat visits
 
-const CACHE_NAME = 'cmmc-tool-v80';
+const CACHE_NAME = 'cmmc-tool-v81';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // Core files that should always be cached
@@ -140,7 +140,7 @@ self.addEventListener('fetch', event => {
                         if (cachedResponse) return cachedResponse;
                         // Last resort: serve index.html for navigation requests
                         if (event.request.mode === 'navigate') {
-                            return caches.match('/index.html');
+                            return caches.match('/index.html').then(r => r || new Response('Offline — please reload', { status: 503, headers: { 'Content-Type': 'text/html' } }));
                         }
                         return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
                     });
