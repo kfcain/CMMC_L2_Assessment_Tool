@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="css/fedramp-marketplace.css?v=202602120103">
     <link rel="stylesheet" href="css/fedramp-explorer.css?v=202602120103">
     <link rel="stylesheet" href="css/integrations-hub.css?v=202602120103">
+    <link rel="stylesheet" href="css/l2-guide.css?v=202602130001">
     <link rel="stylesheet" href="css/responsive.css?v=202602120103">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -87,6 +88,10 @@
             <div class="topnav-cat">
                 <button class="topnav-trigger" aria-expanded="false">Docs</button>
                 <div class="topnav-dropdown">
+                    <button class="hamburger-nav-btn" data-view="l2-guide">
+                        <span class="hb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span>
+                        <span class="hb-label">L2 Quick Guide</span>
+                    </button>
                     <button class="hamburger-nav-btn" data-view="impl-guide">
                         <span class="hb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
                         <span class="hb-label">Architecture Guide</span>
@@ -530,6 +535,11 @@
             <div id="fedramp-explorer-view" class="view">
                 <div id="fedramp-explorer-content"></div>
             </div>
+
+            <!-- CMMC L2 Interactive Guide View -->
+            <div id="l2-guide-view" class="view">
+                <div id="l2-guide-content"></div>
+            </div>
         </main>
     </div>
 
@@ -879,6 +889,10 @@
     <script data-cfasync="false" src="js/executive-dashboard.js?v=202602120103" defer></script>
     <script data-cfasync="false" src="js/settings-page.js?v=202602120103" defer></script>
     <script data-cfasync="false" src="js/docs-hub.js?v=202602120103" defer></script>
+    
+    <!-- CMMC L2 Interactive Guide -->
+    <script data-cfasync="false" src="data/cmmc-l2-guide-data.js?v=202602130001" defer></script>
+    <script data-cfasync="false" src="js/l2-guide.js?v=202602130001" defer></script>
     
     <!-- Service Worker Registration -->
     <!-- Update Toast -->
