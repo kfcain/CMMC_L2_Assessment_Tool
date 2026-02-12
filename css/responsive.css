@@ -247,8 +247,7 @@
         margin: 8px;
     }
 
-    /* Hamburger dropdown */
-    .hamburger-dropdown { width: calc(100vw - 16px); max-width: 320px; }
+    /* Hamburger drawer handled in styles.css as slide-out panel */
 }
 
 /* ── EXTRA SMALL (≤375px — iPhone SE) ─────────────────────── */
@@ -258,5 +257,5 @@
     .header-branding { gap: 4px; }
     .header-badge { font-size: 0.55rem; padding: 2px 5px; }
     .header-title { font-size: 0.8rem; }
-    .hamburger-dropdown { width: calc(100vw - 12px); }
+    /* Hamburger drawer handled in styles.css as slide-out panel */
 }
