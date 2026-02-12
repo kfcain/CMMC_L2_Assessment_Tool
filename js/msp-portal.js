@@ -668,11 +668,21 @@ const MSPPortal = {
     },
 
     switchView: function(viewId) {
+        console.log('[MSPPortal] switchView →', viewId);
         this.state.activeView = viewId;
         document.querySelectorAll('.msp-nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewId));
         const nav = this.navigation.find(n => n.id === viewId);
         document.getElementById('msp-view-title').textContent = nav?.name || viewId;
-        document.getElementById('msp-portal-content').innerHTML = this.renderView(viewId);
+        const contentEl = document.getElementById('msp-portal-content');
+        console.log('[MSPPortal] contentEl found:', !!contentEl);
+        try {
+            const html = this.renderView(viewId);
+            console.log('[MSPPortal] renderView returned', typeof html, html ? html.substring(0, 80) + '...' : '(empty)');
+            if (contentEl) contentEl.innerHTML = html;
+        } catch (err) {
+            console.error('[MSPPortal] renderView THREW for', viewId, err);
+            if (contentEl) contentEl.innerHTML = '<div class="soc-empty"><p>View "' + viewId + '" failed to render. Check console.</p></div>';
+        }
         this.attachDataViewEvents();
         // Start/stop live clock based on view
         if (viewId === 'dashboard') this._startClock(); else this._stopClock();
@@ -686,9 +696,13 @@ const MSPPortal = {
     },
 
     renderView: function(viewId) {
-        if (typeof MSPPortalViews !== 'undefined' && MSPPortalViews[viewId]) {
+        const hasViews = typeof MSPPortalViews !== 'undefined';
+        const hasFn = hasViews && typeof MSPPortalViews[viewId] === 'function';
+        console.log('[MSPPortal] renderView:', viewId, '| MSPPortalViews defined:', hasViews, '| has fn:', hasFn);
+        if (hasFn) {
             return MSPPortalViews[viewId](this);
         }
+        console.warn('[MSPPortal] No view function for "' + viewId + '", falling back to dashboard');
         return this.renderDashboard();
     },
 
