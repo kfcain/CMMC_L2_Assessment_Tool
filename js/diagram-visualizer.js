@@ -100,6 +100,10 @@ const DiagramVisualizer = {
                         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v10l7-4"/></svg>' +
                         ' AI Assist' +
                     '</button>' +
+                    '<button class="dv-tb-btn dv-tb-accent" id="dv-btn-scan" title="Scan Diagram Image">' +
+                        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
+                        ' Scan Diagram' +
+                    '</button>' +
                     '<span class="dv-tb-sep"></span>' +
                     '<button class="dv-tb-btn" id="dv-btn-add-asset" title="Add Asset">+ Asset</button>' +
                     '<button class="dv-tb-btn" id="dv-btn-add-conn" title="Add Connection">+ Connection</button>' +
@@ -211,10 +215,12 @@ const DiagramVisualizer = {
             self._nodes.push({
                 id: app.id,
                 type: 'app',
-                x: 0, y: 0,
+                x: typeof app._vizX === 'number' ? app._vizX : 0,
+                y: typeof app._vizY === 'number' ? app._vizY : 0,
                 w: self.NODE_W, h: self.NODE_H,
                 data: app,
-                el: null
+                el: null,
+                _hasPosition: typeof app._vizX === 'number' && typeof app._vizY === 'number'
             });
         });
 
@@ -223,10 +229,12 @@ const DiagramVisualizer = {
             self._nodes.push({
                 id: asset.id,
                 type: 'asset',
-                x: 0, y: 0,
+                x: typeof asset._vizX === 'number' ? asset._vizX : 0,
+                y: typeof asset._vizY === 'number' ? asset._vizY : 0,
                 w: self.NODE_W, h: self.NODE_H,
                 data: asset,
-                el: null
+                el: null,
+                _hasPosition: typeof asset._vizX === 'number' && typeof asset._vizY === 'number'
             });
         });
 
@@ -282,6 +290,7 @@ const DiagramVisualizer = {
 
             var rowY = 120;
             items.forEach(function(n) {
+                if (n._hasPosition) return; // Skip nodes with saved positions
                 n.x = colX;
                 n.y = rowY;
                 rowY += n.h + rowGap;
@@ -296,6 +305,7 @@ const DiagramVisualizer = {
             if (!items) return;
             var rowY = 120;
             items.forEach(function(n) {
+                if (n._hasPosition) return; // Skip nodes with saved positions
                 n.x = colX;
                 n.y = rowY;
                 rowY += n.h + rowGap;
@@ -521,22 +531,29 @@ const DiagramVisualizer = {
             g.appendChild(badgeG);
         }
 
-        // Connection handles (small circles at top/bottom)
-        var handleTop = document.createElementNS(ns, 'circle');
-        handleTop.setAttribute('cx', String(node.w / 2));
-        handleTop.setAttribute('cy', '0');
-        handleTop.setAttribute('r', '4');
-        handleTop.setAttribute('fill', palette.border || '#7aa2f7');
-        handleTop.setAttribute('class', 'dv-handle');
-        g.appendChild(handleTop);
-
-        var handleBot = document.createElementNS(ns, 'circle');
-        handleBot.setAttribute('cx', String(node.w / 2));
-        handleBot.setAttribute('cy', String(node.h));
-        handleBot.setAttribute('r', '4');
-        handleBot.setAttribute('fill', palette.border || '#7aa2f7');
-        handleBot.setAttribute('class', 'dv-handle');
-        g.appendChild(handleBot);
+        // Connection handles (top, right, bottom, left)
+        var handlePositions = [
+            { cx: node.w / 2, cy: 0, hx: node.w / 2, hy: 0 },
+            { cx: node.w, cy: node.h / 2, hx: node.w, hy: node.h / 2 },
+            { cx: node.w / 2, cy: node.h, hx: node.w / 2, hy: node.h },
+            { cx: 0, cy: node.h / 2, hx: 0, hy: node.h / 2 }
+        ];
+        var self2 = this;
+        handlePositions.forEach(function(hp) {
+            var handle = document.createElementNS(ns, 'circle');
+            handle.setAttribute('cx', String(hp.cx));
+            handle.setAttribute('cy', String(hp.cy));
+            handle.setAttribute('r', '5');
+            handle.setAttribute('fill', palette.border || '#7aa2f7');
+            handle.setAttribute('class', 'dv-handle');
+            handle.style.cursor = 'crosshair';
+            handle.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                self2._startWiring(node, hp.hx, hp.hy);
+            });
+            g.appendChild(handle);
+        });
 
         node.el = g;
         this._layerNodes.appendChild(g);
@@ -545,8 +562,11 @@ const DiagramVisualizer = {
         var self = this;
         g.addEventListener('mousedown', function(e) {
             if (e.button !== 0) return;
+            if (self._wiring) return; // Don't start drag during wiring
             e.stopPropagation();
             var pt = self._svgPoint(e);
+            node._prevX = node.x;
+            node._prevY = node.y;
             self._drag = { node: node, offsetX: pt.x - node.x, offsetY: pt.y - node.y };
             g.style.cursor = 'grabbing';
             self._selectNode(node);
@@ -554,7 +574,7 @@ const DiagramVisualizer = {
 
         g.addEventListener('dblclick', function(e) {
             e.stopPropagation();
-            self._showNodeDetails(node);
+            self._showNodeEditor(node);
         });
     },
 
@@ -665,12 +685,19 @@ const DiagramVisualizer = {
         });
 
         svg.addEventListener('mousemove', function(e) {
+            // Wiring mode: update temp line
+            if (self._wiring) {
+                var wpt = self._svgPoint(e);
+                self._updateWiring(wpt);
+                return;
+            }
             if (self._drag) {
                 var pt = self._svgPoint(e);
                 self._drag.node.x = pt.x - self._drag.offsetX;
                 self._drag.node.y = pt.y - self._drag.offsetY;
                 self._drag.node.el.setAttribute('transform', 'translate(' + self._drag.node.x + ',' + self._drag.node.y + ')');
                 self._updateEdges();
+                self._updateZoneBackgrounds();
                 return;
             }
             if (self._pan) {
@@ -682,17 +709,39 @@ const DiagramVisualizer = {
             }
         });
 
-        svg.addEventListener('mouseup', function() {
+        svg.addEventListener('mouseup', function(e) {
+            // Wiring mode: check if dropped on a node
+            if (self._wiring) {
+                var wpt = self._svgPoint(e);
+                var targetNode = null;
+                self._nodes.forEach(function(n) {
+                    if (n.id !== self._wiring.sourceNode.id &&
+                        wpt.x >= n.x && wpt.x <= n.x + n.w &&
+                        wpt.y >= n.y && wpt.y <= n.y + n.h) {
+                        targetNode = n;
+                    }
+                });
+                self._endWiring(targetNode);
+                return;
+            }
             if (self._drag) {
-                self._drag.node.el.style.cursor = 'grab';
+                var draggedNode = self._drag.node;
+                draggedNode.el.style.cursor = 'grab';
                 self._drag = null;
-                // Save positions back to DiagramHub? (optional)
+                // Enforce scope containment
+                if (self._enforceScopeOnDrop(draggedNode)) {
+                    // Save position to DiagramHub
+                    self._saveNodePosition(draggedNode);
+                }
+                self._updateEdges();
+                self._updateZoneBackgrounds();
             }
             self._pan = null;
             svg.style.cursor = 'default';
         });
 
         svg.addEventListener('mouseleave', function() {
+            if (self._wiring) { self._cancelWiring(); }
             self._drag = null;
             self._pan = null;
             svg.style.cursor = 'default';
@@ -820,6 +869,9 @@ const DiagramVisualizer = {
 
         // AI Assist
         modal.querySelector('#dv-btn-ai').addEventListener('click', function() { self._showAIPanel(); });
+
+        // Scan Diagram
+        modal.querySelector('#dv-btn-scan').addEventListener('click', function() { self._showScanDiagramPanel(); });
 
         // Add Asset
         modal.querySelector('#dv-btn-add-asset').addEventListener('click', function() { self._showAddAssetPanel(); });
@@ -1209,6 +1261,702 @@ const DiagramVisualizer = {
             }, 'image/png');
         };
         img.src = url;
+    },
+
+    // ═══════════════════════════════════════════
+    //  Feature 1: Scan Diagram (AI Vision)
+    // ═══════════════════════════════════════════
+    _scanImageData: null,
+    _scanImageType: null,
+
+    _showScanDiagramPanel: function() {
+        var panel = document.getElementById('dv-side-panel');
+        if (!panel) return;
+        panel.style.display = 'block';
+
+        var savedKey = localStorage.getItem('dv_llm_api_key') || '';
+        var savedProvider = localStorage.getItem('dv_llm_provider') || 'anthropic';
+
+        panel.innerHTML =
+            '<div class="dv-panel-header"><h3>Scan Diagram</h3><button class="dv-panel-close" id="dv-panel-close">&times;</button></div>' +
+            '<div class="dv-panel-body">' +
+                '<p class="dv-panel-desc">Upload a network diagram image and AI will identify assets and connections to add to your topology.</p>' +
+                '<div class="dv-scan-upload-area" id="dv-scan-upload">' +
+                    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
+                    '<p>Drop image here or click to browse</p>' +
+                    '<input type="file" id="dv-scan-file" accept="image/*" style="display:none">' +
+                '</div>' +
+                '<div id="dv-scan-preview-wrap" style="display:none;">' +
+                    '<img id="dv-scan-preview" class="dv-scan-preview" />' +
+                    '<button class="dv-panel-btn-secondary" id="dv-scan-clear" style="margin-top:6px;">Remove</button>' +
+                '</div>' +
+                '<div class="dv-panel-form-group" style="margin-top:12px;"><label>LLM Provider</label>' +
+                    '<select id="dv-scan-provider">' +
+                        '<option value="anthropic"' + (savedProvider === 'anthropic' ? ' selected' : '') + '>Anthropic (Claude)</option>' +
+                        '<option value="openai"' + (savedProvider === 'openai' ? ' selected' : '') + '>OpenAI (GPT)</option>' +
+                        '<option value="google"' + (savedProvider === 'google' ? ' selected' : '') + '>Google (Gemini)</option>' +
+                    '</select>' +
+                '</div>' +
+                '<div class="dv-panel-form-group"><label>API Key</label>' +
+                    '<input type="password" id="dv-scan-key" value="' + this._escapeHtml(savedKey) + '" placeholder="Your API key">' +
+                    '<small class="dv-panel-hint">Stored locally in your browser only</small>' +
+                '</div>' +
+                '<div class="dv-panel-form-group"><label>Context (optional)</label>' +
+                    '<textarea id="dv-scan-context" rows="2" placeholder="e.g., This is our GCC High enclave with Palo Alto firewalls..."></textarea>' +
+                '</div>' +
+                '<button class="dv-panel-btn-primary" id="dv-scan-analyze" disabled>' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+                    ' Analyze Image' +
+                '</button>' +
+                '<div id="dv-scan-status" style="display:none;"></div>' +
+            '</div>';
+
+        var self = this;
+        panel.querySelector('#dv-panel-close').addEventListener('click', function() { panel.style.display = 'none'; });
+
+        var uploadArea = panel.querySelector('#dv-scan-upload');
+        var fileInput = panel.querySelector('#dv-scan-file');
+        var previewWrap = panel.querySelector('#dv-scan-preview-wrap');
+        var previewImg = panel.querySelector('#dv-scan-preview');
+        var analyzeBtn = panel.querySelector('#dv-scan-analyze');
+
+        uploadArea.addEventListener('click', function() { fileInput.click(); });
+        uploadArea.addEventListener('dragover', function(e) { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+        uploadArea.addEventListener('dragleave', function() { uploadArea.classList.remove('drag-over'); });
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            if (e.dataTransfer.files[0]) self._handleScanFile(e.dataTransfer.files[0], uploadArea, previewWrap, previewImg, analyzeBtn);
+        });
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files[0]) self._handleScanFile(fileInput.files[0], uploadArea, previewWrap, previewImg, analyzeBtn);
+        });
+
+        panel.querySelector('#dv-scan-clear').addEventListener('click', function() {
+            self._scanImageData = null;
+            self._scanImageType = null;
+            uploadArea.style.display = '';
+            previewWrap.style.display = 'none';
+            analyzeBtn.disabled = true;
+        });
+
+        analyzeBtn.addEventListener('click', function() { self._analyzeImage(); });
+    },
+
+    _handleScanFile: function(file, uploadArea, previewWrap, previewImg, analyzeBtn) {
+        if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
+        if (file.size > 20 * 1024 * 1024) { alert('Image must be under 20MB.'); return; }
+
+        var self = this;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            self._scanImageData = e.target.result;
+            self._scanImageType = file.type;
+            previewImg.src = e.target.result;
+            uploadArea.style.display = 'none';
+            previewWrap.style.display = 'block';
+            analyzeBtn.disabled = false;
+        };
+        reader.readAsDataURL(file);
+    },
+
+    _analyzeImage: async function() {
+        var provider = document.getElementById('dv-scan-provider').value;
+        var apiKey = document.getElementById('dv-scan-key').value.trim();
+        var context = document.getElementById('dv-scan-context').value.trim();
+        var statusEl = document.getElementById('dv-scan-status');
+
+        if (!apiKey) { alert('Please enter an API key.'); return; }
+        if (!this._scanImageData) { alert('Please upload an image first.'); return; }
+
+        localStorage.setItem('dv_llm_api_key', apiKey);
+        localStorage.setItem('dv_llm_provider', provider);
+
+        statusEl.style.display = 'block';
+        statusEl.innerHTML = '<div class="dv-ai-loading">Analyzing image with ' + (provider === 'anthropic' ? 'Claude' : provider === 'openai' ? 'GPT' : 'Gemini') + '...</div>';
+
+        var assetTypeKeys = typeof DiagramHub !== 'undefined' ? Object.keys(DiagramHub.ASSET_TYPES).join(', ') : 'server, workstation, laptop, mobile, firewall, router, switch, access_point, load_balancer, vpn, ids_ips, waf, cloud_service, database, storage, printer, voip, iot, virtual_machine, container, other';
+        var scopeKeys = 'cui, spa, crma, specialized, oos';
+
+        var systemPrompt = 'You are a network diagram analyzer for CMMC compliance assessments. Analyze the uploaded network diagram image and identify all network devices, servers, applications, cloud services, security appliances, and other IT assets visible in the diagram. Also identify connections/data flows between them.\n\n' +
+            'Return ONLY valid JSON in this exact format (no markdown, no explanation):\n' +
+            '{"assets":[{"name":"string","assetType":"one of: ' + assetTypeKeys + '","scopeCategory":"one of: ' + scopeKeys + '","hostname":"string or empty","ipAddress":"string or empty","description":"brief description","location":"string or empty"}],"connections":[{"sourceName":"exact asset name","targetName":"exact asset name","dataType":"CUI|FCI|Auth|Logs|Other","protocol":"e.g. HTTPS, TLS 1.3","encrypted":true,"direction":"unidirectional|bidirectional"}]}' +
+            (context ? '\n\nAdditional context about this environment: ' + context : '');
+
+        try {
+            var response;
+            var base64Data = this._scanImageData.split(',')[1];
+            var mimeType = this._scanImageType || 'image/png';
+
+            if (provider === 'anthropic') {
+                response = await this._callAnthropicVision(apiKey, systemPrompt, base64Data, mimeType);
+            } else if (provider === 'openai') {
+                response = await this._callOpenAIVision(apiKey, systemPrompt, this._scanImageData);
+            } else {
+                response = await this._callGoogleVision(apiKey, systemPrompt, base64Data, mimeType);
+            }
+
+            // Parse JSON from response
+            var jsonMatch = response.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) throw new Error('AI did not return valid JSON. Response: ' + response.substring(0, 200));
+
+            var parsed = JSON.parse(jsonMatch[0]);
+            if (!parsed.assets || !Array.isArray(parsed.assets)) throw new Error('Invalid response format: missing assets array.');
+
+            this._showScanResults(parsed);
+        } catch (err) {
+            statusEl.innerHTML = '<div class="dv-ai-error">Error: ' + this._escapeHtml(err.message) + '</div>';
+        }
+    },
+
+    _callAnthropicVision: async function(apiKey, prompt, base64Data, mimeType) {
+        var resp = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 4096,
+                messages: [{
+                    role: 'user',
+                    content: [
+                        { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64Data } },
+                        { type: 'text', text: prompt }
+                    ]
+                }]
+            })
+        });
+        if (!resp.ok) { var err = await resp.text(); throw new Error('Anthropic API error (' + resp.status + '): ' + err); }
+        var data = await resp.json();
+        return data.content && data.content[0] ? data.content[0].text : 'No response';
+    },
+
+    _callOpenAIVision: async function(apiKey, prompt, dataUrl) {
+        var resp = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+            body: JSON.stringify({
+                model: 'gpt-4o',
+                messages: [{
+                    role: 'user',
+                    content: [
+                        { type: 'text', text: prompt },
+                        { type: 'image_url', image_url: { url: dataUrl } }
+                    ]
+                }],
+                max_tokens: 4096
+            })
+        });
+        if (!resp.ok) { var err = await resp.text(); throw new Error('OpenAI API error (' + resp.status + '): ' + err); }
+        var data = await resp.json();
+        return data.choices && data.choices[0] ? data.choices[0].message.content : 'No response';
+    },
+
+    _callGoogleVision: async function(apiKey, prompt, base64Data, mimeType) {
+        var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey;
+        var resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [
+                        { inlineData: { mimeType: mimeType, data: base64Data } },
+                        { text: prompt }
+                    ]
+                }],
+                generationConfig: { maxOutputTokens: 4096 }
+            })
+        });
+        if (!resp.ok) { var err = await resp.text(); throw new Error('Gemini API error (' + resp.status + '): ' + err); }
+        var data = await resp.json();
+        var candidate = data.candidates && data.candidates[0];
+        return candidate ? candidate.content.parts.map(function(p) { return p.text; }).join('') : 'No response';
+    },
+
+    _showScanResults: function(parsed) {
+        var panel = document.getElementById('dv-side-panel');
+        if (!panel) return;
+
+        var assets = parsed.assets || [];
+        var connections = parsed.connections || [];
+
+        var typeOptions = '';
+        var catOptions = '';
+        if (typeof DiagramHub !== 'undefined') {
+            Object.keys(DiagramHub.ASSET_TYPES).forEach(function(key) {
+                var t = DiagramHub.ASSET_TYPES[key];
+                typeOptions += '<option value="' + key + '">' + t.icon + ' ' + t.name + '</option>';
+            });
+            Object.keys(DiagramHub.ASSET_CATEGORIES).forEach(function(key) {
+                var c = DiagramHub.ASSET_CATEGORIES[key];
+                catOptions += '<option value="' + key + '">' + c.name + '</option>';
+            });
+        }
+
+        var html = '<div class="dv-panel-header"><h3>Scan Results</h3><button class="dv-panel-close" id="dv-panel-close">&times;</button></div>' +
+            '<div class="dv-panel-body">';
+
+        // Assets section
+        html += '<div class="dv-scan-section-header">Assets (' + assets.length + ' found)</div>';
+        assets.forEach(function(a, i) {
+            html += '<div class="dv-scan-asset-card" data-idx="' + i + '">' +
+                '<label class="dv-scan-checkbox"><input type="checkbox" checked data-scan-asset="' + i + '"> Include</label>' +
+                '<div class="dv-panel-form-group"><label>Name</label><input type="text" data-field="name" value="' + (a.name || '').replace(/"/g, '&quot;') + '"></div>' +
+                '<div class="dv-panel-form-group"><label>Asset Type</label><select data-field="assetType">' + typeOptions.replace('value="' + (a.assetType || 'other') + '"', 'value="' + (a.assetType || 'other') + '" selected') + '</select></div>' +
+                '<div class="dv-panel-form-group"><label>Scope</label><select data-field="scopeCategory">' + catOptions.replace('value="' + (a.scopeCategory || 'cui') + '"', 'value="' + (a.scopeCategory || 'cui') + '" selected') + '</select></div>' +
+                '<div class="dv-panel-form-group"><label>Hostname</label><input type="text" data-field="hostname" value="' + (a.hostname || '').replace(/"/g, '&quot;') + '"></div>' +
+                '<div class="dv-panel-form-group"><label>IP Address</label><input type="text" data-field="ipAddress" value="' + (a.ipAddress || '').replace(/"/g, '&quot;') + '"></div>' +
+                '<div class="dv-panel-form-group"><label>Description</label><input type="text" data-field="description" value="' + (a.description || '').replace(/"/g, '&quot;') + '"></div>' +
+            '</div>';
+        });
+
+        // Connections section
+        if (connections.length > 0) {
+            html += '<div class="dv-scan-section-header" style="margin-top:16px;">Connections (' + connections.length + ' found)</div>';
+            connections.forEach(function(c, i) {
+                html += '<div class="dv-scan-conn-card" data-cidx="' + i + '">' +
+                    '<label class="dv-scan-checkbox"><input type="checkbox" checked data-scan-conn="' + i + '"> Include</label>' +
+                    '<div class="dv-panel-form-group"><label>Source</label><input type="text" data-cfield="sourceName" value="' + (c.sourceName || '').replace(/"/g, '&quot;') + '"></div>' +
+                    '<div class="dv-panel-form-group"><label>Target</label><input type="text" data-cfield="targetName" value="' + (c.targetName || '').replace(/"/g, '&quot;') + '"></div>' +
+                    '<div class="dv-panel-form-group"><label>Data Type</label><select data-cfield="dataType">' +
+                        '<option value="CUI"' + (c.dataType === 'CUI' ? ' selected' : '') + '>CUI</option>' +
+                        '<option value="FCI"' + (c.dataType === 'FCI' ? ' selected' : '') + '>FCI</option>' +
+                        '<option value="Auth"' + (c.dataType === 'Auth' ? ' selected' : '') + '>Auth</option>' +
+                        '<option value="Logs"' + (c.dataType === 'Logs' ? ' selected' : '') + '>Logs</option>' +
+                        '<option value="Other"' + (c.dataType === 'Other' ? ' selected' : '') + '>Other</option>' +
+                    '</select></div>' +
+                    '<div class="dv-panel-form-group"><label>Protocol</label><input type="text" data-cfield="protocol" value="' + (c.protocol || '').replace(/"/g, '&quot;') + '"></div>' +
+                    '<div class="dv-panel-form-group"><label>Direction</label><select data-cfield="direction">' +
+                        '<option value="unidirectional"' + (c.direction === 'unidirectional' ? ' selected' : '') + '>Unidirectional</option>' +
+                        '<option value="bidirectional"' + (c.direction !== 'unidirectional' ? ' selected' : '') + '>Bidirectional</option>' +
+                    '</select></div>' +
+                    '<div class="dv-panel-form-group"><label>Encrypted</label><select data-cfield="encrypted">' +
+                        '<option value="true"' + (c.encrypted !== false ? ' selected' : '') + '>Yes</option>' +
+                        '<option value="false"' + (c.encrypted === false ? ' selected' : '') + '>No</option>' +
+                    '</select></div>' +
+                '</div>';
+            });
+        }
+
+        html += '<div style="display:flex;gap:8px;margin-top:12px;">' +
+            '<button class="dv-panel-btn-primary" id="dv-scan-commit" style="flex:1;">Add All Selected</button>' +
+            '</div>' +
+            '<div style="display:flex;gap:8px;margin-top:6px;">' +
+            '<button class="dv-panel-btn-secondary" id="dv-scan-reanalyze" style="flex:1;">Re-analyze</button>' +
+            '<button class="dv-panel-btn-secondary" id="dv-scan-cancel" style="flex:1;">Cancel</button>' +
+            '</div>' +
+            '</div>';
+
+        panel.innerHTML = html;
+
+        var self = this;
+        panel.querySelector('#dv-panel-close').addEventListener('click', function() { panel.style.display = 'none'; });
+        panel.querySelector('#dv-scan-cancel').addEventListener('click', function() { panel.style.display = 'none'; });
+        panel.querySelector('#dv-scan-reanalyze').addEventListener('click', function() { self._showScanDiagramPanel(); });
+
+        panel.querySelector('#dv-scan-commit').addEventListener('click', function() {
+            self._commitScanResults(panel);
+        });
+    },
+
+    _commitScanResults: function(panel) {
+        if (typeof DiagramHub === 'undefined') return;
+
+        // Collect checked assets
+        var assetCards = panel.querySelectorAll('.dv-scan-asset-card');
+        var addedAssets = {};
+
+        assetCards.forEach(function(card) {
+            var idx = card.dataset.idx;
+            var cb = card.querySelector('input[data-scan-asset="' + idx + '"]');
+            if (!cb || !cb.checked) return;
+
+            var name = card.querySelector('[data-field="name"]').value.trim();
+            if (!name) return;
+
+            var asset = DiagramHub.addAsset({
+                name: name,
+                assetType: card.querySelector('[data-field="assetType"]').value,
+                scopeCategory: card.querySelector('[data-field="scopeCategory"]').value,
+                hostname: card.querySelector('[data-field="hostname"]').value.trim(),
+                ipAddress: card.querySelector('[data-field="ipAddress"]').value.trim(),
+                description: card.querySelector('[data-field="description"]').value.trim()
+            });
+            addedAssets[name.toLowerCase()] = asset.id;
+        });
+
+        // Collect checked connections
+        var connCards = panel.querySelectorAll('.dv-scan-conn-card');
+        connCards.forEach(function(card) {
+            var idx = card.dataset.cidx;
+            var cb = card.querySelector('input[data-scan-conn="' + idx + '"]');
+            if (!cb || !cb.checked) return;
+
+            var srcName = card.querySelector('[data-cfield="sourceName"]').value.trim().toLowerCase();
+            var tgtName = card.querySelector('[data-cfield="targetName"]').value.trim().toLowerCase();
+            var srcId = addedAssets[srcName];
+            var tgtId = addedAssets[tgtName];
+            if (!srcId || !tgtId || srcId === tgtId) return;
+
+            DiagramHub.addConnection({
+                sourceAppId: srcId,
+                targetAppId: tgtId,
+                dataType: card.querySelector('[data-cfield="dataType"]').value,
+                protocol: card.querySelector('[data-cfield="protocol"]').value.trim(),
+                direction: card.querySelector('[data-cfield="direction"]').value,
+                encrypted: card.querySelector('[data-cfield="encrypted"]').value === 'true'
+            });
+        });
+
+        // Reload topology
+        this._loadFromHub();
+        this._autoLayout();
+        this._renderAll();
+        this._fitView();
+        panel.style.display = 'none';
+        this._showToast('Assets and connections added from scan!', 'success');
+    },
+
+    // ═══════════════════════════════════════════
+    //  Feature 3: Inline Node Editor
+    // ═══════════════════════════════════════════
+    _showNodeEditor: function(node) {
+        var panel = document.getElementById('dv-side-panel');
+        if (!panel) return;
+        panel.style.display = 'block';
+
+        var d = node.data;
+        var isAsset = node.type === 'asset';
+
+        var typeOptions = '';
+        var catOptions = '';
+        if (typeof DiagramHub !== 'undefined') {
+            Object.keys(DiagramHub.ASSET_TYPES).forEach(function(key) {
+                var t = DiagramHub.ASSET_TYPES[key];
+                typeOptions += '<option value="' + key + '"' + (d.assetType === key ? ' selected' : '') + '>' + t.icon + ' ' + t.name + '</option>';
+            });
+            Object.keys(DiagramHub.ASSET_CATEGORIES).forEach(function(key) {
+                var c = DiagramHub.ASSET_CATEGORIES[key];
+                var sel = (d.assetCategory || d.scopeCategory || 'cui') === key ? ' selected' : '';
+                catOptions += '<option value="' + key + '"' + sel + '>' + c.name + '</option>';
+            });
+        }
+
+        panel.innerHTML =
+            '<div class="dv-panel-header"><h3>Edit ' + (isAsset ? 'Asset' : 'Application') + '</h3><button class="dv-panel-close" id="dv-panel-close">&times;</button></div>' +
+            '<div class="dv-panel-body dv-node-editor">' +
+                '<div class="dv-panel-form-group"><label>Name *</label><input type="text" id="dv-edit-name" value="' + this._escapeHtml(d.name) + '"></div>' +
+                (isAsset ? '<div class="dv-panel-form-group"><label>Asset Type</label><select id="dv-edit-type">' + typeOptions + '</select></div>' : '') +
+                '<div class="dv-panel-form-group dv-scope-highlight"><label>Scope Category</label><select id="dv-edit-scope">' + catOptions + '</select></div>' +
+                '<div class="dv-panel-form-group"><label>Hostname</label><input type="text" id="dv-edit-hostname" value="' + this._escapeHtml(d.hostname || '') + '"></div>' +
+                '<div class="dv-panel-form-group"><label>IP Address</label><input type="text" id="dv-edit-ip" value="' + this._escapeHtml(d.ipAddress || '') + '"></div>' +
+                '<div class="dv-panel-form-group"><label>Location</label><input type="text" id="dv-edit-location" value="' + this._escapeHtml(d.location || '') + '"></div>' +
+                '<div class="dv-panel-form-group"><label>Owner</label><input type="text" id="dv-edit-owner" value="' + this._escapeHtml(d.owner || '') + '"></div>' +
+                (isAsset ? '<div class="dv-panel-form-group"><label>Quantity</label><input type="number" id="dv-edit-qty" value="' + (d.quantity || 1) + '" min="1"></div>' : '') +
+                '<div class="dv-panel-form-group"><label>Description</label><textarea id="dv-edit-desc" rows="2">' + this._escapeHtml(d.description || '') + '</textarea></div>' +
+                '<button class="dv-panel-btn-primary" id="dv-edit-save">Save Changes</button>' +
+                '<button class="dv-panel-btn-secondary" id="dv-edit-delete" style="margin-top:8px;width:100%;color:#f7768e;border-color:rgba(247,118,142,0.3);">Delete</button>' +
+            '</div>';
+
+        var self = this;
+        panel.querySelector('#dv-panel-close').addEventListener('click', function() { panel.style.display = 'none'; });
+
+        panel.querySelector('#dv-edit-save').addEventListener('click', function() {
+            var name = document.getElementById('dv-edit-name').value.trim();
+            if (!name) { alert('Name is required.'); return; }
+
+            var updates = {
+                name: name,
+                hostname: document.getElementById('dv-edit-hostname').value.trim(),
+                ipAddress: document.getElementById('dv-edit-ip').value.trim(),
+                location: document.getElementById('dv-edit-location').value.trim(),
+                owner: document.getElementById('dv-edit-owner').value.trim(),
+                description: document.getElementById('dv-edit-desc').value.trim()
+            };
+
+            var scopeEl = document.getElementById('dv-edit-scope');
+            if (scopeEl) {
+                if (isAsset) {
+                    updates.scopeCategory = scopeEl.value;
+                } else {
+                    updates.assetCategory = scopeEl.value;
+                }
+            }
+
+            if (isAsset) {
+                var typeEl = document.getElementById('dv-edit-type');
+                if (typeEl) updates.assetType = typeEl.value;
+                var qtyEl = document.getElementById('dv-edit-qty');
+                if (qtyEl) updates.quantity = parseInt(qtyEl.value) || 1;
+                DiagramHub.updateAsset(node.id, updates);
+            } else {
+                DiagramHub.updateApplication(node.id, updates);
+            }
+
+            // Refresh
+            self._loadFromHub();
+            self._renderAll();
+            self._updateZoneBackgrounds();
+            panel.style.display = 'none';
+            self._showToast('Changes saved.', 'success');
+        });
+
+        panel.querySelector('#dv-edit-delete').addEventListener('click', function() {
+            if (!confirm('Delete this ' + (isAsset ? 'asset' : 'application') + '?')) return;
+            if (isAsset) {
+                DiagramHub.removeAsset(node.id);
+            } else {
+                DiagramHub.removeApplication(node.id);
+            }
+            self._loadFromHub();
+            self._autoLayout();
+            self._renderAll();
+            self._fitView();
+            panel.style.display = 'none';
+            self._showToast((isAsset ? 'Asset' : 'Application') + ' deleted.', 'success');
+        });
+    },
+
+    // ═══════════════════════════════════════════
+    //  Feature 2 & 5: Zone re-render, scope enforcement, position persistence
+    // ═══════════════════════════════════════════
+    _CUI_SCOPES: ['cui', 'spa', 'crma', 'specialized'],
+
+    _updateZoneBackgrounds: function() {
+        this._layerZones.innerHTML = '';
+        this._renderZoneBackgrounds();
+    },
+
+    _getZoneBounds: function(scopeList) {
+        var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        var found = false;
+        this._nodes.forEach(function(n) {
+            var cat = n.data.assetCategory || n.data.scopeCategory || 'cui';
+            if (scopeList.indexOf(cat) >= 0) {
+                found = true;
+                if (n.x < minX) minX = n.x;
+                if (n.y < minY) minY = n.y;
+                if (n.x + n.w > maxX) maxX = n.x + n.w;
+                if (n.y + n.h > maxY) maxY = n.y + n.h;
+            }
+        });
+        if (!found) return null;
+        var pad = this.ZONE_PAD;
+        return { x: minX - pad, y: minY - pad - 25, w: maxX - minX + pad * 2, h: maxY - minY + pad * 2 + 25 };
+    },
+
+    _isInsideBounds: function(node, bounds) {
+        if (!bounds) return false;
+        var cx = node.x + node.w / 2;
+        var cy = node.y + node.h / 2;
+        return cx >= bounds.x && cx <= bounds.x + bounds.w && cy >= bounds.y && cy <= bounds.y + bounds.h;
+    },
+
+    _enforceScopeOnDrop: function(node) {
+        var cat = node.data.assetCategory || node.data.scopeCategory || 'cui';
+        var isCuiScope = this._CUI_SCOPES.indexOf(cat) >= 0;
+        var isOos = cat === 'oos';
+
+        // Get current zone bounds
+        var cuiBounds = this._getZoneBounds(this._CUI_SCOPES);
+        var oosBounds = this._getZoneBounds(['oos']);
+
+        if (isOos && cuiBounds && this._isInsideBounds(node, cuiBounds)) {
+            // OOS node dragged into CUI zone — snap back
+            node.x = node._prevX;
+            node.y = node._prevY;
+            node.el.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
+            this._showToast('Out-of-scope assets cannot be in the CUI Environment. Change scope first.', 'warning', node);
+            return false;
+        }
+
+        if (isCuiScope && oosBounds && this._isInsideBounds(node, oosBounds)) {
+            // CUI-scope node dragged into OOS zone — snap back
+            node.x = node._prevX;
+            node.y = node._prevY;
+            node.el.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
+            this._showToast('In-scope assets cannot be moved to Out of Scope. Change scope first.', 'warning', node);
+            return false;
+        }
+
+        return true;
+    },
+
+    _saveNodePosition: function(node) {
+        if (typeof DiagramHub === 'undefined') return;
+        var updates = { _vizX: node.x, _vizY: node.y };
+        if (node.type === 'asset') {
+            DiagramHub.updateAsset(node.id, updates);
+        } else {
+            DiagramHub.updateApplication(node.id, updates);
+        }
+    },
+
+    // ═══════════════════════════════════════════
+    //  Feature 4: Drag-to-Connect (Wiring Mode)
+    // ═══════════════════════════════════════════
+    _wiring: null, // { sourceNode, handlePos, tempLine }
+
+    _startWiring: function(node, handleX, handleY) {
+        var ns = 'http://www.w3.org/2000/svg';
+        var line = document.createElementNS(ns, 'line');
+        line.setAttribute('x1', node.x + handleX);
+        line.setAttribute('y1', node.y + handleY);
+        line.setAttribute('x2', node.x + handleX);
+        line.setAttribute('y2', node.y + handleY);
+        line.setAttribute('stroke', this.COLORS.edgeAnimated);
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('stroke-dasharray', '6,4');
+        line.setAttribute('class', 'dv-temp-line');
+        this._layerEdges.appendChild(line);
+
+        this._wiring = {
+            sourceNode: node,
+            handleX: handleX,
+            handleY: handleY,
+            tempLine: line
+        };
+
+        // Highlight valid targets
+        var self = this;
+        this._nodes.forEach(function(n) {
+            if (n.id !== node.id && n.el) {
+                n.el.classList.add('dv-node-drop-target');
+            }
+        });
+    },
+
+    _updateWiring: function(svgPt) {
+        if (!this._wiring) return;
+        this._wiring.tempLine.setAttribute('x2', svgPt.x);
+        this._wiring.tempLine.setAttribute('y2', svgPt.y);
+    },
+
+    _endWiring: function(targetNode) {
+        if (!this._wiring) return;
+
+        // Clean up temp line and highlights
+        if (this._wiring.tempLine.parentNode) {
+            this._wiring.tempLine.parentNode.removeChild(this._wiring.tempLine);
+        }
+        var self = this;
+        this._nodes.forEach(function(n) {
+            if (n.el) n.el.classList.remove('dv-node-drop-target');
+        });
+
+        if (targetNode && targetNode.id !== this._wiring.sourceNode.id) {
+            this._showConnectionPopover(this._wiring.sourceNode, targetNode);
+        }
+
+        this._wiring = null;
+    },
+
+    _cancelWiring: function() {
+        if (!this._wiring) return;
+        if (this._wiring.tempLine.parentNode) {
+            this._wiring.tempLine.parentNode.removeChild(this._wiring.tempLine);
+        }
+        this._nodes.forEach(function(n) {
+            if (n.el) n.el.classList.remove('dv-node-drop-target');
+        });
+        this._wiring = null;
+    },
+
+    _showConnectionPopover: function(srcNode, tgtNode) {
+        // Remove any existing popover
+        var existing = document.querySelector('.dv-conn-popover');
+        if (existing) existing.remove();
+
+        var panel = document.getElementById('dv-side-panel');
+        if (!panel) return;
+        panel.style.display = 'block';
+
+        panel.innerHTML =
+            '<div class="dv-panel-header"><h3>New Connection</h3><button class="dv-panel-close" id="dv-panel-close">&times;</button></div>' +
+            '<div class="dv-panel-body">' +
+                '<p class="dv-panel-desc">' + this._escapeHtml(srcNode.data.name) + ' → ' + this._escapeHtml(tgtNode.data.name) + '</p>' +
+                '<div class="dv-panel-form-group"><label>Direction</label>' +
+                    '<div class="dv-direction-toggle">' +
+                        '<button class="dv-dir-btn active" data-dir="unidirectional">→ One-way</button>' +
+                        '<button class="dv-dir-btn" data-dir="bidirectional">↔ Both</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="dv-panel-form-group"><label>Data Type</label><select id="dv-wire-data">' +
+                    '<option value="CUI">CUI</option><option value="FCI">FCI</option><option value="Auth">Authentication</option><option value="Logs">Logs</option><option value="Other">Other</option>' +
+                '</select></div>' +
+                '<div class="dv-panel-form-group"><label>Protocol</label><input type="text" id="dv-wire-proto" placeholder="e.g., HTTPS, TLS 1.3"></div>' +
+                '<div class="dv-panel-form-group"><label>Encrypted?</label><select id="dv-wire-enc"><option value="true">Yes</option><option value="false">No</option></select></div>' +
+                '<button class="dv-panel-btn-primary" id="dv-wire-connect">Connect</button>' +
+            '</div>';
+
+        var self = this;
+        var direction = 'unidirectional';
+
+        panel.querySelector('#dv-panel-close').addEventListener('click', function() { panel.style.display = 'none'; });
+
+        panel.querySelectorAll('.dv-dir-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                panel.querySelectorAll('.dv-dir-btn').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                direction = btn.dataset.dir;
+            });
+        });
+
+        panel.querySelector('#dv-wire-connect').addEventListener('click', function() {
+            if (typeof DiagramHub !== 'undefined') {
+                DiagramHub.addConnection({
+                    sourceAppId: srcNode.id,
+                    targetAppId: tgtNode.id,
+                    dataType: document.getElementById('dv-wire-data').value,
+                    protocol: document.getElementById('dv-wire-proto').value.trim(),
+                    direction: direction,
+                    encrypted: document.getElementById('dv-wire-enc').value === 'true'
+                });
+            }
+            self._loadFromHub();
+            self._renderAll();
+            panel.style.display = 'none';
+            self._showToast('Connection created!', 'success');
+        });
+    },
+
+    // ═══════════════════════════════════════════
+    //  Toast notifications
+    // ═══════════════════════════════════════════
+    _showToast: function(message, type, node) {
+        var existing = document.querySelector('.dv-toast');
+        if (existing) existing.remove();
+
+        var toast = document.createElement('div');
+        toast.className = 'dv-toast dv-toast-' + (type || 'info');
+        toast.innerHTML = '<span>' + this._escapeHtml(message) + '</span>';
+
+        if (type === 'warning' && node) {
+            var self = this;
+            var changeBtn = document.createElement('button');
+            changeBtn.className = 'dv-toast-action';
+            changeBtn.textContent = 'Change Scope';
+            changeBtn.addEventListener('click', function() {
+                toast.remove();
+                self._showNodeEditor(node);
+            });
+            toast.appendChild(changeBtn);
+        }
+
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'dv-toast-close';
+        closeBtn.textContent = '×';
+        closeBtn.addEventListener('click', function() { toast.remove(); });
+        toast.appendChild(closeBtn);
+
+        var modal = document.querySelector('.dv-modal-content');
+        if (modal) modal.appendChild(toast);
+
+        setTimeout(function() { if (toast.parentNode) toast.remove(); }, 6000);
     },
 
     // ═══════════════════════════════════════════

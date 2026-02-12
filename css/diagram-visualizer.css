@@ -455,6 +455,250 @@
     border-top: 1px solid #414868;
 }
 
+/* ── Scan Diagram (AI Vision) ── */
+.dv-scan-upload-area {
+    border: 2px dashed #414868;
+    border-radius: 10px;
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    color: #7aa2f7;
+    margin-bottom: 12px;
+}
+.dv-scan-upload-area:hover,
+.dv-scan-upload-area.drag-over {
+    border-color: #7aa2f7;
+    background: rgba(122, 162, 247, 0.06);
+}
+.dv-scan-upload-area p {
+    margin: 8px 0 0;
+    font-size: 0.82rem;
+    color: #a9b1d6;
+}
+.dv-scan-preview {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 8px;
+    border: 1px solid #414868;
+    display: block;
+}
+.dv-scan-section-header {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #7aa2f7;
+    padding: 6px 0 4px;
+    border-bottom: 1px solid rgba(122, 162, 247, 0.2);
+    margin-bottom: 8px;
+}
+.dv-scan-asset-card,
+.dv-scan-conn-card {
+    background: rgba(30, 32, 48, 0.6);
+    border: 1px solid #414868;
+    border-left: 3px solid #7aa2f7;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+}
+.dv-scan-conn-card {
+    border-left-color: #bb9af7;
+}
+.dv-scan-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: #a9b1d6;
+    margin-bottom: 6px;
+    cursor: pointer;
+}
+.dv-scan-checkbox input[type="checkbox"] {
+    accent-color: #7aa2f7;
+}
+
+/* ── Node Editor ── */
+.dv-node-editor .dv-panel-form-group {
+    margin-bottom: 8px;
+}
+.dv-scope-highlight {
+    background: rgba(122, 162, 247, 0.08);
+    border: 1px solid rgba(122, 162, 247, 0.2);
+    border-radius: 6px;
+    padding: 8px;
+}
+.dv-scope-highlight label {
+    color: #7aa2f7 !important;
+    font-weight: 600 !important;
+}
+
+/* ── Drag-to-Connect ── */
+.dv-handle {
+    opacity: 0;
+    transition: opacity 0.15s, r 0.15s;
+    pointer-events: all;
+}
+.dv-node:hover .dv-handle {
+    opacity: 1;
+}
+.dv-handle:hover {
+    r: 7;
+    filter: drop-shadow(0 0 4px currentColor);
+}
+.dv-temp-line {
+    pointer-events: none;
+    animation: dv-dash-flow 0.6s linear infinite;
+}
+@keyframes dv-dash-flow {
+    to { stroke-dashoffset: -20; }
+}
+.dv-node-drop-target rect:nth-child(2) {
+    stroke: #bb9af7 !important;
+    stroke-width: 3 !important;
+    filter: drop-shadow(0 0 8px rgba(187, 154, 247, 0.4));
+}
+
+/* ── Direction Toggle ── */
+.dv-direction-toggle {
+    display: flex;
+    gap: 4px;
+}
+.dv-dir-btn {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #414868;
+    border-radius: 6px;
+    background: transparent;
+    color: #a9b1d6;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.dv-dir-btn:hover {
+    border-color: #7aa2f7;
+    color: #c0caf5;
+}
+.dv-dir-btn.active {
+    background: rgba(122, 162, 247, 0.15);
+    border-color: #7aa2f7;
+    color: #7aa2f7;
+    font-weight: 600;
+}
+
+/* ── Toast Notifications ── */
+.dv-toast {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    z-index: 1000;
+    animation: dv-toast-in 0.3s ease;
+    max-width: 500px;
+    backdrop-filter: blur(12px);
+}
+@keyframes dv-toast-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.dv-toast-success {
+    background: rgba(115, 218, 202, 0.15);
+    border: 1px solid rgba(115, 218, 202, 0.4);
+    color: #73daca;
+}
+.dv-toast-warning {
+    background: rgba(224, 175, 104, 0.15);
+    border: 1px solid rgba(224, 175, 104, 0.4);
+    color: #e0af68;
+}
+.dv-toast-info {
+    background: rgba(122, 162, 247, 0.15);
+    border: 1px solid rgba(122, 162, 247, 0.4);
+    color: #7aa2f7;
+}
+.dv-toast-action {
+    padding: 4px 10px;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 600;
+}
+.dv-toast-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.dv-toast-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0.6;
+    padding: 0 2px;
+    line-height: 1;
+}
+.dv-toast-close:hover {
+    opacity: 1;
+}
+
+/* ── Panel Buttons ── */
+.dv-panel-btn-primary {
+    width: 100%;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #7aa2f7, #bb9af7);
+    color: #1a1b26;
+    font-weight: 600;
+    font-size: 0.82rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: opacity 0.15s;
+}
+.dv-panel-btn-primary:hover {
+    opacity: 0.9;
+}
+.dv-panel-btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.dv-panel-btn-secondary {
+    padding: 6px 12px;
+    border: 1px solid #414868;
+    border-radius: 6px;
+    background: transparent;
+    color: #a9b1d6;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+.dv-panel-btn-secondary:hover {
+    border-color: #7aa2f7;
+    color: #c0caf5;
+}
+.dv-panel-desc {
+    font-size: 0.78rem;
+    color: #a9b1d6;
+    margin: 0 0 10px;
+    line-height: 1.4;
+}
+.dv-panel-hint {
+    font-size: 0.7rem;
+    color: #565f89;
+    display: block;
+    margin-top: 2px;
+}
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
     .dv-modal-content {
