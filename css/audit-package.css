@@ -1,0 +1,651 @@
+/**
+ * AI Audit Package Generator Styles
+ * SOC-style dark theme matching the app's existing design language
+ */
+
+/* ── Container ────────────────────────────────────────────── */
+.apg-container {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.apg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.apg-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.apg-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary, #c0caf5);
+}
+
+.apg-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted, #565f89);
+}
+
+.apg-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.apg-model-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--accent-blue, #7aa2f7)22;
+    color: var(--accent-blue, #7aa2f7);
+    border: 1px solid var(--accent-blue, #7aa2f7)44;
+}
+
+.apg-model-badge.apg-not-connected {
+    background: var(--status-not-met, #f7768e)15;
+    color: var(--status-not-met, #f7768e);
+    border-color: var(--status-not-met, #f7768e)33;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.apg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.apg-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.apg-btn-primary {
+    background: var(--accent-blue, #7aa2f7);
+    color: #1a1b26;
+}
+
+.apg-btn-primary:hover:not(:disabled) {
+    background: var(--accent-blue-hover, #89b4fa);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(122, 162, 247, 0.3);
+}
+
+.apg-btn-secondary {
+    background: var(--bg-elevated, #24283b);
+    color: var(--text-primary, #c0caf5);
+    border: 1px solid var(--border-color, #414868);
+}
+
+.apg-btn-secondary:hover:not(:disabled) {
+    background: var(--bg-hover, #292e42);
+    border-color: var(--accent-blue, #7aa2f7);
+}
+
+.apg-btn-ghost {
+    background: transparent;
+    color: var(--text-secondary, #a9b1d6);
+    border: 1px solid var(--border-color, #414868);
+}
+
+.apg-btn-ghost:hover:not(:disabled) {
+    background: var(--bg-elevated, #24283b);
+    color: var(--text-primary, #c0caf5);
+}
+
+.apg-btn-sm {
+    padding: 4px 12px;
+    font-size: 0.78rem;
+}
+
+.apg-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted, #565f89);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.apg-btn-icon:hover {
+    background: var(--accent-blue, #7aa2f7)22;
+    color: var(--accent-blue, #7aa2f7);
+}
+
+/* ── Progress Bar ─────────────────────────────────────────── */
+.apg-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-elevated, #24283b);
+    border-radius: 2px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.apg-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-blue, #7aa2f7), var(--accent-purple, #bb9af7));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+
+.apg-progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-muted, #565f89);
+    margin-bottom: 20px;
+}
+
+/* ── Phase Grid ───────────────────────────────────────────── */
+.apg-pipeline {
+    margin-bottom: 32px;
+}
+
+.apg-phase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.apg-phase {
+    background: var(--bg-surface, #1f2335);
+    border: 1px solid var(--border-color, #414868);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.apg-phase-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg-elevated, #24283b);
+    border-bottom: 1px solid var(--border-color, #414868);
+}
+
+.apg-phase-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--accent-blue, #7aa2f7)22;
+    color: var(--accent-blue, #7aa2f7);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.apg-phase-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary, #c0caf5);
+}
+
+.apg-agent-list {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* ── Agent Cards ──────────────────────────────────────────── */
+.apg-agent-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.apg-agent-card:hover {
+    background: var(--bg-elevated, #24283b);
+    border-color: var(--border-color, #414868);
+}
+
+.apg-agent-card.active {
+    background: var(--accent-blue, #7aa2f7)11;
+    border-color: var(--accent-blue, #7aa2f7)44;
+}
+
+.apg-agent-card.apg-agent-completed {
+    border-left: 3px solid var(--status-met, #9ece6a);
+}
+
+.apg-agent-card.apg-agent-error {
+    border-left: 3px solid var(--status-not-met, #f7768e);
+}
+
+.apg-agent-card.apg-agent-running {
+    border-left: 3px solid var(--accent-blue, #7aa2f7);
+}
+
+.apg-agent-icon {
+    flex-shrink: 0;
+    color: var(--text-muted, #565f89);
+    display: flex;
+    align-items: center;
+}
+
+.apg-agent-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.apg-agent-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary, #c0caf5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.apg-agent-desc {
+    font-size: 0.72rem;
+    color: var(--text-muted, #565f89);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.apg-agent-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.apg-agent-meta {
+    font-size: 0.7rem;
+    color: var(--text-muted, #565f89);
+    flex-shrink: 0;
+}
+
+/* ── Status Badges ────────────────────────────────────────── */
+.apg-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.apg-status-pending {
+    background: var(--text-muted, #565f89)22;
+    color: var(--text-muted, #565f89);
+}
+
+.apg-status-running {
+    background: var(--accent-blue, #7aa2f7)22;
+    color: var(--accent-blue, #7aa2f7);
+}
+
+.apg-status-completed {
+    background: var(--status-met, #9ece6a)22;
+    color: var(--status-met, #9ece6a);
+}
+
+.apg-status-error {
+    background: var(--status-not-met, #f7768e)22;
+    color: var(--status-not-met, #f7768e);
+}
+
+.apg-status-skipped {
+    background: var(--status-partial, #e0af68)22;
+    color: var(--status-partial, #e0af68);
+}
+
+/* ── Spinners ─────────────────────────────────────────────── */
+.apg-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(26, 27, 38, 0.3);
+    border-top-color: #1a1b26;
+    border-radius: 50%;
+    animation: apg-spin 0.6s linear infinite;
+}
+
+.apg-spinner-sm {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--accent-blue, #7aa2f7)44;
+    border-top-color: var(--accent-blue, #7aa2f7);
+    border-radius: 50%;
+    animation: apg-spin 0.6s linear infinite;
+}
+
+@keyframes apg-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Empty State ──────────────────────────────────────────── */
+.apg-empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted, #565f89);
+}
+
+.apg-empty-icon {
+    margin-bottom: 16px;
+    color: var(--text-muted, #565f89);
+    opacity: 0.5;
+}
+
+.apg-empty-state h3 {
+    color: var(--text-primary, #c0caf5);
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+}
+
+.apg-empty-state p {
+    max-width: 600px;
+    margin: 0 auto 24px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.apg-empty-phases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.apg-empty-phase {
+    padding: 12px 16px;
+    background: var(--bg-surface, #1f2335);
+    border: 1px solid var(--border-color, #414868);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: var(--text-secondary, #a9b1d6);
+}
+
+.apg-empty-phase strong {
+    color: var(--accent-blue, #7aa2f7);
+}
+
+/* ── Results Summary ──────────────────────────────────────── */
+.apg-results-summary {
+    margin-top: 8px;
+}
+
+.apg-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.apg-results-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary, #c0caf5);
+}
+
+.apg-results-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 0.78rem;
+    color: var(--text-muted, #565f89);
+}
+
+.apg-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.apg-result-card {
+    background: var(--bg-surface, #1f2335);
+    border: 1px solid var(--border-color, #414868);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.apg-result-card:hover {
+    border-color: var(--accent-blue, #7aa2f7)66;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.apg-result-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.apg-result-icon {
+    color: var(--accent-blue, #7aa2f7);
+    display: flex;
+    align-items: center;
+}
+
+.apg-result-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary, #c0caf5);
+}
+
+.apg-result-preview {
+    font-size: 0.78rem;
+    color: var(--text-muted, #565f89);
+    line-height: 1.5;
+    margin-bottom: 12px;
+    max-height: 60px;
+    overflow: hidden;
+}
+
+.apg-muted {
+    color: var(--text-muted, #565f89);
+    font-style: italic;
+}
+
+/* ── Modal ────────────────────────────────────────────────── */
+.apg-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 24px;
+}
+
+.apg-modal {
+    background: var(--bg-primary, #1a1b26);
+    border: 1px solid var(--border-color, #414868);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.apg-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color, #414868);
+}
+
+.apg-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary, #c0caf5);
+}
+
+.apg-modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted, #565f89);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.apg-modal-close:hover {
+    background: var(--bg-elevated, #24283b);
+    color: var(--text-primary, #c0caf5);
+}
+
+.apg-modal-meta {
+    display: flex;
+    gap: 16px;
+    padding: 10px 20px;
+    font-size: 0.75rem;
+    color: var(--text-muted, #565f89);
+    border-bottom: 1px solid var(--border-color, #414868)44;
+}
+
+.apg-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.apg-error {
+    padding: 12px 16px;
+    background: var(--status-not-met, #f7768e)15;
+    border: 1px solid var(--status-not-met, #f7768e)33;
+    border-radius: 8px;
+    color: var(--status-not-met, #f7768e);
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+}
+
+/* ── Family Tabs (in modal) ───────────────────────────────── */
+.apg-family-tabs {
+    display: flex;
+    gap: 4px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color, #414868);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.apg-family-tab {
+    padding: 4px 12px;
+    border: 1px solid var(--border-color, #414868);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted, #565f89);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.apg-family-tab:hover {
+    background: var(--bg-elevated, #24283b);
+    color: var(--text-primary, #c0caf5);
+}
+
+.apg-family-tab.active {
+    background: var(--accent-blue, #7aa2f7)22;
+    color: var(--accent-blue, #7aa2f7);
+    border-color: var(--accent-blue, #7aa2f7)44;
+}
+
+.apg-family-result {
+    display: none;
+}
+
+.apg-family-result.active {
+    display: block;
+}
+
+.apg-result-content {
+    background: var(--bg-surface, #1f2335);
+    border: 1px solid var(--border-color, #414868);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--text-secondary, #a9b1d6);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .apg-container {
+        padding: 16px;
+    }
+
+    .apg-header {
+        flex-direction: column;
+    }
+
+    .apg-phase-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .apg-results-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .apg-modal {
+        max-height: 95vh;
+        border-radius: 12px;
+    }
+
+    .apg-modal-backdrop {
+        padding: 8px;
+    }
+}

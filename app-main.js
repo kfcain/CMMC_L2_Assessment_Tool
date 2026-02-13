@@ -1003,6 +1003,7 @@ class AssessmentApp {
             { id: 'cheat-sheet', title: 'Assessor Cheat Sheet', desc: 'Quick reference for assessors' },
             { id: 'cmvp-explorer', title: 'CMVP Explorer', desc: 'Search FIPS 140 validated cryptographic modules' },
             { id: 'fedramp-reference', title: 'FedRAMP Reference', desc: 'FedRAMP 20x KSI families and control mappings' },
+            { id: 'fedramp-docs-hub', title: 'FedRAMP Docs Hub', desc: 'FedRAMP templates, baselines, 20x references, guidance, and tools' },
             { id: 'docs-hub', title: 'Documentation Hub', desc: 'Curated CMMC, NIST, FedRAMP, and DoD documents' },
             { id: 'fedramp-explorer', title: 'FedRAMP Marketplace Explorer', desc: 'Browse and search all FedRAMP authorized cloud service offerings' }
         ];
@@ -1328,6 +1329,10 @@ class AssessmentApp {
             if (typeof DocsHub !== 'undefined') {
                 DocsHub.render();
             }
+        } else if (view === 'fedramp-docs-hub') {
+            if (typeof FedRAMPDocsHub !== 'undefined') {
+                FedRAMPDocsHub.init();
+            }
         } else if (view === 'fedramp-explorer') {
             if (typeof FedRAMPExplorer !== 'undefined') {
                 FedRAMPExplorer.render();
@@ -1335,6 +1340,14 @@ class AssessmentApp {
         } else if (view === 'l2-guide') {
             if (typeof L2Guide !== 'undefined') {
                 L2Guide.render();
+            }
+        } else if (view === 'sam-opportunities') {
+            if (typeof SAMOpportunities !== 'undefined') {
+                SAMOpportunities.render();
+            }
+        } else if (view === 'audit-package') {
+            if (typeof AuditPackageGenerator !== 'undefined') {
+                AuditPackageGenerator.render();
             }
         }
         
