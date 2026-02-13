@@ -118,6 +118,15 @@ const ComprehensiveGuidanceUI = {
         // NDR / Network Detection
         darktrace: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#FF6B00"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="bold">DT</text></svg>',
         vectra: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#00A4EF"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="bold">VA</text></svg>',
+        // Observability & APM
+        datadog: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#632CA6"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="bold">DD</text></svg>',
+        // SCA / Software Supply Chain
+        black_duck: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#1A1A1A"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="bold">BD</text></svg>',
+        // AI / LLM Platforms
+        aws_bedrock: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#232F3E"/><text x="12" y="14" text-anchor="middle" fill="#FF9900" font-size="4.5" font-weight="bold">BR</text></svg>',
+        azure_openai: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#0078D4"/><text x="12" y="14" text-anchor="middle" fill="#fff" font-size="4" font-weight="bold">AOI</text></svg>',
+        google_gemini_gov: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#4285F4"/><text x="12" y="14" text-anchor="middle" fill="#fff" font-size="4" font-weight="bold">GEM</text></svg>',
+        openai_gov: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#10A37F"/><text x="12" y="14" text-anchor="middle" fill="#fff" font-size="4" font-weight="bold">GPT</text></svg>',
         // CSPM / Cloud Security
         prisma_cloud: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#FA582D"/><path d="M12 6l-6 3.5v5L12 18l6-3.5v-5L12 6z" fill="#fff" opacity="0.9"/></svg>',
         wiz: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none"><rect x="2" y="2" width="20" height="20" rx="3" fill="#2D7FF9"/><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="bold">WIZ</text></svg>',
@@ -238,6 +247,12 @@ const ComprehensiveGuidanceUI = {
         vectra: 'Vectra AI',
         prisma_cloud: 'Palo Alto Prisma Cloud',
         wiz: 'Wiz',
+        datadog: 'Datadog',
+        black_duck: 'Black Duck (Synopsys)',
+        aws_bedrock: 'Amazon Bedrock',
+        azure_openai: 'Azure OpenAI Service',
+        google_gemini_gov: 'Google Gemini (Vertex AI Gov)',
+        openai_gov: 'OpenAI ChatGPT Enterprise/Gov',
         orca: 'Orca Security',
         cortex_xsoar: 'Palo Alto Cortex XSOAR',
         splunk_soar: 'Splunk SOAR',
@@ -279,6 +294,9 @@ const ComprehensiveGuidanceUI = {
         'Backup & Recovery': ['veeam', 'druva', 'datto_bcdr', 'acronis'],
         'GRC & Compliance': ['vanta', 'drata', 'secureframe', 'intelligrc', 'archer', 'servicenow'],
         'NDR / Network Detection': ['darktrace', 'vectra'],
+        'Observability & APM': ['datadog'],
+        'SCA / Software Supply Chain': ['black_duck'],
+        'AI / LLM Platforms': ['aws_bedrock', 'azure_openai', 'google_gemini_gov', 'openai_gov'],
         'CSPM / Cloud Security': ['prisma_cloud', 'wiz', 'orca'],
         'Physical Security': ['verkada', 'brivo'],
         'Ticketing / ITSM': ['jira', 'freshservice'],
@@ -820,6 +838,7 @@ const ComprehensiveGuidanceUI = {
             typeof COMPREHENSIVE_GUIDANCE_SOC !== 'undefined' ? COMPREHENSIVE_GUIDANCE_SOC : null,
             typeof COMPREHENSIVE_GUIDANCE_NUTANIX !== 'undefined' ? COMPREHENSIVE_GUIDANCE_NUTANIX : null,
             typeof COMPREHENSIVE_GUIDANCE_MDM_MAM !== 'undefined' ? COMPREHENSIVE_GUIDANCE_MDM_MAM : null,
+            typeof COMPREHENSIVE_GUIDANCE_SECURITY_AI !== 'undefined' ? COMPREHENSIVE_GUIDANCE_SECURITY_AI : null,
             typeof ACCESS_REVIEW_GUIDE !== 'undefined' ? ACCESS_REVIEW_GUIDE : null
         ];
 
@@ -899,6 +918,9 @@ const ComprehensiveGuidanceUI = {
             grc: null,
             ndr: null,
             cspm: null,
+            observability: null,
+            sca: null,
+            ai_platforms: null,
             physical_security: null,
             itsm: null,
             secure_comms: null,
