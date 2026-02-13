@@ -17,7 +17,8 @@ class EvidenceUI {
         try { await supabaseClient.init(); } catch (e) { console.warn('[EvidenceUI] Supabase init skipped:', e.message); }
         this.bindGlobalEvents();
         this.renderAuthUI();
-        this.checkLoginRequired();
+        // Login overlay disabled — not requiring auth yet
+        // this.checkLoginRequired();
     }
 
     /**
@@ -31,7 +32,8 @@ class EvidenceUI {
         });
         window.addEventListener('auth:signout', () => {
             this.renderAuthUI();
-            this.showLoginOverlay();
+            // Login overlay disabled — not requiring auth yet
+            // this.showLoginOverlay();
         });
         window.addEventListener('data:loaded', () => {
             this.renderAssessmentSelector();
@@ -53,6 +55,8 @@ class EvidenceUI {
      * Show login overlay requiring authentication
      */
     showLoginOverlay() {
+        // Login overlay disabled — not requiring auth yet
+        return;
         if (this.loginOverlayShown) return;
         
         let overlay = document.getElementById('login-overlay');
@@ -261,8 +265,11 @@ class EvidenceUI {
      * Render authentication UI in sidebar
      */
     renderAuthUI() {
+        // Login UI disabled — not requiring auth yet
         const container = document.getElementById('auth-container');
         if (!container) return;
+        container.innerHTML = '';
+        return;
 
         if (supabaseClient.isAuthenticated()) {
             const user = supabaseClient.getUser();

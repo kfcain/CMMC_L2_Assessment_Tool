@@ -18,6 +18,217 @@ const AuditPackageGenerator = {
     _cancelled: false,
     _currentAgentId: null,
     _results: null,
+    _openDrawer: null,   // agentId of currently open detail drawer
+    _openPhase: null,    // phaseId of currently expanded phase detail
+
+    // ── Agent Detail Metadata ─────────────────────────────────────
+    AGENT_DETAILS: {
+        'platform-context': {
+            role: 'Detects the OSC\'s technology stack (Azure GCC High, AWS GovCloud, GCP, hybrid, on-prem) and maps tools to CMMC controls.',
+            methodology: 'Scans system inventory OS fields, asset names, and implementation notes for platform indicators. Cross-references cloud service databases and enclave guidance to recommend architecture patterns.',
+            dataSources: [
+                { key: 'osc-inventory', label: 'OSC Inventory (Assets)', required: true, checker: '_checkOSCInventory' },
+                { key: 'nist-system-inventory', label: 'System Inventory', required: false, checker: '_checkSystemInventory' },
+                { key: 'nist-implementation-data', label: 'Implementation Notes', required: false, checker: '_checkImplementationData' }
+            ],
+            upstreamAgents: [],
+            downstreamAgents: ['ssp-narrator', 'conmon-planner'],
+            outputFields: [
+                { name: 'detectedPlatform', type: 'string', desc: 'Detected cloud/on-prem platform' },
+                { name: 'toolMapping{}', type: 'object', desc: 'Per-control tool-to-coverage mapping' },
+                { name: 'enclavePattern', type: 'string', desc: 'Enclave architecture recommendation' },
+                { name: 'eolAlerts[]', type: 'array', desc: 'End-of-life asset warnings' }
+            ]
+        },
+        'srm-validator': {
+            role: 'Validates that every control marked as inherited/shared has corresponding SRM documentation from the ESP/CSP.',
+            methodology: 'Cross-references inheritance assignments against parsed ESP profiles. Flags over-inheritance, missing SRM uploads, and undocumented customer responsibilities.',
+            dataSources: [
+                { key: 'cmmc_inheritance_data', label: 'Inheritance Assignments', required: true, checker: '_checkInheritanceData' },
+                { key: 'cmmc_esp_profiles', label: 'ESP/CSP Profiles', required: true, checker: '_checkESPProfiles' },
+                { key: 'nist-implementation-data', label: 'Implementation Notes', required: false, checker: '_checkImplementationData' }
+            ],
+            upstreamAgents: [],
+            downstreamAgents: ['scope-validator', 'readiness-report'],
+            outputFields: [
+                { name: 'validationResults[]', type: 'array', desc: 'Per-control inheritance validation' },
+                { name: 'overInheritanceFlags[]', type: 'array', desc: 'Controls claimed as inherited but typically shared/customer' },
+                { name: 'missingSRMs[]', type: 'array', desc: 'CSPs without uploaded SRM documentation' },
+                { name: 'coverageScore', type: 'number', desc: 'SRM documentation coverage 0-100' }
+            ]
+        },
+        'policy-evaluator': {
+            role: 'Evaluates alignment of existing policies and procedures against every CMMC L2 assessment objective.',
+            methodology: 'Scores each objective on 6 dimensions: WHO is responsible, WHAT action is taken, WHEN/frequency, WHERE (systems), HOW (tools/processes), and EVIDENCE artifacts. Flags vague language, future-tense statements, and missing approval blocks.',
+            dataSources: [
+                { key: 'osc-inventory.policies', label: 'Uploaded Policies', required: true, checker: '_checkPolicies' },
+                { key: 'osc-inventory.procedures', label: 'Uploaded Procedures', required: false, checker: '_checkProcedures' },
+                { key: 'nist-assessment-data', label: 'Assessment Statuses', required: true, checker: '_checkAssessmentData' },
+                { key: 'nist-implementation-data', label: 'Implementation Notes', required: false, checker: '_checkImplementationData' }
+            ],
+            upstreamAgents: [],
+            downstreamAgents: ['cca-simulator', 'readiness-report'],
+            outputFields: [
+                { name: 'overallScore', type: 'number', desc: 'Alignment score 0-100' },
+                { name: 'findings[]', type: 'array', desc: 'Per-objective coverage verdicts with gaps and recommendations' },
+                { name: 'summary', type: 'string', desc: 'Executive summary of policy alignment' }
+            ]
+        },
+        'ssp-narrator': {
+            role: 'Generates present-tense, implementation-specific SSP narratives for each assessment objective.',
+            methodology: 'For each objective with implementation data, generates SSP narrative following the pattern: [ORG] implements [CONTROL] by [METHOD]. Names actual tools, specifies frequencies, references FIPS certs for crypto controls. Uses platform context from Agent 9.',
+            dataSources: [
+                { key: 'nist-assessment-data', label: 'Assessment Statuses', required: true, checker: '_checkAssessmentData' },
+                { key: 'nist-implementation-data', label: 'Implementation Notes', required: true, checker: '_checkImplementationData' },
+                { key: 'cmmc_inheritance_data', label: 'Inheritance Data', required: false, checker: '_checkInheritanceData' },
+                { key: 'osc-inventory.fipsCerts', label: 'FIPS Certificates', required: false, checker: '_checkFIPSCerts' }
+            ],
+            upstreamAgents: ['platform-context'],
+            downstreamAgents: ['cca-simulator', 'readiness-report'],
+            outputFields: [
+                { name: 'narratives[]', type: 'array', desc: 'Per-objective SSP implementation narratives' },
+                { name: 'evidenceReferences[]', type: 'array', desc: 'Evidence artifacts referenced per narrative' },
+                { name: 'gaps[]', type: 'array', desc: 'Objectives missing implementation data' }
+            ]
+        },
+        'poam-advisor': {
+            role: 'Generates actionable remediation plans for POA&M items with milestones, cost estimates, and 32 CFR 170.21 compliance checks.',
+            methodology: 'For each POA&M item, generates specific remediation steps, milestone timeline, cost estimate, and evidence-of-closure criteria. Validates POA&M eligibility (non-eligible 5-point controls are showstoppers). Prioritizes by SPRS point impact.',
+            dataSources: [
+                { key: 'nist-poam-data', label: 'POA&M Entries', required: true, checker: '_checkPOAMData' },
+                { key: 'nist-assessment-data', label: 'Assessment Statuses', required: true, checker: '_checkAssessmentData' },
+                { key: 'nist-implementation-data', label: 'Implementation Notes', required: false, checker: '_checkImplementationData' }
+            ],
+            upstreamAgents: [],
+            downstreamAgents: ['readiness-report'],
+            outputFields: [
+                { name: 'poamItems[]', type: 'array', desc: 'Per-item remediation plans with milestones and cost' },
+                { name: 'priorityOrder[]', type: 'array', desc: 'Recommended remediation sequence' },
+                { name: 'conditionalStatusEligible', type: 'boolean', desc: 'Whether conditional certification is achievable' },
+                { name: 'totalEstimatedCost', type: 'string', desc: 'Aggregate remediation cost estimate' }
+            ]
+        },
+        'evidence-assembler': {
+            role: 'Maps available evidence artifacts to assessment objectives and identifies collection gaps.',
+            methodology: 'Cross-references OSC inventory artifacts against each objective. Scores evidence adequacy using the 4-tier hierarchy (system-generated > documented procedures > process evidence > attestation). Identifies missing required artifacts and collection priorities.',
+            dataSources: [
+                { key: 'osc-inventory', label: 'OSC Inventory (All Artifacts)', required: true, checker: '_checkOSCInventory' },
+                { key: 'nist-assessment-data', label: 'Assessment Statuses', required: true, checker: '_checkAssessmentData' },
+                { key: 'nist-implementation-data', label: 'Implementation Notes', required: false, checker: '_checkImplementationData' }
+            ],
+            upstreamAgents: [],
+            downstreamAgents: ['cca-simulator', 'readiness-report'],
+            outputFields: [
+                { name: 'evidenceMatrix[]', type: 'array', desc: 'Per-objective evidence mapping with adequacy scores' },
+                { name: 'missingEvidence[]', type: 'array', desc: 'Required artifacts not yet collected' },
+                { name: 'summary', type: 'object', desc: 'Counts: complete, partial, missing evidence' }
+            ]
+        },
+        'cca-simulator': {
+            role: 'Simulates a C3PAO Certified CMMC Assessor conducting a rigorous mock assessment interview.',
+            methodology: 'For each objective, generates the primary CCA question, follow-up probes, expected answers based on current data, and weakness identification. Uses prior agent outputs (policy, SSP, evidence) to evaluate whether the OSC would pass.',
+            dataSources: [
+                { key: 'nist-assessment-data', label: 'Assessment Statuses', required: true, checker: '_checkAssessmentData' },
+                { key: 'nist-implementation-data', label: 'Implementation Notes', required: true, checker: '_checkImplementationData' }
+            ],
+            upstreamAgents: ['policy-evaluator', 'ssp-narrator', 'evidence-assembler'],
+            downstreamAgents: ['readiness-report'],
+            outputFields: [
+                { name: 'simulations[]', type: 'array', desc: 'Per-objective CCA questions, expected answers, readiness rating' },
+                { name: 'overallReadiness', type: 'string', desc: 'Aggregate readiness: ready / needs-work / not-ready' },
+                { name: 'criticalFindings[]', type: 'array', desc: 'Showstopper issues a CCA would flag' }
+            ]
+        },
+        'scope-validator': {
+            role: 'Validates the completeness and accuracy of the OSC\'s CMMC Assessment Scope and CUI boundary.',
+            methodology: 'Cross-references OSC inventory asset categories against system inventory. Validates CUI assets have boundary=inside, SPAs have justifications, CRMAs have risk acceptance. Checks diagram coverage and flags overly aggressive scoping.',
+            dataSources: [
+                { key: 'osc-inventory', label: 'OSC Inventory (Assets)', required: true, checker: '_checkOSCInventory' },
+                { key: 'nist-system-inventory', label: 'System Inventory', required: true, checker: '_checkSystemInventory' },
+                { key: 'cmmc_inheritance_data', label: 'Inheritance Data', required: false, checker: '_checkInheritanceData' },
+                { key: 'cmmc_esp_profiles', label: 'ESP Profiles', required: false, checker: '_checkESPProfiles' }
+            ],
+            upstreamAgents: ['srm-validator'],
+            downstreamAgents: ['readiness-report'],
+            outputFields: [
+                { name: 'scopeHealth', type: 'object', desc: 'Score and rating (good/needs-attention/critical)' },
+                { name: 'assetValidation', type: 'object', desc: 'Per-category asset counts and issues' },
+                { name: 'boundaryIssues[]', type: 'array', desc: 'CUI boundary gaps and misconfigurations' },
+                { name: 'aggressiveScopingFlags[]', type: 'array', desc: 'Suspiciously narrow scope indicators' }
+            ]
+        },
+        'dependency-analyzer': {
+            role: 'Identifies control interdependencies and calculates the blast radius of gaps.',
+            methodology: 'Uses CMMC L2 control interdependencies, cross-family chains, and shared-evidence groups. For each NOT MET control, calculates cascade impact. Recommends implementation order for maximum SPRS score improvement.',
+            dataSources: [
+                { key: 'nist-assessment-data', label: 'Assessment Statuses', required: true, checker: '_checkAssessmentData' }
+            ],
+            upstreamAgents: [],
+            downstreamAgents: ['readiness-report'],
+            outputFields: [
+                { name: 'dependencies[]', type: 'array', desc: 'Per-control dependency graph with blast radius' },
+                { name: 'criticalPath[]', type: 'array', desc: 'Optimal remediation sequence' },
+                { name: 'sprsOptimization[]', type: 'array', desc: 'Controls to fix first for max SPRS gain' },
+                { name: 'crossFamilyChains[]', type: 'array', desc: 'Cross-family dependency chains' }
+            ]
+        },
+        'conmon-planner': {
+            role: 'Generates an ongoing continuous monitoring strategy per 32 CFR 170 requirements.',
+            methodology: 'Classifies each control by monitoring type (technical/operational/management). Maps connected integrations to automated evidence collection. Generates per-control frequencies and a 12-month monitoring calendar.',
+            dataSources: [
+                { key: 'nist-assessment-data', label: 'Assessment Statuses', required: true, checker: '_checkAssessmentData' },
+                { key: 'nist-implementation-data', label: 'Implementation Notes', required: false, checker: '_checkImplementationData' }
+            ],
+            upstreamAgents: ['platform-context'],
+            downstreamAgents: ['readiness-report'],
+            outputFields: [
+                { name: 'monitoringPlan[]', type: 'array', desc: 'Per-control monitoring frequency and method' },
+                { name: 'automationOpportunities[]', type: 'array', desc: 'Controls that can be auto-monitored' },
+                { name: 'annualCalendar', type: 'object', desc: 'Q1-Q4 monitoring activity schedule' }
+            ]
+        },
+        'mssp-advisor': {
+            role: 'Validates MSSP coverage and identifies responsibility gaps between managed services and OSC obligations.',
+            methodology: 'Maps MSSP services to controls, delineates responsibilities, validates SLA alignment with CMMC timing requirements (e.g., 72-hour DFARS incident reporting). Identifies controls the OSC must handle independently.',
+            dataSources: [
+                { key: 'nist-assessment-data', label: 'Assessment Statuses', required: true, checker: '_checkAssessmentData' },
+                { key: 'nist-implementation-data', label: 'Implementation Notes', required: false, checker: '_checkImplementationData' },
+                { key: 'cmmc_inheritance_data', label: 'Inheritance Data', required: false, checker: '_checkInheritanceData' }
+            ],
+            upstreamAgents: [],
+            downstreamAgents: ['readiness-report'],
+            outputFields: [
+                { name: 'msspCoverage[]', type: 'array', desc: 'Per-control MSSP coverage and OSC responsibility' },
+                { name: 'slaIssues[]', type: 'array', desc: 'SLA gaps vs CMMC timing requirements' },
+                { name: 'uncoveredControls[]', type: 'array', desc: 'Controls with no MSSP coverage' }
+            ]
+        },
+        'readiness-report': {
+            role: 'Aggregates all agent outputs into an executive readiness assessment with RED/YELLOW/GREEN rating.',
+            methodology: 'Synthesizes findings from all prior agents. Applies the 13-point readiness criteria. Generates risk heat map by family, critical gap list, recommended timeline (immediate/30/90/180 days), and SPRS impact analysis.',
+            dataSources: [
+                { key: 'nist-assessment-data', label: 'Assessment Statuses', required: true, checker: '_checkAssessmentData' },
+                { key: 'nist-poam-data', label: 'POA&M Data', required: false, checker: '_checkPOAMData' }
+            ],
+            upstreamAgents: ['policy-evaluator', 'ssp-narrator', 'poam-advisor', 'evidence-assembler', 'cca-simulator', 'scope-validator', 'dependency-analyzer', 'conmon-planner', 'mssp-advisor', 'srm-validator'],
+            downstreamAgents: [],
+            outputFields: [
+                { name: 'readinessRating', type: 'string', desc: 'RED / YELLOW / GREEN overall rating' },
+                { name: 'criticalGaps[]', type: 'array', desc: 'Showstopper issues requiring immediate action' },
+                { name: 'riskHeatMap', type: 'object', desc: 'Per-family risk rating (green/yellow/red)' },
+                { name: 'recommendedTimeline', type: 'object', desc: 'Actions by timeframe: immediate, 30d, 90d, 180d' },
+                { name: 'executiveSummary', type: 'string', desc: '2-3 paragraph executive briefing' }
+            ]
+        }
+    },
+
+    // ── Phase Descriptions ────────────────────────────────────────
+    PHASE_DETAILS: {
+        'A': { description: 'Establishes the technology and shared-responsibility context that downstream agents use for platform-specific analysis.', flow: 'Platform Context → SSP Narrator, ConMon Planner  |  SRM Validator → Scope Validator, Readiness Report' },
+        'B': { description: 'Core assessment work: evaluates policies, generates SSP narratives, advises on POA&M remediation, and assembles the evidence package.', flow: 'Policy Evaluator → CCA Simulator  |  SSP Narrator → CCA Simulator  |  Evidence Assembler → CCA Simulator  |  POA&M Advisor → Readiness Report' },
+        'C': { description: 'Deep analysis: simulates CCA interviews using Phase B outputs, validates scope boundaries, and maps control dependencies.', flow: 'CCA Simulator → Readiness Report  |  Scope Validator → Readiness Report  |  Dependency Analyzer → Readiness Report' },
+        'D': { description: 'Synthesizes all findings into actionable outputs: monitoring plan, MSSP gap analysis, and the final readiness report.', flow: 'ConMon Planner → Readiness Report  |  MSSP Advisor → Readiness Report  |  Readiness Report = Final Output' }
+    },
 
     // ── Agent Definitions ─────────────────────────────────────────
     // Execution order follows the 4-phase pipeline from the plan
@@ -221,12 +432,31 @@ const AuditPackageGenerator = {
     },
 
     _renderPhase(phase, results) {
+        const phaseDetail = this.PHASE_DETAILS[phase.id];
+        const isExpanded = this._openPhase === phase.id;
+        const completedCount = phase.agents.filter(id => results?.agents?.[id]?.status === 'completed').length;
+        const totalTokens = phase.agents.reduce((sum, id) => {
+            const a = results?.agents?.[id];
+            return sum + (a?.tokensUsed ? a.tokensUsed.input + a.tokensUsed.output : 0);
+        }, 0);
+
         return `
-            <div class="apg-phase" data-phase="${phase.id}">
-                <div class="apg-phase-header">
+            <div class="apg-phase ${isExpanded ? 'apg-phase-expanded' : ''}" data-phase="${phase.id}">
+                <div class="apg-phase-header apg-phase-toggle" data-phase="${phase.id}">
                     <span class="apg-phase-letter">${phase.id}</span>
                     <span class="apg-phase-name">${phase.name}</span>
+                    <span class="apg-phase-stats">${completedCount}/${phase.agents.length}${totalTokens > 0 ? ` · ${totalTokens.toLocaleString()} tok` : ''}</span>
+                    <span class="apg-phase-chevron">${isExpanded ? '▾' : '▸'}</span>
                 </div>
+                ${isExpanded && phaseDetail ? `
+                    <div class="apg-phase-detail">
+                        <p class="apg-phase-desc">${phaseDetail.description}</p>
+                        <div class="apg-phase-flow">
+                            <span class="apg-phase-flow-label">Data Flow:</span>
+                            ${phaseDetail.flow.split('  |  ').map(f => `<span class="apg-flow-item">${f}</span>`).join('')}
+                        </div>
+                    </div>
+                ` : ''}
                 <div class="apg-agent-list">
                     ${phase.agents.map(agentId => this._renderAgentCard(agentId, results)).join('')}
                 </div>
@@ -241,6 +471,8 @@ const AuditPackageGenerator = {
         const status = agentResult?.status || 'pending';
         const isActive = this._currentAgentId === agentId;
         const isConfigured = typeof AIProvider !== 'undefined' && AIProvider.isConfigured();
+        const isDrawerOpen = this._openDrawer === agentId;
+        const readiness = this._getDataReadiness(agentId);
 
         const statusBadge = {
             'pending': '<span class="apg-status apg-status-pending">Pending</span>',
@@ -251,21 +483,26 @@ const AuditPackageGenerator = {
         }[status] || '';
 
         return `
-            <div class="apg-agent-card ${isActive ? 'active' : ''} apg-agent-${status}" data-agent="${agentId}">
-                <div class="apg-agent-icon">${agent.icon}</div>
-                <div class="apg-agent-info">
-                    <div class="apg-agent-name">${agent.name}</div>
-                    <div class="apg-agent-desc">${agent.description}</div>
+            <div class="apg-agent-wrapper ${isDrawerOpen ? 'apg-drawer-open' : ''}" data-agent-wrapper="${agentId}">
+                <div class="apg-agent-card ${isActive ? 'active' : ''} apg-agent-${status}" data-agent="${agentId}">
+                    <div class="apg-readiness-dot apg-readiness-${readiness.status}" title="Data: ${readiness.status}"></div>
+                    <div class="apg-agent-icon">${agent.icon}</div>
+                    <div class="apg-agent-info">
+                        <div class="apg-agent-name">${agent.name}</div>
+                        <div class="apg-agent-desc">${agent.description}</div>
+                    </div>
+                    <div class="apg-agent-actions">
+                        ${statusBadge}
+                        ${agentResult?.status === 'completed' && agentResult?.tokensUsed ? `
+                            <span class="apg-agent-meta">${(agentResult.tokensUsed.input + agentResult.tokensUsed.output).toLocaleString()} tok</span>
+                        ` : ''}
+                        ${!this._running && isConfigured ? `<button class="apg-btn-icon apg-run-agent-btn" data-agent="${agentId}" title="Run this agent">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </button>` : ''}
+                    </div>
+                    <span class="apg-agent-chevron">${isDrawerOpen ? '▾' : '▸'}</span>
                 </div>
-                <div class="apg-agent-actions">
-                    ${statusBadge}
-                    ${!this._running && isConfigured ? `<button class="apg-btn-icon apg-run-agent-btn" data-agent="${agentId}" title="Run this agent">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    </button>` : ''}
-                </div>
-                ${agentResult?.status === 'completed' && agentResult?.tokensUsed ? `
-                    <div class="apg-agent-meta">${(agentResult.tokensUsed.input + agentResult.tokensUsed.output).toLocaleString()} tokens</div>
-                ` : ''}
+                ${isDrawerOpen ? this._renderAgentDetailDrawer(agentId, results) : ''}
             </div>
         `;
     },
@@ -353,6 +590,258 @@ const AuditPackageGenerator = {
     },
 
     // ══════════════════════════════════════════════════════════════
+    //  INTERACTIVE DETAIL VIEWS
+    // ══════════════════════════════════════════════════════════════
+
+    _getDataReadiness(agentId) {
+        const details = this.AGENT_DETAILS[agentId];
+        if (!details) return { status: 'green', sources: [] };
+
+        const sources = details.dataSources.map(ds => {
+            const count = this._checkDataSource(ds.checker);
+            return { name: ds.label, required: ds.required, count, available: count > 0 };
+        });
+
+        // Check upstream agent results
+        const upstreamStatus = details.upstreamAgents.map(uid => {
+            const r = this._results?.agents?.[uid];
+            return { name: this.AGENTS[uid]?.name || uid, available: r?.status === 'completed', count: r?.status === 'completed' ? 1 : 0, required: false };
+        });
+
+        const allSources = [...sources, ...upstreamStatus];
+        const requiredMissing = sources.filter(s => s.required && !s.available);
+        const optionalMissing = allSources.filter(s => !s.required && !s.available);
+
+        let status = 'green';
+        if (requiredMissing.length > 0) status = 'red';
+        else if (optionalMissing.length > 0) status = 'yellow';
+
+        return { status, sources: allSources };
+    },
+
+    _checkDataSource(checkerName) {
+        try {
+            switch (checkerName) {
+                case '_checkOSCInventory': {
+                    const inv = JSON.parse(localStorage.getItem('osc-inventory') || '{}');
+                    return Object.keys(inv).reduce((sum, k) => sum + (Array.isArray(inv[k]) ? inv[k].length : (inv[k] ? 1 : 0)), 0);
+                }
+                case '_checkSystemInventory': {
+                    const si = JSON.parse(localStorage.getItem('nist-system-inventory') || '[]');
+                    return Array.isArray(si) ? si.length : 0;
+                }
+                case '_checkAssessmentData': {
+                    const ad = JSON.parse(localStorage.getItem('nist-assessment-data') || '{}');
+                    return Object.keys(ad).length;
+                }
+                case '_checkImplementationData': {
+                    const id = JSON.parse(localStorage.getItem('nist-implementation-data') || '{}');
+                    return Object.keys(id).length;
+                }
+                case '_checkPOAMData': {
+                    const pd = JSON.parse(localStorage.getItem('nist-poam-data') || '{}');
+                    return Object.keys(pd).length;
+                }
+                case '_checkInheritanceData': {
+                    const ih = JSON.parse(localStorage.getItem('cmmc_inheritance_data') || '{}');
+                    return Object.keys(ih).length;
+                }
+                case '_checkESPProfiles': {
+                    const ep = JSON.parse(localStorage.getItem('cmmc_esp_profiles') || '[]');
+                    return Array.isArray(ep) ? ep.length : 0;
+                }
+                case '_checkPolicies': {
+                    const inv = JSON.parse(localStorage.getItem('osc-inventory') || '{}');
+                    return Array.isArray(inv.policies) ? inv.policies.length : 0;
+                }
+                case '_checkProcedures': {
+                    const inv = JSON.parse(localStorage.getItem('osc-inventory') || '{}');
+                    return Array.isArray(inv.procedures) ? inv.procedures.length : 0;
+                }
+                case '_checkFIPSCerts': {
+                    const inv = JSON.parse(localStorage.getItem('osc-inventory') || '{}');
+                    return Array.isArray(inv.fipsCerts) ? inv.fipsCerts.length : 0;
+                }
+                default: return 0;
+            }
+        } catch { return 0; }
+    },
+
+    _getTokenEstimate(agentId) {
+        const agent = this.AGENTS[agentId];
+        if (!agent) return 0;
+        try {
+            const sysPrompt = agent.getSystemPrompt();
+            const userMsg = agent.perFamily ? agent.buildUserMessage('AC') : agent.buildUserMessage();
+            const totalChars = (sysPrompt?.length || 0) + (userMsg?.length || 0);
+            return Math.round(totalChars / 4); // rough char-to-token estimate
+        } catch { return 0; }
+    },
+
+    _renderAgentDetailDrawer(agentId, results) {
+        const agent = this.AGENTS[agentId];
+        const details = this.AGENT_DETAILS[agentId];
+        if (!agent || !details) return '';
+        const isConfigured = typeof AIProvider !== 'undefined' && AIProvider.isConfigured();
+        const tokenEst = this._getTokenEstimate(agentId);
+        const agentResult = results?.agents?.[agentId];
+
+        return `
+            <div class="apg-drawer" data-drawer="${agentId}">
+                <div class="apg-drawer-tabs">
+                    <button class="apg-drawer-tab active" data-tab="overview" data-drawer-agent="${agentId}">Overview</button>
+                    <button class="apg-drawer-tab" data-tab="datasources" data-drawer-agent="${agentId}">Data Sources</button>
+                    <button class="apg-drawer-tab" data-tab="prompt" data-drawer-agent="${agentId}">Prompt Preview</button>
+                    <button class="apg-drawer-tab" data-tab="schema" data-drawer-agent="${agentId}">Output Schema</button>
+                </div>
+                <div class="apg-drawer-content">
+                    <div class="apg-drawer-panel active" data-panel="overview" data-panel-agent="${agentId}">
+                        ${this._renderDrawerOverview(agentId, details)}
+                    </div>
+                    <div class="apg-drawer-panel" data-panel="datasources" data-panel-agent="${agentId}">
+                        ${this._renderDrawerDataSources(agentId)}
+                    </div>
+                    <div class="apg-drawer-panel" data-panel="prompt" data-panel-agent="${agentId}">
+                        ${this._renderDrawerPromptPreview(agentId)}
+                    </div>
+                    <div class="apg-drawer-panel" data-panel="schema" data-panel-agent="${agentId}">
+                        ${this._renderDrawerOutputSchema(agentId, agentResult)}
+                    </div>
+                </div>
+                <div class="apg-drawer-footer">
+                    ${isConfigured ? `
+                        <button class="apg-btn apg-btn-primary apg-btn-sm apg-drawer-run-btn" data-agent="${agentId}">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            Run Agent
+                        </button>
+                    ` : ''}
+                    <span class="apg-drawer-token-est">~${tokenEst.toLocaleString()} tokens est.</span>
+                    ${agentResult?.status === 'completed' ? `<button class="apg-btn apg-btn-ghost apg-btn-sm apg-drawer-view-btn" data-agent="${agentId}">View Full Results</button>` : ''}
+                </div>
+            </div>
+        `;
+    },
+
+    _renderDrawerOverview(agentId, details) {
+        const agent = this.AGENTS[agentId];
+        const upstreamHtml = details.upstreamAgents.length > 0
+            ? details.upstreamAgents.map(uid => `<span class="apg-dep-chip apg-dep-upstream">${this.AGENTS[uid]?.name || uid}</span>`).join('')
+            : '<span class="apg-muted">None (independent)</span>';
+        const downstreamHtml = details.downstreamAgents.length > 0
+            ? details.downstreamAgents.map(did => `<span class="apg-dep-chip apg-dep-downstream">${this.AGENTS[did]?.name || did}</span>`).join('')
+            : '<span class="apg-muted">None (terminal)</span>';
+
+        return `
+            <div class="apg-overview-section">
+                <div class="apg-overview-label">Role</div>
+                <div class="apg-overview-value">${details.role}</div>
+            </div>
+            <div class="apg-overview-section">
+                <div class="apg-overview-label">Methodology</div>
+                <div class="apg-overview-value">${details.methodology}</div>
+            </div>
+            <div class="apg-overview-section">
+                <div class="apg-overview-label">Reads From (Upstream)</div>
+                <div class="apg-overview-deps">${upstreamHtml}</div>
+            </div>
+            <div class="apg-overview-section">
+                <div class="apg-overview-label">Feeds Into (Downstream)</div>
+                <div class="apg-overview-deps">${downstreamHtml}</div>
+            </div>
+            ${agent.perFamily ? '<div class="apg-overview-badge">Runs per control family (14 families)</div>' : ''}
+        `;
+    },
+
+    _renderDrawerDataSources(agentId) {
+        const readiness = this._getDataReadiness(agentId);
+        return `
+            <div class="apg-ds-list">
+                ${readiness.sources.map(s => `
+                    <div class="apg-ds-item">
+                        <span class="apg-ds-dot apg-ds-${s.available ? 'available' : (s.required ? 'missing' : 'optional')}"></span>
+                        <span class="apg-ds-name">${s.name}</span>
+                        <span class="apg-ds-count">${s.available ? `${s.count} item${s.count !== 1 ? 's' : ''}` : (s.required ? 'MISSING' : 'Empty')}</span>
+                        ${s.required ? '<span class="apg-ds-req">Required</span>' : ''}
+                    </div>
+                `).join('')}
+            </div>
+            <div class="apg-ds-summary apg-ds-summary-${readiness.status}">
+                ${readiness.status === 'green' ? 'All required data sources populated' :
+                  readiness.status === 'yellow' ? 'Some optional data missing — partial results expected' :
+                  'Critical data missing — agent will produce minimal output'}
+            </div>
+        `;
+    },
+
+    _renderDrawerPromptPreview(agentId) {
+        const agent = this.AGENTS[agentId];
+        if (!agent) return '';
+        let sysPrompt = '', userMsg = '';
+        try {
+            sysPrompt = agent.getSystemPrompt() || '';
+            userMsg = agent.perFamily ? (agent.buildUserMessage('AC') || '') : (agent.buildUserMessage() || '');
+        } catch (e) {
+            return `<div class="apg-prompt-error">Could not build prompt: ${e.message}</div>`;
+        }
+
+        const truncSys = sysPrompt.length > 2000 ? sysPrompt.substring(0, 2000) + '\n... [truncated]' : sysPrompt;
+        const truncUser = userMsg.length > 3000 ? userMsg.substring(0, 3000) + '\n... [truncated]' : userMsg;
+        const totalChars = sysPrompt.length + userMsg.length;
+        const estTokens = Math.round(totalChars / 4);
+
+        return `
+            <div class="apg-prompt-meta">
+                <span>System: ~${Math.round(sysPrompt.length / 4).toLocaleString()} tok</span>
+                <span>User: ~${Math.round(userMsg.length / 4).toLocaleString()} tok</span>
+                <span>Total: ~${estTokens.toLocaleString()} tok</span>
+            </div>
+            <div class="apg-prompt-section">
+                <div class="apg-prompt-label">System Prompt</div>
+                <pre class="apg-prompt-code">${this._escapeHtml(truncSys)}</pre>
+            </div>
+            <div class="apg-prompt-section">
+                <div class="apg-prompt-label">User Message${agent.perFamily ? ' (sample: AC family)' : ''}</div>
+                <pre class="apg-prompt-code">${this._escapeHtml(truncUser)}</pre>
+            </div>
+        `;
+    },
+
+    _renderDrawerOutputSchema(agentId, agentResult) {
+        const details = this.AGENT_DETAILS[agentId];
+        if (!details) return '';
+
+        const schemaHtml = details.outputFields.map(f => `
+            <div class="apg-schema-field">
+                <span class="apg-schema-name">${f.name}</span>
+                <span class="apg-schema-type">${f.type}</span>
+                <span class="apg-schema-desc">${f.desc}</span>
+            </div>
+        `).join('');
+
+        let resultsSummary = '';
+        if (agentResult?.status === 'completed' && agentResult?.results) {
+            const r = agentResult.results;
+            const keys = typeof r === 'object' ? Object.keys(r) : [];
+            resultsSummary = `
+                <div class="apg-schema-results">
+                    <div class="apg-schema-results-header">Actual Output</div>
+                    <div class="apg-schema-results-keys">${keys.length > 0 ? keys.map(k => {
+                        const v = r[k];
+                        const summary = Array.isArray(v) ? `${v.length} items` : (typeof v === 'object' ? `${Object.keys(v).length} keys` : String(v).substring(0, 60));
+                        return `<div class="apg-schema-result-row"><span class="apg-schema-name">${k}</span><span class="apg-schema-val">${summary}</span></div>`;
+                    }).join('') : '<span class="apg-muted">Raw text output</span>'}</div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="apg-schema-header">Expected JSON Output</div>
+            <div class="apg-schema-list">${schemaHtml}</div>
+            ${resultsSummary}
+        `;
+    },
+
+    // ══════════════════════════════════════════════════════════════
     //  EVENT BINDING
     // ══════════════════════════════════════════════════════════════
 
@@ -368,24 +857,77 @@ const AuditPackageGenerator = {
         // Cancel pipeline
         container.querySelector('#apg-cancel-btn')?.addEventListener('click', () => this.cancelPipeline());
 
-        // Run individual agent
+        // Run individual agent (inline button on card)
         container.querySelectorAll('.apg-run-agent-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const agentId = btn.dataset.agent;
-                this.runSingleAgent(agentId);
+                this.runSingleAgent(btn.dataset.agent);
             });
         });
 
-        // View agent results
+        // Stop all clicks inside drawers from bubbling to agent card or phase
+        container.querySelectorAll('.apg-drawer').forEach(drawer => {
+            drawer.addEventListener('click', (e) => e.stopPropagation());
+        });
+
+        // Toggle agent detail drawer on card click
         container.querySelectorAll('.apg-agent-card').forEach(card => {
-            card.addEventListener('click', () => {
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (e.target.closest('.apg-run-agent-btn')) return;
                 const agentId = card.dataset.agent;
-                this._showAgentResults(agentId);
+                this._openDrawer = this._openDrawer === agentId ? null : agentId;
+                this.render();
             });
         });
 
-        // View result details
+        // Drawer tab switching (no re-render, just swap panels)
+        container.querySelectorAll('.apg-drawer-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const tabName = tab.dataset.tab;
+                const agentId = tab.dataset.drawerAgent;
+                const drawer = container.querySelector(`.apg-drawer[data-drawer="${agentId}"]`);
+                if (!drawer) return;
+                drawer.querySelectorAll('.apg-drawer-tab').forEach(t => t.classList.remove('active'));
+                drawer.querySelectorAll('.apg-drawer-panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                const panel = drawer.querySelector(`.apg-drawer-panel[data-panel="${tabName}"][data-panel-agent="${agentId}"]`);
+                if (panel) panel.classList.add('active');
+            });
+        });
+
+        // Drawer run agent button
+        container.querySelectorAll('.apg-drawer-run-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.runSingleAgent(btn.dataset.agent);
+            });
+        });
+
+        // Drawer view full results button
+        container.querySelectorAll('.apg-drawer-view-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this._showAgentResults(btn.dataset.agent);
+            });
+        });
+
+        // Phase header click — toggle phase detail; only fires on the header itself
+        container.querySelectorAll('.apg-phase-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                // If the click came from inside an agent card/wrapper, ignore
+                if (e.target.closest('.apg-agent-wrapper') || e.target.closest('.apg-agent-card')) return;
+                e.stopPropagation();
+                const phaseEl = header.closest('.apg-phase');
+                if (!phaseEl) return;
+                const phaseId = phaseEl.dataset.phase;
+                this._openPhase = this._openPhase === phaseId ? null : phaseId;
+                this.render();
+            });
+        });
+
+        // View result details (results summary grid)
         container.querySelectorAll('.apg-view-result-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
